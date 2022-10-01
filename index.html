@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Sui 8192</title>
+
+  <link href="style/main.css" rel="stylesheet" type="text/css">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="meta/apple-touch-icon.png">
+  <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x1096.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone 5+ -->
+  <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x920.png"  media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone, retina -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+</head>
+  <body class="signed-in signed-out">
+    <div class="container">
+      <div id="modal" class="hidden">
+        <div class="modal">
+          <div id="close-modal">
+            ✕
+          </div>
+          <div id="loading" class="message">
+            <div class="spinner">
+              <div>
+                Loading, Please Wait...
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
+                <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
+                <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12" fill="white" />
+                <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12" fill="white" />
+                <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12" fill="white" >
+                <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12" fill="white" />
+                <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12" fill="white" />
+              </svg>
+            </div>
+          </div>
+          <div id="create-error" class="message text-center">
+            <p>There was an error minting a new game.</p>
+            <p>Please check your wallet balance.</p>
+          </div>
+          <div id="mint-message" class="message hidden">
+            <div class="subtitle">Mint New Game</div>
+            <p>To start playing you must first mint a new game as an NFT:</p>
+            <div id="mint-game"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header">
+        <div class="header-title">
+          SUI <span>8192</span>
+        </div>
+        <div class="header-buttons">
+          <div id="leaderboard-button" class="header-button selected">
+            Leaderboard
+          </div>
+          <div id="play-button" class="header-button">
+            Play
+          </div>
+        </div>
+        <div class="header-address">
+          <div id="sui-address">
+            <div class="sui-address-main">
+              <svg width="12" height="18" viewBox="0 0 17 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1.1167 19.8324C1.82957 21.0971 2.86581 22.1494 4.11927 22.8818C5.37273 23.6141 6.79834 24 8.25004 24C9.70175 24 11.1274 23.6141 12.3808 22.8818C13.6343 22.1494 14.6705 21.0971 15.3834 19.8324C16.1149 18.5654 16.5001 17.1282 16.5001 15.6652C16.5001 14.2021 16.1149 12.7649 15.3834 11.4979L9.10948 0.502056C9.02358 0.349707 8.89873 0.22293 8.74771 0.13471C8.59669 0.0464909 8.42494 0 8.25004 0C8.07514 0 7.90339 0.0464909 7.75237 0.13471C7.60136 0.22293 7.4765 0.349707 7.3906 0.502056L1.1167 11.4979C0.385139 12.7649 0 14.2021 0 15.6652C0 17.1282 0.385139 18.5654 1.1167 19.8324ZM6.48268 5.73328L7.82032 3.38878C7.86327 3.3126 7.9257 3.24921 8.00121 3.2051C8.07672 3.16099 8.16259 3.13775 8.25004 3.13775C8.33749 3.13775 8.42337 3.16099 8.49888 3.2051C8.57439 3.24921 8.63681 3.3126 8.67976 3.38878L13.8258 12.408C14.2878 13.2077 14.5742 14.0965 14.666 15.0155C14.7578 15.9344 14.6529 16.8624 14.3582 17.7377C14.2942 17.4393 14.2062 17.1466 14.0949 16.8625C13.3841 15.0473 11.7769 13.6465 9.31696 12.6989C7.62574 12.0498 6.54616 11.0951 6.1075 9.86092C5.54254 8.27086 6.13264 6.5365 6.48268 5.73328ZM4.20172 9.73102L2.67424 12.408C2.10236 13.3983 1.80129 14.5218 1.80129 15.6654C1.80129 16.8091 2.10236 17.9325 2.67424 18.9229C3.13652 19.7418 3.77343 20.449 4.53973 20.9941C5.30604 21.5392 6.18295 21.9089 7.10821 22.077C8.03347 22.245 8.98439 22.2074 9.89345 21.9666C10.8025 21.7259 11.6474 21.2879 12.3682 20.6839C12.7665 19.6656 12.7807 18.5371 12.4082 17.5091C11.8862 16.1976 10.6295 15.1506 8.6731 14.3966C6.46168 13.5477 5.0251 12.2226 4.40368 10.4591C4.31998 10.2212 4.25251 9.97798 4.20172 9.73102Z" fill="#222532"/>
+              </svg>
+              <button id='sign-in' class="signed-out">
+                Sign In
+              </button>
+              <div class="signed-in">
+                <div id="balance">
+                  ---
+                </div>
+                <div id="wallet-address">
+                  Address
+                </div>
+              </div>
+            </div>
+
+            <button id="logout" class="signed-in hidden">
+              Log Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="leaderboard" class="">
+        <div class="vertical-container">
+          <div class="content">
+            <div class="instructions">
+              <p>
+                Sui 8192 is a completely on-chain and extra challenging version of 
+                the popular 2048 game built on 
+                the <a href='https://sui.io' target="_blank">Sui</a> blockchain 
+                by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a>.
+              </p>
+              <p class="highlight">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M16.4032 12.6523C17.353 12.1487 18 11.1499 18 10C18 8.85007 17.353 7.85126 16.4032 7.34771C16.7188 6.32002 16.47 5.15625 15.6569 4.34312C14.8437 3.53 13.68 3.28122 12.6523 3.59679C12.1487 2.64698 11.1499 2 10 2C8.85007 2 7.85125 2.64699 7.3477 3.59681C6.32002 3.28126 5.15627 3.53004 4.34315 4.34316C3.53003 5.15628 3.28125 6.32003 3.5968 7.34771C2.64699 7.85126 2 8.85007 2 10C2 11.1499 2.64699 12.1487 3.59681 12.6523C3.28124 13.68 3.53001 14.8437 4.34314 15.6569C5.15627 16.47 6.32003 16.7188 7.34771 16.4032C7.85126 17.353 8.85007 18 10 18C11.1499 18 12.1488 17.353 12.6523 16.4032C13.68 16.7187 14.8437 16.47 15.6569 15.6568C16.47 14.8437 16.7188 13.68 16.4032 12.6523ZM13.8566 8.19113C14.1002 7.85614 14.0261 7.38708 13.6911 7.14345C13.3561 6.89982 12.8871 6.97388 12.6434 7.30887L9.15969 12.099L7.28033 10.2197C6.98744 9.92678 6.51256 9.92678 6.21967 10.2197C5.92678 10.5126 5.92678 10.9874 6.21967 11.2803L8.71967 13.7803C8.87477 13.9354 9.08999 14.0149 9.30867 13.9977C9.52734 13.9805 9.72754 13.8685 9.85655 13.6911L13.8566 8.19113Z" fill="#45B7C8"/>
+                </svg>
+                Your achievements are completely verifiable on-chain!
+              </p>
+            </div>
+          </div>
+          <div class="split-panel">
+            <div class="panel">
+              <div class="leader-title">
+                Leaderboard
+              </div>
+              <div id="leaderboard-list"></div>
+            </div>
+            <div class="panel">
+              <div class="games-title">
+                Your Games
+                <button id="new-game">+ New Game</button>
+              </div>
+              <div id="signed-in" class="signed-in">
+                <div id="games-list"></div>
+              </div>
+              <div id="signed-out" class="signed-out">
+                <p>
+                  To get started you'll need to sign
+                  <br/>
+                  in or connect your wallet.
+                </p>
+                <div id="ethos-start"></div>
+              </div>
+              <div id="loading-games">
+                <div class="spinner">
+                  <div>
+                    Loading, Please Wait...
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
+                    <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
+                    <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div id="game" class="hidden">
+        <div class="content">
+          <div class="instructions">
+            Use the ←→↑↓ keys to combine same tiles together.<br/>
+            Achieve a high score and unlock the ultimate tile!
+          </div>
+          <div class="game-links-area">
+            <div class="score-box">
+              <div id="score-diff" class="stationary"></div>
+              <div class='score-title'>
+                <svg width="12" height="12" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9.34387 13.8984L13.2814 16.3984C13.7892 16.7188 14.4142 16.2422 14.2657 15.6563L13.1251 11.1719C13.0943 11.0476 13.0992 10.9171 13.1393 10.7955C13.1793 10.6738 13.253 10.566 13.3517 10.4844L16.8829 7.53907C17.3439 7.15625 17.1095 6.38282 16.5079 6.34375L11.8986 6.04688C11.7728 6.03956 11.6519 5.99577 11.5506 5.92085C11.4493 5.84593 11.372 5.74312 11.3282 5.625L9.60949 1.29688C9.564 1.1718 9.48111 1.06376 9.3721 0.987407C9.26308 0.911057 9.13321 0.870102 9.00012 0.870102C8.86702 0.870102 8.73715 0.911057 8.62814 0.987407C8.51912 1.06376 8.43624 1.1718 8.39074 1.29688L6.67199 5.625C6.62819 5.74312 6.55092 5.84593 6.44964 5.92085C6.34836 5.99577 6.22745 6.03956 6.10168 6.04688L1.49231 6.34375C0.890744 6.38282 0.656369 7.15625 1.11731 7.53907L4.64856 10.4844C4.74726 10.566 4.82089 10.6738 4.86097 10.7955C4.90106 10.9171 4.90596 11.0476 4.87512 11.1719L3.82043 15.3281C3.64074 16.0313 4.39074 16.6016 4.99231 16.2188L8.65637 13.8984C8.75912 13.8331 8.87836 13.7984 9.00012 13.7984C9.12188 13.7984 9.24112 13.8331 9.34387 13.8984V13.8984Z" stroke="#D1A679" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Score
+              </div>
+              <div id="score">
+                ---
+              </div>
+            </div>
+            <div class="score-box">
+              <div class='score-title'>
+                <svg width="13" height="12" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.875 4.375V8.67969C4.875 11.7812 7.35937 14.3516 10.4609 14.375C11.2029 14.3802 11.9386 14.2385 12.6255 13.9581C13.3125 13.6777 13.9372 13.2642 14.4637 12.7413C14.9902 12.2185 15.408 11.5967 15.6931 10.9117C15.9782 10.2266 16.125 9.49198 16.125 8.75V4.375C16.125 4.20924 16.0592 4.05027 15.9419 3.93306C15.8247 3.81585 15.6658 3.75 15.5 3.75H5.5C5.33424 3.75 5.17527 3.81585 5.05806 3.93306C4.94085 4.05027 4.875 4.20924 4.875 4.375Z" stroke="#D1A679" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8 17.5H13" stroke="#D1A679" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10.5 14.375V17.5" stroke="#D1A679" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.9844 10H16.75C17.413 10 18.0489 9.73661 18.5178 9.26777C18.9866 8.79893 19.25 8.16304 19.25 7.5V6.25C19.25 6.08424 19.1842 5.92527 19.0669 5.80806C18.9497 5.69085 18.7908 5.625 18.625 5.625H16.125" stroke="#D1A679" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5.03125 10H4.24219C3.57915 10 2.94326 9.73661 2.47442 9.26777C2.00558 8.79893 1.74219 8.16304 1.74219 7.5V6.25C1.74219 6.08424 1.80804 5.92527 1.92525 5.80806C2.04246 5.69085 2.20143 5.625 2.36719 5.625H4.86719" stroke="#D1A679" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Best
+              </div>
+              <div id="best">
+                ---
+              </div>
+            </div>
+          </div>
+          <div id="error-game-over" class="error hidden">
+            <div class="subtitle">Game Over</div>
+            <div class="stats">
+              <div>
+                <div class="subsubtitle">Score</div>
+                <div id='score-result' class="score-result tile-result color13"></div>
+              </div>
+              <div>
+                <div class="subsubtitle">Top Tile</div>
+                <div id='top-tile' class="tile-result">
+                  <div id='top-tile-value'></div>
+                  <div id='top-tile-name'></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="error-gas" class="error hidden">
+            <p>You do not have enough Sui to complete this move.</p>
+            <p>
+              Please request more at the 
+              <a href="https://discord.com/channels/916379725201563759/971488439931392130" target="_blank">
+                devnet faucet
+              </a>.
+            </p>
+            <p>
+              Once you have received more Sui, please refresh this page.
+            </p>
+          </div>
+          <div class="board">
+            <div id="queue"></div>
+            <div class="row">
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+            </div>
+            <div class="row">
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+            </div>
+            <div class="row">
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+            </div>
+            <div class="row">
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+              <div class="tile-wrapper"><div class="tile"></div></div>
+            </div>
+          </div>
+          <div id="transactions" class="hidden">
+            <div class="transactions-header">Transactions</div>
+            <div id="transactions-list"></div>
+          </div>
+          <div class="footer instructions">
+            <p>
+              Sui 8192 is a completely on-chain and extra challenging version of 
+              the popular 2048 game built on 
+              the <a href='https://sui.io' target="_blank">Sui</a> blockchain 
+              by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a>.
+            </p>
+            <p class="highlight">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M16.4032 12.6523C17.353 12.1487 18 11.1499 18 10C18 8.85007 17.353 7.85126 16.4032 7.34771C16.7188 6.32002 16.47 5.15625 15.6569 4.34312C14.8437 3.53 13.68 3.28122 12.6523 3.59679C12.1487 2.64698 11.1499 2 10 2C8.85007 2 7.85125 2.64699 7.3477 3.59681C6.32002 3.28126 5.15627 3.53004 4.34315 4.34316C3.53003 5.15628 3.28125 6.32003 3.5968 7.34771C2.64699 7.85126 2 8.85007 2 10C2 11.1499 2.64699 12.1487 3.59681 12.6523C3.28124 13.68 3.53001 14.8437 4.34314 15.6569C5.15627 16.47 6.32003 16.7188 7.34771 16.4032C7.85126 17.353 8.85007 18 10 18C11.1499 18 12.1488 17.353 12.6523 16.4032C13.68 16.7187 14.8437 16.47 15.6569 15.6568C16.47 14.8437 16.7188 13.68 16.4032 12.6523ZM13.8566 8.19113C14.1002 7.85614 14.0261 7.38708 13.6911 7.14345C13.3561 6.89982 12.8871 6.97388 12.6434 7.30887L9.15969 12.099L7.28033 10.2197C6.98744 9.92678 6.51256 9.92678 6.21967 10.2197C5.92678 10.5126 5.92678 10.9874 6.21967 11.2803L8.71967 13.7803C8.87477 13.9354 9.08999 14.0149 9.30867 13.9977C9.52734 13.9805 9.72754 13.8685 9.85655 13.6911L13.8566 8.19113Z" fill="#45B7C8"/>
+              </svg>                
+              Your achievements are completely verifiable on-chain!
+            </p>
+
+            <div class="for-developers">
+              <div class="subsubtitle text-center">
+                For Developers
+              </div>
+              <p>
+                <a href='https://ethoswallet.xyz' target="_blank">Ethos</a> makes it incredibly easy
+                to build and launch any dApp.
+              </p>
+              <p>
+                You can support any user (with or without a wallet) in minutes.
+              </p>
+              <p>
+                We are currently working with customers to beta test our APIs.
+              </p>
+              <p>
+                <a href='https://ethoswallet.xyz/dev' target="_blank">Ethos For Developers</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>  
+    </div>
+
+    <script src="build/index.js"></script>
+  </body>
+</html>
