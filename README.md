@@ -50,4 +50,4 @@ It has react as a dependency to work properly with the Ethos apis which provide 
 
 #### Running
 
-`yarn build && npx browser-sync start --server`
+`yarn start`
