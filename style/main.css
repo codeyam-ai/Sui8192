@@ -817,6 +817,21 @@ body button {
 
 .for-developers {
   margin-top: 60px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.for-developers>div {
+  background-color: white;
+  box-shadow: 1px 1px 3px 1px #dfdfe0;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.for-developers .subsubtitle {
+  font-weight: 600;
 }
 
 #score-diff {

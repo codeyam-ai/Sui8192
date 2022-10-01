@@ -850,7 +850,7 @@ const constructTransaction = (direction, activeGameAddress) => {
   }
 }
 
-const checkPreapprovalss = async (activeGameAddress, walletSigner) => {
+const checkPreapprovals = async (activeGameAddress, walletSigner) => {
   // if (preapproval === undefined) {
     try {
       const result = await ethos.requestPreapproval({
@@ -939,7 +939,7 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
 const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, onComplete, onError) => {
   if (board.active().gameOver) return;
 
-  await checkPreapprovalss(activeGameAddress, walletSigner);
+  await checkPreapprovals(activeGameAddress, walletSigner);
 
   const direction = directionOrQueuedMove.id ? 
     directionOrQueuedMove.direction : 

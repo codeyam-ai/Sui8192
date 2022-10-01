@@ -1,6 +1,8 @@
 # Sui8192
 
-A fully on-chain, extra challenging version of the popular 2048 game. Built on Sui by Ethos.
+A fully on-chain, extra challenging version of the popular 2048 game. Built on [Sui](https://sui.io) by [Ethos](https://ethoswallet.xyz).
+
+You can play Sui8192 at [https://ethoswallet.github.io/Sui8192](https://ethoswallet.github.io/Sui8192)
 
 Sui8192 consists of a smart contract that allows the player to mint a game that is playable on chain.
 
@@ -8,13 +10,13 @@ The front-end submits transaction to the Sui blockchain that calculates the next
 
 ## Sui
 
-This project is built on the Sui blockchain, which provides the performance necessary for a great game experience. Every move is a transaction that is recorded no chain, making the gameplay verifiable and shareable. Each game is an NFT that can be sent to anyone and will display in a web3 wallet (such as the Ethos Wallet).
+This project is built on the [Sui blockchain](https://sui.io), which provides the performance necessary for a great game experience. Every move is a transaction that is recorded no chain, making the gameplay verifiable and shareable. Each game is an NFT that can be sent to anyone and will display in a web3 wallet (such as the [Ethos Wallet](https://chrome.google.com/webstore/detail/ethos-wallet/mcbigmjiafegjnnogedioegffbooigli)).
 
 ## Ethos
 
-This project uses the Ethos APIs to make the Sui8192 game accessible to people who do not yet have a web3 wallet. It allows them to start playing the game right away without having to figure out a wallet first.
+This project uses the [Ethos APIs](https://ethoswallet.xyz/developers) to make the Sui8192 game accessible to people who do not yet have a web3 wallet. It allows them to start playing the game right away without having to figure out a wallet first.
 
-As far as the game is concerned every player has a wallet because the Ethos APIs provide a unified interface for both players with and without wallets.
+As far as the game is concerned every player has a wallet because the [Ethos APIs](https://ethoswallet.xyz/developers) provide a unified interface for both players with and without wallets.
 
 The primary methods that this game uses to do this are:
 
