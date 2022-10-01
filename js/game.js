@@ -279,8 +279,7 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-    walletAppUrl: 'https://sui-wallet-staging.onrender.com',// 'http://localhost:3000',// 
-    appId: 'sui-8192'
+     appId: 'sui-8192'
   };
 
   const start = eById('ethos-start');
