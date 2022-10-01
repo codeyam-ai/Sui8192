@@ -319,6 +319,7 @@ async function loadGames() {
   ).sort((a, b) => b.score - a.score);
  
   if (!games || games.length === 0) {
+    modal.open('mint');
     const newGameArea = document.createElement('DIV');
     newGameArea.classList.add('text-center');
     newGameArea.classList.add('padded');
@@ -336,6 +337,8 @@ async function loadGames() {
     newGameClone.onclick = newGame.onclick;
     newGameArea.append(newGameClone);
     gamesElement.append(newGameArea);
+  } else {
+    modal.close();
   }
 
   for (const game of games) {
@@ -462,12 +465,13 @@ function init() {
       onWalletConnected: async ({ signer }) => {
         walletSigner = signer;
         if (signer) {
+          console.log("SIGNER", signer);
           addClass(document.body, 'signed-in');
 
           // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
           // console.log("SIGN", response);
-
-          eById('new-game').onclick = async () => {
+          
+          const prepMint = async () => {
             const mintButtonTitle = "Mint New Game";
             if (mint.innerHTML.indexOf(mintButtonTitle) === -1) {
               const mintButton = document.createElement("BUTTON");
@@ -518,12 +522,19 @@ function init() {
               mintButton.innerHTML = mintButtonTitle;
               mint.appendChild(mintButton);
             }
-            modal.open('mint-message');
+          }
+
+          prepMint();
+          modal.open('loading');
+
+          eById('new-game').onclick = async () => {
+            modal.open('mint');
           }
 
           await loadGames();
           removeClass(document.body, 'signed-out');
         } else {
+          modal.open('get-started');
           eById('new-game').onclick = ethos.showSignInModal;
           addClass(document.body, 'signed-out');
           removeClass(document.body, 'signed-in');
@@ -537,7 +548,7 @@ function init() {
   const root = ReactDOM.createRoot(start);
   root.render(wrapper);
   
-  modal.close();
+  // modal.close();
 
   eById('sign-in').onclick = ethos.showSignInModal;
 
@@ -805,18 +816,19 @@ const { eById, eByClass, addClass, removeClass } = require("./utils");
 
 module.exports = {
   close: () => {
-    addClass(eById("modal"), 'hidden');
+    addClass(eById("modal-overlay"), 'hidden');
   },
 
   open: (messageId) => {
+    console.log("OPEN", messageId)
     const messages = eByClass('message');
     for (const message of messages) {
       addClass(message, 'hidden');
     }
     
-    const message = eById(messageId);
+    const message = eById(messageId + '-message');
     removeClass(message, 'hidden');
-    removeClass(eById("modal"), 'hidden');
+    removeClass(eById("modal-overlay"), 'hidden');
   }
 }
 },{"./utils":8}],6:[function(require,module,exports){
