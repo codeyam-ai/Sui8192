@@ -342,6 +342,22 @@ body button {
   text-align: center;
 }
 
+.signed-out .row-1 .tile {
+  background-color: #49c5fa;
+}
+
+.signed-out .row-2 .tile {
+  background-color: #4eb7f7;
+}
+
+.signed-out .row-3 .tile {
+  background-color: #53a9f5;
+}
+
+.signed-out .row-4 .tile {
+  background-color: #579af2;
+}
+
 .value {
   font-size: xx-large;
 }
@@ -753,7 +769,7 @@ body button {
   border-bottom: 1px solid #e5e5e7;
 }
 
-.game-links-area {
+#game-links-area > div {
   margin-bottom: 12px;
   display: flex;
   justify-content: space-evenly;
@@ -822,7 +838,7 @@ body button {
   justify-content: center;
 }
 
-.for-developers>div {
+.for-developers > div {
   background-color: white;
   box-shadow: 1px 1px 3px 1px #dfdfe0;
   border-radius: 12px;
