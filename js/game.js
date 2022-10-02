@@ -299,7 +299,6 @@ function init() {
     {
       ethosConfiguration,
       onWalletConnected: async ({ signer }) => {
-        console.log("ON CONNECTED", signer)
         walletSigner = signer;
         if (signer) {
           addClass(document.body, 'signed-in');
@@ -369,7 +368,6 @@ function init() {
 
           await loadGames();
 
-          console.log("GAMES", games)
           if (games.length === 0) {
             modal.open('mint');  
           } else {
