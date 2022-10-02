@@ -46,7 +46,9 @@
               in or connect your wallet!
             </div>
             <br/>
-            <div id="ethos-start"></div>
+            <button id='sign-in'>
+              Get Started
+            </button>
           </div>
           <div id="create-error-message" class="message text-center hidden">
             <p>There was an error minting a new game.</p>
@@ -101,9 +103,7 @@
               <svg width="12" height="18" viewBox="0 0 17 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M1.1167 19.8324C1.82957 21.0971 2.86581 22.1494 4.11927 22.8818C5.37273 23.6141 6.79834 24 8.25004 24C9.70175 24 11.1274 23.6141 12.3808 22.8818C13.6343 22.1494 14.6705 21.0971 15.3834 19.8324C16.1149 18.5654 16.5001 17.1282 16.5001 15.6652C16.5001 14.2021 16.1149 12.7649 15.3834 11.4979L9.10948 0.502056C9.02358 0.349707 8.89873 0.22293 8.74771 0.13471C8.59669 0.0464909 8.42494 0 8.25004 0C8.07514 0 7.90339 0.0464909 7.75237 0.13471C7.60136 0.22293 7.4765 0.349707 7.3906 0.502056L1.1167 11.4979C0.385139 12.7649 0 14.2021 0 15.6652C0 17.1282 0.385139 18.5654 1.1167 19.8324ZM6.48268 5.73328L7.82032 3.38878C7.86327 3.3126 7.9257 3.24921 8.00121 3.2051C8.07672 3.16099 8.16259 3.13775 8.25004 3.13775C8.33749 3.13775 8.42337 3.16099 8.49888 3.2051C8.57439 3.24921 8.63681 3.3126 8.67976 3.38878L13.8258 12.408C14.2878 13.2077 14.5742 14.0965 14.666 15.0155C14.7578 15.9344 14.6529 16.8624 14.3582 17.7377C14.2942 17.4393 14.2062 17.1466 14.0949 16.8625C13.3841 15.0473 11.7769 13.6465 9.31696 12.6989C7.62574 12.0498 6.54616 11.0951 6.1075 9.86092C5.54254 8.27086 6.13264 6.5365 6.48268 5.73328ZM4.20172 9.73102L2.67424 12.408C2.10236 13.3983 1.80129 14.5218 1.80129 15.6654C1.80129 16.8091 2.10236 17.9325 2.67424 18.9229C3.13652 19.7418 3.77343 20.449 4.53973 20.9941C5.30604 21.5392 6.18295 21.9089 7.10821 22.077C8.03347 22.245 8.98439 22.2074 9.89345 21.9666C10.8025 21.7259 11.6474 21.2879 12.3682 20.6839C12.7665 19.6656 12.7807 18.5371 12.4082 17.5091C11.8862 16.1976 10.6295 15.1506 8.6731 14.3966C6.46168 13.5477 5.0251 12.2226 4.40368 10.4591C4.31998 10.2212 4.25251 9.97798 4.20172 9.73102Z" fill="#222532"/>
               </svg>
-              <button id='sign-in' class="signed-out">
-                Sign In
-              </button>
+              <div id='ethos-start' class="signed-out"></div>
               <div class="balance-and-address signed-in">
                 <div id="balance">
                   ---
@@ -116,13 +116,13 @@
 
             <div class="menu signed-in hidden">
               <div>
-                <button id="logout">
+                <button id="copy-address">
                   Copy Wallet Address
                 </button>
                 <a class="link-button" href="https://ethoswallet.xyz/dashboard" target="_blank">
                   Wallet Explorer
                 </a>
-                <button id="logout">
+                <button class="new-game">
                   New Game
                 </button>
                 <button id="logout">
@@ -163,7 +163,7 @@
             <div class="panel">
               <div class="games-title">
                 Your Games
-                <button id="new-game">+ New Game</button>
+                <button class="new-game">+ New Game</button>
               </div>
               <div id="signed-in" class="signed-in">
                 <div id="games-list"></div>

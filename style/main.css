@@ -169,14 +169,14 @@ body button {
   gap: 6px;
 }
 
-#sui-address .menu>div {
+#sui-address .menu > div {
   padding: 12px 0;
   display: flex;
   flex-direction: column;
 }
 
-#sui-address #logout,
-#sui-address .link-button {
+#sui-address .menu button,
+#sui-address .menu .link-button {
   border-radius: 12px;
   background-color: black;
   color: white;
@@ -206,11 +206,12 @@ body button {
   padding: 0 3px;
 }
 
-#sui-address button {
+#ethos-start button {
   padding: 6px 15px 6px 3px;
   background-color: white;
   border-radius: 12px;
   border: none;
+  cursor: pointer;
 }
 
 #sui-address #balance {
@@ -661,10 +662,10 @@ body button {
   padding: 12px 0;
 }
 
-#ethos-start button,
+#sign-in,
 #signed-out button,
 #mint-message button,
-#new-game,
+.new-game,
 #leaderboard-name button,
 .potential-leaderboard-game,
 #modal-submit-to-leaderboard,
@@ -678,9 +679,10 @@ body button {
   text-decoration: none;
 }
 
-#new-game,
-#ethos-start button,
+.new-game,
+#sign-in,
 #mint-message button,
+#copy-address,
 #modal-submit-to-leaderboard,
 .link-button {
   background-color: black;

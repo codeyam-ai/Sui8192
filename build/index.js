@@ -392,7 +392,7 @@ async function loadGames() {
         Try viewing it in your wallet or sending it to someone else!
       </p>
     `;
-    const newGame = eById('new-game');
+    const newGame = eByClass('new-game')[0];
     const newGameClone = newGame.cloneNode(true);
     newGameClone.onclick = newGame.onclick;
     newGameArea.append(newGameClone);
@@ -514,7 +514,7 @@ function init() {
     {
       key: 'sign-in-button',
       className: 'start-button',
-      children: "Get Started"
+      children: "Sign In"
     }
   )
 
@@ -586,10 +586,13 @@ function init() {
           prepMint();
           modal.open('loading');
 
-          eById('new-game').onclick = async () => {
-            modal.open('mint');
+          const newGameButtons = eByClass('new-game');
+          for (const newGameButton of newGameButtons) {
+            newGameButton.onclick = async () => {
+              modal.open('mint');
+            }
           }
-
+          
           await loadGames();
 
           if (games.length === 0) {
@@ -605,9 +608,22 @@ function init() {
           }
           
           removeClass(document.body, 'signed-out');
+
+          const address = await signer.getAddress();
+          eById('copy-address').onclick = () => {
+            const innerHTML = eById('copy-address').innerHTML;
+            eById('copy-address').innerHTML = "Copied!"
+            navigator.clipboard.writeText(address)
+            setTimeout(() => {
+              eById('copy-address').innerHTML = innerHTML;
+            }, 1000);
+          }
         } else {
           modal.open('get-started');
-          eById('new-game').onclick = ethos.showSignInModal;
+          const newGameButtons = eByClass('new-game');
+          for (const newGameButton of newGameButtons) {
+            newGameButton.onclick = ethos.showSignInModal
+          }
           addClass(document.body, 'signed-out');
           removeClass(document.body, 'signed-in');
           addClass(eById('loading-games'), 'hidden');
@@ -680,7 +696,7 @@ function init() {
       removeClass(eById('game'), 'hidden');
       setActiveGame(games[0]);
     } else if (walletSigner) {
-      eById('new-game').onclick();
+      eByClass('new-game')[0].onclick();
     } else {
       ethos.showSignInModal();
     }
@@ -826,6 +842,7 @@ const get = async () => {
 };
 
 const load = async () => {
+  console.log("LOAD LEADERBOARD")
   leaderboardObject = await get();
   // const { fields: { contents: leaders } } = leaderboardObject.leaders;
 
