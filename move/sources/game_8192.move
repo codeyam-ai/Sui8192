@@ -54,6 +54,7 @@ module ethos::game_8192 {
         direction: u8,
         move_count: u64,
         board_spaces: vector<vector<Option<u8>>>,
+        top_tile: u8,
         score: u64,
         last_tile: vector<u64>,
         epoch: u64
@@ -196,6 +197,7 @@ module ethos::game_8192 {
             direction: direction,
             move_count: vector::length(&game.moves),
             board_spaces,
+            top_tile,
             score,
             last_tile,
             epoch: tx_context::epoch(ctx)

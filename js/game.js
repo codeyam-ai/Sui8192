@@ -14,11 +14,14 @@ const modal = require('./modal');
 const queue = require('./queue');
 const board = require('./board');
 const moves = require('./moves');
+const confetti = require('./confetti');
+const { active } = require('./board');
 
 let walletSigner;
 let games;
 let activeGameAddress;
 let walletContents = {};
+let topTile = 2;
 
 window.onkeydown = (e) => {
   let direction;
@@ -54,6 +57,11 @@ window.onkeydown = (e) => {
 }
 
 function handleResult(newBoard, direction) { 
+  if (newBoard.topTile > topTile) {
+    topTile = newBoard.topTile;
+    confetti.run();
+  }
+  
   const tiles = eByClass('tile');
   const resultDiff = board.diff(board.active().spaces, newBoard.spaces, direction);
  
@@ -264,7 +272,9 @@ async function setActiveGame(game) {
   );
 
   const boards = game.boards;
-  board.display(board.convertInfo(boards[boards.length - 1]))
+  const activeBoard = board.convertInfo(boards[boards.length - 1]);
+  topTile = activeBoard.topTile;
+  board.display(activeBoard);
 
   modal.close();
   addClass(eById("leaderboard"), 'hidden');

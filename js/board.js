@@ -115,6 +115,7 @@ module.exports = {
       spaces: rawSpaces, 
       board_spaces: rawBoardSpaces, 
       last_tile: lastTile, 
+      top_tile: topTile,
       score, 
       game_over: gameOver 
     } = board.fields || board;
@@ -141,6 +142,6 @@ module.exports = {
         }
       )
     )
-    return { spaces, lastTile, score, gameOver }
+    return { spaces, lastTile, topTile, score, gameOver }
   }
 }

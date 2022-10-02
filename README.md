@@ -38,7 +38,21 @@ The Sui8192 smart contract is written Sui Move for deployment on the Sui blockch
 
 The code for the smart contract is in the "move" folder.
 
+If you deploy the smart contract and want to use the new deployment in the game you'll need to edit `js/constants.js` and set the contract address and leaderboard address.
+
+You wil see output like this:
+
+```
+Created Objects:
+  - ID: 0x6d86e967767b3d736447bc5f29c74e8b6b9c5dd7 , Owner: Immutable
+  - ID: 0xf9803ad429fe9083a6c26f52c4f1ffa981d5ccbf , Owner: Shared
+```
+
+The immutable object is the contract address and the shared object is the leaderboard address.
+
 ### Working With The Smart Contract
+
+From the `move` folder:
 
 #### Build
 
@@ -54,7 +68,7 @@ or
 
 #### Deploy
 
-`sui client publish --path move/ --gas-budget 3000`
+`sui client publish --gas-budget 3000`
 
 ## The Front-End
 

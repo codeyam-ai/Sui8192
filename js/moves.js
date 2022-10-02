@@ -174,6 +174,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       const transaction = {
         gas: computationCost + storageCost - storageRebate,
         computation: computationCost,
+        storage: storageCost - storageRebate,
         move: fields.direction,
         lastTile: {
           row: lastTile[0],
@@ -193,7 +194,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
           </div>
           <div>
             <span class="light">
-              Last Tile:
+              New Tile:
             </span>
             <span class="">
               ${transaction.lastTile.row}, ${transaction.lastTile.column}
@@ -207,6 +208,14 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
             </span>
             <span>
               ${transaction.computation}
+            </span>
+          </div>
+          <div class=''>
+            <span class="light">
+              Storage:
+            </span>
+            <span>
+              ${transaction.storage}
             </span>
           </div>
           <div class=''>
