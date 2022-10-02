@@ -162,14 +162,21 @@ body button {
   gap: 9px;
 }
 
-#sui-address div {
+#sui-address .balance-and-address {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 6px;
 }
 
-#sui-address #logout {
+#sui-address .menu>div {
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#sui-address #logout,
+#sui-address .link-button {
   border-radius: 12px;
   background-color: black;
   color: white;
@@ -177,13 +184,12 @@ body button {
   padding: 6px 12px;
   margin: 12px;
   cursor: pointer;
-  display: none;
   font-size: 14px;
   line-height: 18px;
+  text-align: center;
 }
 
-#sui-address:hover #logout,
-#logout:hover {
+#sui-address:hover .menu {
   display: block;
 }
 
