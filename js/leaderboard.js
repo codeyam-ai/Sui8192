@@ -63,14 +63,14 @@ const minTile = () => {
   return leaderboardObject.min_tile;
 }
 
-const submit = async (game, walletSigner, onComplete) => {
+const submit = async (gameAddress, walletSigner, onComplete) => {
   const details = {
     network: 'sui',
     address: contractAddress,
     moduleName: 'leaderboard_8192',
     functionName: 'submit_game',
     inputValues: [
-      game.address,
+      gameAddress,
       leaderboardAddress
     ],
     gasBudget: 10000

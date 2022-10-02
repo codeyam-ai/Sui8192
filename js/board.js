@@ -111,14 +111,14 @@ module.exports = {
   },
 
   convertInfo: (board) => {
-    console.log("BOARD", board)
     const { 
       spaces: rawSpaces, 
       board_spaces: rawBoardSpaces, 
       last_tile: lastTile, 
       top_tile: topTile,
       score, 
-      game_over: gameOver 
+      game_over: gameOver,
+      url
     } = board.fields || board;
     const spaces = (rawSpaces || rawBoardSpaces).map(
       (rawRow) => rawRow.map(
@@ -143,6 +143,6 @@ module.exports = {
         }
       )
     )
-    return { spaces, lastTile, topTile, score, gameOver }
+    return { spaces, lastTile, topTile, score, gameOver, url }
   }
 }

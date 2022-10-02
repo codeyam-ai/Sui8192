@@ -112,14 +112,14 @@ module.exports = {
   },
 
   convertInfo: (board) => {
-    console.log("BOARD", board)
     const { 
       spaces: rawSpaces, 
       board_spaces: rawBoardSpaces, 
       last_tile: lastTile, 
       top_tile: topTile,
       score, 
-      game_over: gameOver 
+      game_over: gameOver,
+      url
     } = board.fields || board;
     const spaces = (rawSpaces || rawBoardSpaces).map(
       (rawRow) => rawRow.map(
@@ -144,7 +144,7 @@ module.exports = {
         }
       )
     )
-    return { spaces, lastTile, topTile, score, gameOver }
+    return { spaces, lastTile, topTile, score, gameOver, url }
   }
 }
 },{"./constants":3,"./utils":9}],2:[function(require,module,exports){
@@ -182,8 +182,8 @@ module.exports = {
 };
 },{"canvas-confetti":36}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0x6d86e967767b3d736447bc5f29c74e8b6b9c5dd7",
-  leaderboardAddress: "0xf9803ad429fe9083a6c26f52c4f1ffa981d5ccbf",
+  contractAddress: "0x5b264ce19f06c5cc34d3aadf930bd11fbdb4ee1d",
+  leaderboardAddress: "0xbe22540c8df3e671cfeb453cade131d493a3059c",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -218,7 +218,6 @@ const queue = require('./queue');
 const board = require('./board');
 const moves = require('./moves');
 const confetti = require('./confetti');
-const { active } = require('./board');
 
 let walletSigner;
 let games;
@@ -260,15 +259,21 @@ window.onkeydown = (e) => {
 }
 
 function handleResult(newBoard, direction) { 
-  console.log("NEW BOARD", newBoard)
-  modal.open('high-score', newBoard)
   if (newBoard.topTile > topTile) {
     topTile = newBoard.topTile;
+    const topTiles = eByClass('top-tile-display');
+    for (const topTile of topTiles) {
+      topTile.innerHTML = `<img src='${newBoard.url}' />`;
+    }
     confetti.run();
 
-    if (topTile >= leaderboard.minTile() && newBoard.score > leaderboard.minScore()) {
-      modal.open('high-score')
-    }
+    setTimeout(() => {
+      if (topTile >= leaderboard.minTile() && newBoard.score > leaderboard.minScore()) {
+        modal.open('high-score')
+      } else {
+        modal.open('top-tile')
+      }
+    }, 1000)
   }
   
   const tiles = eByClass('tile');
@@ -451,7 +456,7 @@ async function loadGames() {
       gameElement.onclick = (e) => {
         e.stopPropagation();
         leaderboard.submit(
-          gameElement.dataset, 
+          gameElement.dataset.address, 
           walletSigner, 
           () => {
             loadGames();
@@ -680,6 +685,18 @@ function init() {
       ethos.showSignInModal();
     }
   }
+
+  eById('modal-submit-to-leaderboard').onclick = () => {
+    modal.close();
+    showLeaderboard();
+    leaderboard.submit(
+      activeGameAddress, 
+      walletSigner, 
+      () => {
+        loadGames();
+      }
+    )
+  }
 }
 
 window.requestAnimationFrame(init);
@@ -857,14 +874,14 @@ const minTile = () => {
   return leaderboardObject.min_tile;
 }
 
-const submit = async (game, walletSigner, onComplete) => {
+const submit = async (gameAddress, walletSigner, onComplete) => {
   const details = {
     network: 'sui',
     address: contractAddress,
     moduleName: 'leaderboard_8192',
     functionName: 'submit_game',
     inputValues: [
-      game.address,
+      gameAddress,
       leaderboardAddress
     ],
     gasBudget: 10000

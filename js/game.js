@@ -15,7 +15,6 @@ const queue = require('./queue');
 const board = require('./board');
 const moves = require('./moves');
 const confetti = require('./confetti');
-const { active } = require('./board');
 
 let walletSigner;
 let games;
@@ -57,15 +56,21 @@ window.onkeydown = (e) => {
 }
 
 function handleResult(newBoard, direction) { 
-  console.log("NEW BOARD", newBoard)
-  modal.open('high-score', newBoard)
   if (newBoard.topTile > topTile) {
     topTile = newBoard.topTile;
+    const topTiles = eByClass('top-tile-display');
+    for (const topTile of topTiles) {
+      topTile.innerHTML = `<img src='${newBoard.url}' />`;
+    }
     confetti.run();
 
-    if (topTile >= leaderboard.minTile() && newBoard.score > leaderboard.minScore()) {
-      modal.open('high-score')
-    }
+    setTimeout(() => {
+      if (topTile >= leaderboard.minTile() && newBoard.score > leaderboard.minScore()) {
+        modal.open('high-score')
+      } else {
+        modal.open('top-tile')
+      }
+    }, 1000)
   }
   
   const tiles = eByClass('tile');
@@ -248,7 +253,7 @@ async function loadGames() {
       gameElement.onclick = (e) => {
         e.stopPropagation();
         leaderboard.submit(
-          gameElement.dataset, 
+          gameElement.dataset.address, 
           walletSigner, 
           () => {
             loadGames();
@@ -476,6 +481,18 @@ function init() {
     } else {
       ethos.showSignInModal();
     }
+  }
+
+  eById('modal-submit-to-leaderboard').onclick = () => {
+    modal.close();
+    showLeaderboard();
+    leaderboard.submit(
+      activeGameAddress, 
+      walletSigner, 
+      () => {
+        loadGames();
+      }
+    )
   }
 }
 

@@ -661,6 +661,7 @@ body button {
 #new-game,
 #leaderboard-name button,
 .potential-leaderboard-game,
+#modal-submit-to-leaderboard,
 .link-button {
   padding: 9px 18px;
   background-color: white;
@@ -674,6 +675,7 @@ body button {
 #new-game,
 #ethos-start button,
 #mint-message button,
+#modal-submit-to-leaderboard,
 .link-button {
   background-color: black;
   color: white;
@@ -913,4 +915,9 @@ body button {
     top: -60px;
     opacity: 0;
   }
+}
+
+.top-tile-display img {
+  height: 150px;
+  width: 150px;
 }
