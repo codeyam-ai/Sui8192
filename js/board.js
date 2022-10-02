@@ -44,6 +44,13 @@ module.exports = {
 
     active = board;
   },
+  
+  clear: () => {
+    const tiles = eByClass('tile');
+    for (const tile of tiles) {
+      tile.innerHTML = "";
+    }
+  },
 
   diff: (spaces1, spaces2, direction) => {
     const reverse = isReverse(direction);

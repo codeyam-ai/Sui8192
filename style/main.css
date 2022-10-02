@@ -178,6 +178,8 @@ body button {
   margin: 12px;
   cursor: pointer;
   display: none;
+  font-size: 14px;
+  line-height: 18px;
 }
 
 #sui-address:hover #logout,
@@ -668,7 +670,8 @@ body button {
 }
 
 #new-game,
-#ethos-start button {
+#ethos-start button,
+#mint-message button {
   background-color: black;
   color: white;
   line-height: 18px;

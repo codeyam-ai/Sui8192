@@ -45,6 +45,13 @@ module.exports = {
 
     active = board;
   },
+  
+  clear: () => {
+    const tiles = eByClass('tile');
+    for (const tile of tiles) {
+      tile.innerHTML = "";
+    }
+  },
 
   diff: (spaces1, spaces2, direction) => {
     const reverse = isReverse(direction);
@@ -319,7 +326,6 @@ async function loadGames() {
   ).sort((a, b) => b.score - a.score);
  
   if (!games || games.length === 0) {
-    modal.open('mint');
     const newGameArea = document.createElement('DIV');
     newGameArea.classList.add('text-center');
     newGameArea.classList.add('padded');
@@ -337,8 +343,6 @@ async function loadGames() {
     newGameClone.onclick = newGame.onclick;
     newGameArea.append(newGameClone);
     gamesElement.append(newGameArea);
-  } else {
-    modal.close();
   }
 
   for (const game of games) {
@@ -463,9 +467,9 @@ function init() {
     {
       ethosConfiguration,
       onWalletConnected: async ({ signer }) => {
+        console.log("ON CONNECTED", signer)
         walletSigner = signer;
         if (signer) {
-          console.log("SIGNER", signer);
           addClass(document.body, 'signed-in');
 
           // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
@@ -532,6 +536,20 @@ function init() {
           }
 
           await loadGames();
+
+          console.log("GAMES", games)
+          if (games.length === 0) {
+            modal.open('mint');  
+          } else {
+            modal.close();
+
+            if (games.length === 1) {
+              setActiveGame(games[0]);
+            } else {
+              showLeaderboard();
+            }
+          }
+          
           removeClass(document.body, 'signed-out');
         } else {
           modal.open('get-started');
@@ -594,8 +612,10 @@ function init() {
     addClass(document.body, 'signed-out');
     removeClass(document.body, 'signed-in');
     addClass(eById('loading-games'), 'hidden');
+
+    board.clear();
     
-    showLeaderboard();
+    modal.open('get-started');
   }
 
   eById('close-modal').onclick = modal.close;
