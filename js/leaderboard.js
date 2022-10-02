@@ -21,7 +21,7 @@ const load = async () => {
   const leaderboardList = eById('leaderboard-list');
   leaderboardList.innerHTML = "";
 
-  eById('best').innerHTML = leaderboardObject.top_games[0]?.fields?.score;
+  eById('best').innerHTML = leaderboardObject.top_games[0]?.fields?.score || 0;
 
   for (let i=0; i<leaderboardObject.top_games.length; ++i) {
     const { fields: { 
