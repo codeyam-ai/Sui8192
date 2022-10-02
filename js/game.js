@@ -57,9 +57,15 @@ window.onkeydown = (e) => {
 }
 
 function handleResult(newBoard, direction) { 
+  console.log("NEW BOARD", newBoard)
+  modal.open('high-score', newBoard)
   if (newBoard.topTile > topTile) {
     topTile = newBoard.topTile;
     confetti.run();
+
+    if (topTile >= leaderboard.minTile() && newBoard.score > leaderboard.minScore()) {
+      modal.open('high-score')
+    }
   }
   
   const tiles = eByClass('tile');

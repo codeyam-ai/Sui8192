@@ -660,18 +660,21 @@ body button {
 #mint-message button,
 #new-game,
 #leaderboard-name button,
-.potential-leaderboard-game {
+.potential-leaderboard-game,
+.link-button {
   padding: 9px 18px;
   background-color: white;
   border-radius: 18px;
   box-shadow: 1px 1px 3px 1px #dfdfe0;
   border: none;
   cursor: pointer;
+  text-decoration: none;
 }
 
 #new-game,
 #ethos-start button,
-#mint-message button {
+#mint-message button,
+.link-button {
   background-color: black;
   color: white;
   line-height: 18px;

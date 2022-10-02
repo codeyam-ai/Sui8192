@@ -53,7 +53,15 @@ const load = async () => {
     `;
     leaderboardList.append(leaderElement);
   }
-};
+}
+
+const minScore = () => {
+  return leaderboardObject.min_score;
+}
+
+const minTile = () => {
+  return leaderboardObject.min_tile;
+}
 
 const submit = async (game, walletSigner, onComplete) => {
   const details = {
@@ -82,6 +90,8 @@ const submit = async (game, walletSigner, onComplete) => {
 
 module.exports = {
   topGames,
+  minTile,
+  minScore,
   get,
   load,
   submit

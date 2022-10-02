@@ -2,6 +2,7 @@ module ethos::game_8192 {
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{Self, TxContext};
     use sui::url::{Self, Url};
+    use std::string::{Self, String};
     use sui::event;
     use sui::transfer;
     use std::vector;
@@ -17,13 +18,15 @@ module ethos::game_8192 {
 
     struct Game8192 has key, store {
         id: UID,
+        name: String,
+        description: String,
+        url: Url,
         // leaderboard_id: ID,
         player: address,
         score: u64,
         top_tile: u8,      
         moves: vector<GameMove8192>,
         boards: vector<GameBoard8192>,
-        url: Url,
         leaderboard_games: vector<LeaderboardGame8192>
     }
 
@@ -55,6 +58,7 @@ module ethos::game_8192 {
         move_count: u64,
         board_spaces: vector<vector<Option<u8>>>,
         top_tile: u8,
+        url: Url,
         score: u64,
         last_tile: vector<u64>,
         epoch: u64
@@ -63,12 +67,15 @@ module ethos::game_8192 {
     struct GameTopTileEvent8192 has copy, drop {
         game_id: ID,
         top_tile: u8,
+        url: Url,
         epoch: u64
     }
 
     struct GameOverEvent8192 has copy, drop {
         game_id: ID,
-        top_tile: u8
+        top_tile: u8,
+        score: u64,
+        url: Url
     }
 
     public fun id(game: &Game8192): &UID {
@@ -147,6 +154,8 @@ module ethos::game_8192 {
 
         let game = Game8192 {
             id: uid,
+            name: string::utf8(b"Sui8192"),
+            description: string::utf8(b"Sui8192 is a fun, 100% on-chain game. Combine the tiles to get a high score!"),
             // leaderboard_id,
             player,
             score,
@@ -200,21 +209,25 @@ module ethos::game_8192 {
             top_tile,
             score,
             last_tile,
-            epoch: tx_context::epoch(ctx)
+            epoch: tx_context::epoch(ctx),
+            url
         });
 
         if (game_board_8192::top_tile(&new_board) != game_board_8192::top_tile(current_board)) {
             event::emit(GameTopTileEvent8192 {
                 game_id: object::uid_to_inner(&game.id),
                 top_tile: top_tile,
-                epoch: tx_context::epoch(ctx)
+                epoch: tx_context::epoch(ctx),
+                url
             });
         };
 
         if (*game_board_8192::game_over(&new_board)) {
             event::emit(GameOverEvent8192 {
                 game_id: object::uid_to_inner(&game.id),
-                top_tile
+                top_tile,
+                score,
+                url
             });
         };
 
