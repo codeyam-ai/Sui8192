@@ -305,8 +305,8 @@ function init() {
 
           // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
           // console.log("SIGN", response);
-
-          eById('new-game').onclick = async () => {
+          
+          const prepMint = async () => {
             const mintButtonTitle = "Mint New Game";
             if (mint.innerHTML.indexOf(mintButtonTitle) === -1) {
               const mintButton = document.createElement("BUTTON");
@@ -357,12 +357,32 @@ function init() {
               mintButton.innerHTML = mintButtonTitle;
               mint.appendChild(mintButton);
             }
-            modal.open('mint-message');
+          }
+
+          prepMint();
+          modal.open('loading');
+
+          eById('new-game').onclick = async () => {
+            modal.open('mint');
           }
 
           await loadGames();
+
+          if (games.length === 0) {
+            modal.open('mint');  
+          } else {
+            modal.close();
+
+            if (games.length === 1) {
+              setActiveGame(games[0]);
+            } else {
+              showLeaderboard();
+            }
+          }
+          
           removeClass(document.body, 'signed-out');
         } else {
+          modal.open('get-started');
           eById('new-game').onclick = ethos.showSignInModal;
           addClass(document.body, 'signed-out');
           removeClass(document.body, 'signed-in');
@@ -376,7 +396,7 @@ function init() {
   const root = ReactDOM.createRoot(start);
   root.render(wrapper);
   
-  modal.close();
+  // modal.close();
 
   eById('sign-in').onclick = ethos.showSignInModal;
 
@@ -422,8 +442,10 @@ function init() {
     addClass(document.body, 'signed-out');
     removeClass(document.body, 'signed-in');
     addClass(eById('loading-games'), 'hidden');
+
+    board.clear();
     
-    showLeaderboard();
+    modal.open('get-started');
   }
 
   eById('close-modal').onclick = modal.close;

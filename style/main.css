@@ -2,6 +2,7 @@ body {
   font-family: Inter;
   background-color: #fbfaf9;
   font-size: 14px;
+  line-height: 21px;
 }
 
 body button {
@@ -16,6 +17,11 @@ body button {
 
 .signed-out .signed-in {
   display: none !important;
+}
+
+.title {
+  font-size: 21px;
+  font-weight: 500;
 }
 
 .hidden {
@@ -172,6 +178,8 @@ body button {
   margin: 12px;
   cursor: pointer;
   display: none;
+  font-size: 14px;
+  line-height: 18px;
 }
 
 #sui-address:hover #logout,
@@ -340,6 +348,22 @@ body button {
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+.signed-out .row-1 .tile {
+  background-color: #49c5fa;
+}
+
+.signed-out .row-2 .tile {
+  background-color: #4eb7f7;
+}
+
+.signed-out .row-3 .tile {
+  background-color: #53a9f5;
+}
+
+.signed-out .row-4 .tile {
+  background-color: #579af2;
 }
 
 .value {
@@ -578,15 +602,26 @@ body button {
   margin-left: auto;
   margin-right: auto;
 
-  top: 150px;
+  top: 240px;
   left: 0;
   right: 0;
 
   width: 300px;
-  padding: 5%;
-  background-color: #2a4362;
+  padding: 24px;
+  background-color: white;
+  color: black;
   border-radius: 30px;
-  color: white;
+  z-index: 2;
+}
+
+#modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+  width: 100%;
+  height: 100%;
 }
 
 #close-modal {
@@ -620,6 +655,7 @@ body button {
   padding: 12px 0;
 }
 
+#ethos-start button,
 #signed-out button,
 #mint-message button,
 #new-game,
@@ -633,7 +669,9 @@ body button {
   cursor: pointer;
 }
 
-#new-game {
+#new-game,
+#ethos-start button,
+#mint-message button {
   background-color: black;
   color: white;
   line-height: 18px;
@@ -753,7 +791,7 @@ body button {
   border-bottom: 1px solid #e5e5e7;
 }
 
-.game-links-area {
+#game-links-area > div {
   margin-bottom: 12px;
   display: flex;
   justify-content: space-evenly;
@@ -822,7 +860,7 @@ body button {
   justify-content: center;
 }
 
-.for-developers>div {
+.for-developers > div {
   background-color: white;
   box-shadow: 1px 1px 3px 1px #dfdfe0;
   border-radius: 12px;
