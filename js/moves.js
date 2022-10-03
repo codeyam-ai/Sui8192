@@ -232,6 +232,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
 const reset = () => moves = []
 
 module.exports = {
+  checkPreapprovals,
   constructTransaction,
   load,
   execute,
