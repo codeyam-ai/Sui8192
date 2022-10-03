@@ -488,7 +488,7 @@ async function setActiveGame(game) {
 
   const boards = game.boards;
   const activeBoard = board.convertInfo(boards[boards.length - 1]);
-  topTile = activeBoard.topTile;
+  topTile = activeBoard.topTile || 2;
   board.display(activeBoard);
 
   modal.close();

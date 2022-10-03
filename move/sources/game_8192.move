@@ -154,8 +154,8 @@ module ethos::game_8192 {
 
         let game = Game8192 {
             id: uid,
-            name: string::utf8(b"Sui8192"),
-            description: string::utf8(b"Sui8192 is a fun, 100% on-chain game. Combine the tiles to get a high score!"),
+            name: string::utf8(b"Sui 8192"),
+            description: string::utf8(b"Sui 8192 is a fun, 100% on-chain game. Combine the tiles to get a high score!"),
             // leaderboard_id,
             player,
             score,
