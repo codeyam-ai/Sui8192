@@ -182,8 +182,8 @@ module.exports = {
 };
 },{"canvas-confetti":36}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0x2f969f952c3d410f34d51dd335556e6e29b10940",
-  leaderboardAddress: "0xdaf0b2546a605d9bb325264eb090dabf8b13efe0",
+  contractAddress: "0xc3520ea7d708d5da2b597cb77b882e95a55bed65",
+  leaderboardAddress: "0xb78e709f4897d0cd731d55d87773037cec1b95f2",
   tileNames: {
     1: "Air",
     2: "Mist",
