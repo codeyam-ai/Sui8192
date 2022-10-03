@@ -21,6 +21,7 @@ let games;
 let activeGameAddress;
 let walletContents = {};
 let topTile = 2;
+let contentsInterval;
 
 window.onkeydown = (e) => {
   let direction;
@@ -391,6 +392,10 @@ function init() {
           }
           
           await loadGames();
+
+          if (!contentsInterval) {
+            contentsInterval = setInterval(loadWalletContents, 3000)
+          }
 
           if (games.length === 0) {
             modal.open('mint');  

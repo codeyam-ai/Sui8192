@@ -23,7 +23,7 @@ const constructTransaction = (direction, activeGameAddress) => {
       activeGameAddress,
       direction
     ],
-    gasBudget: 100000
+    gasBudget: 20000
   }
 }
 
@@ -38,7 +38,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
           module: 'game_8192',
           function: 'make_move',
           description: "Pre-approve moves in the game so you can play without signing every transaction.",
-          totalGasLimit: 100000,
+          totalGasLimit: 250000,
           perTransactionGasLimit: 5000,
           maxTransactionCount: 20
         }
@@ -191,14 +191,6 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
           </div>
           <div class='transaction-direction'>
             ${directionNumberToSymbol(transaction.move.toString())}
-          </div>
-          <div>
-            <span class="light">
-              New Tile:
-            </span>
-            <span class="">
-              ${transaction.lastTile.row}, ${transaction.lastTile.column}
-            </span>
           </div>
         </div>
         <div class="transaction-right">
