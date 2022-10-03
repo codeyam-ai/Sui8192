@@ -147,7 +147,6 @@ body button {
   border-radius: 18px;
   box-shadow: 1px 1px 3px 1px #dfdfe0;
   font-size: small;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
