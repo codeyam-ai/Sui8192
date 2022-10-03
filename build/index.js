@@ -932,11 +932,8 @@ module.exports = {
 const { eById, eByClass, addClass, removeClass } = require("./utils");
 
 module.exports = {
-  close: (fromCloseButton) => {
+  close: () => {
     const modal = eById("modal-overlay");
-    const mandatory = modal.dataset.mandatory;
-
-    if (mandatory && fromCloseButton) return;
     addClass(modal, 'hidden');
   },
 
@@ -947,9 +944,8 @@ module.exports = {
     }
     
     const modal = eById("modal-overlay");
-    modal.dataset.mandatory = mandatory;
-
     const closeButton = eById('close-modal');
+    
     if (mandatory) {
       addClass(closeButton, 'hidden');
     } else {
