@@ -398,7 +398,7 @@ function init() {
           }
 
           if (games.length === 0) {
-            modal.open('mint');  
+            modal.open('mint', true);  
           } else {
             modal.close();
 
@@ -421,7 +421,7 @@ function init() {
             }, 1000);
           }
         } else {
-          modal.open('get-started');
+          modal.open('get-started', true);
           const newGameButtons = eByClass('new-game');
           for (const newGameButton of newGameButtons) {
             newGameButton.onclick = ethos.showSignInModal
@@ -487,10 +487,10 @@ function init() {
 
     board.clear();
     
-    modal.open('get-started');
+    modal.open('get-started', true);
   }
 
-  eById('close-modal').onclick = modal.close;
+  eById('close-modal').onclick = () => modal.close(true);
 
   eById('play-button').onclick = () => {
     if (games && games.length > 0) {

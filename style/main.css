@@ -631,7 +631,7 @@ body button {
   height: 100%;
 }
 
-#close-modal {
+#close-modal > div {
   float: right;
   margin-top: -45px;
   margin-right: -45px;
