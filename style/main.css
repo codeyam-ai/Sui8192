@@ -179,20 +179,41 @@ a:visited {
   padding: 12px 0;
   display: flex;
   flex-direction: column;
+  justify-items: start;
+  text-align: left;
+  gap: 12px;
 }
 
 #sui-address .menu button,
 #sui-address .menu .link-button {
   border-radius: 12px;
-  background-color: black;
-  color: white;
   border: none;
   padding: 6px 12px;
-  margin: 12px;
   cursor: pointer;
   font-size: 14px;
   line-height: 18px;
   text-align: center;
+  background-color: white;
+  color: black;
+  box-shadow: none;
+  display: flex;
+  justify-items: center;
+  gap: 6px;
+}
+
+#sui-address .menu button:hover,
+#sui-address .menu .link-button:hover {
+  background-color: #6f53e4;
+  color: white;
+}
+
+#sui-address .menu button:hover path,
+#sui-address .menu .link-button:hover path {
+  stroke: white;
+}
+
+#sui-address .menu button#logout:hover path {
+  fill: white;
 }
 
 #sui-address:hover .menu {
@@ -203,7 +224,7 @@ a:visited {
   padding: 12px;
 }
 
-#sui-address svg {
+#sui-address .sui-logo {
   margin: -1px 0 0 15px;
 }
 
@@ -395,7 +416,7 @@ a:visited {
 .down1,
 .down2,
 .down3 {
-  animation-duration: 0.25s;
+  animation-duration: 0.1s;
   animation-timing-function: linear;
   animation-iteration-count: 1;
   position: relative;

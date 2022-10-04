@@ -105,7 +105,7 @@ function handleResult(newBoard, direction) {
         setTimeout(() => {
           removeClass(tile, "merge");
         }, 500)
-      }, 180);
+      }, 80);
     }
   }
 

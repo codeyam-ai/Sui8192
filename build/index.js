@@ -308,7 +308,7 @@ function handleResult(newBoard, direction) {
         setTimeout(() => {
           removeClass(tile, "merge");
         }, 500)
-      }, 180);
+      }, 80);
     }
   }
 
@@ -497,7 +497,8 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-     appId: 'sui-8192'
+    
+    appId: 'sui-8192'
   };
 
   const start = eById('ethos-start');
