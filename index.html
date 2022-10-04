@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 </head>
   <body class="signed-in signed-out">
-    <div class="container">
+    <div id="container" class="container">
       <div id="modal-overlay" class="hidden">
         <div class="modal">
           <div id="close-modal">
@@ -69,6 +69,8 @@
             </p>
             <br/>
             <a href="https://ethoswallet.xyz/dashboard" target="_blank" class="link-button">Open Wallet Explorer</a>
+            <br/><br/>
+            <button class="keep-playing secondary-button">Keep Playing</button>
           </div>
           <div id="high-score-message" class="message text-center hidden">
             <div class="subtitle">Congrats!</div>
@@ -81,6 +83,8 @@
             </p>
             <br/>
             <button id="modal-submit-to-leaderboard">Submit To Leaderboard</button>
+            <br/><br/>
+            <button class="keep-playing secondary-button">Keep Playing</button>
           </div>
         </div>
       </div>
@@ -254,7 +258,7 @@
               Once you have received more Sui, please refresh this page.
             </p>
           </div>
-          <div class="board">
+          <div id="board">
             <div id="queue"></div>
             <div class="row-1 row">
               <div class="tile-wrapper"><div class="tile"></div></div>

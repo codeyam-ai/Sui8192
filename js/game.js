@@ -67,9 +67,9 @@ function handleResult(newBoard, direction) {
 
     setTimeout(() => {
       if (topTile >= leaderboard.minTile() && newBoard.score > leaderboard.minScore()) {
-        modal.open('high-score')
+        modal.open('high-score', 'container')
       } else {
-        modal.open('top-tile')
+        modal.open('top-tile', 'container')
       }
     }, 1000)
   }
@@ -330,7 +330,7 @@ function init() {
             if (mint.innerHTML.indexOf(mintButtonTitle) === -1) {
               const mintButton = document.createElement("BUTTON");
               mintButton.onclick = async () => {
-                modal.open('loading');
+                modal.open('loading', 'container');
 
                 const details = {
                   network: 'sui',
@@ -348,7 +348,7 @@ function init() {
                   })
 
                   if (!data) {
-                    modal.open('create-error');
+                    modal.open('create-error', 'container');
                     return;
                   }
 
@@ -369,7 +369,7 @@ function init() {
                   setActiveGame(game);
                   ethos.hideWallet();
                 } catch (e) {
-                  modal.open('create-error');
+                  modal.open('create-error', 'container');
                   return;
                 }
               }
@@ -379,12 +379,12 @@ function init() {
           }
 
           prepMint();
-          modal.open('loading');
+          modal.open('loading', 'container');
 
           const newGameButtons = eByClass('new-game');
           for (const newGameButton of newGameButtons) {
             newGameButton.onclick = async () => {
-              modal.open('mint');
+              modal.open('mint', 'container');
             }
           }
           
@@ -395,7 +395,7 @@ function init() {
           }
 
           if (games.length === 0) {
-            modal.open('mint', true);  
+            modal.open('mint', 'board', true);  
           } else {
             modal.close();
 
@@ -418,7 +418,7 @@ function init() {
             }, 1000);
           }
         } else {
-          modal.open('get-started', true);
+          modal.open('get-started', 'board', true);
           const newGameButtons = eByClass('new-game');
           for (const newGameButton of newGameButtons) {
             newGameButton.onclick = ethos.showSignInModal
@@ -480,11 +480,13 @@ function init() {
 
     addClass(document.body, 'signed-out');
     removeClass(document.body, 'signed-in');
+    addClass(eById('leaderboard'), 'hidden');
+    removeClass(eById('game'), 'hidden');
     addClass(eById('loading-games'), 'hidden');
 
     board.clear();
     
-    modal.open('get-started', true);
+    modal.open('get-started', 'board', true);
   }
 
   eById('close-modal').onclick = () => modal.close(true);
@@ -511,6 +513,12 @@ function init() {
         loadGames();
       }
     )
+  }
+
+  for (const keepPlayingElement of eByClass('keep-playing')) {
+    keepPlayingElement.onclick = () => {
+      modal.close();
+    }
   }
 }
 

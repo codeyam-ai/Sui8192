@@ -299,7 +299,7 @@ a:visited {
   text-align: center;
 }
 
-.board {
+#board {
   margin: auto;
   position: relative;
   background: white;
@@ -615,7 +615,7 @@ a:visited {
   margin-left: auto;
   margin-right: auto;
 
-  top: 240px;
+  top: 25%;
   left: 0;
   right: 0;
 
@@ -627,7 +627,7 @@ a:visited {
   z-index: 2;
 }
 
-#modal-overlay {
+#container > #modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -635,6 +635,19 @@ a:visited {
   z-index: 1;
   width: 100%;
   height: 100%;
+}
+
+#board > #modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
 }
 
 #close-modal > div {
@@ -668,6 +681,8 @@ a:visited {
   padding: 12px 0;
 }
 
+.primary-button,
+.secondary-button,
 #sign-in,
 #signed-out button,
 #mint-message button,
@@ -675,9 +690,12 @@ a:visited {
 #leaderboard-name button,
 .potential-leaderboard-game,
 #modal-submit-to-leaderboard,
-.link-button {
+a.link-button,
+a:hover.link-button,
+a:visited.link-button {
   padding: 9px 18px;
   background-color: white;
+  color: black;
   border-radius: 18px;
   box-shadow: 1px 1px 3px 1px #dfdfe0;
   border: none;
@@ -685,12 +703,15 @@ a:visited {
   text-decoration: none;
 }
 
+.secondary-button,
 .new-game,
 #sign-in,
 #mint-message button,
 #copy-address,
 #modal-submit-to-leaderboard,
-.link-button {
+a.link-button,
+a:hover.link-button,
+a:visited.link-button {
   background-color: black;
   color: white;
   line-height: 18px;
