@@ -417,7 +417,7 @@ a:visited {
 .down1,
 .down2,
 .down3 {
-  animation-duration: 0.25s;
+  animation-duration: 0.15s;
   animation-timing-function: linear;
   animation-iteration-count: 1;
   position: relative;

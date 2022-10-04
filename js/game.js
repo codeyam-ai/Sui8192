@@ -111,7 +111,7 @@ function handleResult(newBoard, direction) {
 
   setTimeout(() => {
     board.display(newBoard)
-  }, 250)
+  }, 150)
 }
 
 function showGasError() {
