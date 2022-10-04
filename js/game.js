@@ -294,7 +294,8 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-     appId: 'sui-8192'
+    
+    appId: 'sui-8192'
   };
 
   const start = eById('ethos-start');
