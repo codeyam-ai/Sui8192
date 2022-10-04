@@ -284,8 +284,8 @@ a:visited {
 }
 
 .score-box {
-  width: 120px;
-  height: 60px;
+  width: 132px;
+  height: 75px;
   border-radius: 15px;
   display: flex;
   flex-direction: column;
@@ -294,6 +294,7 @@ a:visited {
   align-items: center;
   background-color: #fce9d7;
   font-size: large;
+  font-weight: 500;
   position: relative;
 }
 
@@ -416,7 +417,7 @@ a:visited {
 .down1,
 .down2,
 .down3 {
-  animation-duration: 0.1s;
+  animation-duration: 0.25s;
   animation-timing-function: linear;
   animation-iteration-count: 1;
   position: relative;
@@ -855,8 +856,9 @@ a:visited.link-button {
 #game-links-area > div {
   margin-bottom: 12px;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
+  gap: 12px;
 }
 
 .game-preview {

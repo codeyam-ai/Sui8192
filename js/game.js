@@ -286,6 +286,26 @@ async function setActiveGame(game) {
   removeClass(eById('leaderboard-button'), 'selected')
   removeClass(eById("game"), 'hidden');
   addClass(eById('play-button'), 'selected')
+
+  eById('submit-game-to-leaderboard').onclick = () => {
+    showLeaderboard();
+    leaderboard.submit(
+      activeGameAddress, 
+      walletSigner, 
+      () => {
+        loadGames();
+      }
+    )
+  }
+}
+
+function showLeaderboard() {
+  leaderboard.load();
+  loadGames();
+  addClass(eById('game'), 'hidden');
+  removeClass(eById('play-button'), 'selected');
+  removeClass(eById('leaderboard'), 'hidden');
+  addClass(eById('leaderboard-button'), 'selected');
 }
 
 function init() {
@@ -435,15 +455,6 @@ function init() {
   // modal.close();
 
   eById('sign-in').onclick = ethos.showSignInModal;
-
-  const showLeaderboard = () => {
-    leaderboard.load();
-    loadGames();
-    addClass(eById('game'), 'hidden');
-    removeClass(eById('play-button'), 'selected');
-    removeClass(eById('leaderboard'), 'hidden');
-    addClass(eById('leaderboard-button'), 'selected');
-  }
 
   eById('leaderboard-button').onclick = showLeaderboard;
 
