@@ -386,11 +386,7 @@ async function loadGames() {
     newGameArea.classList.add('padded');
     newGameArea.innerHTML = `
       <p>
-        To get started, mint a new game above!
-      </p>
-      <p>
-        Every game is an NFT that you can treat like any other NFT. 
-        Try viewing it in your wallet or sending it to someone else!
+        You don't have any games yet.
       </p>
     `;
     gamesElement.append(newGameArea);
