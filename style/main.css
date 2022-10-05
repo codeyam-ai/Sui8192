@@ -926,8 +926,8 @@ a:visited.link-button {
 }
 
 .for-developers {
-  margin-top: 60px;
-  margin-bottom: 30px;
+  width: 480px;
+  margin: 60px auto 30px auto;
   display: flex;
   justify-content: center;
 }
@@ -1026,6 +1026,10 @@ a:visited.link-button {
   .panel {
     width: 100%;
     margin-bottom: 30px;
+  }
+
+  .for-developers {
+    width: 330px;
   }
 }
 
