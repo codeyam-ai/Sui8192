@@ -82,7 +82,7 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
     }, 
     onPopulated({ data }) {
       if (data.error) {
-        onError();
+        onError(data.error);
         return;
       }
       
@@ -155,9 +155,14 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       }
       
       load(walletSigner, activeGameAddress, onComplete, onError);
+      data.error = "Here is the error message!"
+      if (data?.effects?.status?.error === "InsufficientGas") {
+        onError()
+        return;
+      }
 
-      if (data.error || data?.effects?.status?.error === "InsufficientGas") {
-        onError();
+      if (data.error) {
+        onError(data.error);
         return;
       }
 

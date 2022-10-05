@@ -50,8 +50,12 @@ window.onkeydown = (e) => {
       handleResult(newBoard, direction);
       loadWalletContents();
     },
-    () => {
-      showGasError();
+    (error) => {
+      if (error) {
+        showUnknownError(error)
+      } else {
+        showGasError();
+      }
     }
   );
 }
@@ -117,6 +121,12 @@ function handleResult(newBoard, direction) {
 function showGasError() {
   queue.removeAll()
   removeClass(eById("error-gas"), 'hidden');
+}
+
+function showUnknownError(error) {
+  queue.removeAll()
+  eById('error-unknown-message').innerHTML = error;
+  removeClass(eById("error-unknown"), 'hidden');
 }
 
 async function loadWalletContents() {
@@ -271,8 +281,12 @@ async function setActiveGame(game) {
       handleResult(newBoard, direction);
       loadWalletContents();
     },
-    () => {
-      showGasError();
+    (error) => {
+      if (error) {
+        showUnknownError(error)
+      } else {
+        showGasError();
+      }
     }
   );
 

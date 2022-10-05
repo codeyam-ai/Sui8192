@@ -253,8 +253,12 @@ window.onkeydown = (e) => {
       handleResult(newBoard, direction);
       loadWalletContents();
     },
-    () => {
-      showGasError();
+    (error) => {
+      if (error) {
+        showUnknownError(error)
+      } else {
+        showGasError();
+      }
     }
   );
 }
@@ -320,6 +324,12 @@ function handleResult(newBoard, direction) {
 function showGasError() {
   queue.removeAll()
   removeClass(eById("error-gas"), 'hidden');
+}
+
+function showUnknownError(error) {
+  queue.removeAll()
+  eById('error-unknown-message').innerHTML = error;
+  removeClass(eById("error-unknown"), 'hidden');
 }
 
 async function loadWalletContents() {
@@ -474,8 +484,12 @@ async function setActiveGame(game) {
       handleResult(newBoard, direction);
       loadWalletContents();
     },
-    () => {
-      showGasError();
+    (error) => {
+      if (error) {
+        showUnknownError(error)
+      } else {
+        showGasError();
+      }
     }
   );
 
@@ -1061,7 +1075,7 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
     }, 
     onPopulated({ data }) {
       if (data.error) {
-        onError();
+        onError(data.error);
         return;
       }
       
@@ -1134,9 +1148,14 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       }
       
       load(walletSigner, activeGameAddress, onComplete, onError);
+      
+      if (data?.effects?.status?.error === "InsufficientGas") {
+        onError()
+        return;
+      }
 
-      if (data.error || data?.effects?.status?.error === "InsufficientGas") {
-        onError();
+      if (data.error) {
+        onError(data.error);
         return;
       }
 
