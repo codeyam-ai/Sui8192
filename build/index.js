@@ -211,7 +211,8 @@ const {
   eByClass, 
   addClass, 
   removeClass,
-  truncateMiddle
+  truncateMiddle,
+  setOnClick
 } = require('./utils');
 const modal = require('./modal');
 const queue = require('./queue');
@@ -412,11 +413,14 @@ async function loadGames() {
     const leaderboardItem = topGames[leaderboardItemIndex];
     const leaderboardItemUpToDate = leaderboardItem?.fields.score === game.score
     addClass(gameElement, 'game-preview');
-    gameElement.onclick = () => {
-      addClass(eById('leaderboard'), 'hidden');
-      removeClass(eById('game'), 'hidden');
-      setActiveGame(game);
-    }
+    setOnClick(
+      gameElement,
+      () => {
+        addClass(eById('leaderboard'), 'hidden');
+        removeClass(eById('game'), 'hidden');
+        setActiveGame(game);
+      }
+    );
     // gameElement.innerHTML = game.topTile;
 
     gameElement.innerHTML = `
@@ -455,8 +459,9 @@ async function loadGames() {
 
     gamesElement.append(gameElement);
 
-    for (const gameElement of eByClass('potential-leaderboard-game')) {
-      gameElement.onclick = (e) => {
+    setOnClick(
+      eByClass('potential-leaderboard-game'),
+      (e) => {
         e.stopPropagation();
         leaderboard.submit(
           gameElement.dataset.address, 
@@ -466,7 +471,7 @@ async function loadGames() {
           }
         )
       }
-    }
+    )
   }
 }
 
@@ -500,29 +505,32 @@ async function setActiveGame(game) {
 
   modal.close();
   addClass(eById("leaderboard"), 'hidden');
-  removeClass(eById('leaderboard-button'), 'selected')
+  removeClass(eByClass('leaderboard-button'), 'selected')
   removeClass(eById("game"), 'hidden');
-  addClass(eById('play-button'), 'selected')
+  addClass(eByClass('play-button'), 'selected')
 
-  eById('submit-game-to-leaderboard').onclick = () => {
-    showLeaderboard();
-    leaderboard.submit(
-      activeGameAddress, 
-      walletSigner, 
-      () => {
-        loadGames();
-      }
-    )
-  }
+  setOnClick(
+    eById('submit-game-to-leaderboard'), 
+    () => {
+      showLeaderboard();
+      leaderboard.submit(
+        activeGameAddress, 
+        walletSigner, 
+        () => {
+          loadGames();
+        }
+      )
+    }
+  );
 }
 
 function showLeaderboard() {
   leaderboard.load();
   loadGames();
   addClass(eById('game'), 'hidden');
-  removeClass(eById('play-button'), 'selected');
+  removeClass(eByClass('play-button'), 'selected');
   removeClass(eById('leaderboard'), 'hidden');
-  addClass(eById('leaderboard-button'), 'selected');
+  addClass(eByClass('leaderboard-button'), 'selected');
 }
 
 function init() {
@@ -563,50 +571,53 @@ function init() {
             const mintButtonTitle = "Mint New Game";
             if (mint.innerHTML.indexOf(mintButtonTitle) === -1) {
               const mintButton = document.createElement("BUTTON");
-              mintButton.onclick = async () => {
-                modal.open('loading', 'container');
+              setOnClick(
+                mintButton,
+                async () => {
+                  modal.open('loading', 'container');
 
-                const details = {
-                  network: 'sui',
-                  address: contractAddress,
-                  moduleName: 'game_8192',
-                  functionName: 'create',
-                  inputValues: [],
-                  gasBudget: 5000
-                };
-            
-                try {
-                  const data = await ethos.transact({
-                    signer: walletSigner, 
-                    details
-                  })
+                  const details = {
+                    network: 'sui',
+                    address: contractAddress,
+                    moduleName: 'game_8192',
+                    functionName: 'create',
+                    inputValues: [],
+                    gasBudget: 5000
+                  };
+              
+                  try {
+                    const data = await ethos.transact({
+                      signer: walletSigner, 
+                      details
+                    })
 
-                  if (!data) {
+                    if (!data) {
+                      modal.open('create-error', 'container');
+                      return;
+                    }
+
+                    const gameData = data.effects.events.find(
+                      e => e.moveEvent
+                    ).moveEvent.fields;
+                    const { board_spaces, score } = gameData;
+                    const game = {
+                      address: data.effects.created[0].reference.objectId,
+                      boards: [
+                        {
+                          score,
+                          board_spaces,
+                          game_over: false
+                        }
+                      ]
+                    }
+                    setActiveGame(game);
+                    ethos.hideWallet();
+                  } catch (e) {
                     modal.open('create-error', 'container');
                     return;
                   }
-
-                  const gameData = data.effects.events.find(
-                    e => e.moveEvent
-                  ).moveEvent.fields;
-                  const { board_spaces, score } = gameData;
-                  const game = {
-                    address: data.effects.created[0].reference.objectId,
-                    boards: [
-                      {
-                        score,
-                        board_spaces,
-                        game_over: false
-                      }
-                    ]
-                  }
-                  setActiveGame(game);
-                  ethos.hideWallet();
-                } catch (e) {
-                  modal.open('create-error', 'container');
-                  return;
                 }
-              }
+              );
               mintButton.innerHTML = mintButtonTitle;
               mint.appendChild(mintButton);
             }
@@ -615,12 +626,12 @@ function init() {
           prepMint();
           modal.open('loading', 'container');
 
-          const newGameButtons = eByClass('new-game');
-          for (const newGameButton of newGameButtons) {
-            newGameButton.onclick = async () => {
+          setOnClick(
+            eByClass('new-game'),
+            async () => {
               modal.open('mint', 'container');
             }
-          }
+          );
           
           await loadGames();
 
@@ -643,20 +654,20 @@ function init() {
           removeClass(document.body, 'signed-out');
 
           const address = await signer.getAddress();
-          eById('copy-address').onclick = () => {
-            const innerHTML = eById('copy-address').innerHTML;
-            eById('copy-address').innerHTML = "Copied!"
-            navigator.clipboard.writeText(address)
-            setTimeout(() => {
-              eById('copy-address').innerHTML = innerHTML;
-            }, 1000);
-          }
+          setOnClick(
+            eById('copy-address'),
+            () => {
+              const innerHTML = eById('copy-address').innerHTML;
+              eById('copy-address').innerHTML = "Copied!"
+              navigator.clipboard.writeText(address)
+              setTimeout(() => {
+                eById('copy-address').innerHTML = innerHTML;
+              }, 1000);
+            }
+          );
         } else {
           modal.open('get-started', 'board', true);
-          const newGameButtons = eByClass('new-game');
-          for (const newGameButton of newGameButtons) {
-            newGameButton.onclick = ethos.showSignInModal
-          }
+          setOnClick(eByClass('new-game'), ethos.showSignInModal)
           addClass(document.body, 'signed-out');
           removeClass(document.body, 'signed-in');
           addClass(eById('loading-games'), 'hidden');
@@ -671,80 +682,77 @@ function init() {
   
   // modal.close();
 
-  eById('sign-in').onclick = ethos.showSignInModal;
+  setOnClick(eByClass('close-error'), () => {
+    addClass(eByClass('error'), 'hidden');
+  })
+  setOnClick(eById('sign-in'), ethos.showSignInModal);
+  setOnClick(eByClass('leaderboard-button'), showLeaderboard)
+  setOnClick(eByClass('title'), ethos.showWallet)
+  
+  setOnClick(
+    eById('balance'), 
+    () => window.open('https://ethoswallet.xyz/dashboard')
+  )
+  setOnClick(
+    eById('wallet-address'), 
+    () => window.open('https://ethoswallet.xyz/dashboard')
+  )
 
-  eById('leaderboard-button').onclick = showLeaderboard;
+  setOnClick(
+    eById('logout'),
+    async (e) => {
+      e.stopPropagation();
+      await ethos.logout(walletSigner);
+      walletSigner = null;
+      games = null;
+      activeGameAddress = null;
+      walletContents = {};
 
-  for (const titleElement of eByClass('title')) {
-    titleElement.onclick = () => {
-      ethos.showWallet();
-    }
-  }
-
-  eById('balance').onclick = () => window.open('https://ethoswallet.xyz/dashboard');
-  eById('wallet-address').onclick = () => window.open('https://ethoswallet.xyz/dashboard');
-
-  // eById('sui-address').onmouseenter = () => {
-  //   removeClass(eById('logout'), 'hidden');
-  //   addClass(eById('sui-address'), 'hovering');
-  // }
-  // eById('sui-address').onmouseleave = () => {
-  //   setTimeout(() => {
-  //     addClass(eById('logout'), 'hidden');
-  //     removeClass(eById('sui-address'), 'hovering')
-  //   }, 5000)
-  // }
-
-  eById('logout').onclick = async (e) => {
-    e.stopPropagation();
-    await ethos.logout(walletSigner);
-    walletSigner = null;
-    games = null;
-    activeGameAddress = null;
-    walletContents = {};
-
-    addClass(document.body, 'signed-out');
-    removeClass(document.body, 'signed-in');
-    addClass(eById('leaderboard'), 'hidden');
-    removeClass(eById('game'), 'hidden');
-    addClass(eById('loading-games'), 'hidden');
-
-    board.clear();
-    
-    modal.open('get-started', 'board', true);
-  }
-
-  eById('close-modal').onclick = () => modal.close(true);
-
-  eById('play-button').onclick = () => {
-    if (games && games.length > 0) {
+      addClass(document.body, 'signed-out');
+      removeClass(document.body, 'signed-in');
       addClass(eById('leaderboard'), 'hidden');
       removeClass(eById('game'), 'hidden');
-      setActiveGame(games[0]);
-    } else if (walletSigner) {
-      eByClass('new-game')[0].onclick();
-    } else {
-      ethos.showSignInModal();
-    }
-  }
+      addClass(eById('loading-games'), 'hidden');
 
-  eById('modal-submit-to-leaderboard').onclick = () => {
-    modal.close();
-    showLeaderboard();
-    leaderboard.submit(
-      activeGameAddress, 
-      walletSigner, 
-      () => {
-        loadGames();
+      board.clear();
+      
+      modal.open('get-started', 'board', true);
+    }
+  );
+
+  setOnClick(eById('close-modal'), () => modal.close(true));
+
+  setOnClick(
+    eByClass('play-button'), 
+    () => {
+      if (games && games.length > 0) {
+        addClass(eById('leaderboard'), 'hidden');
+        removeClass(eById('game'), 'hidden');
+        setActiveGame(games[0]);
+      } else if (walletSigner) {
+        eByClass('new-game')[0].onclick();
+      } else {
+        ethos.showSignInModal();
       }
-    )
-  }
-
-  for (const keepPlayingElement of eByClass('keep-playing')) {
-    keepPlayingElement.onclick = () => {
-      modal.close();
     }
-  }
+  );
+
+  setOnClick(
+    eById('modal-submit-to-leaderboard'),
+    () => {
+      modal.close();
+      showLeaderboard();
+      leaderboard.submit(
+        activeGameAddress, 
+        walletSigner, 
+        () => {
+          loadGames();
+        }
+      )
+    }
+  );
+
+  setOnClick(eByClass('keep-playing'), modal.close);
 }
 
 window.requestAnimationFrame(init);
@@ -1299,14 +1307,40 @@ const hide = () => {
 
 module.exports = { next, add, remove, removeAll, show, hide };
 },{"./utils":9}],9:[function(require,module,exports){
-module.exports = {
+const utils = {
   eById: (id) => document.getElementById(id),
+  
   eByClass: (className) => document.getElementsByClassName(className),
-  addClass: (element, className) => element.classList.add(className),
-  removeClass: (element, classNames) => {
-    const allClassNames = Array.isArray(classNames) ? classNames : [classNames];
-    element.classList.remove(...allClassNames)
+
+  toArray: (itemOrItems) => {
+    const itemsArray = Array.isArray(itemOrItems) || itemOrItems instanceof HTMLCollection ? 
+      itemOrItems : 
+      [itemOrItems];
+    return itemsArray;
   },
+
+  addClass: (elementOrElements, className) => {
+    const allElements = utils.toArray(elementOrElements) 
+    for (const element of allElements) {
+      element.classList.add(className)
+    }
+  },
+
+  removeClass: (elementOrElements, classNameOrNames) => {
+    const allClassNames = utils.toArray(classNameOrNames) 
+    const allElements = utils.toArray(elementOrElements) 
+    for (const element of allElements) {
+      element.classList.remove(...allClassNames)
+    }
+  },
+
+  setOnClick: (elementOrElements, onClick) => {
+    const allElements = utils.toArray(elementOrElements) 
+    for (const element of allElements) {
+      element.onclick = onClick;
+    }
+  },
+
   directionNumberToDirection: (directionNumber) => {
     switch(directionNumber) {
       case "0": return "left";
@@ -1315,7 +1349,7 @@ module.exports = {
       case "3": return "down";
     }
   },
-  
+
   directionToDirectionNumber: (direction) => {
     switch(direction) {
       case "left": return "0";
@@ -1324,7 +1358,7 @@ module.exports = {
       case "down": return "3";
     }
   },
-  
+
   directionNumberToSymbol: (directionNumber) => {
     switch(directionNumber) {
       case "0": return "←";
@@ -1335,11 +1369,14 @@ module.exports = {
   },
 
   isVertical: (direction) => ["up", "down"].includes(direction),
-  
+
   isReverse: (direction) => ["right", "down"].includes(direction),
 
   truncateMiddle: (s, length=6) => `${s.slice(0,length)}...${s.slice(length * -1)}`
 }
+
+module.exports = utils;
+  
 },{}],10:[function(require,module,exports){
 function _assertThisInitialized(self) {
   if (self === void 0) {

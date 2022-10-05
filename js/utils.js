@@ -1,11 +1,37 @@
-module.exports = {
+const utils = {
   eById: (id) => document.getElementById(id),
+  
   eByClass: (className) => document.getElementsByClassName(className),
-  addClass: (element, className) => element.classList.add(className),
-  removeClass: (element, classNames) => {
-    const allClassNames = Array.isArray(classNames) ? classNames : [classNames];
-    element.classList.remove(...allClassNames)
+
+  toArray: (itemOrItems) => {
+    const itemsArray = Array.isArray(itemOrItems) || itemOrItems instanceof HTMLCollection ? 
+      itemOrItems : 
+      [itemOrItems];
+    return itemsArray;
   },
+
+  addClass: (elementOrElements, className) => {
+    const allElements = utils.toArray(elementOrElements) 
+    for (const element of allElements) {
+      element.classList.add(className)
+    }
+  },
+
+  removeClass: (elementOrElements, classNameOrNames) => {
+    const allClassNames = utils.toArray(classNameOrNames) 
+    const allElements = utils.toArray(elementOrElements) 
+    for (const element of allElements) {
+      element.classList.remove(...allClassNames)
+    }
+  },
+
+  setOnClick: (elementOrElements, onClick) => {
+    const allElements = utils.toArray(elementOrElements) 
+    for (const element of allElements) {
+      element.onclick = onClick;
+    }
+  },
+
   directionNumberToDirection: (directionNumber) => {
     switch(directionNumber) {
       case "0": return "left";
@@ -14,7 +40,7 @@ module.exports = {
       case "3": return "down";
     }
   },
-  
+
   directionToDirectionNumber: (direction) => {
     switch(direction) {
       case "left": return "0";
@@ -23,7 +49,7 @@ module.exports = {
       case "down": return "3";
     }
   },
-  
+
   directionNumberToSymbol: (directionNumber) => {
     switch(directionNumber) {
       case "0": return "←";
@@ -34,8 +60,11 @@ module.exports = {
   },
 
   isVertical: (direction) => ["up", "down"].includes(direction),
-  
+
   isReverse: (direction) => ["right", "down"].includes(direction),
 
   truncateMiddle: (s, length=6) => `${s.slice(0,length)}...${s.slice(length * -1)}`
 }
+
+module.exports = utils;
+  

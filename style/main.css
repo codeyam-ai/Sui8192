@@ -173,6 +173,10 @@ a:visited {
   justify-content: center;
   align-items: center;
   gap: 6px;
+  width: 210px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #sui-address .menu > div {
@@ -672,7 +676,8 @@ a:visited {
   border-radius: 12px;
 }
 
-#close-modal > div {
+#close-modal > div,
+.close-error {
   float: right;
   margin-top: -45px;
   margin-right: -45px;
@@ -686,6 +691,10 @@ a:visited {
   align-items: center;
   font-size: large;
   cursor: pointer;
+}
+
+.close-error {
+  margin: 6px -6px 0 0;
 }
 
 .spinner {
@@ -979,3 +988,50 @@ a:visited.link-button {
   height: 150px;
   width: 150px;
 }
+
+@media only screen and (max-width: 600px) {
+  .wide {
+    display: none !important;
+  }
+
+  .header-buttons {
+    padding-top: 24px;
+  }
+
+  .content {
+    width: 96%;
+    margin: auto;
+  }
+
+  .tile,
+  .tile-result,
+  .tile-wrapper {
+    width: 60px;
+    height: 60px;
+    font-size: small;
+  }
+
+  .value {
+    font-size: medium;
+  }
+
+  .modal {
+    width: 180px;
+  }
+
+  .split-panel {
+    flex-direction: column-reverse;
+  }
+
+  .panel {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .narrow {
+    display: none !important;
+  }
+}
+
