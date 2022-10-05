@@ -1148,7 +1148,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       }
       
       load(walletSigner, activeGameAddress, onComplete, onError);
-      
+      data.error = "Here is the error message!"
       if (data?.effects?.status?.error === "InsufficientGas") {
         onError()
         return;
