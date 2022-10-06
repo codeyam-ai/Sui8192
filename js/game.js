@@ -138,10 +138,11 @@ async function loadWalletContents() {
   const balance = (walletContents.balance || "").toString();
 
   if (balance < 5000000) {
-    const response = await ethos.dripSui({ address });
+    const success = await ethos.dripSui({ address });
     
-    console.log("RESPONSE", response)
-    removeClass(eById('faucet'), 'hidden');
+    if (success) {
+      removeClass(eById('faucet'), 'hidden');
+    }
   }
 
   eById('balance').innerHTML = balance.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' SUI';
