@@ -989,6 +989,10 @@ a:visited.link-button {
   width: 150px;
 }
 
+#faucet {
+  padding: 6px;
+}
+
 @media only screen and (max-width: 600px) {
   .wide {
     display: none !important;

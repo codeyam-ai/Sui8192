@@ -135,30 +135,16 @@ async function loadWalletContents() {
   const address = await walletSigner.getAddress();
   eById('wallet-address').innerHTML = truncateMiddle(address, 4);
   walletContents = await ethos.getWalletContents(address, 'sui');
-  // console.log("WALLET CONTENTS", walletContents)
-
-  // const details = {
-  //   network: 'sui',
-  //   address: "0xb1cc5c85459ebfaddf49f70816ab65da6a412deb",
-  //   moduleName: 'coin_merge',
-  //   functionName: 'merge',
-  //   inputValues: [walletContents.coins.map(c => c.address)],
-  //   gasBudget: 10000
-  // };
-
-  // console.log("DETAILS", details)
-
-  // const data = await ethos.transact({
-  //   signer: walletSigner, 
-  //   details
-  // })
-
-  // console.log("RESPONSE", response)
-
-  // const walletContents2 = await ethos.getWalletContents(address, 'sui');
-  // console.log("WALLET CONTENTS2", walletContents2)
-
   const balance = (walletContents.balance || "").toString();
+
+  if (balance < 5000000) {
+    const success = await ethos.dripSui({ address });
+    
+    if (success) {
+      removeClass(eById('faucet'), 'hidden');
+    }
+  }
+
   eById('balance').innerHTML = balance.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' SUI';
 }
 
@@ -336,7 +322,7 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-    
+    walletAppUrl: 'http://localhost:3000',
     appId: 'sui-8192'
   };
 
@@ -359,6 +345,8 @@ function init() {
       onWalletConnected: async ({ signer }) => {
         walletSigner = signer;
         if (signer) {
+          modal.close();
+        
           addClass(document.body, 'signed-in');
 
           // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
@@ -451,6 +439,7 @@ function init() {
           removeClass(document.body, 'signed-out');
 
           const address = await signer.getAddress();
+
           setOnClick(
             eById('copy-address'),
             () => {
@@ -550,6 +539,10 @@ function init() {
   );
 
   setOnClick(eByClass('keep-playing'), modal.close);
+
+  setOnClick(eById('close-faucet'), () => {
+    addClass(eById('faucet'), 'hidden')
+  })
 }
 
 window.requestAnimationFrame(init);
