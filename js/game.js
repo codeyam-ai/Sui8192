@@ -322,7 +322,6 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-    walletAppUrl: 'http://localhost:3000',
     appId: 'sui-8192'
   };
 
