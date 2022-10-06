@@ -1,18 +1,18 @@
 const { eById, eByClass, addClass, removeClass } = require("./utils");
 
-module.exports = {
+const modal = {
   close: () => {
     const modal = eById("modal-overlay");
     addClass(modal, 'hidden');
   },
 
   open: (messageId, containerId, mandatory=false) => {
+    const modal = eById("modal-overlay");
     const messages = eByClass('message');
     for (const message of messages) {
       addClass(message, 'hidden');
     }
     
-    const modal = eById("modal-overlay");
     if (modal.parentNode.id !== containerId) {
       const container = eById(containerId);
       modal.parentNode.removeChild(modal);
@@ -32,3 +32,5 @@ module.exports = {
     removeClass(modal, 'hidden');
   }
 }
+
+module.exports = modal;

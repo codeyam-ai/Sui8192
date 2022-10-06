@@ -338,30 +338,15 @@ async function loadWalletContents() {
   const address = await walletSigner.getAddress();
   eById('wallet-address').innerHTML = truncateMiddle(address, 4);
   walletContents = await ethos.getWalletContents(address, 'sui');
-  // console.log("WALLET CONTENTS", walletContents)
-
-  // const details = {
-  //   network: 'sui',
-  //   address: "0xb1cc5c85459ebfaddf49f70816ab65da6a412deb",
-  //   moduleName: 'coin_merge',
-  //   functionName: 'merge',
-  //   inputValues: [walletContents.coins.map(c => c.address)],
-  //   gasBudget: 10000
-  // };
-
-  // console.log("DETAILS", details)
-
-  // const data = await ethos.transact({
-  //   signer: walletSigner, 
-  //   details
-  // })
-
-  // console.log("RESPONSE", response)
-
-  // const walletContents2 = await ethos.getWalletContents(address, 'sui');
-  // console.log("WALLET CONTENTS2", walletContents2)
-
   const balance = (walletContents.balance || "").toString();
+
+  if (true || balance < 5000000) {
+    const response = await ethos.dripSui({ address });
+    
+    console.log("RESPONSE", response)
+    removeClass(eById('faucet'), 'hidden');
+  }
+
   eById('balance').innerHTML = balance.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' SUI';
 }
 
@@ -539,7 +524,7 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-    
+    walletAppUrl: 'http://localhost:3000',
     appId: 'sui-8192'
   };
 
@@ -562,6 +547,8 @@ function init() {
       onWalletConnected: async ({ signer }) => {
         walletSigner = signer;
         if (signer) {
+          modal.close();
+        
           addClass(document.body, 'signed-in');
 
           // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
@@ -654,6 +641,7 @@ function init() {
           removeClass(document.body, 'signed-out');
 
           const address = await signer.getAddress();
+
           setOnClick(
             eById('copy-address'),
             () => {
@@ -753,6 +741,10 @@ function init() {
   );
 
   setOnClick(eByClass('keep-playing'), modal.close);
+
+  setOnClick(eById('close-faucet'), () => {
+    addClass(eById('faucet'), 'hidden')
+  })
 }
 
 window.requestAnimationFrame(init);
@@ -966,19 +958,19 @@ module.exports = {
 },{"./constants":3,"./utils":9,"@mysten/sui.js":24,"ethos-wallet-beta":40}],6:[function(require,module,exports){
 const { eById, eByClass, addClass, removeClass } = require("./utils");
 
-module.exports = {
+const modal = {
   close: () => {
     const modal = eById("modal-overlay");
     addClass(modal, 'hidden');
   },
 
   open: (messageId, containerId, mandatory=false) => {
+    const modal = eById("modal-overlay");
     const messages = eByClass('message');
     for (const message of messages) {
       addClass(message, 'hidden');
     }
     
-    const modal = eById("modal-overlay");
     if (modal.parentNode.id !== containerId) {
       const container = eById(containerId);
       modal.parentNode.removeChild(modal);
@@ -998,6 +990,8 @@ module.exports = {
     removeClass(modal, 'hidden');
   }
 }
+
+module.exports = modal;
 },{"./utils":9}],7:[function(require,module,exports){
 const { ethos } = require("ethos-wallet-beta");
 const { contractAddress } = require("./constants");
