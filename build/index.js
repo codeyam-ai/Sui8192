@@ -446,11 +446,11 @@ async function loadGames() {
     gamesElement.append(gameElement);
 
     setOnClick(
-      eByClass('potential-leaderboard-game'),
+      gameElement,
       (e) => {
         e.stopPropagation();
         leaderboard.submit(
-          gameElement.dataset.address, 
+          game.address, 
           walletSigner, 
           () => {
             loadGames();
