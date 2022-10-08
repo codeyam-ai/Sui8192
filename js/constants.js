@@ -1,6 +1,6 @@
 module.exports = {
-  contractAddress: "0xc3520ea7d708d5da2b597cb77b882e95a55bed65",
-  leaderboardAddress: "0xb78e709f4897d0cd731d55d87773037cec1b95f2",
+  contractAddress: "0x67106a09142eb686f8cc4f400d781d483254793",
+  leaderboardAddress: "0x1838d8fe1a433d4b8bfd3f56594cd180b3f527b5",
   tileNames: {
     1: "Air",
     2: "Mist",

@@ -686,10 +686,10 @@ escape-string-regexp@^1.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==
 
-ethos-wallet-beta@^0.0.169:
-  version "0.0.169"
-  resolved "https://registry.yarnpkg.com/ethos-wallet-beta/-/ethos-wallet-beta-0.0.169.tgz#58733631efe4cba0451db91394bb8f068bf1ace2"
-  integrity sha512-YKLNLr8+KjZ5aYCV3STSyip14YlzrWTb33G/pj8i5Giyi5qtBqZQNZkVwk1mpzXqLU3wRVQFOVSALmZc2JuAXQ==
+ethos-wallet-beta@^0.0.170:
+  version "0.0.170"
+  resolved "https://registry.yarnpkg.com/ethos-wallet-beta/-/ethos-wallet-beta-0.0.170.tgz#a0e472d3f2d83c7e674532dfa2494dc12caa1d60"
+  integrity sha512-+kM44uV/CAqsTN8w/beXS0+ZvSUwggpN5HpPD+o2vNFjWVdjV45MDW/Tip385PngjGx2WzH2kjTM7z72R2pz/g==
   dependencies:
     "@mysten/sui.js" "^0.11.0"
     "@superstate/react" "^0.1.0"
