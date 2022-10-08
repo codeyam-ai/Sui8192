@@ -429,7 +429,6 @@ async function loadGames() {
     })
   ).sort((a, b) => b.score - a.score);
  
-  console.log("GAMES", games, contractAddress, walletContents);
   if (!games || games.length === 0) {
     const newGameArea = document.createElement('DIV');
     newGameArea.classList.add('text-center');
