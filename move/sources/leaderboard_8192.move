@@ -12,6 +12,8 @@ module ethos::leaderboard_8192 {
     const ENotALeader: u64 = 0;
     const ETileNotAboveMin: u64 = 1;
     const EScoreNotAboveMin: u64 = 2;
+    const ELowTile: u64 = 3;
+    const ELowScore: u64 = 4;
 
     struct Leaderboard8192 has key, store {
         id: UID,
@@ -98,8 +100,8 @@ module ethos::leaderboard_8192 {
     public entry fun submit_game(game: &mut Game8192, leaderboard: &mut Leaderboard8192, ctx: &mut TxContext) {
         let top_tile = *game_8192::top_tile(game);
         let score = *game_8192::score(game);
-        assert!(top_tile >= leaderboard.min_tile, 1);
-        assert!(score >= leaderboard.min_score, 2);
+        assert!(top_tile >= leaderboard.min_tile, ELowTile);
+        assert!(score >= leaderboard.min_score, ELowScore);
         if (top_tile < leaderboard.min_tile && score < leaderboard.min_score) {
             return
         };
