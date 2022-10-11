@@ -10,10 +10,8 @@ module ethos::leaderboard_8192 {
     use ethos::game_8192::{Self, Game8192};
 
     const ENotALeader: u64 = 0;
-    const ETileNotAboveMin: u64 = 1;
-    const EScoreNotAboveMin: u64 = 2;
-    const ELowTile: u64 = 3;
-    const ELowScore: u64 = 4;
+    const ELowTile: u64 = 1;
+    const ELowScore: u64 = 2;
 
     struct Leaderboard8192 has key, store {
         id: UID,
@@ -37,6 +35,8 @@ module ethos::leaderboard_8192 {
         create(ctx);
     }
 
+    // ENTRY FUNCTIONS //
+
     public entry fun create(ctx: &mut TxContext) {
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),
@@ -50,52 +50,6 @@ module ethos::leaderboard_8192 {
 
         transfer::share_object(leaderboard);
     }
-
-    public fun game_count(leaderboard: &Leaderboard8192): &u64 {
-        &leaderboard.game_count
-    }
-
-    public fun top_games(leaderboard: &Leaderboard8192): &vector<TopGame8192> {
-        &leaderboard.top_games
-    }
-
-    public fun top_game_at(leaderboard: &Leaderboard8192, index: u64): &TopGame8192 {
-        vector::borrow(&leaderboard.top_games, index)
-    }
-
-    public fun top_game_game_id(top_game: &TopGame8192): &ID {
-        &top_game.game_id
-    }
-
-    public fun top_game_top_tile(top_game: &TopGame8192): &u8 {
-        &top_game.top_tile
-    }
-
-    public fun top_game_score(top_game: &TopGame8192): &u64 {
-        &top_game.score
-    }
-
-    public fun min_tile(leaderboard: &Leaderboard8192): &u8 {
-        &leaderboard.min_tile
-    }
-
-    public fun min_score(leaderboard: &Leaderboard8192): &u64 {
-        &leaderboard.min_score
-    }
-
-    // public entry fun create_game(leaderboard: &mut Leaderboard8192, ctx: &mut TxContext) {
-    //     game_8192::create(object::uid_to_inner(&leaderboard.id), ctx);
-    //     leaderboard.game_count = leaderboard.game_count + 1;
-    // }
-
-    // public entry fun make_move(game: &mut Game8192, direction: u8, leaderboard: &mut Leaderboard8192, ctx: &mut TxContext) {
-    //     game_8192::make_move(game, direction, ctx);
-    //     let top_tile = *game_8192::top_tile(game);
-    //     let score = *game_8192::score(game);
-    //     if (top_tile >= leaderboard.min_tile || score >= leaderboard.min_score) {
-    //         submit_game(game, leaderboard);
-    //     }
-    // }
 
     public entry fun submit_game(game: &mut Game8192, leaderboard: &mut Leaderboard8192, ctx: &mut TxContext) {
         let top_tile = *game_8192::top_tile(game);
@@ -202,6 +156,44 @@ module ethos::leaderboard_8192 {
             option::swap(leader_option, name_string);
         }
     }
+
+    // PUBLIC ACCESSOR FUNCTIONS //
+
+    public fun game_count(leaderboard: &Leaderboard8192): &u64 {
+        &leaderboard.game_count
+    }
+
+    public fun top_games(leaderboard: &Leaderboard8192): &vector<TopGame8192> {
+        &leaderboard.top_games
+    }
+
+    public fun top_game_at(leaderboard: &Leaderboard8192, index: u64): &TopGame8192 {
+        vector::borrow(&leaderboard.top_games, index)
+    }
+
+    public fun top_game_game_id(top_game: &TopGame8192): &ID {
+        &top_game.game_id
+    }
+
+    public fun top_game_top_tile(top_game: &TopGame8192): &u8 {
+        &top_game.top_tile
+    }
+
+    public fun top_game_score(top_game: &TopGame8192): &u64 {
+        &top_game.score
+    }
+
+    public fun min_tile(leaderboard: &Leaderboard8192): &u8 {
+        &leaderboard.min_tile
+    }
+
+    public fun min_score(leaderboard: &Leaderboard8192): &u64 {
+        &leaderboard.min_score
+    }
+
+    
+
+    // TESTS //
 
     #[test_only]
     use sui::test_scenario::{Self, Scenario};

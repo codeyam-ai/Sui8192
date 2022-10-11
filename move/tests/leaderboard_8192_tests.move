@@ -8,41 +8,12 @@ module ethos::leaderboard_8192_tests {
 
     use ethos::leaderboard_8192::{Self, Leaderboard8192};
     use ethos::game_8192::{Self, Game8192};
-    // use ethos::game_board_8192;
-  
+    
     const PLAYER: address = @0xCAFE;
 
     fun create_game(scenario: &mut Scenario) {
       game_8192::create(test_scenario::ctx(scenario))
     }
-
-    // Game is currently created in the game itself
-    // #[test]
-    // fun test_create_game() {
-    //     let scenario = &mut test_scenario::begin(&PLAYER);
-    //     init_leaderboard(scenario);
-
-    //     test_scenario::next_tx(scenario, &PLAYER);
-    //     {
-    //         let leaderboard_wrapper = test_scenario::take_shared<Leaderboard8192>(scenario);
-    //         let leaderboard = test_scenario::borrow_mut(&mut leaderboard_wrapper);
-
-    //         assert!(game_count(leaderboard) == &0, *game_count(leaderboard));
-
-    //         create_game(leaderboard, test_scenario::ctx(scenario));
-
-    //         assert!(game_count(leaderboard) == &1, *game_count(leaderboard));
-            
-    //         test_scenario::return_shared(scenario, leaderboard_wrapper);
-    //     };
-
-    //     test_scenario::next_tx(scenario, &PLAYER);
-    //     {
-    //         let game = test_scenario::take_owned<Game8192>(scenario);
-    //         assert!(game_8192::player(&game) == &PLAYER, 0);
-    //         test_scenario::return_owned(scenario, game)
-    //     }
-    // }
 
     #[test]
     fun test_submit_game() {

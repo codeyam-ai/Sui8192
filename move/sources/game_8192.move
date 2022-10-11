@@ -21,7 +21,6 @@ module ethos::game_8192 {
         name: String,
         description: String,
         url: Url,
-        // leaderboard_id: ID,
         player: address,
         score: u64,
         top_tile: u8,      
@@ -46,7 +45,6 @@ module ethos::game_8192 {
 
     struct NewGameEvent8192 has copy, drop {
         game_id: ID,
-        // leaderboard_id: ID,
         player: address,
         board_spaces: vector<vector<Option<u8>>>,
         score: u64
@@ -78,70 +76,8 @@ module ethos::game_8192 {
         url: Url
     }
 
-    public fun id(game: &Game8192): &UID {
-      &game.id
-    }
-
-    public fun player(game: &Game8192): &address {
-        &game.player
-    }
-
-    public fun moves(game: &Game8192): &vector<GameMove8192> {
-        &game.moves
-    }
-
-    public fun top_tile(game: &Game8192): &u8 {
-        let game_board = vector::borrow(&game.boards, vector::length(&game.boards) - 1);
-        game_board_8192::top_tile(game_board)
-    }
-
-    public fun score(game: &Game8192): &u64 {
-        let game_board = vector::borrow(&game.boards, vector::length(&game.boards) - 1);
-        game_board_8192::score(game_board)
-    }
-
-    public fun url(game: &Game8192): &Url {
-        &game.url
-    }
-
-    public fun move_count(game: &Game8192): u64 {
-        vector::length(&game.moves)
-    }
-
-    public fun move_at(game: &Game8192, index: u64): (&u8, &address) {
-        let moveItem = vector::borrow(&game.moves, index);
-        (&moveItem.direction, &moveItem.player)
-    }
-
-    public fun board_at(game: &Game8192, index: u64): &GameBoard8192 {
-        vector::borrow(&game.boards, index)
-    }
-
-    public fun leaderboard_game_count(game: &Game8192): u64 {
-        vector::length(&game.leaderboard_games)
-    }
-
-    public fun leaderboard_game_at(game: &Game8192, index: u64): &LeaderboardGame8192 {
-        vector::borrow(&game.leaderboard_games, index)
-    }
-
-    public fun leaderboard_game_position(leaderboard_game: &LeaderboardGame8192): &u64 {
-        &leaderboard_game.position
-    }
-
-    public fun leaderboard_game_top_tile(leaderboard_game: &LeaderboardGame8192): &u8 {
-        &leaderboard_game.top_tile
-    }
-
-    public fun leaderboard_game_score(leaderboard_game: &LeaderboardGame8192): &u64 {
-        &leaderboard_game.score
-    }
-
-    public fun leaderboard_game_epoch(leaderboard_game: &LeaderboardGame8192): &u64 {
-        &leaderboard_game.epoch
-    }
-
-    // public fun create(leaderboard_id: ID, ctx: &mut TxContext) {
+    // PUBLIC ENTRY FUNCTIONS //
+    
     public entry fun create(ctx: &mut TxContext) {
         let player = tx_context::sender(ctx);
         let uid = object::new(ctx);
@@ -238,6 +174,8 @@ module ethos::game_8192 {
         game.url = url;
     }
 
+    // FRIEND FUNCTIONS //
+
     public (friend) fun record_leaderboard_game(game: &mut Game8192, leaderboard_id: ID, position: u64, epoch: u64) {
         let leaderboard_game = LeaderboardGame8192 {
             leaderboard_id,
@@ -267,5 +205,70 @@ module ethos::game_8192 {
         else { urlString = b"https://arweave.net/eQkMD04T4tjZZZpXPa1x5_KPUK_Pk1FA_cSOlJCir98"; };
 
         return url::new_unsafe_from_bytes(urlString)
+    }
+
+    // PUBLIC ACCESSOR FUNCTIONS //
+
+    public fun id(game: &Game8192): &UID {
+      &game.id
+    }
+
+    public fun player(game: &Game8192): &address {
+        &game.player
+    }
+
+    public fun moves(game: &Game8192): &vector<GameMove8192> {
+        &game.moves
+    }
+
+    public fun top_tile(game: &Game8192): &u8 {
+        let game_board = vector::borrow(&game.boards, vector::length(&game.boards) - 1);
+        game_board_8192::top_tile(game_board)
+    }
+
+    public fun score(game: &Game8192): &u64 {
+        let game_board = vector::borrow(&game.boards, vector::length(&game.boards) - 1);
+        game_board_8192::score(game_board)
+    }
+
+    public fun url(game: &Game8192): &Url {
+        &game.url
+    }
+
+    public fun move_count(game: &Game8192): u64 {
+        vector::length(&game.moves)
+    }
+
+    public fun move_at(game: &Game8192, index: u64): (&u8, &address) {
+        let moveItem = vector::borrow(&game.moves, index);
+        (&moveItem.direction, &moveItem.player)
+    }
+
+    public fun board_at(game: &Game8192, index: u64): &GameBoard8192 {
+        vector::borrow(&game.boards, index)
+    }
+
+    public fun leaderboard_game_count(game: &Game8192): u64 {
+        vector::length(&game.leaderboard_games)
+    }
+
+    public fun leaderboard_game_at(game: &Game8192, index: u64): &LeaderboardGame8192 {
+        vector::borrow(&game.leaderboard_games, index)
+    }
+
+    public fun leaderboard_game_position(leaderboard_game: &LeaderboardGame8192): &u64 {
+        &leaderboard_game.position
+    }
+
+    public fun leaderboard_game_top_tile(leaderboard_game: &LeaderboardGame8192): &u8 {
+        &leaderboard_game.top_tile
+    }
+
+    public fun leaderboard_game_score(leaderboard_game: &LeaderboardGame8192): &u64 {
+        &leaderboard_game.score
+    }
+
+    public fun leaderboard_game_epoch(leaderboard_game: &LeaderboardGame8192): &u64 {
+        &leaderboard_game.epoch
     }
 }
