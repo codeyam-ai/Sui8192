@@ -270,28 +270,29 @@ async function loadGames() {
         <div class="${leaderboardItem && leaderboardItemUpToDate ? '' : 'hidden'}">
           <span class="light">Leaderboard:</span> <span class='bold'>${leaderboardItemIndex + 1}</span>
         </div>
-        <button class='potential-leaderboard-game ${leaderboardItemUpToDate ? 'hidden' : ''}'>
+        <button class='potential-leaderboard-game ${leaderboardItemUpToDate ? 'hidden' : ''}' data-address='${game.address}'>
           ${leaderboardItem ? 'Update' : 'Add To'} Leaderboard
         </button>
       </div>
     `
 
     gamesElement.append(gameElement);
-
-    setOnClick(
-      gameElement,
-      (e) => {
-        e.stopPropagation();
-        leaderboard.submit(
-          game.address, 
-          walletSigner, 
-          () => {
-            loadGames();
-          }
-        )
-      }
-    )
   }
+
+  setOnClick(
+    eByClass('potential-leaderboard-game'),
+    (e) => {
+      const { dataset: { address } } = e.target;
+      e.stopPropagation();
+      leaderboard.submit(
+        address, 
+        walletSigner, 
+        () => {
+          loadGames();
+        }
+      )
+    }
+  )
 }
 
 async function setActiveGame(game) {
