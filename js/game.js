@@ -429,6 +429,10 @@ const initializeClicks = () => {
   setOnClick(eById('close-faucet'), () => {
     addClass(eById('faucet'), 'hidden')
   })
+
+  setOnClick(eById('close-preapproval'), () => {
+    addClass(eById('preapproval'), 'hidden')
+  })
 }
 
 const onWalletConnected = async ({ signer }) => {

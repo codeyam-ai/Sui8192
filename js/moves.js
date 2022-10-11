@@ -12,6 +12,7 @@ const queue = require('./queue');
 
 let moves = {};
 let preapproval;
+let preapprovalNotified = false;
 
 const constructTransaction = (direction, activeGameAddress) => {
   return {
@@ -50,6 +51,11 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
       preapproval = false;
     }
   // }
+
+  if (!preapprovalNotified && !preapproval) {
+    removeClass(eById('preapproval'), 'hidden');
+    preapprovalNotified = true
+  }
   
   return preapproval;
 }
