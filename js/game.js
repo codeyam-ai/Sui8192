@@ -167,7 +167,7 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), 'hidden');
 }
 
-async function tryDrip() {
+async function tryDrip(address) {
   if (faucetUsed) return;
 
   let success;
@@ -199,7 +199,7 @@ async function loadWalletContents() {
   const balance = walletContents.balance || 0;
 
   if (balance < 5000000) {
-    tryDrip();
+    tryDrip(address);
   }
 
   const balanceSting = (balance || "").toString();
