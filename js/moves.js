@@ -55,6 +55,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
   // }
 
   if (!preapprovalNotified && !preapproval) {
+    gtag('event', 'preapproval-warning');
     removeClass(eById('preapproval'), 'hidden');
     preapprovalNotified = true
   }
