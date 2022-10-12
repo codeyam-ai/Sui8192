@@ -1034,6 +1034,8 @@ const constructTransaction = (direction, activeGameAddress) => {
 }
 
 const checkPreapprovals = async (activeGameAddress, walletSigner) => {
+    if (walletSigner.ethos) return true;
+
   // if (preapproval === undefined) {
     try {
       const result = await ethos.requestPreapproval({
