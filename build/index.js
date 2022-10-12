@@ -370,6 +370,30 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), 'hidden');
 }
 
+async function tryDrip() {
+  if (faucetUsed) return;
+
+  let success;
+  try {
+    success = await ethos.dripSui({ address });
+  } catch (e) {
+    console.log("Error with drip", e);
+    return;
+  }
+
+  if (!success) {
+    const { balance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
+    if (balance !== balanceCheck) {
+      success = true;      
+    }
+  }
+
+  if (success) {
+    removeClass(eById('faucet'), 'hidden');
+    faucetUsed = true;
+  }
+}
+
 async function loadWalletContents() {
   if (!walletSigner) return;
   const address = await walletSigner.getAddress();
@@ -377,26 +401,8 @@ async function loadWalletContents() {
   walletContents = await ethos.getWalletContents(address, 'sui');
   const balance = walletContents.balance || 0;
 
-  if (!faucetUsed && balance < 5000000) {
-    let success;
-    try {
-      success = await ethos.dripSui({ address });
-    } catch (e) {
-      console.log("Error with drip", e);
-      return;
-    }
-
-    if (!success) {
-      const { balance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
-      if (balance !== balanceCheck) {
-        success = true;      
-      }
-    }
-
-    if (success) {
-      removeClass(eById('faucet'), 'hidden');
-      faucetUsed = true;
-    }
+  if (balance < 5000000) {
+    tryDrip();
   }
 
   const balanceSting = (balance || "").toString();
