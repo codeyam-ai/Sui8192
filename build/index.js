@@ -232,9 +232,6 @@ let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
 
-const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
-provider.syncAccountState("0x16c67b73630ba3226ae878cf0ec6885976b635d4");
-
 window.onkeydown = (e) => {
   let direction;
   switch (e.keyCode) {
@@ -375,6 +372,13 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), 'hidden');
 }
 
+async function syncAccountState() {
+  if (!walletSigner) return;
+  const address =  await walletSigner.getAddress();
+  const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
+  await provider.syncAccountState(address);
+}
+
 async function tryDrip() {
   if (!walletSigner || faucetUsed) return;
 
@@ -392,8 +396,7 @@ async function tryDrip() {
   }
 
   try {
-    const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
-    await provider.syncAccountState(address);
+    await syncAccountState();
   } catch (e) {
     console.log("Error with syncing account state", e);
   }
@@ -662,10 +665,11 @@ const initializeClicks = () => {
   })
 }
 
-const onWalletConnected = async ({ provider, signer }) => {
-  walletProvider = provider;
+const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
+    syncAccountState();
+
     modal.close();
   
     addClass(document.body, 'signed-in');

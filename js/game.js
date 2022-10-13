@@ -169,6 +169,13 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), 'hidden');
 }
 
+async function syncAccountState() {
+  if (!walletSigner) return;
+  const address =  await walletSigner.getAddress();
+  const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
+  await provider.syncAccountState(address);
+}
+
 async function tryDrip() {
   if (!walletSigner || faucetUsed) return;
 
@@ -186,8 +193,7 @@ async function tryDrip() {
   }
 
   try {
-    const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
-    await provider.syncAccountState(address);
+    await syncAccountState();
   } catch (e) {
     console.log("Error with syncing account state", e);
   }
@@ -459,6 +465,8 @@ const initializeClicks = () => {
 const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
+    syncAccountState();
+
     modal.close();
   
     addClass(document.body, 'signed-in');
