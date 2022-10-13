@@ -73,7 +73,7 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
       gameAddress,
       leaderboardAddress
     ],
-    gasBudget: 10000
+    gasBudget: 100000
   };
 
   await ethos.transact({
