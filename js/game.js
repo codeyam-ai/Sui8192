@@ -1,6 +1,8 @@
 const React = require('react');
 const ReactDOM = require('react-dom/client');
+const { JsonRpcProvider } = require("@mysten/sui.js");
 const { EthosWrapper, SignInButton, ethos } = require('ethos-wallet-beta');
+
 const leaderboard = require('./leaderboard');
 const { contractAddress } = require('./constants');
 const { 
@@ -19,6 +21,7 @@ const confetti = require('./confetti');
 
 const DASHBOARD_LINK = 'https://ethoswallet.xyz/dashboard';
 
+let walletProvider;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -167,15 +170,27 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), 'hidden');
 }
 
-async function tryDrip(address) {
-  if (faucetUsed) return;
+async function tryDrip() {
+  if (!walletSigner || faucetUsed) return;
+
+  faucetUsed = true;
+
+  const address =  await walletSigner.getAddress();
 
   let success;
   try {
     success = await ethos.dripSui({ address });
   } catch (e) {
     console.log("Error with drip", e);
+    faucetUsed = false;
     return;
+  }
+
+  try {
+    const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
+    await provider.syncAccountState(address);
+  } catch (e) {
+    console.log("Error with syncing account state", e);
   }
 
   if (!success) {
@@ -188,6 +203,7 @@ async function tryDrip(address) {
   if (success) {
     removeClass(eById('faucet'), 'hidden');
     faucetUsed = true;
+    loadWalletContents();
   }
 }
 
@@ -441,7 +457,8 @@ const initializeClicks = () => {
   })
 }
 
-const onWalletConnected = async ({ signer }) => {
+const onWalletConnected = async ({ provider, signer }) => {
+  walletProvider = provider;
   walletSigner = signer;
   if (signer) {
     modal.close();
