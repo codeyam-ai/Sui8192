@@ -224,7 +224,6 @@ const confetti = require('./confetti');
 
 const DASHBOARD_LINK = 'https://ethoswallet.xyz/dashboard';
 
-let walletProvider;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -232,6 +231,9 @@ let walletContents = {};
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
+
+const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
+provider.syncAccountState("0x16c67b73630ba3226ae878cf0ec6885976b635d4");
 
 window.onkeydown = (e) => {
   let direction;

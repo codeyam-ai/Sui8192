@@ -21,7 +21,6 @@ const confetti = require('./confetti');
 
 const DASHBOARD_LINK = 'https://ethoswallet.xyz/dashboard';
 
-let walletProvider;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -457,8 +456,7 @@ const initializeClicks = () => {
   })
 }
 
-const onWalletConnected = async ({ provider, signer }) => {
-  walletProvider = provider;
+const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
     modal.close();
