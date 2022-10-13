@@ -1058,7 +1058,7 @@ const constructTransaction = (direction, activeGameAddress) => {
       activeGameAddress,
       direction
     ],
-    gasBudget: 20000
+    gasBudget: 50000
   }
 }
 
@@ -1075,9 +1075,8 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
           module: 'game_8192',
           function: 'make_move',
           description: "Pre-approve moves in the game so you can play without signing every transaction.",
-          totalGasLimit: 250000,
-          perTransactionGasLimit: 5000,
-          maxTransactionCount: 20
+          totalGasLimit: 500000,
+          maxTransactionCount: 25
         }
       })
 
