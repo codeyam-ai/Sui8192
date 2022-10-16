@@ -374,9 +374,11 @@ function showUnknownError(error) {
 
 async function syncAccountState() {
   if (!walletSigner) return;
-  const address =  await walletSigner.getAddress();
-  const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
-  await provider.syncAccountState(address);
+  try {
+    const address =  await walletSigner.getAddress();
+    const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
+    await provider.syncAccountState(address);
+  } catch (e) {}
 }
 
 async function tryDrip() {
@@ -1208,8 +1210,8 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       }
 
       if (!data) return;
-      const { effects } = data;
-      const { gasUsed, events} = effects;
+      const { effects, EffectsCert } = data;
+      const { gasUsed, events} = effects || EffectsCert.effects.effects;
       const { computationCost, storageCost, storageRebate } = gasUsed;
       const event = events[0].moveEvent;
       

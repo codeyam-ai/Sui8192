@@ -171,9 +171,11 @@ function showUnknownError(error) {
 
 async function syncAccountState() {
   if (!walletSigner) return;
-  const address =  await walletSigner.getAddress();
-  const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
-  await provider.syncAccountState(address);
+  try {
+    const address =  await walletSigner.getAddress();
+    const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
+    await provider.syncAccountState(address);
+  } catch (e) {}
 }
 
 async function tryDrip() {

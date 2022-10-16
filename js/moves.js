@@ -174,8 +174,8 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       }
 
       if (!data) return;
-      const { effects } = data;
-      const { gasUsed, events} = effects;
+      const { effects, EffectsCert } = data;
+      const { gasUsed, events} = effects || EffectsCert.effects.effects;
       const { computationCost, storageCost, storageRebate } = gasUsed;
       const event = events[0].moveEvent;
       
