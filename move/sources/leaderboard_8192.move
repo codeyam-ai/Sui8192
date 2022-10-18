@@ -41,7 +41,7 @@ module ethos::leaderboard_8192 {
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),
             game_count: 0,
-            max_leaderboard_game_count: 500,
+            max_leaderboard_game_count: 200,
             top_games: vector[],
             leaders: vec_map::empty<address, Option<String>>(),
             min_tile: 0,
