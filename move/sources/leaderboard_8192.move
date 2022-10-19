@@ -56,15 +56,11 @@ module ethos::leaderboard_8192 {
         let score = *game_8192::score(game);
         assert!(top_tile >= leaderboard.min_tile, ELowTile);
         assert!(score >= leaderboard.min_score, ELowScore);
-        if (top_tile < leaderboard.min_tile && score < leaderboard.min_score) {
-            return
-        };
 
         let top_game_count = vector::length(&leaderboard.top_games);
         
         if (top_tile == leaderboard.min_tile && score == leaderboard.min_score) {
             assert!(top_game_count < leaderboard.max_leaderboard_game_count, ENotALeader);
-            return
         };
 
         let leader_address = *game_8192::player(game);
@@ -193,7 +189,7 @@ module ethos::leaderboard_8192 {
 
     
 
-    // TESTS //
+    // TEST FUNCTIONS //
 
     #[test_only]
     use sui::test_scenario::{Self, Scenario};
