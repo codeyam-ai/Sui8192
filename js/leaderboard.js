@@ -8,7 +8,7 @@ let leaderboardObject;
 const topGames = () => leaderboardObject.top_games;
 
 const get = async () => {
-  const provider = new JsonRpcProvider('https://gateway.devnet.sui.io/');
+  const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/', true, '0.11.0');
   const { details: { data: { fields: leaderboard } } } = await provider.getObject(leaderboardAddress);
   leaderboardObject = leaderboard;
   return leaderboard;
