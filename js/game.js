@@ -612,38 +612,38 @@ window.requestAnimationFrame(init);
 
 // function test() {
 //   const boardStart = [
-//     [0,  0,  99, 99],
-//     [99, 99, 1,  99],
-//     [0,  0,  1,  99],
-//     [1,  99, 1,  99]
+//     [0,  0,  null, null],
+//     [null, null, 1,  null],
+//     [0,  0,  1,  null],
+//     [1,  null, 1,  null]
 //   ]
   
 //   const boardLeft = [
-//     [1,  99, 99, 99],
-//     [1,  99, 99, 99],
-//     [1,  1,  99, 99],
-//     [2,  99, 99, 99]
+//     [1,  null, null, null],
+//     [1,  null, null, null],
+//     [1,  1,  null, null],
+//     [2,  null, null, null]
 //   ]
   
 //   const boardRight = [
-//     [99, 99, 99, 1],
-//     [99, 99, 99, 1],
-//     [99, 99, 1,  1],
-//     [99, 99, 99, 2]
+//     [null, null, null, 1],
+//     [null, null, null, 1],
+//     [null, null, 1,  1],
+//     [null, null, null, 2]
 //   ]
   
 //   const boardUp = [
-//     [1,  1,  2,  99],
-//     [1,  99, 1,  99],
-//     [99, 99, 99, 99],
-//     [99, 99, 99, 99]
+//     [1,  1,  2,  null],
+//     [1,  null, 1,  null],
+//     [null, null, null, null],
+//     [null, null, null, null]
 //   ]
   
 //   const boardDown = [
-//     [99, 99, 99, 99],
-//     [99, 99, 99, 99],
-//     [1,  99, 1,  99],
-//     [1,  1,  2,  99]
+//     [null, null, null, null],
+//     [null, null, null, null],
+//     [1,  null, 1,  null],
+//     [1,  1,  2,  null]
 //   ]
 
 //   const tests = [{
@@ -669,16 +669,16 @@ window.requestAnimationFrame(init);
 //   }, {
 //     direction: "down",
 //     board1: [
-//       [1, 1, 99,99],
-//       [99,99,99,99],
-//       [1, 99,99,99],
-//       [99,99,99,99]
+//       [1, 1, null,null],
+//       [null,null,null,null],
+//       [1, null,null,null],
+//       [null,null,null,null]
 //     ],
 //     board2: [
-//       [99,99,99,99],
-//       [99,99,99,99],
-//       [1, 99,99,99],
-//       [2, 1, 99,99]
+//       [null,null,null,null],
+//       [null,null,null,null],
+//       [1, null,null,null],
+//       [2, 1, null,null]
 //     ],
 //     result: {"0":{"down":3},"1":{"down":3},"8":{"down":1},"12":{"merge":true}}
 //   }]

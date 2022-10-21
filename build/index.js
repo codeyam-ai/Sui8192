@@ -15,12 +15,12 @@ module.exports = {
     for (let i=0; i<spaces.length; ++i) {
       for (let j=0; j<spaces[i].length; ++j) {
         const tile = spaces[i][j];
-        if (tile != 99 && tile + 1 > topTile) {
+        if (tile !== null && tile + 1 > topTile) {
           topTile = tile + 1;
         }
         const tileElement = tiles[(i * spaces[i].length) + j];
         removeClass(tileElement, allColors);
-        if (tile === 99) {
+        if (tile === null) {
           tileElement.innerHTML = ""
         } else {
           tileElement.innerHTML = `<div><div class='value'>${Math.pow(2, tile + 1)}</div><div>${tileNames[tile + 1]}</div></div>`;
@@ -71,7 +71,7 @@ module.exports = {
         const tile2 = spaces2[i][j];
         const index = (i * columns) + j;
 
-        if (tile2 !== 99) {
+        if (tile2 !== null) {
           if (tile1 === tile2) continue;
 
           const searchStart = (vertical ? i : j) + increment;
@@ -79,12 +79,12 @@ module.exports = {
             const distance = Math.abs(vertical ? x - i : x - j);
             const nextTile = vertical ? spaces1[x][j] : spaces1[i][x]
             
-            if (nextTile === 99) continue;
+            if (nextTile === null) continue;
             
             if (vertical) {
-              spaces1[x][j] = 99;
+              spaces1[x][j] = null;
             } else {
-              spaces1[i][x] = 99;
+              spaces1[i][x] = null;
             }
             
             const tile1Index = vertical ? (x * columns) + j : (i * columns) + x;
@@ -97,7 +97,7 @@ module.exports = {
                 merge: true
               }
 
-              if (tile1 === 99) {
+              if (tile1 === null) {
                 x = (vertical ? i : j) + increment;
                 tile1 = tile2 - 1;
                 continue;
@@ -121,29 +121,7 @@ module.exports = {
       game_over: gameOver,
       url
     } = board.fields || board;
-    const spaces = (rawSpaces || rawBoardSpaces).map(
-      (rawRow) => rawRow.map(
-        (rawSpace) => {
-          switch (rawSpace.fields.vec) {
-            case "AA==": return 0
-            case "AQ==": return 1
-            case "Ag==": return 2
-            case "Aw==": return 3
-            case "BA==": return 4
-            case "BQ==": return 5
-            case "Bg==": return 6
-            case "Bw==": return 7
-            case "CA==": return 8
-            case "CQ==": return 9
-            case "Cg==": return 10
-            case "Cw==": return 11
-            case "DA==": return 12
-            case "DQ==": return 13
-            default: return 99
-          }
-        }
-      )
-    )
+    const spaces = (rawSpaces || rawBoardSpaces);
     return { spaces, lastTile, topTile, score, gameOver, url }
   }
 }
@@ -182,8 +160,8 @@ module.exports = {
 };
 },{"canvas-confetti":36}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0xe611fa468ca9e6e5bd9f37dfa663b231b07f4023",
-  leaderboardAddress: "0x4225633a86d8b855402e84501a193c6163744303",
+  contractAddress: "0xc30c6eae91faa1fe426be098251cc10c5bde4f48",
+  leaderboardAddress: "0x7571d40bfe71c58a957bcb0bcb860f6f24695f51",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -815,38 +793,38 @@ window.requestAnimationFrame(init);
 
 // function test() {
 //   const boardStart = [
-//     [0,  0,  99, 99],
-//     [99, 99, 1,  99],
-//     [0,  0,  1,  99],
-//     [1,  99, 1,  99]
+//     [0,  0,  null, null],
+//     [null, null, 1,  null],
+//     [0,  0,  1,  null],
+//     [1,  null, 1,  null]
 //   ]
   
 //   const boardLeft = [
-//     [1,  99, 99, 99],
-//     [1,  99, 99, 99],
-//     [1,  1,  99, 99],
-//     [2,  99, 99, 99]
+//     [1,  null, null, null],
+//     [1,  null, null, null],
+//     [1,  1,  null, null],
+//     [2,  null, null, null]
 //   ]
   
 //   const boardRight = [
-//     [99, 99, 99, 1],
-//     [99, 99, 99, 1],
-//     [99, 99, 1,  1],
-//     [99, 99, 99, 2]
+//     [null, null, null, 1],
+//     [null, null, null, 1],
+//     [null, null, 1,  1],
+//     [null, null, null, 2]
 //   ]
   
 //   const boardUp = [
-//     [1,  1,  2,  99],
-//     [1,  99, 1,  99],
-//     [99, 99, 99, 99],
-//     [99, 99, 99, 99]
+//     [1,  1,  2,  null],
+//     [1,  null, 1,  null],
+//     [null, null, null, null],
+//     [null, null, null, null]
 //   ]
   
 //   const boardDown = [
-//     [99, 99, 99, 99],
-//     [99, 99, 99, 99],
-//     [1,  99, 1,  99],
-//     [1,  1,  2,  99]
+//     [null, null, null, null],
+//     [null, null, null, null],
+//     [1,  null, 1,  null],
+//     [1,  1,  2,  null]
 //   ]
 
 //   const tests = [{
@@ -872,16 +850,16 @@ window.requestAnimationFrame(init);
 //   }, {
 //     direction: "down",
 //     board1: [
-//       [1, 1, 99,99],
-//       [99,99,99,99],
-//       [1, 99,99,99],
-//       [99,99,99,99]
+//       [1, 1, null,null],
+//       [null,null,null,null],
+//       [1, null,null,null],
+//       [null,null,null,null]
 //     ],
 //     board2: [
-//       [99,99,99,99],
-//       [99,99,99,99],
-//       [1, 99,99,99],
-//       [2, 1, 99,99]
+//       [null,null,null,null],
+//       [null,null,null,null],
+//       [1, null,null,null],
+//       [2, 1, null,null]
 //     ],
 //     result: {"0":{"down":3},"1":{"down":3},"8":{"down":1},"12":{"merge":true}}
 //   }]
@@ -1193,25 +1171,26 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     signer: walletSigner, 
     details,
     onCompleted: async ({ data }) => {
+      const { error, effects } = data.EffectsCert;
+
       if (directionOrQueuedMove.id) {
         queue.remove(directionOrQueuedMove);
       }
       
       load(walletSigner, activeGameAddress, onComplete, onError);
       
-      if (data?.effects?.status?.error === "InsufficientGas") {
+      if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
         onError()
         return;
       }
 
-      if (data.error) {
-        onError(data.error);
+      if (error) {
+        onError(error);
         return;
       }
 
-      if (!data) return;
-      const { effects, EffectsCert } = data;
-      const { gasUsed, events} = effects || EffectsCert.effects.effects;
+      if (!effects) return;
+      const { gasUsed, events} = effects.effects || effects;
       const { computationCost, storageCost, storageRebate } = gasUsed;
       const event = events[0].moveEvent;
       

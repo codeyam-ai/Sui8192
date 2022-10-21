@@ -157,25 +157,26 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     signer: walletSigner, 
     details,
     onCompleted: async ({ data }) => {
+      const { error, effects } = data.EffectsCert;
+
       if (directionOrQueuedMove.id) {
         queue.remove(directionOrQueuedMove);
       }
       
       load(walletSigner, activeGameAddress, onComplete, onError);
       
-      if (data?.effects?.status?.error === "InsufficientGas") {
+      if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
         onError()
         return;
       }
 
-      if (data.error) {
-        onError(data.error);
+      if (error) {
+        onError(error);
         return;
       }
 
-      if (!data) return;
-      const { effects, EffectsCert } = data;
-      const { gasUsed, events} = effects || EffectsCert.effects.effects;
+      if (!effects) return;
+      const { gasUsed, events} = effects.effects || effects;
       const { computationCost, storageCost, storageRebate } = gasUsed;
       const event = events[0].moveEvent;
       
