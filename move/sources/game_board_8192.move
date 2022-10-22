@@ -539,18 +539,10 @@ module ethos::game_board_8192 {
                 let expected = vector::borrow(&expected_spaces, index);
                 if (option::is_none(space)) {
                     if(expected != &EMPTY) {
-                        // std::debug::print(&111111);
-                        // std::debug::print(&index);
-                        // std::debug::print(expected);
-                        // std::debug::print(&99);
                         return false
                     }
                 } else {
                     if (option::borrow(space) != expected) {
-                        // std::debug::print(&222222);
-                        // std::debug::print(&index);
-                        // std::debug::print(expected);
-                        // std::debug::print(option::borrow(space));
                         return false
                     }
                 };
@@ -1046,4 +1038,29 @@ module ethos::game_board_8192 {
         assert!(empty_space_count(&game_board) == (12 as u64), empty_space_count(&game_board));
         transfer::share_object(TestGameBoard { game_board });
     }  
+
+    #[test]
+    fun test_move_high_gas() {
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(TILE256),  o(TILE256), o(TILE64), o(TILE64)],
+                vector[o(TILE4),    o(TILE4),   o(TILE8),  o(TILE8)],
+                vector[o(TILE1024), o(TILE1024),   o(TILE8),  o(TILE8)],
+                vector[o(TILE1024), o(TILE1024),   o(TILE8),  o(TILE8)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE512,    TILE128, EMPTY,  EMPTY,
+            TILE8,      TILE16,   TILE2,   EMPTY,
+            TILE2048,      TILE16,   EMPTY,   EMPTY,
+            TILE2048,   TILE16,   EMPTY,  EMPTY
+        ]), 1);
+
+        transfer::share_object(TestGameBoard { game_board })
+    }
 }
