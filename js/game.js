@@ -242,7 +242,7 @@ async function loadGames() {
   await loadWalletContents();
 
   addClass(eById('loading-games'), 'hidden');
-  
+ 
   games = walletContents.nfts.filter(
     (nft) => nft.package === contractAddress
   ).map(
@@ -500,6 +500,8 @@ const onWalletConnected = async ({ signer }) => {
                 signer: walletSigner, 
                 details
               })
+
+              console.log("DATA", data)
 
               if (!data) {
                 modal.open('create-error', 'container');

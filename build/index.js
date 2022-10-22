@@ -160,7 +160,7 @@ module.exports = {
 };
 },{"canvas-confetti":36}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0x09f3e126f97c319d3056d2c2e271e3c5e87f5427",
+  contractAddress: "0x9f3e126f97c319d3056d2c2e271e3c5e87f5427",
   leaderboardAddress: "0x356143c48cf914db82fa3b98d45c4174fff13e29",
   tileNames: {
     1: "Air",
@@ -423,7 +423,7 @@ async function loadGames() {
   await loadWalletContents();
 
   addClass(eById('loading-games'), 'hidden');
-  
+ 
   games = walletContents.nfts.filter(
     (nft) => nft.package === contractAddress
   ).map(
@@ -681,6 +681,8 @@ const onWalletConnected = async ({ signer }) => {
                 signer: walletSigner, 
                 details
               })
+
+              console.log("DATA", data)
 
               if (!data) {
                 modal.open('create-error', 'container');
@@ -1171,7 +1173,8 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     signer: walletSigner, 
     details,
     onCompleted: async ({ data }) => {
-      const { error, effects } = data.EffectsCert;
+        console.log("DATA", data)
+      const { error, effects } = data.EffectsCert || data;
 
       if (directionOrQueuedMove.id) {
         queue.remove(directionOrQueuedMove);

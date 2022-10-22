@@ -157,7 +157,8 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     signer: walletSigner, 
     details,
     onCompleted: async ({ data }) => {
-      const { error, effects } = data.EffectsCert;
+        console.log("DATA", data)
+      const { error, effects } = data.EffectsCert || data;
 
       if (directionOrQueuedMove.id) {
         queue.remove(directionOrQueuedMove);
