@@ -1173,7 +1173,6 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     signer: walletSigner, 
     details,
     onCompleted: async ({ data }) => {
-        console.log("DATA", data)
       const { error, effects } = data.EffectsCert || data;
 
       if (directionOrQueuedMove.id) {
