@@ -114,7 +114,7 @@ module ethos::game_8192 {
     }
 
     public entry fun make_move(game: &mut Game8192, direction: u8, ctx: &mut TxContext)  {
-        assert!(player(game) == &tx_context::sender(ctx), EInvalidPlayer);
+        // assert!(player(game) == &tx_context::sender(ctx), EInvalidPlayer);
         
         let new_move = GameMove8192 {
           direction: direction,

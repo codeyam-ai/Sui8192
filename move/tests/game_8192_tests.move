@@ -85,26 +85,26 @@ module ethos::game_8192_tests {
         } 
     }
 
-    #[test]
-    #[expected_failure(abort_code = 0)]
-    fun test_only_player_can_make_move() {        
-        let scenario = &mut test_scenario::begin(&PLAYER);
-        {
-            create_game(scenario);
-        };
+    // #[test]
+    // #[expected_failure(abort_code = 0)]
+    // fun test_only_player_can_make_move() {        
+    //     let scenario = &mut test_scenario::begin(&PLAYER);
+    //     {
+    //         create_game(scenario);
+    //     };
 
-        test_scenario::next_tx(scenario, &PLAYER);
-        {
-            let game = test_scenario::take_owned<Game8192>(scenario);
+    //     test_scenario::next_tx(scenario, &PLAYER);
+    //     {
+    //         let game = test_scenario::take_owned<Game8192>(scenario);
         
-            test_scenario::next_tx(scenario, &OTHER);
-            let direction = left();
-            game_8192::make_move(&mut game, direction, test_scenario::ctx(scenario));  
+    //         test_scenario::next_tx(scenario, &OTHER);
+    //         let direction = left();
+    //         game_8192::make_move(&mut game, direction, test_scenario::ctx(scenario));  
 
-            test_scenario::next_tx(scenario, &PLAYER);
-            test_scenario::return_owned(scenario, game)
-        }  
-    } 
+    //         test_scenario::next_tx(scenario, &PLAYER);
+    //         test_scenario::return_owned(scenario, game)
+    //     }  
+    // } 
 
     #[test_only] 
     fun tile_image_to_bytes(index: u8): vector<u8> {

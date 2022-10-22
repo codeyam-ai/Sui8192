@@ -160,8 +160,8 @@ module.exports = {
 };
 },{"canvas-confetti":36}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0x9f3e126f97c319d3056d2c2e271e3c5e87f5427",
-  leaderboardAddress: "0x356143c48cf914db82fa3b98d45c4174fff13e29",
+  contractAddress: "0xd21d2fb75eb88b945c7ea30d96ec6040463e15cd",
+  leaderboardAddress: "0xdc06cc7ac7756cf35ec0174a340b14388de7f43f",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -682,19 +682,18 @@ const onWalletConnected = async ({ signer }) => {
                 details
               })
 
-              console.log("DATA", data)
-
               if (!data) {
                 modal.open('create-error', 'container');
                 return;
               }
 
-              const gameData = data.effects.events.find(
+              const { effects } = data.EffectsCert?.effects || data;
+              const gameData = effects.events.find(
                 e => e.moveEvent
               ).moveEvent.fields;
               const { board_spaces, score } = gameData;
               const game = {
-                address: data.effects.created[0].reference.objectId,
+                address: effects.created[0].reference.objectId,
                 boards: [
                   {
                     score,
