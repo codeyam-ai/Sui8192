@@ -218,8 +218,9 @@ async function loadWalletContents() {
   if (!walletSigner) return;
   const address = await walletSigner.getAddress();
   eById('wallet-address').innerHTML = truncateMiddle(address, 4);
+
   walletContents = await ethos.getWalletContents(address, 'sui');
-  const balance = walletContents.balance || 0;
+  const balance = walletContents.balance;
 
   if (balance < 5000000) {
     tryDrip(address);
