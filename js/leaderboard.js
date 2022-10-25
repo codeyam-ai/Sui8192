@@ -137,10 +137,6 @@ const load = async () => {
         }
       }
 
-      details.onmouseleave = () => {
-        window.onkeydown = null;
-      }
-
       const indexDetails = (index) => {
         details.innerHTML = `
           <div class='game-title'>

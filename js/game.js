@@ -29,42 +29,44 @@ let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
 
-window.onkeydown = (e) => {
-  let direction;
-  switch (e.keyCode) {
-    case 37: 
-      direction = "left";
-      break;
-    case 38: 
-      direction = "up";
-      break;
-    case 39: 
-      direction = "right";
-      break;
-    case 40: 
-      direction = "down";
-      break;
-  }
-  if (!direction) return;
-
-  e.preventDefault();
-  moves.execute(
-    direction, 
-    activeGameAddress, 
-    walletSigner,
-    (newBoard, direction) => {
-      handleResult(newBoard, direction);
-      loadWalletContents();
-    },
-    (error) => {
-      if (error) {
-        showUnknownError(error)
-      } else {
-        showGasError();
-      }
+const initializeKeyListener = () => {
+  window.onkeydown = (e) => {
+    let direction;
+    switch (e.keyCode) {
+      case 37: 
+        direction = "left";
+        break;
+      case 38: 
+        direction = "up";
+        break;
+      case 39: 
+        direction = "right";
+        break;
+      case 40: 
+        direction = "down";
+        break;
     }
-  );
-}
+    if (!direction) return;
+
+    e.preventDefault();
+    moves.execute(
+      direction, 
+      activeGameAddress, 
+      walletSigner,
+      (newBoard, direction) => {
+        handleResult(newBoard, direction);
+        loadWalletContents();
+      },
+      (error) => {
+        if (error) {
+          showUnknownError(error)
+        } else {
+          showGasError();
+        }
+      }
+    );
+  } 
+};
 
 function init() {
   // test();
@@ -324,6 +326,7 @@ async function loadGames() {
 }
 
 async function setActiveGame(game) {
+  initializeKeyListener();
   activeGameAddress = game.address;
 
   eById('transactions-list').innerHTML = "";
@@ -485,20 +488,25 @@ const onWalletConnected = async ({ signer }) => {
           async () => {
             modal.open('loading', 'container');
 
-            const details = {
-              network: 'sui',
-              address: contractAddress,
-              moduleName: 'game_8192',
-              functionName: 'create',
-              inputValues: [],
-              gasBudget: 5000
+            const signableTransaction = {
+              kind: "moveCall",
+              data: {
+                packageObjectId: contractAddress,
+                module: 'game_8192',
+                function: 'create',
+                typeArguments: [],
+                arguments: [],
+                gasBudget: 5000
+              }
             };
 
             try {
               const data = await ethos.transact({
                 signer: walletSigner, 
-                details
+                signableTransaction
               })
+
+              console.log("DATA", data)
 
               if (!data) {
                 modal.open('create-error', 'container');
@@ -523,6 +531,7 @@ const onWalletConnected = async ({ signer }) => {
               setActiveGame(game);
               ethos.hideWallet();
             } catch (e) {
+              console.log("Error minting game", e)
               modal.open('create-error', 'container');
               return;
             }
