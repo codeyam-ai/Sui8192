@@ -74,7 +74,7 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-    appId: 'sui-8192'
+    appId: 'sui-8192',
   };
 
   const start = eById('ethos-start');
@@ -505,8 +505,6 @@ const onWalletConnected = async ({ signer }) => {
                 signer: walletSigner, 
                 signableTransaction
               })
-
-              console.log("DATA", data)
 
               if (!data) {
                 modal.open('create-error', 'container');

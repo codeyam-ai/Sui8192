@@ -32,7 +32,9 @@ const constructTransaction = (direction, activeGameAddress) => {
 }
 
 const checkPreapprovals = async (activeGameAddress, walletSigner) => {
-    if (walletSigner.ethos) return true;
+    if (walletSigner.type === 'ethos_hosted') {
+        return true;
+    }
 
   // if (preapproval === undefined) {
     try {
@@ -65,6 +67,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
 }
 
 const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
+  return;
   if (walletSigner.type === "extension") {
     return;
   } 
@@ -134,7 +137,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
   
   let signableTransaction;
 
-  if (!walletSigner.type === "extension") {
+  if (false && walletSigner.type === "ethos_hosted") {
     if (!move?.populatedTransaction || !move?.signedTransaction) {
       if (!directionOrQueuedMove.id) {
         queue.add(direction);
