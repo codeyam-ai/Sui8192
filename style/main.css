@@ -826,6 +826,8 @@ a:visited.link-button {
 
 .panel {
   width: 42%;
+  height: 50vh;
+  overflow: scroll;
 }
 
 #leaderboard-list {
