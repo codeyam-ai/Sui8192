@@ -178,12 +178,10 @@ async function syncAccountState() {
   } catch (e) {}
 }
 
-async function tryDrip() {
+async function tryDrip(address, suiBalance) {
   if (!walletSigner || faucetUsed) return;
 
   faucetUsed = true;
-
-  const address =  await walletSigner.getAddress();
 
   let success;
   try {
@@ -201,8 +199,8 @@ async function tryDrip() {
   }
 
   if (!success) {
-    const { balance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
-    if (balance !== balanceCheck) {
+    const { suiBalance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
+    if (suiBalance !== balanceCheck) {
       success = true;      
     }
   }
@@ -220,13 +218,13 @@ async function loadWalletContents() {
   eById('wallet-address').innerHTML = truncateMiddle(address, 4);
 
   walletContents = await ethos.getWalletContents(address, 'sui');
-  const balance = walletContents.balance;
+  const suiBalance = walletContents.suiBalance;
 
-  if (balance < 5000000) {
-    tryDrip(address);
+  if (suiBalance < 5000000) {
+    tryDrip(address, suiBalance);
   }
 
-  const balanceSting = (balance || "").toString();
+  const balanceSting = (suiBalance || "").toString();
   eById('balance').innerHTML = balanceSting.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' SUI';
 }
 

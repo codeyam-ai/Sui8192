@@ -9,7 +9,6 @@
     "@mysten/sui.js": "^0.11.0",
     "browserify": "^17.0.0",
     "canvas-confetti": "^1.5.1",
-    "ethos-wallet-beta": "^0.0.170",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "static-server": "^2.2.1"

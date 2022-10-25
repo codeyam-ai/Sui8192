@@ -153,6 +153,9 @@ const load = async () => {
             <div class='leader-board'>
               ${boardHTML(index, game.boards)}
             </div>
+            <div class='text-center small'>
+              (scroll over the game to view game history)
+            </div>
           </div>
         `;
       }
