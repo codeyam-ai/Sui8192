@@ -18952,28 +18952,29 @@ const minTile = () => {
 }
 
 const submit = async (gameAddress, walletSigner, onComplete) => {
-  const details = {
-    network: 'sui',
-    address: contractAddress,
-    moduleName: 'leaderboard_8192',
-    functionName: 'submit_game',
-    inputValues: [
-      gameAddress,
-      leaderboardAddress
-    ],
-    gasBudget: 100000
+  const signableTransaction = {
+    kind: "moveCall",
+    data: {
+      packageObjectId: contractAddress,
+      module: 'leaderboard_8192',
+      function: 'submit_game',
+      typeArguments: [],
+      arguments: [
+        gameAddress,
+        leaderboardAddress
+      ],
+      gasBudget: 100000
+    }
   };
 
   await ethos.transact({
-    id: "leaderboard",
     signer: walletSigner, 
-    details,
-    onCompleted: async () => {
-      load();
-      ethos.hideWallet();
-      onComplete(); //loadGames();
-    }
+    signableTransaction
   })
+
+  load();
+  ethos.hideWallet();
+  onComplete();
 } 
 
 module.exports = {
