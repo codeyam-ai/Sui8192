@@ -29,41 +29,43 @@ let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
 
-window.onkeydown = (e) => {
-  let direction;
-  switch (e.keyCode) {
-    case 37: 
-      direction = "left";
-      break;
-    case 38: 
-      direction = "up";
-      break;
-    case 39: 
-      direction = "right";
-      break;
-    case 40: 
-      direction = "down";
-      break;
-  }
-  if (!direction) return;
-
-  e.preventDefault();
-  moves.execute(
-    direction, 
-    activeGameAddress, 
-    walletSigner,
-    (newBoard, direction) => {
-      handleResult(newBoard, direction);
-      loadWalletContents();
-    },
-    (error) => {
-      if (error) {
-        showUnknownError(error)
-      } else {
-        showGasError();
-      }
+const initializeKeyListener = () => {
+  window.onkeydown = (e) => {
+    let direction;
+    switch (e.keyCode) {
+      case 37: 
+        direction = "left";
+        break;
+      case 38: 
+        direction = "up";
+        break;
+      case 39: 
+        direction = "right";
+        break;
+      case 40: 
+        direction = "down";
+        break;
     }
-  );
+    if (!direction) return;
+  
+    e.preventDefault();
+    moves.execute(
+      direction, 
+      activeGameAddress, 
+      walletSigner,
+      (newBoard, direction) => {
+        handleResult(newBoard, direction);
+        loadWalletContents();
+      },
+      (error) => {
+        if (error) {
+          showUnknownError(error)
+        } else {
+          showGasError();
+        }
+      }
+    );
+  }
 }
 
 function init() {
@@ -178,12 +180,10 @@ async function syncAccountState() {
   } catch (e) {}
 }
 
-async function tryDrip() {
+async function tryDrip(address, balance) {
   if (!walletSigner || faucetUsed) return;
 
   faucetUsed = true;
-
-  const address =  await walletSigner.getAddress();
 
   let success;
   try {
@@ -222,7 +222,7 @@ async function loadWalletContents() {
   const balance = walletContents.balance || 0;
 
   if (balance < 5000000) {
-    tryDrip(address);
+    tryDrip(address, balance);
   }
 
   const balanceSting = (balance || "").toString();
@@ -325,6 +325,7 @@ async function loadGames() {
 }
 
 async function setActiveGame(game) {
+  initializeKeyListener();
   activeGameAddress = game.address;
 
   eById('transactions-list').innerHTML = "";
@@ -492,7 +493,7 @@ const onWalletConnected = async ({ signer }) => {
               moduleName: 'game_8192',
               functionName: 'create',
               inputValues: [],
-              gasBudget: 5000
+              gasBudget: 10000
             };
 
             try {

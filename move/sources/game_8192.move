@@ -24,6 +24,7 @@ module ethos::game_8192 {
         player: address,
         score: u64,
         top_tile: u8,      
+        game_over: bool,
         moves: vector<GameMove8192>,
         boards: vector<GameBoard8192>,
         leaderboard_games: vector<LeaderboardGame8192>
@@ -96,6 +97,7 @@ module ethos::game_8192 {
             player,
             score,
             top_tile,
+            game_over: false,
             moves: vector[],
             boards: vector[initial_game_board],
             url: image_url_for_tile(top_tile),
@@ -159,6 +161,7 @@ module ethos::game_8192 {
         };
 
         if (*game_board_8192::game_over(&new_board)) {
+            game.game_over = true;
             event::emit(GameOverEvent8192 {
                 game_id: object::uid_to_inner(&game.id),
                 top_tile,

@@ -160,8 +160,8 @@ module.exports = {
 };
 },{"canvas-confetti":36}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0x4ef88ffe65c2bbeacf8e395b4feab9c9e73172a",
-  leaderboardAddress: "0x60f4b609a21e9f5d5a1bca166a3e4b06339b67bf",
+  contractAddress: "0x5423e85981fe421b05f1eac6b240b90adacb5d5c",
+  leaderboardAddress: "0xc72a42eb84d628e5d33552c996949cddff4bc2fa",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -210,41 +210,43 @@ let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
 
-window.onkeydown = (e) => {
-  let direction;
-  switch (e.keyCode) {
-    case 37: 
-      direction = "left";
-      break;
-    case 38: 
-      direction = "up";
-      break;
-    case 39: 
-      direction = "right";
-      break;
-    case 40: 
-      direction = "down";
-      break;
-  }
-  if (!direction) return;
-
-  e.preventDefault();
-  moves.execute(
-    direction, 
-    activeGameAddress, 
-    walletSigner,
-    (newBoard, direction) => {
-      handleResult(newBoard, direction);
-      loadWalletContents();
-    },
-    (error) => {
-      if (error) {
-        showUnknownError(error)
-      } else {
-        showGasError();
-      }
+const initializeKeyListener = () => {
+  window.onkeydown = (e) => {
+    let direction;
+    switch (e.keyCode) {
+      case 37: 
+        direction = "left";
+        break;
+      case 38: 
+        direction = "up";
+        break;
+      case 39: 
+        direction = "right";
+        break;
+      case 40: 
+        direction = "down";
+        break;
     }
-  );
+    if (!direction) return;
+  
+    e.preventDefault();
+    moves.execute(
+      direction, 
+      activeGameAddress, 
+      walletSigner,
+      (newBoard, direction) => {
+        handleResult(newBoard, direction);
+        loadWalletContents();
+      },
+      (error) => {
+        if (error) {
+          showUnknownError(error)
+        } else {
+          showGasError();
+        }
+      }
+    );
+  }
 }
 
 function init() {
@@ -359,12 +361,10 @@ async function syncAccountState() {
   } catch (e) {}
 }
 
-async function tryDrip() {
+async function tryDrip(address, balance) {
   if (!walletSigner || faucetUsed) return;
 
   faucetUsed = true;
-
-  const address =  await walletSigner.getAddress();
 
   let success;
   try {
@@ -403,7 +403,7 @@ async function loadWalletContents() {
   const balance = walletContents.balance || 0;
 
   if (balance < 5000000) {
-    tryDrip(address);
+    tryDrip(address, balance);
   }
 
   const balanceSting = (balance || "").toString();
@@ -506,6 +506,7 @@ async function loadGames() {
 }
 
 async function setActiveGame(game) {
+  initializeKeyListener();
   activeGameAddress = game.address;
 
   eById('transactions-list').innerHTML = "";
@@ -673,7 +674,7 @@ const onWalletConnected = async ({ signer }) => {
               moduleName: 'game_8192',
               functionName: 'create',
               inputValues: [],
-              gasBudget: 5000
+              gasBudget: 10000
             };
 
             try {
@@ -880,18 +881,57 @@ window.requestAnimationFrame(init);
 const { JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos } = require("ethos-wallet-beta");
 const { contractAddress, leaderboardAddress } = require("./constants");
-const { eById, addClass, truncateMiddle } = require("./utils");
+const { eById, addClass, removeClass, truncateMiddle } = require("./utils");
 
 let leaderboardObject;
 
 const topGames = () => leaderboardObject.top_games;
 
+const getObject = async (objectId) => {
+  const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/'); 
+  return provider.getObject(objectId);;
+}
+
 const get = async () => {
-  const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/', true, '0.11.0');
-  const { details: { data: { fields: leaderboard } } } = await provider.getObject(leaderboardAddress);
+  const { details: { data: { fields: leaderboard } } } = await getObject(leaderboardAddress)
   leaderboardObject = leaderboard;
   return leaderboard;
 };
+
+const getLeaderboardGame = async (gameObjectId) => {
+  const gameObject = await getObject(gameObjectId);
+  let { details: { data: { fields: { boards, moves, game_over: gameOver } } } } = gameObject;
+  gameOver = boards[boards.length - 1].fields.game_over;
+  return { id: gameObjectId, gameOver, moveCount: moves.length, boards }
+}
+
+const boardHTML = (moveIndex, boards) => { 
+  const board = boards[moveIndex];
+  const rows = [];
+  for (const row of board.fields.spaces) {
+    const rowHTML = [];
+    rowHTML.push("<div class='leaderboard-board-row'>")
+    for (const column of row) {
+      rowHTML.push(`
+        <div class='leaderboard-board-tile color${column === null ? '' : column + 1}'>
+          ${column === null ? '&nbsp;' : Math.pow(2, column + 1)}
+        </div>
+      `);
+    }
+    rowHTML.push("</div>")
+    rows.push(rowHTML.join(""));
+  }
+
+  const completeHTML = `
+    <div class='leaderboard-board'>
+      <div class='leaderboard-board-title'>
+        Move: ${moveIndex}, Score: ${board.fields.score}
+      </div>
+      ${rows.join("")}
+    </div>
+  `
+  return completeHTML
+}
 
 const load = async () => {
   leaderboardObject = await get();
@@ -906,14 +946,15 @@ const load = async () => {
     const { fields: { 
       score, 
       top_tile: topTile, 
-      leader_address: leaderAddress 
+      leader_address: leaderAddress,
+      game_id: gameId
     } } = leaderboardObject.top_games[i];
-    // const { value: { fields: { vec: leaderName } } } = leaders.find(
-    //   ({ fields: { key: address } }) => leaderAddress === address
-    // ).fields;
     const leaderElement = document.createElement("DIV")
     addClass(leaderElement, 'leader');
-    leaderElement.innerHTML = `
+
+    const listing = document.createElement("DIV");
+    addClass(listing, 'leader-listing');
+    listing.innerHTML = `
       <div class='leader-stats flex-1'> 
         <div>${i + 1}</div>
         <div class='leader-tile subsubtitle color${topTile + 1}'>
@@ -928,8 +969,76 @@ const load = async () => {
         <div title='${leaderAddress}'>
           ${truncateMiddle(leaderAddress)}
         </div>
-      </div>
+      </div>     
     `;
+
+    leaderElement.append(listing);
+    leaderElement.onclick = async () => {
+      const details = document.createElement("DIV");
+
+      leaderElement.onclick = () => {
+        if (details.classList.contains('hidden')) {
+          removeClass(details, 'hidden');
+        } else {
+          addClass(details, 'hidden');
+        }
+      }
+
+      addClass(details, 'leader-details');
+      details.innerHTML = "Loading game...";
+      leaderElement.append(details);
+
+      const game = await getLeaderboardGame(gameId);
+
+      let currentIndex = game.boards.length - 1;
+      details.onmousewheel = (e) => {
+        currentIndex += Math.round(e.deltaY / 2);
+        if (currentIndex > game.boards.length - 1) {
+          currentIndex = game.boards.length - 1; 
+        } else if (currentIndex < 0) {
+          currentIndex = 0;
+        }
+        indexDetails(currentIndex)
+        return false;
+      }
+
+      details.onmouseenter = () => {
+        window.onkeydown = (e) => {
+          e.preventDefault();
+          switch (e.keyCode) {
+            case 38: 
+            currentIndex += 1;
+            break;
+            case 40: 
+            currentIndex -= 1;
+            break;
+          }
+          indexDetails(currentIndex);
+        }
+      }
+
+      const indexDetails = (index) => {
+        details.innerHTML = `
+          <div class='game-title'>
+            <div><b>Game: </b>${game.id}</div>
+            <div><b>Game Over: </b>${game.gameOver}</div>
+            <div><b>Player: </b>${leaderAddress}</div>
+            <div><b>Moves: </b>${game.moveCount}</div>
+          </div>
+          <div class='leader-boards'>
+            <div class='leader-board'>
+              ${boardHTML(index, game.boards)}
+            </div>
+            <div class='text-center small'>
+              (scroll up and down over the game to view game history)
+            </div>
+          </div>
+        `;
+      }
+
+      indexDetails(currentIndex);
+    };
+    
     leaderboardList.append(leaderElement);
   }
 }
