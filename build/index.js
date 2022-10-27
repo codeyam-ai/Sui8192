@@ -18167,7 +18167,6 @@ function init() {
   
   const ethosConfiguration = {
     appId: 'sui-8192',
-    walletAppUrl: 'http://localhost:3000'
   };
 
   const start = eById('ethos-start');

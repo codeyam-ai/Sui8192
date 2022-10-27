@@ -496,7 +496,7 @@ const onWalletConnected = async ({ signer }) => {
                 function: 'create',
                 typeArguments: [],
                 arguments: [],
-                gasBudget: 5000
+                gasBudget: 10000
               }
             };
 
