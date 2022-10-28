@@ -196,13 +196,13 @@ module ethos::leaderboard_8192 {
 
     #[test_only]
     public fun init_leaderboard(scenario: &mut Scenario) {
-        init(test_scenario::ctx(scenario));
+        init(test_scenario::ctx(&mut scenario));
     }
 
     #[test_only]
     public fun blank_leaderboard(scenario: &mut Scenario, max_leaderboard_game_count: u64, min_tile: u8, min_score: u64) {
         let leaderboard = Leaderboard8192 {
-            id: object::new(test_scenario::ctx(scenario)),
+            id: object::new(test_scenario::ctx(&mut scenario)),
             game_count: 0,
             max_leaderboard_game_count: max_leaderboard_game_count,
             top_games: vector[],

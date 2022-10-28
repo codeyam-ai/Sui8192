@@ -19,14 +19,14 @@ module ethos::game_8192_tests {
     }
 
     fun test_game_create() {
-        let scenario = &mut test_scenario::begin(&PLAYER);
+        let scenario = test_scenario::begin(PLAYER);
         {
-            create_game(scenario);
+            create_game(&mut scenario);
         };
 
-        test_scenario::next_tx(scenario, &PLAYER);
+        test_scenario::next_tx(&mut scenario, PLAYER);
         {
-            let game = test_scenario::take_owned<Game8192>(scenario);
+            let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             
             assert!(game_8192::player(&game) == &PLAYER, 0);
             assert!(game_8192::move_count(&game) == 0, 1);
@@ -35,28 +35,28 @@ module ethos::game_8192_tests {
             let empty_space_count = game_board_8192::empty_space_count(game_board);
             assert!(empty_space_count == 14, empty_space_count);
 
-            test_scenario::return_owned(scenario, game)
+            test_scenario::return_to_sender(&mut scenario, game)
         }   
     }
 
     #[test]
     fun test_make_move() {
-        let scenario = &mut test_scenario::begin(&PLAYER);
+        let scenario = test_scenario::begin(PLAYER);
         {
-            create_game(scenario);
+            create_game(&mut scenario);
         };
 
-        test_scenario::next_tx(scenario, &PLAYER);
+        test_scenario::next_tx(&mut scenario, PLAYER);
         {
-            let game = test_scenario::take_owned<Game8192>(scenario);
+            let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             
             let board = game_8192::board_at(&game, 0);
             let space_value = option::borrow(game_board_8192::space_at(board, 0, 1));
             assert!(space_value == &(0 as u8), (*space_value as u64));
             assert!(option::is_none(game_board_8192::space_at(board, 0, 0)), 1);
 
-            game_8192::make_move(&mut game, left(), test_scenario::ctx(scenario));
-            game_8192::make_move(&mut game, up(), test_scenario::ctx(scenario));
+            game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
+            game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
             
             assert!(game_8192::move_count(&game) == 2, game_8192::move_count(&game));
             let (moveDirection0, _) = game_8192::move_at(&game, 0);
@@ -81,28 +81,28 @@ module ethos::game_8192_tests {
 
             assert!(option::is_none(game_board_8192::space_at(board, 0, 1)), 1);
             
-            test_scenario::return_owned(scenario, game);
+            test_scenario::return_to_sender(&mut scenario, game);
         } 
     }
 
     // #[test]
     // #[expected_failure(abort_code = 0)]
     // fun test_only_player_can_make_move() {        
-    //     let scenario = &mut test_scenario::begin(&PLAYER);
+    //     let scenario = test_scenario::begin(PLAYER);
     //     {
-    //         create_game(scenario);
+    //         create_game(&mut scenario);
     //     };
 
-    //     test_scenario::next_tx(scenario, &PLAYER);
+    //     test_scenario::next_tx(&mut scenario, PLAYER);
     //     {
-    //         let game = test_scenario::take_owned<Game8192>(scenario);
+    //         let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
         
-    //         test_scenario::next_tx(scenario, &OTHER);
+    //         test_scenario::next_tx(&mut scenario, &OTHER);
     //         let direction = left();
-    //         game_8192::make_move(&mut game, direction, test_scenario::ctx(scenario));  
+    //         game_8192::make_move(&mut game, direction, test_scenario::ctx(&mut scenario));  
 
-    //         test_scenario::next_tx(scenario, &PLAYER);
-    //         test_scenario::return_owned(scenario, game)
+    //         test_scenario::next_tx(&mut scenario, PLAYER);
+    //         test_scenario::return_to_sender(&mut scenario, game)
     //     }  
     // } 
 
