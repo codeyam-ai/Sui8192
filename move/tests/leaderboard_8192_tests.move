@@ -12,7 +12,7 @@ module ethos::leaderboard_8192_tests {
     const PLAYER: address = @0xCAFE;
 
     fun create_game(scenario: &mut Scenario) {
-      game_8192::create(test_scenario::ctx(&mut scenario))
+      game_8192::create(test_scenario::ctx(scenario))
     }
 
     #[test]
@@ -40,7 +40,8 @@ module ethos::leaderboard_8192_tests {
             assert!(leaderboard_8192::top_game_game_id(top_game) == &object::uid_to_inner(game_8192::id(&game)), 1);
 
             test_scenario::return_shared(leaderboard);
-            test_scenario::return_to_sender(&mut scenario, game)
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::end(scenario);
         } 
     }
 
@@ -169,7 +170,8 @@ module ethos::leaderboard_8192_tests {
             assert!(leaderboard_8192::top_game_game_id(top_game) == &object::uid_to_inner(game_8192::id(&game)), 0);
 
             test_scenario::return_shared(leaderboard);
-            test_scenario::return_to_sender(&mut scenario, game)
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::end(scenario);
         };
     }
 
@@ -250,8 +252,10 @@ module ethos::leaderboard_8192_tests {
             let leaderboard_game_count = vector::length(leaderboard_8192::top_games(&leaderboard));
             assert!(leaderboard_game_count == 1, leaderboard_game_count);
           
-            test_scenario::return_shared(leaderboard)
+            test_scenario::return_shared(leaderboard);
         };
+
+        test_scenario::end(scenario);
     }
 
     #[test]
@@ -313,6 +317,8 @@ module ethos::leaderboard_8192_tests {
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard)
         };
+
+        test_scenario::end(scenario);
     }
 
     #[test]
@@ -340,6 +346,7 @@ module ethos::leaderboard_8192_tests {
             assert!(game_8192::score(&game) == &4, *game_8192::score(&game));
 
             test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
         };
 
         test_scenario::next_tx(&mut scenario, PLAYER);
@@ -365,8 +372,10 @@ module ethos::leaderboard_8192_tests {
             assert!(game_8192::score(&game) == &8, *game_8192::score(&game));
             
             test_scenario::return_to_sender(&mut scenario, game);
-            test_scenario::return_shared(leaderboard)
+            test_scenario::return_shared(leaderboard);
         };
+
+        test_scenario::end(scenario);
     }
 
     #[test]
@@ -390,8 +399,11 @@ module ethos::leaderboard_8192_tests {
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
             
-            test_scenario::return_to_sender(&mut scenario, game)
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
         };
+
+        test_scenario::end(scenario);
     }
 
     #[test]
@@ -418,6 +430,8 @@ module ethos::leaderboard_8192_tests {
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared<Leaderboard8192>(leaderboard)
         };
+
+        test_scenario::end(scenario);
     }
 
     // #[test]
@@ -589,5 +603,7 @@ module ethos::leaderboard_8192_tests {
 
             test_scenario::return_to_sender(&mut scenario, game);
         };
+
+        test_scenario::end(scenario);
     }
 }

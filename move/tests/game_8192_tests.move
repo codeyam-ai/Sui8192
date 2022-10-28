@@ -35,8 +35,10 @@ module ethos::game_8192_tests {
             let empty_space_count = game_board_8192::empty_space_count(game_board);
             assert!(empty_space_count == 14, empty_space_count);
 
-            test_scenario::return_to_sender(&mut scenario, game)
-        }   
+            test_scenario::return_to_sender(&mut scenario, game);
+        };
+
+        test_scenario::end(scenario);
     }
 
     #[test]
@@ -82,7 +84,9 @@ module ethos::game_8192_tests {
             assert!(option::is_none(game_board_8192::space_at(board, 0, 1)), 1);
             
             test_scenario::return_to_sender(&mut scenario, game);
-        } 
+        };
+
+        test_scenario::end(scenario);
     }
 
     // #[test]
