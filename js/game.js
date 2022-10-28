@@ -175,7 +175,7 @@ async function syncAccountState() {
   if (!walletSigner) return;
   try {
     const address =  await walletSigner.getAddress();
-    const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/', true, '0.11.0');
+    const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/');
     await provider.syncAccountState(address);
   } catch (e) {}
 }

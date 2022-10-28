@@ -1,7 +1,7 @@
 const { JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos } = require("ethos-wallet-beta");
-const { contractAddress, leaderboardAddress } = require("./constants");
-const { eById, addClass, removeClass, truncateMiddle } = require("./utils");
+const { contractAddress, leaderboardAddress, tileNames } = require("./constants");
+const { eById, eByClass, addClass, removeClass, truncateMiddle } = require("./utils");
 
 let leaderboardObject;
 
@@ -33,8 +33,13 @@ const boardHTML = (moveIndex, boards) => {
     rowHTML.push("<div class='leaderboard-board-row'>")
     for (const column of row) {
       rowHTML.push(`
-        <div class='leaderboard-board-tile color${column === null ? '' : column + 1}'>
-          ${column === null ? '&nbsp;' : Math.pow(2, column + 1)}
+        <div class='leaderboard-board-tile color${column === null ? '-none' : column + 1} '>
+          <div>
+            ${column === null ? '&nbsp;' : Math.pow(2, column + 1)}
+          </div>
+          <div class='leaderboard-board-tile-name'>
+            ${column === null ? '&nbsp;' : tileNames[column + 1]}
+          </div>
         </div>
       `);
     }
@@ -44,10 +49,21 @@ const boardHTML = (moveIndex, boards) => {
 
   const completeHTML = `
     <div class='leaderboard-board'>
-      <div class='leaderboard-board-title'>
-        Move: ${moveIndex}, Score: ${board.fields.score}
-      </div>
       ${rows.join("")}
+    </div>
+    <div class='leaderboard-board-stats'>
+      <div>
+        <div>Move</div>
+        <div class='game-highlighted'>
+          ${moveIndex}
+        </div>
+      </div>
+      <div>
+        <div>Score</div>
+        <div class='game-highlighted'> 
+          ${board.fields.score}
+        </div>
+      </div>
     </div>
   `
   return completeHTML
@@ -93,19 +109,24 @@ const load = async () => {
     `;
 
     leaderElement.append(listing);
-    leaderElement.onclick = async () => {
-      const details = document.createElement("DIV");
 
+    leaderElement.onclick = async () => {
+      removeClass(eByClass('leader'), 'selected');
+      addClass(leaderElement, 'selected');
+
+      const details = document.createElement("DIV");
+      
       leaderElement.onclick = () => {
-        if (details.classList.contains('hidden')) {
-          removeClass(details, 'hidden');
+        if (leaderElement.classList.contains('selected')) {
+          removeClass(leaderElement, 'selected');
         } else {
-          addClass(details, 'hidden');
+          removeClass(eByClass('leader'), 'selected');
+          addClass(leaderElement, 'selected');
         }
       }
 
       addClass(details, 'leader-details');
-      details.innerHTML = "Loading game...";
+      details.innerHTML = "<div class='text-center'>Loading game...</div>";
       leaderElement.append(details);
 
       const game = await getLeaderboardGame(gameId);
@@ -139,18 +160,45 @@ const load = async () => {
 
       const indexDetails = (index) => {
         details.innerHTML = `
-          <div class='game-title'>
-            <div><b>Game: </b>${game.id}</div>
-            <div><b>Game Over: </b>${game.gameOver}</div>
-            <div><b>Player: </b>${leaderAddress}</div>
-            <div><b>Moves: </b>${game.moveCount}</div>
+          <div class='game-status'>
+            <div>
+              <div>Status</div>
+              <div class='game-status-${game.gameOver ? 'over' : 'active'}'>
+                ${game.gameOver ? 'Game Over' : 'Active'}
+              </div>
+            </div>
           </div>
           <div class='leader-boards'>
             <div class='leader-board'>
               ${boardHTML(index, game.boards)}
             </div>
-            <div class='text-center small'>
-              (scroll up and down over the game to view game history)
+            <div class='game-instructions'>
+              <div>
+                <div>Go forward in time:</div>
+                <div class='game-highlighted'>scroll up over game</div>
+                <div>or</div>
+                <div class='game-highlighted'>↑ key</div>
+              </div>
+              <div>
+                <div>Go backward in time:</div>
+                <div class='game-highlighted'>scroll down over game</div>
+                <div>or</div>
+                <div class='game-highlighted'>↓ key</div>
+              </div>
+            </div>
+          </div>
+          <div class='game-info'>
+            <div>
+              <div class='game-info-header'>Total Moves</div>
+              <div class='game-highlighted'>${game.moveCount}</div>
+            </div>
+            <div>
+              <div class='game-info-header'>Game ID</div>
+              <div class='game-highlighted'>${game.id}</div>
+            </div>
+            <div>
+              <div class='game-info-header'>Player</div>
+              <div class='game-highlighted'>${leaderAddress}</div>
             </div>
           </div>
         `;

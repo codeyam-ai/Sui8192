@@ -475,6 +475,10 @@ a:visited {
   animation-name: down3;
 }
 
+.color-none {
+  background-color: #fbfaf8;
+}
+
 .color1 {
   background-color: #97e0ff;
 }
@@ -855,10 +859,15 @@ a:visited.link-button {
 }
 
 .leader {
-  padding: 12px 0;
+  padding: 12px;
   border-bottom: 1px solid #e5e5e7;
   width: 100%;
   cursor: pointer;
+}
+
+.leader:hover, .leader.selected {
+  background-color: #F2F1EF;
+  border-radius: 12px;
 }
 
 .leader .leader-listing {
@@ -868,7 +877,13 @@ a:visited.link-button {
 }
 
 .leader .leader-details {
+  display: none;
+}
+
+.leader.selected .leader-details {
+  display: block;
   padding: 12px;
+  color: #726f80;
 }
 
 .leader-stats {
@@ -880,8 +895,8 @@ a:visited.link-button {
 }
 
 .leader-tile {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 9px;
   font-size: small;
   color: white;
@@ -920,26 +935,110 @@ a:visited.link-button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 6px 0;
+  gap: 6px;
+  padding: 12px 0;
+  border-radius: 12px;
+  background-color: white;
 }
 
-.leaderboard-board-title {
-  text-align: center;
+.leaderboard-board-stats {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
   padding: 6px;
+  font-size: 12px;
+}
+
+.leaderboard-board-stats>div {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
 }
 
 .leaderboard-board-row {
   display: flex;
+  gap: 6px;
 }
 
 .leaderboard-board-tile {
   width: 90px;
   height: 90px;
-  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+  font-size: 24px;
+  border-radius: 12px;
+  color: white;
+}
+
+.leaderboard-board-tile-name {
+  font-size: 12px;
+}
+
+.game-status {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.game-status>div {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  gap: 6px;
+}
+
+.game-status>div .game-status-active {
+  color: #66A0A6;
+  background-color: #C2ECF4;
+  border-radius: 6px;
+  padding: 0 6px;
+}
+
+.game-status>div .game-status-over {
+  color: #cb4c4c;
+  background-color: #f4c2c6;
+  border-radius: 6px;
+  padding: 0 6px;
+}
+
+.game-info, .game-instructions {
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.game-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e5e7;
+}
+
+.game-instructions {
+  padding: 12px 0;
+}
+
+.game-info>div, .game-instructions>div {
+  display: flex;
+  gap: 3px;
+}
+
+.game-info .game-info-header {
+  width: 90px;
+}
+
+.game-instructions .game-instructions-header {
+  width: 150px;
+}
+
+.game-highlighted {
+  padding: 0 6px;
+  border-radius: 6px;
+  background-color: #E5E3E4
 }
 
 #game-links-area > div {
