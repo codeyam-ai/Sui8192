@@ -223,7 +223,7 @@ async function loadWalletContents() {
   const balance = walletContents.balance || 0;
 
   if (balance < 5000000) {
-    // tryDrip(address, balance);
+    tryDrip(address, balance);
   }
 
   eById('balance').innerHTML = formatBalance(balance, 9) + ' SUI';
