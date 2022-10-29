@@ -5,6 +5,7 @@ module ethos::leaderboard_8192_tests {
     use ethos::game_board_8192::{left, up};
     use sui::object::{Self};
     use std::vector;
+    use sui::table;
 
     use ethos::leaderboard_8192::{Self, Leaderboard8192};
     use ethos::game_8192::{Self, Game8192};
@@ -249,7 +250,7 @@ module ethos::leaderboard_8192_tests {
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
             
-            let leaderboard_game_count = vector::length(leaderboard_8192::top_games(&leaderboard));
+            let leaderboard_game_count = table::length(leaderboard_8192::top_games(&leaderboard));
             assert!(leaderboard_game_count == 1, leaderboard_game_count);
           
             test_scenario::return_shared(leaderboard);
@@ -369,7 +370,7 @@ module ethos::leaderboard_8192_tests {
             assert!(leaderboard_8192::min_tile(&leaderboard) == &1, (*leaderboard_8192::min_tile(&leaderboard) as u64));
             assert!(leaderboard_8192::min_score(&leaderboard) == &4, *leaderboard_8192::min_score(&leaderboard));
             
-            assert!(game_8192::score(&game) == &8, *game_8192::score(&game));
+            assert!(game_8192::score(&game) == &16, *game_8192::score(&game));
             
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
