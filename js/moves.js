@@ -157,6 +157,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     signer: walletSigner, 
     details,
     onCompleted: async ({ data }) => {
+        console.log("DATA", data)
       const { error, effects } = data.EffectsCert || data;
 
       if (directionOrQueuedMove.id) {
@@ -178,7 +179,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       if (!effects) return;
       const { gasUsed, events} = effects.effects || effects;
       const { computationCost, storageCost, storageRebate } = gasUsed;
-      const event = events[0].moveEvent;
+      const event = events.find((e) => e.moveEvent).moveEvent;
       
       onComplete(board.convertInfo(event), direction);
       

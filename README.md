@@ -68,7 +68,7 @@ or
 
 #### Deploy
 
-`sui client publish --gas-budget 3000`
+`sui client publish --gas-budget 10000`
 
 ## The Front-End
 

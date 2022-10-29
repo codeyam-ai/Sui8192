@@ -22,6 +22,7 @@ module ethos::game_8192 {
         description: String,
         url: Url,
         player: address,
+        active_board: GameBoard8192,
         score: u64,
         top_tile: u8,      
         game_over: bool,
@@ -105,10 +106,10 @@ module ethos::game_8192 {
             id: uid,
             name: string::utf8(b"Sui 8192"),
             description: string::utf8(b"Sui 8192 is a fun, 100% on-chain game. Combine the tiles to get a high score!"),
-            // leaderboard_id,
             player,
             score,
             top_tile,
+            active_board: initial_game_board,
             game_over: false,
             move_count: 0,
             board_count: 1,
@@ -196,6 +197,7 @@ module ethos::game_8192 {
 
         game.board_count = game.board_count + 1;
         game.move_count = game.move_count + 1;
+        game.active_board = new_board;
         game.score = score;
         game.top_tile = top_tile;
         game.url = url;
