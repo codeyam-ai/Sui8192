@@ -11,6 +11,7 @@ const {
   addClass, 
   removeClass,
   truncateMiddle,
+  formatBalance,
   setOnClick
 } = require('./utils');
 const modal = require('./modal');
@@ -225,8 +226,7 @@ async function loadWalletContents() {
     tryDrip(address, balance);
   }
 
-  const balanceSting = (balance || "").toString();
-  eById('balance').innerHTML = balanceSting.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' SUI';
+  eById('balance').innerHTML = formatBalance(balance, 9) + ' SUI';
 }
 
 async function loadGames() {
