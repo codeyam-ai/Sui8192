@@ -92,7 +92,7 @@ module ethos::leaderboard_8192 {
           index = index + 1;
         };
 
-        table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count - 1, new_top_game);
+        table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, new_top_game);
           
         if (top_game_count == 0) {
            game_8192::record_leaderboard_game(game, leaderboard_id, 0, epoch);
@@ -205,12 +205,13 @@ module ethos::leaderboard_8192 {
 
     #[test_only]
     public fun blank_leaderboard(scenario: &mut Scenario, max_leaderboard_game_count: u64, min_tile: u8, min_score: u64) {
+        let ctx = test_scenario::ctx(scenario);
         let leaderboard = Leaderboard8192 {
-            id: object::new(test_scenario::ctx(scenario)),
+            id: object::new(ctx),
             game_count: 0,
             max_leaderboard_game_count: max_leaderboard_game_count,
-            top_games: table::new<u64, TopGame8192>(test_scenario::ctx(scenario)),
-            leaders: table::new<address, Option<String>>(test_scenario::ctx(scenario)),
+            top_games: table::new<u64, TopGame8192>(ctx),
+            leaders: table::new<address, Option<String>>(ctx),
             min_tile: min_tile,
             min_score: min_score
         };

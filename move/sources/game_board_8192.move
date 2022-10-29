@@ -34,7 +34,7 @@ module ethos::game_board_8192 {
     const ENoEmptySpaces: u64 = 2;
     const EGameOver: u64 = 3;
 
-    struct GameBoard8192 has store, copy {
+    struct GameBoard8192 has store, copy, drop {
         spaces: vector<vector<Option<u8>>>,
         score: u64,
         last_tile: vector<u64>,
@@ -506,16 +506,11 @@ module ethos::game_board_8192 {
 
     // In here due to number of constants
 
-    #[test_only]
-    use sui::transfer;
+    //  #[test_only]
+    // use sui::object::UID;
 
     #[test_only]
     const EMPTY: u8 = 99;
-
-    #[test_only]
-    struct TestGameBoard has key {
-        game_board: GameBoard8192
-    }
 
     #[test_only]
     fun o(value: u8): Option<u8> {
@@ -561,8 +556,6 @@ module ethos::game_board_8192 {
         assert!(column_count(&game_board) == 4, column_count(&game_board));
         let empty_space_count = empty_space_count(&game_board);
         assert!(empty_space_count == 14, empty_space_count);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -576,8 +569,6 @@ module ethos::game_board_8192 {
             TILE2, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -602,8 +593,6 @@ module ethos::game_board_8192 {
             TILE16,  TILE8,   EMPTY, EMPTY,
             TILE64,  EMPTY,   EMPTY, EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -617,8 +606,6 @@ module ethos::game_board_8192 {
             EMPTY, EMPTY, EMPTY, TILE2,
             EMPTY, EMPTY, EMPTY, EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -643,8 +630,6 @@ module ethos::game_board_8192 {
             EMPTY, EMPTY, TILE8, TILE16, 
             EMPTY, EMPTY, EMPTY, TILE64
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -658,8 +643,6 @@ module ethos::game_board_8192 {
             EMPTY, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -684,8 +667,6 @@ module ethos::game_board_8192 {
             TILE2,   EMPTY,   EMPTY,  EMPTY, 
             EMPTY,   EMPTY,   EMPTY,  EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -699,8 +680,6 @@ module ethos::game_board_8192 {
             EMPTY, EMPTY, EMPTY, EMPTY,
             EMPTY, TILE2, EMPTY, TILE2
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -725,8 +704,6 @@ module ethos::game_board_8192 {
             TILE16,  EMPTY,   TILE8,  EMPTY, 
             TILE256, TILE256, TILE16, TILE64
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -751,8 +728,6 @@ module ethos::game_board_8192 {
           EMPTY, EMPTY, TILE2, TILE2, 
           EMPTY, EMPTY, EMPTY, EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -777,8 +752,6 @@ module ethos::game_board_8192 {
           TILE4,  TILE8, EMPTY, EMPTY, 
           TILE16, TILE4, TILE4, EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -803,8 +776,6 @@ module ethos::game_board_8192 {
           EMPTY, TILE8, EMPTY, EMPTY, 
           EMPTY, EMPTY, EMPTY, EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -827,8 +798,6 @@ module ethos::game_board_8192 {
         assert!(*game_over(&game_board), 1);
 
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-
-        transfer::share_object(TestGameBoard { game_board })
     }  
 
     #[test]
@@ -848,8 +817,6 @@ module ethos::game_board_8192 {
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
 
         assert!(!*game_over(&game_board), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 
     #[test]
@@ -867,7 +834,6 @@ module ethos::game_board_8192 {
             game_over: false
         };
         assert!(move_possible(&game_board), 1);
-        transfer::share_object(TestGameBoard { game_board });
     }
 
     #[test]
@@ -885,7 +851,6 @@ module ethos::game_board_8192 {
             game_over: false
         };
         assert!(!move_possible(&game_board), 1);
-        transfer::share_object(TestGameBoard { game_board });
     }
 
     #[test]
@@ -903,7 +868,6 @@ module ethos::game_board_8192 {
             game_over: false
         };
         assert!(move_possible(&game_board), 1);
-        transfer::share_object(TestGameBoard { game_board });
     }
 
     #[test]
@@ -921,7 +885,6 @@ module ethos::game_board_8192 {
             game_over: false
         };
         assert!(move_possible(&game_board), 1);
-        transfer::share_object(TestGameBoard { game_board });
     }
 
     #[test]
@@ -939,7 +902,6 @@ module ethos::game_board_8192 {
             game_over: false
         };
         assert!(move_possible(&game_board), 1);
-        transfer::share_object(TestGameBoard { game_board });
     }
 
     #[test]
@@ -957,7 +919,6 @@ module ethos::game_board_8192 {
             game_over: false
         };
         assert!(move_possible(&game_board), 1);
-        transfer::share_object(TestGameBoard { game_board });
     }
 
     #[test]
@@ -979,7 +940,6 @@ module ethos::game_board_8192 {
 
         move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
         assert!(score(&game_board) == &588, *score(&game_board));
-        transfer::share_object(TestGameBoard { game_board });
     } 
 
     #[test]
@@ -998,7 +958,6 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
         assert!(top_tile(&game_board) == &8, (*top_tile(&game_board) as u64));
-        transfer::share_object(TestGameBoard { game_board });
     }   
 
     #[test]
@@ -1007,7 +966,6 @@ module ethos::game_board_8192 {
         assert!(top_tile(&game_board) == &0, (*top_tile(&game_board) as u64));
         move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
         assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
-        transfer::share_object(TestGameBoard { game_board });
     }  
 
     #[test]
@@ -1017,7 +975,6 @@ module ethos::game_board_8192 {
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
         assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
-        transfer::share_object(TestGameBoard { game_board });
     } 
 
     #[test]
@@ -1036,7 +993,6 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
         assert!(empty_space_count(&game_board) == (12 as u64), empty_space_count(&game_board));
-        transfer::share_object(TestGameBoard { game_board });
     }  
 
     #[test]
@@ -1060,7 +1016,5 @@ module ethos::game_board_8192 {
             TILE2048,      TILE16,   EMPTY,   EMPTY,
             TILE2048,   TILE16,   EMPTY,  EMPTY
         ]), 1);
-
-        transfer::share_object(TestGameBoard { game_board })
     }
 }
