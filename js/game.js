@@ -493,7 +493,7 @@ const onWalletConnected = async ({ signer }) => {
               moduleName: 'game_8192',
               functionName: 'create',
               inputValues: [],
-              gasBudget: 10000
+              gasBudget: 30000
             };
 
             try {
