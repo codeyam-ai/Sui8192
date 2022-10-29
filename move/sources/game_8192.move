@@ -4,7 +4,7 @@ module ethos::game_8192 {
     use sui::url::{Self, Url};
     use std::string::{Self, String};
     use sui::event;
-    use sui::transfer;
+    use sui::dynamic_object_field as dof; 
     use std::vector;
     use std::option::Option;
     use ethos::game_board_8192::{Self, GameBoard8192};
