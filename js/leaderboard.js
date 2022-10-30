@@ -49,10 +49,21 @@ const boardHTML = (moveIndex, boards) => {
 
   const completeHTML = `
     <div class='leaderboard-board'>
-      <div class='leaderboard-board-title'>
-        Move: ${moveIndex}, Score: ${board.fields.score}
-      </div>
       ${rows.join("")}
+    </div>
+    <div class='leaderboard-board-stats'>
+      <div>
+        <div>Move</div>
+        <div class='game-highlighted'>
+          ${moveIndex}
+        </div>
+      </div>
+      <div>
+        <div>Score</div>
+        <div class='game-highlighted'> 
+          ${board.fields.score}
+        </div>
+      </div>
     </div>
   `
   return completeHTML

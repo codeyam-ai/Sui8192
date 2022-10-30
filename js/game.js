@@ -48,7 +48,7 @@ const initializeKeyListener = () => {
         break;
     }
     if (!direction) return;
-
+  
     e.preventDefault();
     moves.execute(
       direction, 
@@ -221,13 +221,13 @@ async function loadWalletContents() {
   eById('wallet-address').innerHTML = truncateMiddle(address, 4);
 
   walletContents = await ethos.getWalletContents(address, 'sui');
-  const suiBalance = walletContents.suiBalance;
+  const { suiBalance } = walletContents;
 
-  if (balance < 5000000) {
-    tryDrip(address, balance);
+  if (suiBalance < 5000000) {
+    tryDrip(address, suiBalance);
   }
 
-  eById('balance').innerHTML = formatBalance(balance, 9) + ' SUI';
+  eById('balance').innerHTML = formatBalance(suiBalance, 9) + ' SUI';
 }
 
 async function loadGames() {
