@@ -66,7 +66,7 @@ const initializeKeyListener = () => {
         }
       }
     );
-  }
+  } 
 }
 
 function init() {
@@ -75,7 +75,7 @@ function init() {
   leaderboard.load();
   
   const ethosConfiguration = {
-    appId: 'sui-8192'
+    appId: 'sui-8192',
   };
 
   const start = eById('ethos-start');
@@ -181,7 +181,7 @@ async function syncAccountState() {
   } catch (e) {}
 }
 
-async function tryDrip(address, balance) {
+async function tryDrip(address, suiBalance) {
   if (!walletSigner || faucetUsed) return;
 
   faucetUsed = true;
@@ -202,8 +202,8 @@ async function tryDrip(address, balance) {
   }
 
   if (!success) {
-    const { balance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
-    if (balance !== balanceCheck) {
+    const { suiBalance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
+    if (suiBalance !== balanceCheck) {
       success = true;      
     }
   }
@@ -219,14 +219,15 @@ async function loadWalletContents() {
   if (!walletSigner) return;
   const address = await walletSigner.getAddress();
   eById('wallet-address').innerHTML = truncateMiddle(address, 4);
-  walletContents = await ethos.getWalletContents(address, 'sui');
-  const balance = walletContents.balance || 0;
 
-  if (balance < 5000000) {
-    tryDrip(address, balance);
+  walletContents = await ethos.getWalletContents(address, 'sui');
+  const { suiBalance } = walletContents;
+
+  if (suiBalance < 5000000) {
+    tryDrip(address, suiBalance);
   }
 
-  eById('balance').innerHTML = formatBalance(balance, 9) + ' SUI';
+  eById('balance').innerHTML = formatBalance(suiBalance, 9) + ' SUI';
 }
 
 async function loadGames() {
@@ -486,19 +487,22 @@ const onWalletConnected = async ({ signer }) => {
           async () => {
             modal.open('loading', 'container');
 
-            const details = {
-              network: 'sui',
-              address: contractAddress,
-              moduleName: 'game_8192',
-              functionName: 'create',
-              inputValues: [],
-              gasBudget: 10000
+            const signableTransaction = {
+              kind: "moveCall",
+              data: {
+                packageObjectId: contractAddress,
+                module: 'game_8192',
+                function: 'create',
+                typeArguments: [],
+                arguments: [],
+                gasBudget: 10000
+              }
             };
 
             try {
               const data = await ethos.transact({
                 signer: walletSigner, 
-                details
+                signableTransaction
               })
 
               if (!data || data.error) {
