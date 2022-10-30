@@ -11,6 +11,7 @@ const {
   addClass, 
   removeClass,
   truncateMiddle,
+  formatBalance,
   setOnClick
 } = require('./utils');
 const modal = require('./modal');
@@ -66,7 +67,7 @@ const initializeKeyListener = () => {
       }
     );
   } 
-};
+}
 
 function init() {
   // test();
@@ -175,7 +176,7 @@ async function syncAccountState() {
   if (!walletSigner) return;
   try {
     const address =  await walletSigner.getAddress();
-    const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/', true, '0.11.0');
+    const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/');
     await provider.syncAccountState(address);
   } catch (e) {}
 }
@@ -222,12 +223,11 @@ async function loadWalletContents() {
   walletContents = await ethos.getWalletContents(address, 'sui');
   const suiBalance = walletContents.suiBalance;
 
-  if (suiBalance < 5000000) {
-    tryDrip(address, suiBalance);
+  if (balance < 5000000) {
+    tryDrip(address, balance);
   }
 
-  const balanceSting = (suiBalance || "").toString();
-  eById('balance').innerHTML = balanceSting.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' SUI';
+  eById('balance').innerHTML = formatBalance(balance, 9) + ' SUI';
 }
 
 async function loadGames() {
@@ -506,7 +506,8 @@ const onWalletConnected = async ({ signer }) => {
                 signableTransaction
               })
 
-              if (!data) {
+              if (!data || data.error) {
+                eById('create-error-error-message').innerHTML = data.error;
                 modal.open('create-error', 'container');
                 return;
               }
@@ -529,7 +530,7 @@ const onWalletConnected = async ({ signer }) => {
               setActiveGame(game);
               ethos.hideWallet();
             } catch (e) {
-              console.log("Error minting game", e)
+              eById('create-error-error-message').innerHTML = e;
               modal.open('create-error', 'container');
               return;
             }

@@ -16,14 +16,16 @@
   dependencies:
     bn.js "^5.2.1"
 
-"@mysten/sui.js@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.11.0.tgz#f3e561af3aa1814cfc413e2a60e8b630422054b2"
-  integrity sha512-AGdvotFCEAFAqPjBnUJ/taNaSxisXibpcQXLSBE5PTo0YUqQjTaF76sm57SY0ZZMAhnSxacnM5kP0UuNkZc1ew==
+"@mysten/sui.js@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.14.0.tgz#4b6c0032ab421dffedbe85e170898c07acbc3f5c"
+  integrity sha512-jQdeg6DfCtvwhcyKS8ipYSjMiKhDynWYzPcoO5MkcrATsEf8/Ktt7EU6+xEa3rfNLhYVKS5Qo2c2Nno+/HtlTA==
   dependencies:
     "@mysten/bcs" "0.3.0"
     "@noble/hashes" "^1.1.2"
     "@noble/secp256k1" "^1.6.3"
+    "@scure/bip32" "^1.1.0"
+    "@scure/bip39" "^1.1.0"
     bn.js "^5.2.0"
     buffer "^6.0.3"
     cross-fetch "^3.1.5"
@@ -33,15 +35,37 @@
     rpc-websockets "^7.5.0"
     tweetnacl "^1.0.3"
 
-"@noble/hashes@^1.1.2":
+"@noble/hashes@^1.1.2", "@noble/hashes@~1.1.1", "@noble/hashes@~1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.1.3.tgz#360afc77610e0a61f3417e497dcf36862e4f8111"
   integrity sha512-CE0FCR57H2acVI5UOzIGSSIYxZ6v/HOhDR0Ro9VLyhnzLwx0o8W1mmgaqlEUx4049qJDlIBRztv5k+MM8vbO3A==
 
-"@noble/secp256k1@^1.6.3":
+"@noble/secp256k1@^1.6.3", "@noble/secp256k1@~1.7.0":
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.7.0.tgz#d15357f7c227e751d90aa06b05a0e5cf993ba8c1"
   integrity sha512-kbacwGSsH/CTout0ZnZWxnW1B+jH/7r/WAAKLBtrRJ/+CUH7lgmQzl3GTrQua3SGKWNSDsS6lmjnDpIJ5Dxyaw==
+
+"@scure/base@~1.1.0":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.1.tgz#ebb651ee52ff84f420097055f4bf46cfba403938"
+  integrity sha512-ZxOhsSyxYwLJj3pLZCefNitxsj093tb2vq90mp2txoYeBqbcjDjqFhyM8eUjq/uFm6zJ+mUuqxlS2FkuSY1MTA==
+
+"@scure/bip32@^1.1.0":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@scure/bip32/-/bip32-1.1.1.tgz#f62e4a2f13cc3e5e720ad81b7582b8631ae6835a"
+  integrity sha512-UmI+liY7np2XakaW+6lMB6HZnpczWk1yXZTxvg8TM8MdOcKHCGL1YkraGj8eAjPfMwFNiAyek2hXmS/XFbab8g==
+  dependencies:
+    "@noble/hashes" "~1.1.3"
+    "@noble/secp256k1" "~1.7.0"
+    "@scure/base" "~1.1.0"
+
+"@scure/bip39@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@scure/bip39/-/bip39-1.1.0.tgz#92f11d095bae025f166bef3defcc5bf4945d419a"
+  integrity sha512-pwrPOS16VeTKg98dYXQyIjJEcWfz7/1YJIwxUEPFfQPtc86Ym/1sVgQ2RLoD43AazMk2l/unK4ITySSpW2+82w==
+  dependencies:
+    "@noble/hashes" "~1.1.1"
+    "@scure/base" "~1.1.0"
 
 "@types/connect@^3.4.33":
   version "3.4.35"
@@ -136,6 +160,11 @@ base64-js@^1.0.2, base64-js@^1.3.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
+
+bignumber.js@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.0.tgz#8d340146107fe3a6cb8d40699643c302e8773b62"
+  integrity sha512-4LwHK4nfDOraBCtst+wOWIHbu1vhvAPJK8g8nROd4iuc3PSEjWif/qwbkh8jwCJz6yDBvtU4KPynETgrfh7y3A==
 
 bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.9:
   version "4.12.0"
