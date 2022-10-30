@@ -268,46 +268,46 @@ async function loadGames() {
     gamesElement.append(newGameArea);
   }
 
-//   for (const game of games) {
-//     const gameElement = document.createElement('DIV');
-//     let topGames = leaderboard.topGames();
-//     if (topGames.length === 0) topGames = [];
-//     const leaderboardItemIndex = topGames.findIndex(
-//       (top_game) => top_game.fields.game_id === game.address
-//     );
-//     const leaderboardItem = topGames[leaderboardItemIndex];
-//     const leaderboardItemUpToDate = leaderboardItem?.fields.score === game.score
-//     addClass(gameElement, 'game-preview');
-//     setOnClick(
-//       gameElement,
-//       () => {
-//         addClass(eById('leaderboard'), 'hidden');
-//         removeClass(eById('game'), 'hidden');
-//         setActiveGame(game);
-//       }
-//     );
+  for (const game of games) {
+    const gameElement = document.createElement('DIV');
+    let topGames = leaderboard.topGames;
+    if (topGames.length === 0) topGames = [];
+    const leaderboardItemIndex = topGames.findIndex(
+      (top_game) => top_game.fields.game_id === game.address
+    );
+    const leaderboardItem = topGames[leaderboardItemIndex];
+    const leaderboardItemUpToDate = leaderboardItem?.fields.score === game.score
+    addClass(gameElement, 'game-preview');
+    setOnClick(
+      gameElement,
+      () => {
+        addClass(eById('leaderboard'), 'hidden');
+        removeClass(eById('game'), 'hidden');
+        setActiveGame(game);
+      }
+    );
 
-//     gameElement.innerHTML = `
-//       <div class='leader-stats flex-1'> 
-//         <div class='leader-tile subsubtitle color${game.topTile + 1}'>
-//           ${Math.pow(2, game.topTile + 1)}
-//         </div>
-//         <div class='leader-score'>
-//           Score <span>${game.score}</span>
-//         </div>
-//       </div>
-//       <div class='game-preview-right'> 
-//         <div class="${leaderboardItem && leaderboardItemUpToDate ? '' : 'hidden'}">
-//           <span class="light">Leaderboard:</span> <span class='bold'>${leaderboardItemIndex + 1}</span>
-//         </div>
-//         <button class='potential-leaderboard-game ${leaderboardItemUpToDate ? 'hidden' : ''}' data-address='${game.address}'>
-//           ${leaderboardItem ? 'Update' : 'Add To'} Leaderboard
-//         </button>
-//       </div>
-//     `
+    gameElement.innerHTML = `
+      <div class='leader-stats flex-1'> 
+        <div class='leader-tile subsubtitle color${game.topTile + 1}'>
+          ${Math.pow(2, game.topTile + 1)}
+        </div>
+        <div class='leader-score'>
+          Score <span>${game.score}</span>
+        </div>
+      </div>
+      <div class='game-preview-right'> 
+        <div class="${leaderboardItem && leaderboardItemUpToDate ? '' : 'hidden'}">
+          <span class="light">Leaderboard:</span> <span class='bold'>${leaderboardItemIndex + 1}</span>
+        </div>
+        <button class='potential-leaderboard-game ${leaderboardItemUpToDate ? 'hidden' : ''}' data-address='${game.address}'>
+          ${leaderboardItem ? 'Update' : 'Add To'} Leaderboard
+        </button>
+      </div>
+    `
 
-//     gamesElement.append(gameElement);
-//   }
+    gamesElement.append(gameElement);
+  }
 
   setOnClick(
     eByClass('potential-leaderboard-game'),
