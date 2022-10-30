@@ -501,7 +501,8 @@ const onWalletConnected = async ({ signer }) => {
                 details
               })
 
-              if (!data) {
+              if (!data || data.error) {
+                eById('create-error-error-message').innerHTML = data.error;
                 modal.open('create-error', 'container');
                 return;
               }
@@ -522,6 +523,7 @@ const onWalletConnected = async ({ signer }) => {
               setActiveGame(game);
               ethos.hideWallet();
             } catch (e) {
+              eById('create-error-error-message').innerHTML = e;
               modal.open('create-error', 'container');
               return;
             }
