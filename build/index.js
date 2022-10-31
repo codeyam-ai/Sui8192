@@ -1339,13 +1339,14 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       
       load(walletSigner, activeGameAddress, onComplete, onError);
       
-      if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
+      const possibleError = error || (effects.effects || effects)?.status?.error
+      if (possibleError === "InsufficientGas") {
         onError()
         return;
       }
 
-      if (error) {
-        onError(error);
+      if (possibleError) {
+        onError(possibleError);
         return;
       }
 
