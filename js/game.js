@@ -58,8 +58,10 @@ const initializeKeyListener = () => {
         handleResult(newBoard, direction);
         loadWalletContents();
       },
-      (error) => {
-        if (error) {
+      ({ error, gameOver }) => {
+        if (gameOver) {
+          showGameOver();
+        } else if (error) {
           showUnknownError(error)
         } else {
           showGasError();
@@ -164,6 +166,11 @@ function handleResult(newBoard, direction) {
 function showGasError() {
   queue.removeAll()
   removeClass(eById("error-gas"), 'hidden');
+}
+
+function showGameOver() {
+  queue.removeAll()
+  removeClass(eById("error-game-over"), 'hidden');
 }
 
 function showUnknownError(error) {

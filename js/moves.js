@@ -172,7 +172,11 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       }
 
       if (possibleError) {
-        onError(possibleError);
+        if (possibleError.toString().indexOf("}, 3)") > -1) {
+          onError({ gameOver: true })
+        } else {
+          onError({ error: possibleError });
+        }
         return;
       }
 
