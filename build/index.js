@@ -914,7 +914,7 @@ const getLeaderboardGame = async (gameObjectId) => {
   return { id: gameObjectId, gameOver, moveCount: moves.length, boards }
 }
 
-const boardHTML = (moveIndex, boards) => { 
+const boardHTML = (moveIndex, totalMoves, boards) => { 
   const board = boards[moveIndex];
   const rows = [];
   for (const row of board.fields.spaces) {
@@ -944,7 +944,7 @@ const boardHTML = (moveIndex, boards) => {
       <div>
         <div>Move</div>
         <div class='game-highlighted'>
-          ${moveIndex}
+          ${moveIndex} of ${totalMoves}
         </div>
       </div>
       <div>
@@ -1051,36 +1051,32 @@ const load = async () => {
         details.innerHTML = `
           <div class='game-status'>
             <div>
-              <div>Status</div>
-              <div class='game-status-${game.gameOver ? 'over' : 'active'}'>
-                ${game.gameOver ? 'Game Over' : 'Active'}
+              <div>Game Status</div>
+              <div class='game-status-${game.gameOver ? 'ended' : 'active'}'>
+                ${game.gameOver ? 'Ended' : 'Active'}
               </div>
             </div>
           </div>
           <div class='leader-boards'>
             <div class='leader-board'>
-              ${boardHTML(index, game.boards)}
+              ${boardHTML(index, game.moveCount, game.boards)}
             </div>
             <div class='game-instructions'>
               <div>
                 <div>Go forward in time:</div>
-                <div class='game-highlighted'>scroll up over game</div>
+                <div class='game-highlighted'>hover over game & scroll up</div>
                 <div>or</div>
                 <div class='game-highlighted'>↑ key</div>
               </div>
               <div>
                 <div>Go backward in time:</div>
-                <div class='game-highlighted'>scroll down over game</div>
+                <div class='game-highlighted'>hover over game & scroll down</div>
                 <div>or</div>
                 <div class='game-highlighted'>↓ key</div>
               </div>
             </div>
           </div>
           <div class='game-info'>
-            <div>
-              <div class='game-info-header'>Total Moves</div>
-              <div class='game-highlighted'>${game.moveCount}</div>
-            </div>
             <div>
               <div class='game-info-header'>Game ID</div>
               <div class='game-highlighted'>${game.id}</div>

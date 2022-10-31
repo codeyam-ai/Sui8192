@@ -999,9 +999,9 @@ a:visited.link-button {
   padding: 0 6px;
 }
 
-.game-status > div .game-status-over {
-  color: #cb4c4c;
-  background-color: #f4c2c6;
+.game-status > div .game-status-ended {
+  color: #9360DF;
+  background-color: #E7DEEE;
   border-radius: 6px;
   padding: 0 6px;
 }
