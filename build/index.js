@@ -19051,13 +19051,23 @@ const { ethos } = require("ethos-wallet-beta");
 const { contractAddress, leaderboardAddress, tileNames } = require("./constants");
 const { eById, eByClass, addClass, removeClass, truncateMiddle } = require("./utils");
 
+const PAGE_COUNT = 25;
+
 let leaderboardObject;
 
 const topGames = () => leaderboardObject.top_games;
 
+const provider = () => new JsonRpcProvider('https://fullnode.devnet.sui.io/'); 
+
 const getObject = async (objectId) => {
-  const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/'); 
-  return provider.getObject(objectId);;
+    return provider().getObject(objectId);;
+}
+
+const getTopGames = async (page = 0) => {
+    const data = await getObject(leaderboardObject.top_games.fields.id.id)
+    console.log("TOP GAMES", data)
+    // const topGameIds = leaderboardObject.top_games.fields.map()
+    // provider.getObjectBatch(topGameIds)
 }
 
 const get = async () => {
@@ -19120,6 +19130,8 @@ const boardHTML = (moveIndex, boards) => {
 const load = async () => {
   leaderboardObject = await get();
   // const { fields: { contents: leaders } } = leaderboardObject.leaders;
+  console.log("leaderboardObject", leaderboardObject)
+  getTopGames();
 
   const leaderboardList = eById('leaderboard-list');
   leaderboardList.innerHTML = "";
