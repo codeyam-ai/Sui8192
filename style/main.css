@@ -946,7 +946,7 @@ a:visited.link-button {
   display: flex;
   justify-content: center;
   gap: 12px;
-  padding: 6px;
+  padding: 12px;
   font-size: 12px;
 }
 
@@ -1021,6 +1021,7 @@ a:visited.link-button {
 
 .game-instructions {
   padding: 12px 0;
+  border-top: 1px solid #e5e5e7;
 }
 
 .game-info > div,
