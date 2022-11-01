@@ -1,5 +1,5 @@
 const { JsonRpcProvider } = require("@mysten/sui.js");
-const { ethos } = require("ethos-wallet-beta");
+const { ethos } = require("ethos-connect-staging");
 const { contractAddress, leaderboardAddress, tileNames } = require("./constants");
 const { eById, eByClass, addClass, removeClass, truncateMiddle } = require("./utils");
 
@@ -85,6 +85,9 @@ const load = async () => {
       leader_address: leaderAddress,
       game_id: gameId
     } } = leaderboardObject.top_games[i];
+
+    const name = await ethos.lookup(leaderAddress);
+
     const leaderElement = document.createElement("DIV")
     addClass(leaderElement, 'leader');
 
@@ -103,7 +106,7 @@ const load = async () => {
       
       <div class='leaderboard-name flex-1 '>
         <div title='${leaderAddress}'>
-          ${truncateMiddle(leaderAddress)}
+          ${name === leaderAddress ? truncateMiddle(leaderAddress) : name}
         </div>
       </div>     
     `;

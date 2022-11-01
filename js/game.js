@@ -1,7 +1,7 @@
 const React = require('react');
 const ReactDOM = require('react-dom/client');
 const { JsonRpcProvider } = require("@mysten/sui.js");
-const { EthosWrapper, SignInButton, ethos } = require('ethos-wallet-beta');
+const { EthosWrapper, SignInButton, ethos } = require('ethos-connect-staging');
 
 const leaderboard = require('./leaderboard');
 const { contractAddress } = require('./constants');
