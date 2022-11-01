@@ -87,7 +87,7 @@ const load = async () => {
     } } = leaderboardObject.top_games[i];
 
     const name = await ethos.lookup(leaderAddress);
-
+    
     const leaderElement = document.createElement("DIV")
     addClass(leaderElement, 'leader');
 
