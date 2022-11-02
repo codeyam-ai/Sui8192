@@ -154,10 +154,14 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
 
   moves = {};
 
-  const data = await ethos.transact({
+  const dataPromise = ethos.transact({
     signer: walletSigner, 
     signableTransaction,
   })
+  
+  ethos.hideWallet();
+
+  const data = await dataPromise;
 
   const { error, effects } = data.EffectsCert || data;
 
