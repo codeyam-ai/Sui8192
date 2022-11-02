@@ -1,4 +1,4 @@
-const { JsonRpcProvider } = require("@mysten/sui.js");
+const { JsonRpcProvider, Network } = require("@mysten/sui.js");
 const { ethos } = require("ethos-connect-staging");
 const { contractAddress, leaderboardAddress, tileNames } = require("./constants");
 const { eById, eByClass, addClass, removeClass, truncateMiddle } = require("./utils");
@@ -8,7 +8,7 @@ let leaderboardObject;
 const topGames = () => leaderboardObject.top_games;
 
 const getObject = async (objectId) => {
-  const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/'); 
+  const provider = new JsonRpcProvider(Network.DEVNET); 
   return provider.getObject(objectId);;
 }
 

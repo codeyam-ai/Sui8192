@@ -1,6 +1,5 @@
 const React = require('react');
 const ReactDOM = require('react-dom/client');
-const { JsonRpcProvider } = require("@mysten/sui.js");
 const { EthosWrapper, SignInButton, ethos } = require('ethos-connect-staging');
 
 const leaderboard = require('./leaderboard');
@@ -172,15 +171,6 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), 'hidden');
 }
 
-async function syncAccountState() {
-  if (!walletSigner) return;
-  try {
-    const address =  await walletSigner.getAddress();
-    const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/');
-    await provider.syncAccountState(address);
-  } catch (e) {}
-}
-
 async function tryDrip(address, suiBalance) {
   if (!walletSigner || faucetUsed) return;
 
@@ -193,12 +183,6 @@ async function tryDrip(address, suiBalance) {
     console.log("Error with drip", e);
     faucetUsed = false;
     return;
-  }
-
-  try {
-    await syncAccountState();
-  } catch (e) {
-    console.log("Error with syncing account state", e);
   }
 
   if (!success) {
@@ -469,8 +453,6 @@ const initializeClicks = () => {
 const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
-    syncAccountState();
-
     modal.close();
   
     addClass(document.body, 'signed-in');
