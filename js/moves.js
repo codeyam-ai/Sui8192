@@ -183,7 +183,9 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
       if (!effects) return;
       const { gasUsed, events} = effects.effects || effects;
       const { computationCost, storageCost, storageRebate } = gasUsed;
-      const event = events[0].moveEvent;
+      const event = events.find(
+        (e) => (e.moveEvent?.type || "").indexOf('GameMoveEvent8192') > -1
+      ).moveEvent;
       
       onComplete(board.convertInfo(event), direction);
       
