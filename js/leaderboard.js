@@ -1,5 +1,5 @@
-const { JsonRpcProvider } = require("@mysten/sui.js");
-const { ethos } = require("ethos-wallet-beta");
+const { JsonRpcProvider, Network } = require("@mysten/sui.js");
+const { ethos } = require("ethos-connect");
 const { contractAddress, leaderboardAddress, tileNames } = require("./constants");
 const { eById, eByClass, addClass, removeClass, truncateMiddle } = require("./utils");
 
@@ -8,7 +8,7 @@ let leaderboardObject;
 const topGames = () => leaderboardObject.top_games;
 
 const getObject = async (objectId) => {
-  const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/'); 
+  const provider = new JsonRpcProvider(Network.DEVNET); 
   return provider.getObject(objectId);;
 }
 
@@ -85,6 +85,9 @@ const load = async () => {
       leader_address: leaderAddress,
       game_id: gameId
     } } = leaderboardObject.top_games[i];
+
+    const name = await ethos.lookup(leaderAddress);
+    
     const leaderElement = document.createElement("DIV")
     addClass(leaderElement, 'leader');
 
@@ -103,7 +106,7 @@ const load = async () => {
       
       <div class='leaderboard-name flex-1 '>
         <div title='${leaderAddress}'>
-          ${truncateMiddle(leaderAddress)}
+          ${name === leaderAddress ? truncateMiddle(leaderAddress) : name}
         </div>
       </div>     
     `;
@@ -216,28 +219,29 @@ const minTile = () => {
 }
 
 const submit = async (gameAddress, walletSigner, onComplete) => {
-  const details = {
-    network: 'sui',
-    address: contractAddress,
-    moduleName: 'leaderboard_8192',
-    functionName: 'submit_game',
-    inputValues: [
-      gameAddress,
-      leaderboardAddress
-    ],
-    gasBudget: 100000
+  const signableTransaction = {
+    kind: "moveCall",
+    data: {
+      packageObjectId: contractAddress,
+      module: 'leaderboard_8192',
+      function: 'submit_game',
+      typeArguments: [],
+      arguments: [
+        gameAddress,
+        leaderboardAddress
+      ],
+      gasBudget: 100000
+    }
   };
 
   await ethos.transact({
-    id: "leaderboard",
     signer: walletSigner, 
-    details,
-    onCompleted: async () => {
-      load();
-      ethos.hideWallet();
-      onComplete(); //loadGames();
-    }
+    signableTransaction
   })
+
+  load();
+  ethos.hideWallet();
+  onComplete();
 } 
 
 module.exports = {

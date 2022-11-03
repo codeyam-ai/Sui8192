@@ -1,7 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom/client');
-const { JsonRpcProvider } = require("@mysten/sui.js");
-const { EthosWrapper, SignInButton, ethos } = require('ethos-wallet-beta');
+const { EthosWrapper, SignInButton, ethos } = require('ethos-connect');
 
 const leaderboard = require('./leaderboard');
 const { contractAddress } = require('./constants');
@@ -68,7 +67,7 @@ const initializeKeyListener = () => {
         }
       }
     );
-  }
+  } 
 }
 
 function init() {
@@ -179,16 +178,7 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), 'hidden');
 }
 
-async function syncAccountState() {
-  if (!walletSigner) return;
-  try {
-    const address =  await walletSigner.getAddress();
-    const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io/');
-    await provider.syncAccountState(address);
-  } catch (e) {}
-}
-
-async function tryDrip(address, balance) {
+async function tryDrip(address, suiBalance) {
   if (!walletSigner || faucetUsed) return;
 
   faucetUsed = true;
@@ -202,15 +192,9 @@ async function tryDrip(address, balance) {
     return;
   }
 
-  try {
-    await syncAccountState();
-  } catch (e) {
-    console.log("Error with syncing account state", e);
-  }
-
   if (!success) {
-    const { balance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
-    if (balance !== balanceCheck) {
+    const { suiBalance: balanceCheck } = await ethos.getWalletContents(address, 'sui')
+    if (suiBalance !== balanceCheck) {
       success = true;      
     }
   }
@@ -226,14 +210,15 @@ async function loadWalletContents() {
   if (!walletSigner) return;
   const address = await walletSigner.getAddress();
   eById('wallet-address').innerHTML = truncateMiddle(address, 4);
-  walletContents = await ethos.getWalletContents(address, 'sui');
-  const balance = walletContents.balance || 0;
 
-  if (balance < 5000000) {
-    tryDrip(address, balance);
+  walletContents = await ethos.getWalletContents(address, 'sui');
+  const { suiBalance } = walletContents;
+
+  if (suiBalance < 5000000) {
+    tryDrip(address, suiBalance);
   }
 
-  eById('balance').innerHTML = formatBalance(balance, 9) + ' SUI';
+  eById('balance').innerHTML = formatBalance(suiBalance, 9) + ' SUI';
 }
 
 async function loadGames() {
@@ -475,8 +460,6 @@ const initializeClicks = () => {
 const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
-    syncAccountState();
-
     modal.close();
   
     addClass(document.body, 'signed-in');
@@ -494,19 +477,22 @@ const onWalletConnected = async ({ signer }) => {
           async () => {
             modal.open('loading', 'container');
 
-            const details = {
-              network: 'sui',
-              address: contractAddress,
-              moduleName: 'game_8192',
-              functionName: 'create',
-              inputValues: [],
-              gasBudget: 10000
+            const signableTransaction = {
+              kind: "moveCall",
+              data: {
+                packageObjectId: contractAddress,
+                module: 'game_8192',
+                function: 'create',
+                typeArguments: [],
+                arguments: [],
+                gasBudget: 10000
+              }
             };
 
             try {
               const data = await ethos.transact({
                 signer: walletSigner, 
-                details
+                signableTransaction
               })
 
               if (!data || data.error) {
