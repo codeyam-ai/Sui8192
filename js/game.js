@@ -1,6 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom/client');
-const { EthosWrapper, SignInButton, ethos } = require('ethos-connect-staging');
+const { EthosWrapper, SignInButton, ethos } = require('ethos-connect');
 
 const leaderboard = require('./leaderboard');
 const { contractAddress } = require('./constants');
@@ -57,8 +57,10 @@ const initializeKeyListener = () => {
         handleResult(newBoard, direction);
         loadWalletContents();
       },
-      (error) => {
-        if (error) {
+      ({ error, gameOver }) => {
+        if (gameOver) {
+          showGameOver();
+        } else if (error) {
           showUnknownError(error)
         } else {
           showGasError();
@@ -163,6 +165,11 @@ function handleResult(newBoard, direction) {
 function showGasError() {
   queue.removeAll()
   removeClass(eById("error-gas"), 'hidden');
+}
+
+function showGameOver() {
+  queue.removeAll()
+  removeClass(eById("error-game-over"), 'hidden');
 }
 
 function showUnknownError(error) {
