@@ -88,9 +88,7 @@ const load = async () => {
 const loadNextPage = async () => {
   const leaderboardList = eById('leaderboard-list');
   const pageMax = Math.min(leaderboardObject.top_games.length, page * perPage)
-  console.log("PAGE MAX", page, perPage, pageMax)
   for (let i=((page - 1) * perPage); i<pageMax; ++i) {
-    console.log("I", i)
     const { fields: { 
       score, 
       top_tile: topTile, 
