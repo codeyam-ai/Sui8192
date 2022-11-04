@@ -1,9 +1,11 @@
 const { JsonRpcProvider, Network } = require("@mysten/sui.js");
 const { ethos } = require("ethos-connect");
 const { contractAddress, leaderboardAddress, tileNames } = require("./constants");
-const { eById, eByClass, addClass, removeClass, truncateMiddle } = require("./utils");
+const { eById, eByClass, addClass, removeClass, truncateMiddle, setOnClick } = require("./utils");
 
 let leaderboardObject;
+let page = 1;
+let perPage = 25;
 
 const topGames = () => leaderboardObject.top_games;
 
@@ -70,6 +72,7 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
 }
 
 const load = async () => {
+  page = 1;
   leaderboardObject = await get();
   // const { fields: { contents: leaders } } = leaderboardObject.leaders;
 
@@ -77,8 +80,17 @@ const load = async () => {
   leaderboardList.innerHTML = "";
 
   eById('best').innerHTML = leaderboardObject.top_games[0]?.fields?.score || 0;
+  setOnClick(eById('more-leaderboard'), loadNextPage);
 
-  for (let i=0; i<leaderboardObject.top_games.length; ++i) {
+  loadNextPage()
+}
+
+const loadNextPage = async () => {
+  const leaderboardList = eById('leaderboard-list');
+  const pageMax = Math.min(leaderboardObject.top_games.length, page * perPage)
+  console.log("PAGE MAX", page, perPage, pageMax)
+  for (let i=((page - 1) * perPage); i<pageMax; ++i) {
+    console.log("I", i)
     const { fields: { 
       score, 
       top_tile: topTile, 
@@ -207,6 +219,12 @@ const load = async () => {
     };
     
     leaderboardList.append(leaderElement);
+  }
+
+  if (pageMax >= leaderboardObject.top_games.length - 1) {
+    addClass(eById('more-leaderboard'), 'hidden');
+  } else {
+    page += 1;
   }
 }
 

@@ -978,6 +978,11 @@ a:visited.link-button {
   font-size: 12px;
 }
 
+.more-leaderboard-area {
+  padding: 24px;
+  text-align: center;
+}
+
 .game-status {
   display: flex;
   justify-content: center;
@@ -1000,8 +1005,8 @@ a:visited.link-button {
 }
 
 .game-status > div .game-status-ended {
-  color: #9360DF;
-  background-color: #E7DEEE;
+  color: #9360df;
+  background-color: #e7deee;
   border-radius: 6px;
   padding: 0 6px;
 }
