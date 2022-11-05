@@ -345,16 +345,19 @@ function handleResult(newBoard, direction) {
 
 function showGasError() {
   queue.removeAll()
+  addClass(eByClass('error'), 'hidden');
   removeClass(eById("error-gas"), 'hidden');
 }
 
 function showGameOver() {
   queue.removeAll()
+  addClass(eByClass('error'), 'hidden');
   removeClass(eById("error-game-over"), 'hidden');
 }
 
 function showUnknownError(error) {
   queue.removeAll()
+  addClass(eByClass('error'), 'hidden');
   eById('error-unknown-message').innerHTML = error;
   removeClass(eById("error-unknown"), 'hidden');
 }
@@ -424,9 +427,16 @@ async function loadGames() {
       boards: nft.extraFields.boards,
       topTile: nft.extraFields.top_tile,
       score: nft.extraFields.score,
-      imageUri: nft.imageUri
+      imageUri: nft.imageUri,
+      gameOver: nft.extraFields.game_over
     })
-  ).sort((a, b) => b.score - a.score);
+  ).sort((a, b) => {
+    const scoreDiff = b.score - a.score;
+    if (b.gameOver && a.gameOver) return scoreDiff;
+    if (a.gameOver) return 1;
+    if (b.gameOver) return -1;
+    return scoreDiff;
+  });
  
   if (!games || games.length === 0) {
     const newGameArea = document.createElement('DIV');
@@ -459,6 +469,7 @@ async function loadGames() {
       }
     );
 
+    console.log("GAME", game)
     gameElement.innerHTML = `
       <div class='leader-stats flex-1'> 
         <div class='leader-tile subsubtitle color${game.topTile + 1}'>
@@ -467,6 +478,7 @@ async function loadGames() {
         <div class='leader-score'>
           Score <span>${game.score}</span>
         </div>
+        <div class='game-over'>${game.gameOver ? 'Game Over' : ''}</div>
       </div>
       <div class='game-preview-right'> 
         <div class="${leaderboardItem && leaderboardItemUpToDate ? '' : 'hidden'}">
@@ -498,6 +510,7 @@ async function loadGames() {
 }
 
 async function setActiveGame(game) {
+  addClass(eByClass('error'), 'hidden');
   initializeKeyListener();
   activeGameAddress = game.address;
 
