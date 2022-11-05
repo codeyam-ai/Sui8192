@@ -288,7 +288,6 @@ async function loadGames() {
       }
     );
 
-    console.log("GAME", game)
     gameElement.innerHTML = `
       <div class='leader-stats flex-1'> 
         <div class='leader-tile subsubtitle color${game.topTile + 1}'>

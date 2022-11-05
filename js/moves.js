@@ -124,7 +124,7 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
 }
 
 const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, onComplete, onError) => {
-  if (board.active().gameOver) return;
+//   if (board.active().gameOver) return;
 
   await checkPreapprovals(activeGameAddress, walletSigner);
 
@@ -163,6 +163,8 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
 
   const data = await dataPromise;
 
+  console.log("DATA", data)
+
   const { error, effects } = data.EffectsCert || data;
 
   if (directionOrQueuedMove.id) {
@@ -176,6 +178,11 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     return;
   }
 
+  if (((effects.effects || effects)?.status?.error || "").indexOf('name: Identifier(\"game_board_8192\") }, 3)') > -1) {
+    onError({ gameOver: true })
+    return;
+  }
+
   if (error) {
     onError(error);
     return;
@@ -186,7 +193,14 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
   const { computationCost, storageCost, storageRebate } = gasUsed;
   const event = events.find((e) => e.moveEvent).moveEvent;
   
-  onComplete(board.convertInfo(event), direction);
+  const newBoard = board.convertInfo(event);
+
+  if (newBoard.gameOver) {
+    onError({ gameOver: true });
+    return;
+  }
+
+  onComplete(newBoard, direction);
   
   const { fields } = event;
   const { last_tile: lastTile } = fields;
