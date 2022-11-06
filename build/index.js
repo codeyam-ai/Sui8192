@@ -963,6 +963,7 @@ const load = async () => {
   if (leaderboardLoading) return;
   
   leaderboardLoading = true;
+  removeClass(eById('loading-leaderboard'), 'hidden');
   addClass(eById('more-leaderboard'), 'hidden');
 
   page = 1;
@@ -977,6 +978,7 @@ const load = async () => {
   await loadNextPage()
 
   leaderboardLoading = false;
+  addClass(eById('loading-leaderboard'), 'hidden');
   removeClass(eById('more-leaderboard'), 'hidden');
 }
 
