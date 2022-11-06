@@ -81,6 +81,9 @@ const load = async () => {
 
   page = 1;
   leaderboardObject = await get();
+
+  leaderboardLoading = false;
+  addClass(eById('loading-leaderboard'), 'hidden');
   
   const leaderboardList = eById('leaderboard-list');
   leaderboardList.innerHTML = "";
@@ -90,8 +93,6 @@ const load = async () => {
 
   await loadNextPage()
 
-  leaderboardLoading = false;
-  addClass(eById('loading-leaderboard'), 'hidden');
   removeClass(eById('more-leaderboard'), 'hidden');
 }
 
