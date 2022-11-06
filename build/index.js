@@ -1366,9 +1366,13 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
   
   ethos.hideWallet();
 
-  const data = await dataPromise;
-
-  console.log("DATA", data)
+  let data;
+  try {
+    data = await dataPromise;
+  } catch (e) {
+    onError({ error: e.message })
+    return;
+  }
 
   const { error, effects } = data.EffectsCert || data;
 
