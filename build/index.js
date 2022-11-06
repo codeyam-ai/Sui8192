@@ -963,20 +963,18 @@ const load = async () => {
   if (leaderboardLoading) return;
   
   leaderboardLoading = true;
-  console.log("HI")
   addClass(eById('more-leaderboard'), 'hidden');
 
   page = 1;
   leaderboardObject = await get();
-  // const { fields: { contents: leaders } } = leaderboardObject.leaders;
-
+  
   const leaderboardList = eById('leaderboard-list');
   leaderboardList.innerHTML = "";
 
   eById('best').innerHTML = leaderboardObject.top_games[0]?.fields?.score || 0;
   setOnClick(eById('more-leaderboard'), loadNextPage);
 
-  loadNextPage()
+  await loadNextPage()
 
   leaderboardLoading = false;
   removeClass(eById('more-leaderboard'), 'hidden');

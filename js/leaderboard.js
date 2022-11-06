@@ -87,7 +87,7 @@ const load = async () => {
   eById('best').innerHTML = leaderboardObject.top_games[0]?.fields?.score || 0;
   setOnClick(eById('more-leaderboard'), loadNextPage);
 
-  loadNextPage()
+  await loadNextPage()
 
   leaderboardLoading = false;
   removeClass(eById('more-leaderboard'), 'hidden');
