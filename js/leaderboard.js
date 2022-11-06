@@ -4,6 +4,7 @@ const { contractAddress, leaderboardAddress, tileNames } = require("./constants"
 const { eById, eByClass, addClass, removeClass, truncateMiddle, setOnClick } = require("./utils");
 
 let leaderboardObject;
+let leaderboardLoading = false;
 let page = 1;
 let perPage = 25;
 
@@ -72,10 +73,14 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
 }
 
 const load = async () => {
+  if (leaderboardLoading) return;
+  
+  leaderboardLoading = true;
+  addClass(eById('more-leaderboard'), 'hidden');
+
   page = 1;
   leaderboardObject = await get();
-  // const { fields: { contents: leaders } } = leaderboardObject.leaders;
-
+  
   const leaderboardList = eById('leaderboard-list');
   leaderboardList.innerHTML = "";
 
@@ -83,6 +88,9 @@ const load = async () => {
   setOnClick(eById('more-leaderboard'), loadNextPage);
 
   loadNextPage()
+
+  leaderboardLoading = false;
+  removeClass(eById('more-leaderboard'), 'hidden');
 }
 
 const loadNextPage = async () => {
