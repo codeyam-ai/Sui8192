@@ -1383,8 +1383,6 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     executingMove = false;
   }
 
-  console.log("DATA", data)
-
   if (!data) return;
 
   const { error, effects } = data.EffectsCert || data;
