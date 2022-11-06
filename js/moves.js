@@ -13,6 +13,7 @@ const queue = require('./queue');
 let moves = {};
 let preapproval;
 let preapprovalNotified = false;
+let executingMove = false;
 
 const constructTransaction = (direction, activeGameAddress) => {
   return {
@@ -124,7 +125,14 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
 }
 
 const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, onComplete, onError) => {
-//   if (board.active().gameOver) return;
+  if (executingMove) return;
+
+  executingMove = true;
+  
+  if (board.active().gameOver) {
+    onError({ gameOver: true });
+    return;
+  }
 
   await checkPreapprovals(activeGameAddress, walletSigner);
 
@@ -166,8 +174,13 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     data = await dataPromise;
   } catch (e) {
     onError({ error: e.message })
-    return;
+  } finally {
+    executingMove = false;
   }
+
+  console.log("DATA", data)
+
+  if (!data) return;
 
   const { error, effects } = data.EffectsCert || data;
 
