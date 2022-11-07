@@ -4,7 +4,8 @@ const { contractAddress, leaderboardAddress, tileNames } = require("./constants"
 const { eById, eByClass, addClass, removeClass, truncateMiddle, setOnClick } = require("./utils");
 
 let leaderboardObject;
-let leaderboardLoading = false;
+let leaderboardTimestamp;
+let loadingNextPage = 0;
 let page = 1;
 let perPage = 25;
 
@@ -73,16 +74,16 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
 }
 
 const load = async () => {
-  if (leaderboardLoading) return;
+  if (leaderboardTimestamp && Date.now() - leaderboardTimestamp < 1000 * 60) return;
   
-  leaderboardLoading = true;
+  leaderboardTimestamp = Date.now();
+
   removeClass(eById('loading-leaderboard'), 'hidden');
   addClass(eById('more-leaderboard'), 'hidden');
 
   page = 1;
   leaderboardObject = await get();
 
-  leaderboardLoading = false;
   addClass(eById('loading-leaderboard'), 'hidden');
   
   const leaderboardList = eById('leaderboard-list');
@@ -97,6 +98,10 @@ const load = async () => {
 }
 
 const loadNextPage = async () => {
+  if (loadingNextPage) return;
+
+  loadingNextPage = true;
+
   const leaderboardList = eById('leaderboard-list');
   const pageMax = Math.min(leaderboardObject.top_games.length, page * perPage)
   for (let i=((page - 1) * perPage); i<pageMax; ++i) {
@@ -235,6 +240,8 @@ const loadNextPage = async () => {
   } else {
     page += 1;
   }
+
+  loadingNextPage = false;
 }
 
 const minScore = () => {
