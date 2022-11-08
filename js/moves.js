@@ -1,14 +1,14 @@
 const { ethos } = require("ethos-connect");
 const { contractAddress } = require("./constants");
-const { 
-  eById, 
-  addClass, 
+const {
+  eById,
+  addClass,
   removeClass,
   directionToDirectionNumber,
-  directionNumberToSymbol
-} = require('./utils');
-const board = require('./board');
-const queue = require('./queue');
+  directionNumberToSymbol,
+} = require("./utils");
+const board = require("./board");
+const queue = require("./queue");
 
 let moves = {};
 let preapproval;
@@ -20,58 +20,56 @@ const constructTransaction = (direction, activeGameAddress) => {
     kind: "moveCall",
     data: {
       packageObjectId: contractAddress,
-      module: 'game_8192',
-      function: 'make_move',
+      module: "game_8192",
+      function: "make_move",
       typeArguments: [],
-      arguments: [
-        activeGameAddress,
-        direction
-      ],
-      gasBudget: 50000
-    }
-  }
-}
+      arguments: [activeGameAddress, direction],
+      gasBudget: 50000,
+    },
+  };
+};
 
 const checkPreapprovals = async (activeGameAddress, walletSigner) => {
-    if (walletSigner.type === 'ethos_hosted') {
-        return true;
-    }
+  if (walletSigner.type === "ethos_hosted") {
+    return true;
+  }
 
   // if (preapproval === undefined) {
-    try {
-      const result = await ethos.preapprove({
-        signer: walletSigner,
-        preapproval: {
-          packageObjectId: contractAddress,
-          objectId: activeGameAddress,
-          module: 'game_8192',
-          function: 'make_move',
-          description: "Pre-approve moves in the game so you can play without signing every transaction.",
-          totalGasLimit: 500000,
-          maxTransactionCount: 25
-        }
-      })
+  try {
+    const result = await ethos.preapprove({
+      signer: walletSigner,
+      preapproval: {
+        packageObjectId: contractAddress,
+        objectId: activeGameAddress,
+        module: "game_8192",
+        function: "make_move",
+        description:
+          "Pre-approve moves in the game so you can play without signing every transaction.",
+        totalGasLimit: 500000,
+        maxTransactionCount: 25,
+      },
+    });
 
-      preapproval = result.approved;
-    } catch (e) {
-      console.log("Error requesting preapproval", e);
-      preapproval = false;
-    }
+    preapproval = result.approved;
+  } catch (e) {
+    console.log("Error requesting preapproval", e);
+    preapproval = false;
+  }
   // }
 
   if (!preapprovalNotified && !preapproval) {
-    removeClass(eById('preapproval'), 'hidden');
-    preapprovalNotified = true
+    removeClass(eById("preapproval"), "hidden");
+    preapprovalNotified = true;
   }
-  
+
   return preapproval;
-}
+};
 
 const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
   return;
   if (walletSigner.type === "extension") {
     return;
-  } 
+  }
 
   const directions = ["0", "1", "2", "3"];
 
@@ -79,7 +77,7 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
     return;
   }
 
-  const transactions = []
+  const transactions = [];
   for (const direction of directions) {
     const transaction = constructTransaction(direction, activeGameAddress);
     transaction.id = direction;
@@ -88,15 +86,15 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
 
   const { data } = await ethos.sign({
     signer: walletSigner,
-    signableTransactions: transactions
-  })
-  //     , 
+    signableTransactions: transactions,
+  });
+  //     ,
   //   onPopulated({ data }) {
   //     if (data.error) {
   //       onError(data.error);
   //       return;
   //     }
-      
+
   //     for (const { id: direction, transaction } of data.transactions) {
   //       moves[direction] = {
   //         ...(moves[direction] || {}),
@@ -121,14 +119,20 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
   //     if (queuedMove) execute(queuedMove, activeGameAddress, walletSigner, onComplete, onError);
   //   }
   // });
-  ethos.hideWallet();
-}
+  ethos.hideWallet(walletSigner);
+};
 
-const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, onComplete, onError) => {
+const execute = async (
+  directionOrQueuedMove,
+  activeGameAddress,
+  walletSigner,
+  onComplete,
+  onError
+) => {
   if (executingMove) return;
 
   executingMove = true;
-  
+
   if (board.active().gameOver) {
     onError({ gameOver: true });
     return;
@@ -136,13 +140,13 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
 
   await checkPreapprovals(activeGameAddress, walletSigner);
 
-  const direction = directionOrQueuedMove.id ? 
-    directionOrQueuedMove.direction : 
-    directionOrQueuedMove;
+  const direction = directionOrQueuedMove.id
+    ? directionOrQueuedMove.direction
+    : directionOrQueuedMove;
 
   const directionNumber = directionToDirectionNumber(direction);
   const move = moves[directionNumber];
-  
+
   let signableTransaction;
 
   if (false && walletSigner.type === "ethos_hosted") {
@@ -151,29 +155,32 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
         queue.add(direction);
       }
       return;
-    }  
+    }
 
     signableTransaction = {
-      signedInfo: move
-    } 
+      signedInfo: move,
+    };
   } else {
-    signableTransaction = constructTransaction(directionNumber, activeGameAddress)
+    signableTransaction = constructTransaction(
+      directionNumber,
+      activeGameAddress
+    );
   }
 
   moves = {};
 
   const dataPromise = ethos.transact({
-    signer: walletSigner, 
+    signer: walletSigner,
     signableTransaction,
-  })
-  
-  ethos.hideWallet();
+  });
+
+  ethos.hideWallet(walletSigner);
 
   let data;
   try {
     data = await dataPromise;
   } catch (e) {
-    onError({ error: e.message })
+    onError({ error: e.message });
   } finally {
     executingMove = false;
   }
@@ -185,16 +192,20 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
   if (directionOrQueuedMove.id) {
     queue.remove(directionOrQueuedMove);
   }
-  
+
   load(walletSigner, activeGameAddress, onComplete, onError);
-  
+
   if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
-    onError()
+    onError();
     return;
   }
 
-  if (((effects.effects || effects)?.status?.error || "").indexOf('name: Identifier(\"game_board_8192\") }, 3)') > -1) {
-    onError({ gameOver: true })
+  if (
+    ((effects.effects || effects)?.status?.error || "").indexOf(
+      'name: Identifier("game_board_8192") }, 3)'
+    ) > -1
+  ) {
+    onError({ gameOver: true });
     return;
   }
 
@@ -204,10 +215,10 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
   }
 
   if (!effects) return;
-  const { gasUsed, events} = effects.effects || effects;
+  const { gasUsed, events } = effects.effects || effects;
   const { computationCost, storageCost, storageRebate } = gasUsed;
   const event = events.find((e) => e.moveEvent).moveEvent;
-  
+
   const newBoard = board.convertInfo(event);
 
   if (newBoard.gameOver) {
@@ -216,7 +227,7 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
   }
 
   onComplete(newBoard, direction);
-  
+
   const { fields } = event;
   const { last_tile: lastTile } = fields;
   const transaction = {
@@ -226,12 +237,12 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     move: fields.direction,
     lastTile: {
       row: lastTile[0],
-      column: fields.last_tile[1]
+      column: fields.last_tile[1],
     },
-    moveCount: fields.move_count
+    moveCount: fields.move_count,
   };
   const transactionElement = document.createElement("DIV");
-  addClass(transactionElement, 'transaction');
+  addClass(transactionElement, "transaction");
   transactionElement.innerHTML = `
     <div class='transaction-left'>
       <div class='transaction-count'>
@@ -269,18 +280,16 @@ const execute = async (directionOrQueuedMove, activeGameAddress, walletSigner, o
     </div>
   `;
 
-  eById('transactions-list').prepend(transactionElement);
-  removeClass(eById('transactions'), 'hidden');
+  eById("transactions-list").prepend(transactionElement);
+  removeClass(eById("transactions"), "hidden");
+};
 
-  ethos.hideWallet();
-}
-
-const reset = () => moves = []
+const reset = () => (moves = []);
 
 module.exports = {
   checkPreapprovals,
   constructTransaction,
   load,
   execute,
-  reset
+  reset,
 };
