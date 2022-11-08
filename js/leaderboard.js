@@ -96,9 +96,10 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
   return completeHTML;
 };
 
-const load = async () => {
-  if (leaderboardTimestamp && Date.now() - leaderboardTimestamp < 1000 * 60)
+const load = async (force = false) => {
+  if (!force && leaderboardTimestamp && Date.now() - leaderboardTimestamp < 1000 * 60) {
     return;
+  }
 
   leaderboardTimestamp = Date.now();
 
@@ -117,8 +118,6 @@ const load = async () => {
   setOnClick(eById("more-leaderboard"), loadNextPage);
 
   await loadNextPage();
-
-  removeClass(eById("more-leaderboard"), "hidden");
 };
 
 const loadNextPage = async () => {
@@ -127,7 +126,8 @@ const loadNextPage = async () => {
   loadingNextPage = true;
 
   const leaderboardList = eById("leaderboard-list");
-  const pageMax = Math.min(leaderboardObject.top_games.length, page * perPage);
+  const currentMax = page * perPage;
+  const pageMax = Math.min(leaderboardObject.top_games.length, currentMax);
   for (let i = (page - 1) * perPage; i < pageMax; ++i) {
     const {
       fields: {
@@ -261,10 +261,11 @@ const loadNextPage = async () => {
     leaderboardList.append(leaderElement);
   }
 
-  if (pageMax >= leaderboardObject.top_games.length - 1) {
+  if (currentMax >= leaderboardObject.top_games.length - 1) {
     addClass(eById("more-leaderboard"), "hidden");
   } else {
     page += 1;
+    removeClass(eById("more-leaderboard"), "hidden");
   }
 
   loadingNextPage = false;
@@ -291,12 +292,12 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
     },
   };
 
-  await ethos.transact({
+  const response = await ethos.transact({
     signer: walletSigner,
     signableTransaction,
   });
 
-  load();
+  load(true);
   ethos.hideWallet(walletSigner);
   onComplete();
 };
