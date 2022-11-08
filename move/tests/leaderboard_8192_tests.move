@@ -159,7 +159,7 @@ module ethos::leaderboard_8192_tests {
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
 
-            let scores = vector<u64>[24, 20, 12, 4];
+            let scores = vector<u64>[24, 12, 8, 4];
             let index = 0;
             while (index < 4) {
                 let top_game = leaderboard_8192::top_game_at(&leaderboard, index);
