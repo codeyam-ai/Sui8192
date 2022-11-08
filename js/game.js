@@ -1,6 +1,6 @@
 const React = require("react");
 const ReactDOM = require("react-dom/client");
-const { EthosConnectProvider, SignInButton, ethos } = require("ethos-connect-staging");
+const { EthosConnectProvider, SignInButton, ethos } = require("ethos-connect");
 
 const leaderboard = require("./leaderboard");
 const { contractAddress } = require("./constants");
@@ -502,7 +502,7 @@ const onWalletConnected = async ({ signer }) => {
               ],
             };
             setActiveGame(game);
-            ethos.hideWallet();
+            ethos.hideWallet(walletSigner);
           } catch (e) {
             eById("create-error-error-message").innerHTML = e;
             modal.open("create-error", "container");

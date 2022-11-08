@@ -1,4 +1,4 @@
-const { ethos } = require("ethos-connect-staging");
+const { ethos } = require("ethos-connect");
 const { contractAddress } = require("./constants");
 const {
   eById,
@@ -119,7 +119,7 @@ const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
   //     if (queuedMove) execute(queuedMove, activeGameAddress, walletSigner, onComplete, onError);
   //   }
   // });
-  ethos.hideWallet();
+  ethos.hideWallet(walletSigner);
 };
 
 const execute = async (
@@ -174,7 +174,7 @@ const execute = async (
     signableTransaction,
   });
 
-  ethos.hideWallet();
+  ethos.hideWallet(walletSigner);
 
   let data;
   try {
@@ -282,8 +282,6 @@ const execute = async (
 
   eById("transactions-list").prepend(transactionElement);
   removeClass(eById("transactions"), "hidden");
-
-  ethos.hideWallet();
 };
 
 const reset = () => (moves = []);

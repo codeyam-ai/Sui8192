@@ -1,5 +1,5 @@
 const { JsonRpcProvider, Network } = require("@mysten/sui.js");
-const { ethos } = require("ethos-connect-staging");
+const { ethos } = require("ethos-connect");
 const {
   contractAddress,
   leaderboardAddress,
@@ -297,7 +297,7 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
   });
 
   load();
-  ethos.hideWallet();
+  ethos.hideWallet(walletSigner);
   onComplete();
 };
 
