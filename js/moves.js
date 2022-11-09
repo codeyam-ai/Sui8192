@@ -209,6 +209,14 @@ const execute = async (
     return;
   }
 
+  if (
+    (effects.effects || effects)?.status?.error
+  ) {
+    const { error } = (effects.effects || effects)?.status;
+    onError({ error });
+    return;
+  }
+
   if (error) {
     onError(error);
     return;

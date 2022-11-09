@@ -204,6 +204,7 @@ module ethos::game_board_8192 {
           row_index = row_index + 1;
       };
 
+      std::debug::print(&old_tiles);
       let total_score_value = 0;
       let row_index = 0;
       while (row_index < vector::length(new_spaces)) {
@@ -219,10 +220,14 @@ module ethos::game_board_8192 {
                   if (contains) {
                       vector::remove(&mut old_tiles, index);
                   } else {
+                      std::debug::print(&999);
+                      std::debug::print(&value);
                       let (_, index) = vector::index_of(&old_tiles, &(value - 1));
                       vector::remove(&mut old_tiles, index);
 
                       let (_, index) = vector::index_of(&old_tiles, &(value - 1));
+                      std::debug::print(&index);
+                      std::debug::print(&999);
                       vector::remove(&mut old_tiles, index);
 
                       let score_value = 2;
@@ -1012,6 +1017,29 @@ module ethos::game_board_8192 {
             TILE8,      TILE16,   TILE2,   EMPTY,
             TILE2048,      TILE16,   EMPTY,   EMPTY,
             TILE2048,   TILE16,   EMPTY,  EMPTY
+        ]), 1);
+    }
+
+    #[test]
+    fun test_move__vector_error() {
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(TILE2048), o(EMPTY), o(EMPTY), o(EMPTY)],
+                vector[o(TILE512), o(TILE4), o(TILE2), o(EMPTY)],
+                vector[o(TILE128), o(TILE16), o(TILE4), o(TILE2)],
+                vector[o(TILE16), o(TILE2), o(TILE4), o(TILE2)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE2048,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE2048, TILE4, TILE2, TILE4, 
+            TILE512, TILE16, TILE8, EMPTY,
+            TILE128, TILE2, EMPTY, EMPTY, 
+            TILE16, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
 }
