@@ -130,7 +130,7 @@ module ethos::leaderboard_8192_tests {
             let index = 0;
             while (index < 3) {
                 let top_game = leaderboard_8192::top_game_at(&leaderboard, index);
-                assert!(leaderboard_8192::top_game_score(top_game) == vector::borrow(&scores, index), index);
+                assert!(leaderboard_8192::top_game_score(top_game) == vector::borrow(&scores, index), *leaderboard_8192::top_game_score(top_game));
                 index = index + 1;
             };
             
