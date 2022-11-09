@@ -185,66 +185,77 @@ module ethos::game_board_8192 {
     // PRIVATE FUNCTIONS //
 
     fun score_add(old_spaces: &vector<vector<Option<u8>>>, new_spaces: &vector<vector<Option<u8>>>): u64 {
-      let old_tiles = vector[];
-      
-      let row_index = 0;
-      while (row_index < vector::length(old_spaces)) {
-          let old_row = vector::borrow(old_spaces, row_index);
-          
-          let column_index = 0;
-          while (column_index < vector::length(old_row)) {
-              let old_option = vector::borrow(old_row, column_index);
-          
-              if (option::is_some(old_option)) {
-                  vector::push_back(&mut old_tiles, *option::borrow(old_option));
-              };
+        let old_tiles = vector[];
+        
+        let row_index = 0;
+        while (row_index < vector::length(old_spaces)) {
+            let old_row = vector::borrow(old_spaces, row_index);
+            
+            let column_index = 0;
+            while (column_index < vector::length(old_row)) {
+                let old_option = vector::borrow(old_row, column_index);
+            
+                if (option::is_some(old_option)) {
+                    vector::push_back(&mut old_tiles, *option::borrow(old_option));
+                };
 
-              column_index = column_index + 1;
-          };
-          row_index = row_index + 1;
-      };
+                column_index = column_index + 1;
+            };
+            row_index = row_index + 1;
+        };
 
-      std::debug::print(&old_tiles);
-      let total_score_value = 0;
-      let row_index = 0;
-      while (row_index < vector::length(new_spaces)) {
-          let new_row = vector::borrow(new_spaces, row_index);
-          
-          let column_index = 0;
-          while (column_index < vector::length(new_row)) {
-              let new_option = vector::borrow(new_row, column_index);
+        let total_score_value = 0;
+        let row_index = 0;
+        while (row_index < vector::length(new_spaces)) {
+            let new_row = vector::borrow(new_spaces, row_index);
+            
+            let column_index = 0;
+            while (column_index < vector::length(new_row)) {
+                let new_option = vector::borrow(new_row, column_index);
+                
+                if (option::is_some(new_option)) {
+                    let value = *option::borrow(new_option);
+                    let (contains, index) = vector::index_of(&old_tiles, &value);
+                    if (contains) {
+                        vector::remove(&mut old_tiles, index);
+                    } else {
+                        let (contains, index) = vector::index_of(&old_tiles, &(value - 1));
+                        if (contains) {
+                            vector::remove(&mut old_tiles, index);
+                        } else {
+                            let (_, index) = vector::index_of(&old_tiles, &(value - 2));
+                            vector::remove(&mut old_tiles, index);
 
-              if (option::is_some(new_option)) {
-                  let value = *option::borrow(new_option);
-                  let (contains, index) = vector::index_of(&old_tiles, &value);
-                  if (contains) {
-                      vector::remove(&mut old_tiles, index);
-                  } else {
-                      std::debug::print(&999);
-                      std::debug::print(&value);
-                      let (_, index) = vector::index_of(&old_tiles, &(value - 1));
-                      vector::remove(&mut old_tiles, index);
+                            let (_, index) = vector::index_of(&old_tiles, &(value - 2));
+                            vector::remove(&mut old_tiles, index);
+                        };
 
-                      let (_, index) = vector::index_of(&old_tiles, &(value - 1));
-                      std::debug::print(&index);
-                      std::debug::print(&999);
-                      vector::remove(&mut old_tiles, index);
+                        let (contains, index) = vector::index_of(&old_tiles, &(value - 1));
+                        if (contains) {
+                            vector::remove(&mut old_tiles, index);
+                        } else {
+                            let (_, index) = vector::index_of(&old_tiles, &(value - 2));
+                            vector::remove(&mut old_tiles, index);
 
-                      let score_value = 2;
-                      while (value > 0) {
-                        score_value = score_value * 2;
-                        value = value - 1;
-                      };
+                            let (_, index) = vector::index_of(&old_tiles, &(value - 2));
+                            vector::remove(&mut old_tiles, index);
+                        };
 
-                      total_score_value = total_score_value + score_value;
-                  }
-              };
-              column_index = column_index + 1;
-          };
-          row_index = row_index + 1;
-      };
-      
-      (total_score_value as u64)
+                        let score_value = 2;
+                        while (value > 0) {
+                            score_value = score_value * 2;
+                            value = value - 1;
+                        };
+
+                        total_score_value = total_score_value + score_value;
+                    }
+                };
+                column_index = column_index + 1;
+            };
+            row_index = row_index + 1;
+        };
+        
+        (total_score_value as u64)
     }
 
     fun move_possible(game_board: &GameBoard8192): bool {
@@ -1013,10 +1024,10 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
-            TILE512,    TILE128, EMPTY,  EMPTY,
+            TILE512,    TILE128,  EMPTY,   EMPTY,
             TILE8,      TILE16,   TILE2,   EMPTY,
-            TILE2048,      TILE16,   EMPTY,   EMPTY,
-            TILE2048,   TILE16,   EMPTY,  EMPTY
+            TILE2048,   TILE16,   EMPTY,   EMPTY,
+            TILE2048,   TILE16,   EMPTY,   EMPTY
         ]), 1);
     }
 
@@ -1038,7 +1049,7 @@ module ethos::game_board_8192 {
         assert!(game_board_matches(&game_board, vector[
             TILE2048, TILE4, TILE2, TILE4, 
             TILE512, TILE16, TILE8, EMPTY,
-            TILE128, TILE2, EMPTY, EMPTY, 
+            TILE128, TILE2, EMPTY, TILE2, 
             TILE16, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
