@@ -24,7 +24,7 @@ const constructTransaction = (direction, activeGameAddress) => {
       function: "make_move",
       typeArguments: [],
       arguments: [activeGameAddress, direction],
-      gasBudget: 50000,
+      gasBudget: 100000,
     },
   };
 };
@@ -196,7 +196,7 @@ const execute = async (
   load(walletSigner, activeGameAddress, onComplete, onError);
 
   if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
-    onError();
+    onError({});
     return;
   }
 

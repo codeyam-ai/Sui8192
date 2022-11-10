@@ -1053,4 +1053,27 @@ module ethos::game_board_8192 {
             TILE16, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
+
+     #[test]
+    fun test_move__MovePrimitiveRuntimeError_error() {
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(TILE8), o(TILE2), o(EMPTY), o(TILE2)],
+                vector[o(TILE32), o(TILE8), o(TILE8), o(EMPTY)],
+                vector[o(TILE64), o(TILE16), o(TILE16), o(TILE4)],
+                vector[o(TILE128), o(TILE2), o(TILE2), o(TILE2)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE128,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE8, TILE4, EMPTY, EMPTY, 
+            TILE32, TILE16, TILE2, EMPTY,
+            TILE64, TILE32, TILE4, EMPTY, 
+            TILE128, TILE4, TILE2, EMPTY
+        ]), 1);
+    }
 }
