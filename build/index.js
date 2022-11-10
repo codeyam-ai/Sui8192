@@ -844,17 +844,17 @@ window.requestAnimationFrame(init);
 const { JsonRpcProvider, Network } = require("@mysten/sui.js");
 const { ethos } = require("ethos-connect");
 const {
-  contractAddress,
-  leaderboardAddress,
-  tileNames,
+    contractAddress,
+    leaderboardAddress,
+    tileNames,
 } = require("./constants");
 const {
-  eById,
-  eByClass,
-  addClass,
-  removeClass,
-  truncateMiddle,
-  setOnClick,
+    eById,
+    eByClass,
+    addClass,
+    removeClass,
+    truncateMiddle,
+    setOnClick,
 } = require("./utils");
 
 let leaderboardObject;
@@ -866,44 +866,43 @@ let perPage = 25;
 const topGames = () => leaderboardObject.top_games;
 
 const getObject = async (objectId) => {
-  const provider = new JsonRpcProvider(Network.DEVNET);
-  return provider.getObject(objectId);
+    const provider = new JsonRpcProvider(Network.DEVNET);
+    return provider.getObject(objectId);
 };
 
 const get = async () => {
-  const {
-    details: {
-      data: { fields: leaderboard },
-    },
-  } = await getObject(leaderboardAddress);
-  leaderboardObject = leaderboard;
-  return leaderboard;
+    const {
+        details: {
+            data: { fields: leaderboard },
+        },
+    } = await getObject(leaderboardAddress);
+    leaderboardObject = leaderboard;
+    return leaderboard;
 };
 
 const getLeaderboardGame = async (gameObjectId) => {
-  const gameObject = await getObject(gameObjectId);
-  let {
-    details: {
-      data: {
-        fields: { boards, moves, game_over: gameOver },
-      },
-    },
-  } = gameObject;
-  gameOver = boards[boards.length - 1].fields.game_over;
-  return { id: gameObjectId, gameOver, moveCount: moves.length, boards };
+    const gameObject = await getObject(gameObjectId);
+    let {
+        details: {
+            data: {
+                fields: { boards, moves, game_over: gameOver },
+            },
+        },
+    } = gameObject;
+    gameOver = boards[boards.length - 1].fields.game_over;
+    return { id: gameObjectId, gameOver, moveCount: moves.length, boards };
 };
 
 const boardHTML = (moveIndex, totalMoves, boards) => {
-  const board = boards[moveIndex];
-  const rows = [];
-  for (const row of board.fields.spaces) {
-    const rowHTML = [];
-    rowHTML.push("<div class='leaderboard-board-row'>");
-    for (const column of row) {
-      rowHTML.push(`
-        <div class='leaderboard-board-tile color${
-          column === null ? "-none" : column + 1
-        } '>
+    const board = boards[moveIndex];
+    const rows = [];
+    for (const row of board.fields.spaces) {
+        const rowHTML = [];
+        rowHTML.push("<div class='leaderboard-board-row'>");
+        for (const column of row) {
+            rowHTML.push(`
+        <div class='leaderboard-board-tile color${column === null ? "-none" : column + 1
+                } '>
           <div>
             ${column === null ? "&nbsp;" : Math.pow(2, column + 1)}
           </div>
@@ -912,12 +911,12 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
           </div>
         </div>
       `);
+        }
+        rowHTML.push("</div>");
+        rows.push(rowHTML.join(""));
     }
-    rowHTML.push("</div>");
-    rows.push(rowHTML.join(""));
-  }
 
-  const completeHTML = `
+    const completeHTML = `
     <div class='leaderboard-board'>
       ${rows.join("")}
     </div>
@@ -936,59 +935,59 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
       </div>
     </div>
   `;
-  return completeHTML;
+    return completeHTML;
 };
 
 const load = async (force = false) => {
-  if (!force && leaderboardTimestamp && Date.now() - leaderboardTimestamp < 1000 * 60) {
-    return;
-  }
+    if (!force && leaderboardTimestamp && Date.now() - leaderboardTimestamp < 1000 * 60) {
+        return;
+    }
 
-  leaderboardTimestamp = Date.now();
+    leaderboardTimestamp = Date.now();
 
-  removeClass(eById("loading-leaderboard"), "hidden");
-  addClass(eById("more-leaderboard"), "hidden");
+    removeClass(eById("loading-leaderboard"), "hidden");
+    addClass(eById("more-leaderboard"), "hidden");
 
-  page = 1;
-  leaderboardObject = await get();
+    page = 1;
+    leaderboardObject = await get();
 
-  addClass(eById("loading-leaderboard"), "hidden");
+    addClass(eById("loading-leaderboard"), "hidden");
 
-  const leaderboardList = eById("leaderboard-list");
-  leaderboardList.innerHTML = "";
+    const leaderboardList = eById("leaderboard-list");
+    leaderboardList.innerHTML = "";
 
-  eById("best").innerHTML = leaderboardObject.top_games[0]?.fields?.score || 0;
-  setOnClick(eById("more-leaderboard"), loadNextPage);
+    eById("best").innerHTML = leaderboardObject.top_games[0]?.fields?.score || 0;
+    setOnClick(eById("more-leaderboard"), loadNextPage);
 
-  await loadNextPage();
+    await loadNextPage();
 };
 
 const loadNextPage = async () => {
-  if (loadingNextPage) return;
+    if (loadingNextPage) return;
 
-  loadingNextPage = true;
+    loadingNextPage = true;
 
-  const leaderboardList = eById("leaderboard-list");
-  const currentMax = page * perPage;
-  const pageMax = Math.min(leaderboardObject.top_games.length, currentMax);
-  for (let i = (page - 1) * perPage; i < pageMax; ++i) {
-    const {
-      fields: {
-        score,
-        top_tile: topTile,
-        leader_address: leaderAddress,
-        game_id: gameId,
-      },
-    } = leaderboardObject.top_games[i];
+    const leaderboardList = eById("leaderboard-list");
+    const currentMax = page * perPage;
+    const pageMax = Math.min(leaderboardObject.top_games.length, currentMax);
+    for (let i = (page - 1) * perPage; i < pageMax; ++i) {
+        const {
+            fields: {
+                score,
+                top_tile: topTile,
+                leader_address: leaderAddress,
+                game_id: gameId,
+            },
+        } = leaderboardObject.top_games[i];
 
-    const name = await ethos.lookup(leaderAddress);
+        const name = await ethos.lookup(leaderAddress);
 
-    const leaderElement = document.createElement("DIV");
-    addClass(leaderElement, "leader");
+        const leaderElement = document.createElement("DIV");
+        addClass(leaderElement, "leader");
 
-    const listing = document.createElement("DIV");
-    addClass(listing, "leader-listing");
-    listing.innerHTML = `
+        const listing = document.createElement("DIV");
+        addClass(listing, "leader-listing");
+        listing.innerHTML = `
       <div class='leader-stats flex-1'> 
         <div>${i + 1}</div>
         <div class='leader-tile subsubtitle color${topTile + 1}'>
@@ -1006,58 +1005,58 @@ const loadNextPage = async () => {
       </div>     
     `;
 
-    leaderElement.append(listing);
+        leaderElement.append(listing);
 
-    leaderElement.onclick = async () => {
-      removeClass(eByClass("leader"), "selected");
-      addClass(leaderElement, "selected");
+        leaderElement.onclick = async () => {
+            removeClass(eByClass("leader"), "selected");
+            addClass(leaderElement, "selected");
 
-      const details = document.createElement("DIV");
+            const details = document.createElement("DIV");
 
-      leaderElement.onclick = () => {
-        if (leaderElement.classList.contains("selected")) {
-          removeClass(leaderElement, "selected");
-        } else {
-          removeClass(eByClass("leader"), "selected");
-          addClass(leaderElement, "selected");
-        }
-      };
+            leaderElement.onclick = () => {
+                if (leaderElement.classList.contains("selected")) {
+                    removeClass(leaderElement, "selected");
+                } else {
+                    removeClass(eByClass("leader"), "selected");
+                    addClass(leaderElement, "selected");
+                }
+            };
 
-      addClass(details, "leader-details");
-      details.innerHTML = "<div class='text-center'>Loading game...</div>";
-      leaderElement.append(details);
+            addClass(details, "leader-details");
+            details.innerHTML = "<div class='text-center'>Loading game...</div>";
+            leaderElement.append(details);
 
-      const game = await getLeaderboardGame(gameId);
+            const game = await getLeaderboardGame(gameId);
 
-      let currentIndex = game.boards.length - 1;
-      details.onmousewheel = (e) => {
-        currentIndex += Math.round(e.deltaY / 2);
-        if (currentIndex > game.boards.length - 1) {
-          currentIndex = game.boards.length - 1;
-        } else if (currentIndex < 0) {
-          currentIndex = 0;
-        }
-        indexDetails(currentIndex);
-        return false;
-      };
+            let currentIndex = game.boards.length - 1;
+            details.onmousewheel = (e) => {
+                currentIndex += Math.round(e.deltaY / 2);
+                if (currentIndex > game.boards.length - 1) {
+                    currentIndex = game.boards.length - 1;
+                } else if (currentIndex < 0) {
+                    currentIndex = 0;
+                }
+                indexDetails(currentIndex);
+                return false;
+            };
 
-      details.onmouseenter = () => {
-        window.onkeydown = (e) => {
-          e.preventDefault();
-          switch (e.keyCode) {
-            case 38:
-              currentIndex += 1;
-              break;
-            case 40:
-              currentIndex -= 1;
-              break;
-          }
-          indexDetails(currentIndex);
-        };
-      };
+            details.onmouseenter = () => {
+                window.onkeydown = (e) => {
+                    e.preventDefault();
+                    switch (e.keyCode) {
+                        case 38:
+                            currentIndex += 1;
+                            break;
+                        case 40:
+                            currentIndex -= 1;
+                            break;
+                    }
+                    indexDetails(currentIndex);
+                };
+            };
 
-      const indexDetails = (index) => {
-        details.innerHTML = `
+            const indexDetails = (index) => {
+                details.innerHTML = `
           <div class='game-status'>
             <div>
               <div>Game Status</div>
@@ -1096,62 +1095,62 @@ const loadNextPage = async () => {
             </div>
           </div>
         `;
-      };
+            };
 
-      indexDetails(currentIndex);
-    };
+            indexDetails(currentIndex);
+        };
 
-    leaderboardList.append(leaderElement);
-  }
+        leaderboardList.append(leaderElement);
+    }
 
-  if (currentMax >= leaderboardObject.top_games.length - 1) {
-    addClass(eById("more-leaderboard"), "hidden");
-  } else {
-    page += 1;
-    removeClass(eById("more-leaderboard"), "hidden");
-  }
+    if (currentMax >= leaderboardObject.top_games.length - 1) {
+        addClass(eById("more-leaderboard"), "hidden");
+    } else {
+        page += 1;
+        removeClass(eById("more-leaderboard"), "hidden");
+    }
 
-  loadingNextPage = false;
+    loadingNextPage = false;
 };
 
 const minScore = () => {
-  return leaderboardObject.min_score;
+    return leaderboardObject.min_score;
 };
 
 const minTile = () => {
-  return leaderboardObject.min_tile;
+    return leaderboardObject.min_tile;
 };
 
 const submit = async (gameAddress, walletSigner, onComplete) => {
-  const signableTransaction = {
-    kind: "moveCall",
-    data: {
-      packageObjectId: contractAddress,
-      module: "leaderboard_8192",
-      function: "submit_game",
-      typeArguments: [],
-      arguments: [gameAddress, leaderboardAddress],
-      gasBudget: 100000,
-    },
-  };
+    const signableTransaction = {
+        kind: "moveCall",
+        data: {
+            packageObjectId: contractAddress,
+            module: "leaderboard_8192",
+            function: "submit_game",
+            typeArguments: [],
+            arguments: [gameAddress, leaderboardAddress],
+            gasBudget: 200000,
+        },
+    };
 
-  const response = await ethos.transact({
-    signer: walletSigner,
-    signableTransaction,
-  });
+    const response = await ethos.transact({
+        signer: walletSigner,
+        signableTransaction,
+    });
 
-  load(true);
-  ethos.hideWallet(walletSigner);
-  onComplete();
+    load(true);
+    ethos.hideWallet(walletSigner);
+    onComplete();
 };
 
 module.exports = {
-  topGames,
-  minTile,
-  minScore,
-  get,
-  load,
-  submit,
+    topGames,
+    minTile,
+    minScore,
+    get,
+    load,
+    submit,
 };
 
 },{"./constants":3,"./utils":9,"@mysten/sui.js":24,"ethos-connect":48}],6:[function(require,module,exports){
