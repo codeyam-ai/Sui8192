@@ -806,16 +806,17 @@ escape-string-regexp@^1.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==
 
-ethos-connect@^0.0.25:
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.25.tgz#ccc1d4735d9ce170dd77fcba81005ebf89bc2720"
-  integrity sha512-WvldmRqCWDUqLE74OIwHM2q7lC6nLC0pHwlHaelnmNDBTUcspQ1M4p7w5eV38tCBeW+RNCdMvXFB99EO5niRbw==
+ethos-connect@^0.0.26:
+  version "0.0.26"
+  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.26.tgz#3332be9f1eb15ff1af41823018c9e21e269ab180"
+  integrity sha512-gMsWhYYn7nsxWPhMH6Ygpt9L5KHH9b4zoLegTZyhI8gHLZGaFYqUVHAkecKiGBeLbZznvyWwmZxMc8XsDoPHAw==
   dependencies:
     "@mysten/sui.js" "^0.15.0"
     "@mysten/wallet-adapter-all-wallets" "^0.3.0"
     "@mysten/wallet-adapter-base" "^0.3.1"
     "@mysten/wallet-adapter-react" "^6.0.0"
     "@superstate/react" "^0.1.0"
+    bignumber.js "^9.1.0"
     encoding "^0.1.13"
     qrcode "^1.5.1"
     react-google-recaptcha "^2.1.0"
