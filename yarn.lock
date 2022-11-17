@@ -16,6 +16,11 @@
   dependencies:
     bn.js "^5.2.1"
 
+"@mysten/bcs@0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.5.0.tgz#d2570971e3d9121b83091ced38db13e907ab4198"
+  integrity sha512-FjGnXZfR4dY01Q1l3xjgaU+ruIlVomXZk8vzgsQXPFOv7O4pNiOOpJyMEMUnWcyUiktk4R9MxoJJrygOtdxaUw==
+
 "@mysten/sui.js@0.15.0", "@mysten/sui.js@^0.15.0":
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.15.0.tgz#72fe242e8890c813a9cf9e53073fc45b53e8886b"
@@ -35,20 +40,44 @@
     rpc-websockets "^7.5.0"
     tweetnacl "^1.0.3"
 
-"@mysten/wallet-adapter-all-wallets@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-all-wallets/-/wallet-adapter-all-wallets-0.3.0.tgz#50da9a47b7af55c9baaf3d8f5a1c2756e5230523"
-  integrity sha512-HMpEXNui917WvQsVLzIMAm+RmfmFZiTPLwNixAWwmLjMZXEaSTAkfQoJRlCJ4QrWAYU9uaGd9SJtLqE1E8DGjA==
+"@mysten/sui.js@0.16.0":
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.16.0.tgz#fc78009af8d91e53553777a1b9d152569ad42a72"
+  integrity sha512-/ekVTNfkIkez0152nsu+uZID8TiSucjy9QGIWL4yIev6yn5Touyze3qlloEIj2W0GUnPuP/QUfzUsO8mu1Dt/g==
   dependencies:
-    "@mysten/wallet-adapter-unsafe-burner" "0.2.0"
-    "@mysten/wallet-adapter-wallet-standard" "0.3.0"
+    "@mysten/bcs" "0.5.0"
+    "@noble/hashes" "^1.1.2"
+    "@noble/secp256k1" "^1.6.3"
+    "@scure/bip32" "^1.1.0"
+    "@scure/bip39" "^1.1.0"
+    cross-fetch "^3.1.5"
+    jayson "^3.6.6"
+    js-sha3 "^0.8.0"
+    lossless-json "^1.0.5"
+    rpc-websockets "^7.5.0"
+    tweetnacl "^1.0.3"
 
-"@mysten/wallet-adapter-base@0.3.1", "@mysten/wallet-adapter-base@^0.3.1":
+"@mysten/wallet-adapter-all-wallets@^0.3.0":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-all-wallets/-/wallet-adapter-all-wallets-0.3.1.tgz#8eb0a1f48ff7137cf69d90814c12390ea69c38b9"
+  integrity sha512-v2w4BrcUCiEYuMQCL8SCiZuUJPO4sYr07UmRHXion5ji93OXGz/vi3aB9gLwfWZhPco78hqk3z3xYuI8Ab1PqQ==
+  dependencies:
+    "@mysten/wallet-adapter-unsafe-burner" "0.2.1"
+    "@mysten/wallet-adapter-wallet-standard" "0.3.1"
+
+"@mysten/wallet-adapter-base@0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-base/-/wallet-adapter-base-0.3.1.tgz#c5e0dbcad77478cd688db6c4709ff213a376d693"
   integrity sha512-6sUPlsnSupQZtXwDHb9gnE62fxwhBj3Bt9O9tqOW9WSuCwx3RDJInRqmKMm8fBEXbZGognFQSlfcjYR9sOY1Jw==
   dependencies:
     "@mysten/sui.js" "0.15.0"
+
+"@mysten/wallet-adapter-base@0.3.2", "@mysten/wallet-adapter-base@^0.3.1":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-base/-/wallet-adapter-base-0.3.2.tgz#104076f0c5a26bf73688472ff514d74552946171"
+  integrity sha512-6HjuVYRVOyJVJcJ7e/m/e/eGiUP9HWfBjFX5A4lK9QdJ1c/qU9DYm7s3G7FIpgYH1C7YAYdRaOzfzrQmIoUG3w==
+  dependencies:
+    "@mysten/sui.js" "0.16.0"
 
 "@mysten/wallet-adapter-react@^6.0.0":
   version "6.0.0"
@@ -57,30 +86,30 @@
   dependencies:
     "@mysten/wallet-adapter-base" "0.3.1"
 
-"@mysten/wallet-adapter-unsafe-burner@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-unsafe-burner/-/wallet-adapter-unsafe-burner-0.2.0.tgz#696ad5eeba3dea6ad45afe541ac9bd2bfd6a1ac8"
-  integrity sha512-k9rVyxGoR2KlixxT99N5/l5/e+At4R8T6bnYtS/88RVWjU7MH29oP45JX98j+q8TbUF/EV6iqbM4mAeQC1YzrQ==
+"@mysten/wallet-adapter-unsafe-burner@0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-unsafe-burner/-/wallet-adapter-unsafe-burner-0.2.1.tgz#034eb3c5c8a09d2f9046aafd514b1b2ab5fd27d9"
+  integrity sha512-OivO7s/bNTSq2joG4EFQ3bQTyZApyL4Sg+twBVrRnNOvu0a/BTXcM+flGWLFM0kDGeb4TE8VzRBgLSsqyw6NQA==
   dependencies:
-    "@mysten/sui.js" "0.15.0"
-    "@mysten/wallet-adapter-base" "0.3.1"
+    "@mysten/sui.js" "0.16.0"
+    "@mysten/wallet-adapter-base" "0.3.2"
 
-"@mysten/wallet-adapter-wallet-standard@0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-wallet-standard/-/wallet-adapter-wallet-standard-0.3.0.tgz#33ba14a1fcf70a96d5612cca30d7dc55628a73b1"
-  integrity sha512-DdvDSzUvmeSWIycH3Y71m/mjgMCFvtAWnXdWLtUGxoKbCXkvx0DJP6v9dJD3e5Ru+xGZnZmP9lZvurK0Ih8tGA==
+"@mysten/wallet-adapter-wallet-standard@0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-wallet-standard/-/wallet-adapter-wallet-standard-0.3.1.tgz#98a6b9261fdf12f919c3864274175f9ebe769376"
+  integrity sha512-I1KWxQeRT80DqI6SOjIAeOc1Sx774DRtYdWiNwiIJLVhT809C1GW+l/uj94tGKE7f38UDykz3dGBx/76msEYZQ==
   dependencies:
-    "@mysten/sui.js" "0.15.0"
-    "@mysten/wallet-adapter-base" "0.3.1"
-    "@mysten/wallet-standard" "0.2.0"
+    "@mysten/sui.js" "0.16.0"
+    "@mysten/wallet-adapter-base" "0.3.2"
+    "@mysten/wallet-standard" "0.2.1"
     mitt "^3.0.0"
 
-"@mysten/wallet-standard@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.2.0.tgz#64d031488743331ad5e9120dad74ac73ee01ef5d"
-  integrity sha512-tZx/kTDJets00OY5p2WRJ0GFfbI6dPLnlhoQ6VXDVDXb5G6pc1tHkW2YpCI8T4B5vD5aaDVVkeMZDjASJYVhXg==
+"@mysten/wallet-standard@0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.2.1.tgz#382425ef8e0d54834974ff5e70378af5bef1cde9"
+  integrity sha512-69VzhvkbnwUy80q98JTR6kBV3w9Vilk67BltXLPZh6s+EgjE66BCpeEsvNMN8cYKnjO22YfJ2p7kckU4xN78mw==
   dependencies:
-    "@mysten/sui.js" "0.15.0"
+    "@mysten/sui.js" "0.16.0"
     "@wallet-standard/core" "1.0.0"
 
 "@noble/hashes@^1.1.2", "@noble/hashes@~1.1.1", "@noble/hashes@~1.1.3":
@@ -806,10 +835,10 @@ escape-string-regexp@^1.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==
 
-ethos-connect@^0.0.28:
-  version "0.0.28"
-  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.28.tgz#b0b640322fb77170fdf1c1ac67a6dcabff0d9ad0"
-  integrity sha512-+ERs9AqQcsp8uUwx/PTDEFN+tGjgfU+vyfNe2SG7uQusJUh/lhucLFKJ+y0E86zxjdQw1jN25KEl/6+wE6abEA==
+ethos-connect@^0.0.29:
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.29.tgz#f3558ac67436525a80abcfe90fd51a8c925a9080"
+  integrity sha512-+5g70df9eAm+4atlVxbc72IIRMFHGLTTj4oNxhFMSikSMmptBACXvAqVnTKBpnlePOpJx4eIXanXy0LuyXrS5w==
   dependencies:
     "@mysten/sui.js" "^0.15.0"
     "@mysten/wallet-adapter-all-wallets" "^0.3.0"
