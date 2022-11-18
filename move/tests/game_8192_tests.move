@@ -54,7 +54,7 @@ module ethos::game_8192_tests {
             
             let board = game_8192::board_at(&game, 0);
             let space_value = option::borrow(game_board_8192::space_at(board, 0, 1));
-            assert!(space_value == &(0 as u8), (*space_value as u64));
+            assert!(space_value == &(0 as u64), (*space_value as u64));
             assert!(option::is_none(game_board_8192::space_at(board, 0, 0)), 1);
 
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
@@ -74,12 +74,12 @@ module ethos::game_8192_tests {
 
             // Original board is unchanged
             let space_value = option::borrow(game_board_8192::space_at(board, 0, 1));
-            assert!(space_value == &(0 as u8), (*space_value as u64));
+            assert!(space_value == &(0 as u64), (*space_value as u64));
             assert!(option::is_none(game_board_8192::space_at(board, 0, 0)), 1);
 
             board = game_8192::board_at(&game, 1);
             let space_value = option::borrow(game_board_8192::space_at(board, 0, 0));
-            assert!(space_value == &(0 as u8), (*space_value as u64));
+            assert!(space_value == &(0 as u64), (*space_value as u64));
 
             assert!(option::is_none(game_board_8192::space_at(board, 0, 1)), 1);
             
@@ -111,7 +111,7 @@ module ethos::game_8192_tests {
     // } 
 
     #[test_only] 
-    fun tile_image_to_bytes(index: u8): vector<u8> {
+    fun tile_image_to_bytes(index: u64): vector<u8> {
         let image_url = game_8192::image_url_for_tile(index);
         let image_string = url::inner_url(&image_url);
         ascii::into_bytes(image_string)

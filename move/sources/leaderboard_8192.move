@@ -19,14 +19,14 @@ module ethos::leaderboard_8192 {
         max_leaderboard_game_count: u64,
         top_games: vector<TopGame8192>,
         leaders: VecMap<address, Option<String>>,
-        min_tile: u8,
+        min_tile: u64,
         min_score: u64
     }
 
     struct TopGame8192 has store, drop {
         game_id: ID,
         leader_address: address,
-        top_tile: u8,
+        top_tile: u64,
         score: u64,
         epoch: u64
     }
@@ -180,7 +180,7 @@ module ethos::leaderboard_8192 {
         &top_game.game_id
     }
 
-    public fun top_game_top_tile(top_game: &TopGame8192): &u8 {
+    public fun top_game_top_tile(top_game: &TopGame8192): &u64 {
         &top_game.top_tile
     }
 
@@ -188,7 +188,7 @@ module ethos::leaderboard_8192 {
         &top_game.score
     }
 
-    public fun min_tile(leaderboard: &Leaderboard8192): &u8 {
+    public fun min_tile(leaderboard: &Leaderboard8192): &u64 {
         &leaderboard.min_tile
     }
 
@@ -204,12 +204,7 @@ module ethos::leaderboard_8192 {
     use sui::test_scenario::{Self, Scenario};
 
     #[test_only]
-    public fun init_leaderboard(scenario: &mut Scenario) {
-        init(test_scenario::ctx(scenario));
-    }
-
-    #[test_only]
-    public fun blank_leaderboard(scenario: &mut Scenario, max_leaderboard_game_count: u64, min_tile: u8, min_score: u64) {
+    public fun blank_leaderboard(scenario: &mut Scenario, max_leaderboard_game_count: u64, min_tile: u64, min_score: u64) {
         let leaderboard = Leaderboard8192 {
             id: object::new(test_scenario::ctx(scenario)),
             game_count: 0,

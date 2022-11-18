@@ -18,7 +18,7 @@ module ethos::leaderboard_8192_tests {
     #[test]
     fun test_submit_game() {
         let scenario = test_scenario::begin(PLAYER);
-        leaderboard_8192::init_leaderboard(&mut scenario); 
+        leaderboard_8192::create(test_scenario::ctx(&mut scenario)); 
 
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
@@ -49,7 +49,7 @@ module ethos::leaderboard_8192_tests {
     #[test]
     fun test_submit_game__inserts_game_at_correct_location_in_top_list() {
         let scenario = test_scenario::begin(PLAYER);
-        leaderboard_8192::init_leaderboard(&mut scenario); 
+        leaderboard_8192::create(test_scenario::ctx(&mut scenario)); 
 
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
@@ -180,7 +180,7 @@ module ethos::leaderboard_8192_tests {
     #[test]
     fun test_submit_game__only_one_entry_per_game() {
         let scenario = test_scenario::begin(PLAYER);
-        leaderboard_8192::init_leaderboard(&mut scenario); 
+        leaderboard_8192::create(test_scenario::ctx(&mut scenario)); 
 
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
@@ -439,7 +439,7 @@ module ethos::leaderboard_8192_tests {
     // #[test]
     // fun test_set_name_on_address() {
     //     let scenario = test_scenario::begin(PLAYER);
-    //     leaderboard_8192::init_leaderboard(&mut scenario); 
+    //     leaderboard_8192::create( test_scenario::ctx(&mut scenario); 
 
     //     test_scenario::next_tx(&mut scenario, PLAYER);
     //     {
@@ -474,7 +474,7 @@ module ethos::leaderboard_8192_tests {
     #[expected_failure(abort_code = 0)]
     fun test_set_name_on_address__not_if_you_are_not_a_leader() {
       let scenario = test_scenario::begin(PLAYER);
-        leaderboard_8192::init_leaderboard(&mut scenario); 
+        leaderboard_8192::create(test_scenario::ctx(&mut scenario)); 
 
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
@@ -497,7 +497,7 @@ module ethos::leaderboard_8192_tests {
     #[test]
     fun test_records_leaderboard_game_on_game() {
         let scenario = test_scenario::begin(PLAYER);
-        leaderboard_8192::init_leaderboard(&mut scenario); 
+        leaderboard_8192::create(test_scenario::ctx(&mut scenario)); 
 
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
