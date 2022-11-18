@@ -93,8 +93,6 @@ module ethos::game_board_8192 {
         };
         
         let add = score_add(&existing_spaces, &game_board.spaces);
-        // std::debug::print(&game_board.score);
-        // std::debug::print(&add);
         game_board.score = game_board.score + add;
         
         let new_tile = add_new_tile(game_board, random);
