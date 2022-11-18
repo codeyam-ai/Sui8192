@@ -946,7 +946,7 @@ a:visited.link-button {
   display: flex;
   justify-content: center;
   gap: 12px;
-  padding: 6px;
+  padding: 12px;
   font-size: 12px;
 }
 
@@ -978,6 +978,11 @@ a:visited.link-button {
   font-size: 12px;
 }
 
+.more-leaderboard-area {
+  padding: 24px;
+  text-align: center;
+}
+
 .game-status {
   display: flex;
   justify-content: center;
@@ -999,9 +1004,10 @@ a:visited.link-button {
   padding: 0 6px;
 }
 
-.game-status > div .game-status-over {
-  color: #cb4c4c;
-  background-color: #f4c2c6;
+.game-status > div .game-status-ended,
+.game-over {
+  color: #9360df;
+  background-color: #e7deee;
   border-radius: 6px;
   padding: 0 6px;
 }
@@ -1015,13 +1021,13 @@ a:visited.link-button {
 }
 
 .game-info {
-  margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #e5e5e7;
 }
 
 .game-instructions {
   padding: 12px 0;
+  border-top: 1px solid #e5e5e7;
 }
 
 .game-info > div,

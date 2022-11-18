@@ -20,7 +20,7 @@ As far as the game is concerned every player has a wallet because the [Ethos API
 
 The primary methods that this game uses to do this are:
 
-`<EthosWrapper>`, `SignInButton`, and `ethos.transact()`
+`<EthosConnectProvider>`, `SignInButton`, and `ethos.transact()`
 
 Each of these can be found by searching in `js/game.js`
 

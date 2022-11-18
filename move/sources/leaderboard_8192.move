@@ -20,14 +20,14 @@ module ethos::leaderboard_8192 {
         max_leaderboard_game_count: u64,
         top_games: Table<u64, TopGame8192>,
         leaders: Table<address, Option<String>>,
-        min_tile: u8,
+        min_tile: u64,
         min_score: u64
     }
 
     struct TopGame8192 has store, drop {
         game_id: ID,
         leader_address: address,
-        top_tile: u8,
+        top_tile: u64,
         score: u64,
         epoch: u64
     }
@@ -58,7 +58,7 @@ module ethos::leaderboard_8192 {
         assert!(top_tile >= leaderboard.min_tile, ELowTile);
         assert!(score >= leaderboard.min_score, ELowScore);
 
-        let top_game_count = table::length(&leaderboard.top_games);
+        let top_game_count = leaderboard.game_count;
         
         if (top_tile == leaderboard.min_tile && score == leaderboard.min_score) {
             assert!(top_game_count < leaderboard.max_leaderboard_game_count, ENotALeader);
@@ -95,8 +95,9 @@ module ethos::leaderboard_8192 {
         table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, new_top_game);
           
         if (top_game_count == 0) {
-           game_8192::record_leaderboard_game(game, leaderboard_id, 0, epoch);
-           return
+            leaderboard.game_count = 1;
+            game_8192::record_leaderboard_game(game, leaderboard_id, 0, epoch);
+            return
         };
 
         index = 0;
@@ -138,10 +139,18 @@ module ethos::leaderboard_8192 {
             game_8192::record_leaderboard_game(game, leaderboard_id, position, epoch);
         };
         
-        if (top_game_count + 1 >= leaderboard.max_leaderboard_game_count) {
+        let game_count = table::length(&leaderboard.top_games);
+        if (game_count >= leaderboard.max_leaderboard_game_count) {
             leaderboard.min_tile = min_tile;
             leaderboard.min_score = min_score;
+
+            while (game_count > leaderboard.max_leaderboard_game_count) {
+                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, game_count);
+                game_count = game_count - 1;
+            };
         };
+
+        leaderboard.game_count = table::length(&leaderboard.top_games);
     }
 
     public entry fun set_name(leaderboard: &mut Leaderboard8192, name: vector<u8>, ctx: &mut TxContext) {
@@ -175,7 +184,7 @@ module ethos::leaderboard_8192 {
         &top_game.game_id
     }
 
-    public fun top_game_top_tile(top_game: &TopGame8192): &u8 {
+    public fun top_game_top_tile(top_game: &TopGame8192): &u64 {
         &top_game.top_tile
     }
 
@@ -183,7 +192,7 @@ module ethos::leaderboard_8192 {
         &top_game.score
     }
 
-    public fun min_tile(leaderboard: &Leaderboard8192): &u8 {
+    public fun min_tile(leaderboard: &Leaderboard8192): &u64 {
         &leaderboard.min_tile
     }
 
@@ -199,12 +208,7 @@ module ethos::leaderboard_8192 {
     use sui::test_scenario::{Self, Scenario};
 
     #[test_only]
-    public fun init_leaderboard(scenario: &mut Scenario) {
-        init(test_scenario::ctx(scenario));
-    }
-
-    #[test_only]
-    public fun blank_leaderboard(scenario: &mut Scenario, max_leaderboard_game_count: u64, min_tile: u8, min_score: u64) {
+    public fun blank_leaderboard(scenario: &mut Scenario, max_leaderboard_game_count: u64, min_tile: u64, min_score: u64) {
         let ctx = test_scenario::ctx(scenario);
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),

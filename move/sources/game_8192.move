@@ -24,22 +24,22 @@ module ethos::game_8192 {
         player: address,
         active_board: GameBoard8192,
         score: u64,
-        top_tile: u8,      
+        top_tile: u64,      
         game_over: bool,
         move_count: u64,
         board_count: u64,
         leaderboard_game_count: u64
     }
 
-    struct GameMove8192 has store, drop {
-        direction: u8,
+    struct GameMove8192 has store {
+        direction: u64,
         player: address,
         epoch: u64
     }
 
     struct LeaderboardGame8192 has store, copy, drop {
         leaderboard_id: ID,
-        top_tile: u8,
+        top_tile: u64,
         score: u64,
         position: u64,
         epoch: u64
@@ -60,16 +60,16 @@ module ethos::game_8192 {
     struct NewGameEvent8192 has copy, drop {
         game_id: ID,
         player: address,
-        board_spaces: vector<vector<Option<u8>>>,
+        board_spaces: vector<vector<Option<u64>>>,
         score: u64
     }
 
     struct GameMoveEvent8192 has copy, drop {
         game_id: ID,
-        direction: u8,
+        direction: u64,
         move_count: u64,
-        board_spaces: vector<vector<Option<u8>>>,
-        top_tile: u8,
+        board_spaces: vector<vector<Option<u64>>>,
+        top_tile: u64,
         url: Url,
         score: u64,
         last_tile: vector<u64>,
@@ -78,14 +78,14 @@ module ethos::game_8192 {
 
     struct GameTopTileEvent8192 has copy, drop {
         game_id: ID,
-        top_tile: u8,
+        top_tile: u64,
         url: Url,
         epoch: u64
     }
 
     struct GameOverEvent8192 has copy, drop {
         game_id: ID,
-        top_tile: u8,
+        top_tile: u64,
         score: u64,
         url: Url
     }
@@ -131,7 +131,7 @@ module ethos::game_8192 {
         transfer::transfer(game, player);
     }
 
-    public entry fun make_move(game: &mut Game8192, direction: u8, ctx: &mut TxContext)  {
+    public entry fun make_move(game: &mut Game8192, direction: u64, ctx: &mut TxContext)  {
         // assert!(player(game) == &tx_context::sender(ctx), EInvalidPlayer);
         
         let new_board;
@@ -218,7 +218,7 @@ module ethos::game_8192 {
         game.leaderboard_game_count = game.leaderboard_game_count + 1;
     }
  
-    public (friend) fun image_url_for_tile(tile: u8): Url {
+    public (friend) fun image_url_for_tile(tile: u64): Url {
         let urlString;
         if (tile == 1) { urlString = b"https://arweave.net/QAGpz9cEBMyP_YuTJfafAwNSTVsNFUp_p0_sAVHfjnE"; }
         else if (tile == 2) { urlString = b"https://arweave.net/ZB4YHmbMQU3cEchiFfzBVfBgxy4TwOZJXCbSmJOHz2U"; }
@@ -252,7 +252,7 @@ module ethos::game_8192 {
         field::borrow(&game.id, game_board_index)
     }
 
-    public fun top_tile(game: &Game8192): &u8 {
+    public fun top_tile(game: &Game8192): &u64 {
         let game_board = active_game_board(game);
         game_board_8192::top_tile(game_board)
     }
@@ -270,7 +270,7 @@ module ethos::game_8192 {
         game.move_count
     }
 
-    public fun move_at(game: &Game8192, index: u64): (&u8, &address) {
+    public fun move_at(game: &Game8192, index: u64): (&u64, &address) {
         let moveIndex = GameMove8192Index { index };
         let moveItem = field::borrow<GameMove8192Index, GameMove8192>(&game.id, moveIndex);
         (&moveItem.direction, &moveItem.player)
@@ -293,7 +293,7 @@ module ethos::game_8192 {
         &leaderboard_game.position
     }
 
-    public fun leaderboard_game_top_tile(leaderboard_game: &LeaderboardGame8192): &u8 {
+    public fun leaderboard_game_top_tile(leaderboard_game: &LeaderboardGame8192): &u64 {
         &leaderboard_game.top_tile
     }
 
