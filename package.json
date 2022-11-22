@@ -17,6 +17,6 @@
   },
   "scripts": {
     "build": "npx browserify js/* > build/index.js",
-    "start": "yarn build && npx browser-sync start --server"
+    "start": "yarn && yarn build && npx browser-sync start --server"
   }
 }
