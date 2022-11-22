@@ -835,10 +835,10 @@ escape-string-regexp@^1.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==
 
-ethos-connect@^0.0.32:
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.32.tgz#a60e2d874013f07733065cfe89e470e8c57edd4c"
-  integrity sha512-54ZAtGSuCTWpx8Ev2KXoq2AqjXMq0ebY8a5Dc20E8ifPVg8qIPnUTfDgfsDp/YYrIuVbVLWGO5TUUUcw+84Vow==
+ethos-connect@^0.0.34:
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.34.tgz#6450e0ed1c12128a2688a745c6405008b24adef9"
+  integrity sha512-34GTYLAU4QI0z8kfnq2QnxL8aG1MU1DM+Abof9rcxWTzD2HedtKwD5HeyIPCISN8p2VaWF6p/V2tFRRvnHNoVw==
   dependencies:
     "@mysten/sui.js" "^0.15.0"
     "@mysten/wallet-adapter-all-wallets" "^0.3.0"
