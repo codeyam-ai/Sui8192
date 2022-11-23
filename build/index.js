@@ -867,8 +867,8 @@ let perPage = 25;
 
 const provider = new JsonRpcProvider(Network.DEVNET);
 
-const topGames = async () => {
-  if (_topGames) return _topGames;
+const topGames = async (force) => {
+  if (_topGames && !force) return _topGames;
   const topGamesId = leaderboardObject.top_games.fields.id.id;
   const gameInfos = await provider.getObjectsOwnedByObject(topGamesId);
   const gameDetails = await provider.getObjectBatch(gameInfos.map((info) => info.objectId))
@@ -973,7 +973,7 @@ const load = async (force = false) => {
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
-    const games = await topGames();
+    const games = await topGames(true);
     eById("best").innerHTML = games[0]?.fields?.score || 0;
     setOnClick(eById("more-leaderboard"), loadNextPage);
 
