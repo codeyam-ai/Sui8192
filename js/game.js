@@ -338,22 +338,6 @@ async function setActiveGame(game) {
   moves.reset();
   moves.checkPreapprovals(activeGameAddress, walletSigner);
 
-  moves.load(
-    walletSigner,
-    activeGameAddress,
-    (newBoard, direction) => {
-      handleResult(newBoard, direction);
-      loadWalletContents();
-    },
-    (error) => {
-      if (error) {
-        showUnknownError(error);
-      } else {
-        showGasError();
-      }
-    }
-  );
-
   const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
   board.display(activeBoard);
@@ -442,6 +426,10 @@ const initializeClicks = () => {
   setOnClick(eById("close-preapproval"), () => {
     addClass(eById("preapproval"), "hidden");
   });
+
+  setOnClick(eById("close-hosted"), () => {
+    addClass(eById("hosted"), "hidden");
+  });
 };
 
 const onWalletConnected = async ({ signer }) => {
@@ -451,8 +439,9 @@ const onWalletConnected = async ({ signer }) => {
 
     addClass(document.body, "signed-in");
 
-    // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
-    // console.log("SIGN", response);
+    if (walletSigner.type === "hosted") {
+      removeClass(eById("hosted"), "hidden");
+    }
 
     const prepMint = async () => {
       const mint = eById("mint-game");

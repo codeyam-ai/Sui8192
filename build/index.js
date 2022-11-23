@@ -519,22 +519,6 @@ async function setActiveGame(game) {
   moves.reset();
   moves.checkPreapprovals(activeGameAddress, walletSigner);
 
-  moves.load(
-    walletSigner,
-    activeGameAddress,
-    (newBoard, direction) => {
-      handleResult(newBoard, direction);
-      loadWalletContents();
-    },
-    (error) => {
-      if (error) {
-        showUnknownError(error);
-      } else {
-        showGasError();
-      }
-    }
-  );
-
   const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
   board.display(activeBoard);
@@ -623,6 +607,10 @@ const initializeClicks = () => {
   setOnClick(eById("close-preapproval"), () => {
     addClass(eById("preapproval"), "hidden");
   });
+
+  setOnClick(eById("close-hosted"), () => {
+    addClass(eById("hosted"), "hidden");
+  });
 };
 
 const onWalletConnected = async ({ signer }) => {
@@ -632,8 +620,9 @@ const onWalletConnected = async ({ signer }) => {
 
     addClass(document.body, "signed-in");
 
-    // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
-    // console.log("SIGN", response);
+    if (walletSigner.type === "hosted") {
+      removeClass(eById("hosted"), "hidden");
+    }
 
     const prepMint = async () => {
       const mint = eById("mint-game");
@@ -1239,11 +1228,10 @@ const constructTransaction = (direction, activeGameAddress) => {
 };
 
 const checkPreapprovals = async (activeGameAddress, walletSigner) => {
-  if (walletSigner.type === "ethos_hosted") {
+  if (walletSigner.type === "hosted") {
     return true;
   }
 
-  // if (preapproval === undefined) {
   try {
     const result = await ethos.preapprove({
       signer: walletSigner,
@@ -1264,7 +1252,6 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
     console.log("Error requesting preapproval", e);
     preapproval = false;
   }
-  // }
 
   if (!preapprovalNotified && !preapproval) {
     removeClass(eById("preapproval"), "hidden");
@@ -1272,63 +1259,6 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
   }
 
   return preapproval;
-};
-
-const load = async (walletSigner, activeGameAddress, onComplete, onError) => {
-  return;
-  if (walletSigner.type === "extension") {
-    return;
-  }
-
-  const directions = ["0", "1", "2", "3"];
-
-  if (Object.keys(moves).length === directions.length) {
-    return;
-  }
-
-  const transactions = [];
-  for (const direction of directions) {
-    const transaction = constructTransaction(direction, activeGameAddress);
-    transaction.id = direction;
-    transactions.push(transaction);
-  }
-
-  const { data } = await ethos.sign({
-    signer: walletSigner,
-    signableTransactions: transactions,
-  });
-  //     ,
-  //   onPopulated({ data }) {
-  //     if (data.error) {
-  //       onError(data.error);
-  //       return;
-  //     }
-
-  //     for (const { id: direction, transaction } of data.transactions) {
-  //       moves[direction] = {
-  //         ...(moves[direction] || {}),
-  //         populatedTransaction: transaction
-  //       }
-  //     }
-  //   },
-  //   onSigned({ data }) {
-  //     if (data.error) {
-  //       onError();
-  //       return;
-  //     }
-  //     for (const { id: direction, transaction } of data.transactions) {
-  //       moves[direction] = {
-  //         ...(moves[direction] || {}),
-  //         signedTransaction: transaction
-  //       }
-  //     }
-  //   },
-  //   onCompleted() {
-  //     const queuedMove = queue.next()
-  //     if (queuedMove) execute(queuedMove, activeGameAddress, walletSigner, onComplete, onError);
-  //   }
-  // });
-  ethos.hideWallet(walletSigner);
 };
 
 const execute = async (
@@ -1354,27 +1284,19 @@ const execute = async (
     : directionOrQueuedMove;
 
   const directionNumber = directionToDirectionNumber(direction);
-  const move = moves[directionNumber];
-
-  let signableTransaction;
-
-  if (false && walletSigner.type === "ethos_hosted") {
-    if (!move?.populatedTransaction || !move?.signedTransaction) {
-      if (!directionOrQueuedMove.id) {
-        queue.add(direction);
-      }
-      return;
+  
+  if (walletSigner.type === "hosted") {
+    if (!directionOrQueuedMove.id) {
+      directionOrQueuedMove = queue.add(direction);
     }
+   
+    if (queue.length() > 1) return;
+  } 
 
-    signableTransaction = {
-      signedInfo: move,
-    };
-  } else {
-    signableTransaction = constructTransaction(
-      directionNumber,
-      activeGameAddress
-    );
-  }
+  const signableTransaction = constructTransaction(
+    directionNumber,
+    activeGameAddress
+  );
 
   moves = {};
 
@@ -1394,17 +1316,13 @@ const execute = async (
     executingMove = false;
   }
 
-  console.log("MOVE DATA", data)
-
   if (!data) return;
 
   const { error, effects } = data.EffectsCert || data;
 
-  if (directionOrQueuedMove.id) {
+  if (walletSigner.type === "hosted") {
     queue.remove(directionOrQueuedMove);
   }
-
-  load(walletSigner, activeGameAddress, onComplete, onError);
 
   if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
     onError({});
@@ -1501,6 +1419,17 @@ const execute = async (
 
   eById("transactions-list").prepend(transactionElement);
   removeClass(eById("transactions"), "hidden");
+
+  if (queue.length() > 0) {
+    const queuedMove = queue.next()
+    execute(
+      queuedMove,
+      activeGameAddress,
+      walletSigner,
+      onComplete,
+      onError
+    )
+  }
 };
 
 const reset = () => (moves = []);
@@ -1508,7 +1437,6 @@ const reset = () => (moves = []);
 module.exports = {
   checkPreapprovals,
   constructTransaction,
-  load,
   execute,
   reset,
 };
@@ -1527,20 +1455,23 @@ let queueId = 0;
 
 const next = () => queue[0];
 
+const length = () => queue.length;
+
 const add = (direction) => {
   const id = ++queueId;
-  queue.push({ id, direction });
+  const item = { id, direction }
+  queue.push(item);
 
-  // setTimeout(() => {
-    if (queue.length > 0) {
-      const directionElement = document.createElement('DIV');
-      directionElement.id = `queue-${id}`
-      addClass(directionElement, 'queue-element')
-      directionElement.innerHTML = directionNumberToSymbol(directionToDirectionNumber(direction));
-      eById('queue').appendChild(directionElement);
-      show();
-    }
-  // }, 500);
+  if (queue.length > 0) {
+    const directionElement = document.createElement('DIV');
+    directionElement.id = `queue-${id}`
+    addClass(directionElement, 'queue-element')
+    directionElement.innerHTML = directionNumberToSymbol(directionToDirectionNumber(direction));
+    eById('queue').appendChild(directionElement);
+    show();
+  }
+
+  return item;
 }
 
 const remove = (queuedMove) => {
@@ -1574,7 +1505,7 @@ const hide = () => {
   addClass(queueElement, 'hidden');
 }
 
-module.exports = { next, add, remove, removeAll, show, hide };
+module.exports = { next, length, add, remove, removeAll, show, hide };
 },{"./utils":9}],9:[function(require,module,exports){
 const BigNumber = require('bignumber.js');
 

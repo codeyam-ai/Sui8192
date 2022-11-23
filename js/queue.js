@@ -11,20 +11,23 @@ let queueId = 0;
 
 const next = () => queue[0];
 
+const length = () => queue.length;
+
 const add = (direction) => {
   const id = ++queueId;
-  queue.push({ id, direction });
+  const item = { id, direction }
+  queue.push(item);
 
-  // setTimeout(() => {
-    if (queue.length > 0) {
-      const directionElement = document.createElement('DIV');
-      directionElement.id = `queue-${id}`
-      addClass(directionElement, 'queue-element')
-      directionElement.innerHTML = directionNumberToSymbol(directionToDirectionNumber(direction));
-      eById('queue').appendChild(directionElement);
-      show();
-    }
-  // }, 500);
+  if (queue.length > 0) {
+    const directionElement = document.createElement('DIV');
+    directionElement.id = `queue-${id}`
+    addClass(directionElement, 'queue-element')
+    directionElement.innerHTML = directionNumberToSymbol(directionToDirectionNumber(direction));
+    eById('queue').appendChild(directionElement);
+    show();
+  }
+
+  return item;
 }
 
 const remove = (queuedMove) => {
@@ -58,4 +61,4 @@ const hide = () => {
   addClass(queueElement, 'hidden');
 }
 
-module.exports = { next, add, remove, removeAll, show, hide };
+module.exports = { next, length, add, remove, removeAll, show, hide };
