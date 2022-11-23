@@ -17,15 +17,26 @@ const {
 const PAGE_COUNT = 25;
 
 let leaderboardObject;
+let _topGames;
 let leaderboardTimestamp;
 let loadingNextPage = 0;
 let page = 1;
 let perPage = 25;
 
-const topGames = () => leaderboardObject.top_games;
+const provider = new JsonRpcProvider(Network.DEVNET);
+
+const topGames = async () => {
+  if (_topGames) return _topGames;
+  const topGamesId = leaderboardObject.top_games.fields.id.id;
+  const gameInfos = await provider.getObjectsOwnedByObject(topGamesId);
+  const gameDetails = await provider.getObjectBatch(gameInfos.map((info) => info.objectId))
+  _topGames = gameDetails.map(
+    (details) => details.details.data.fields.value
+  )
+  return _topGames;
+}
 
 const getObject = async (objectId) => {
-    const provider = new JsonRpcProvider(Network.DEVNET);
     return provider.getObject(objectId);
 };
 
@@ -35,21 +46,23 @@ const get = async () => {
             data: { fields: leaderboard },
         },
     } = await getObject(leaderboardAddress);
+    console.log("LEADERBOARD", leaderboard)
     leaderboardObject = leaderboard;
     return leaderboard;
 };
 
 const getLeaderboardGame = async (gameObjectId) => {
     const gameObject = await getObject(gameObjectId);
+    console.log("GAME OBJECT", gameObject)
     let {
         details: {
             data: {
-                fields: { boards, moves, game_over: gameOver },
+                fields: { boards, move_count: moveCount, game_over: gameOver },
             },
         },
     } = gameObject;
     gameOver = boards[boards.length - 1].fields.game_over;
-    return { id: gameObjectId, gameOver, moveCount: moves.length, boards };
+    return { id: gameObjectId, gameOver, moveCount, boards };
 };
 
 const boardHTML = (moveIndex, totalMoves, boards) => {
@@ -115,7 +128,8 @@ const load = async (force = false) => {
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
-    eById("best").innerHTML = leaderboardObject.top_games[0]?.fields?.score || 0;
+    const games = await topGames();
+    eById("best").innerHTML = games[0]?.fields?.score || 0;
     setOnClick(eById("more-leaderboard"), loadNextPage);
 
     await loadNextPage();
@@ -128,7 +142,9 @@ const loadNextPage = async () => {
 
     const leaderboardList = eById("leaderboard-list");
     const currentMax = page * perPage;
-    const pageMax = Math.min(leaderboardObject.top_games.length, currentMax);
+    const games = await topGames();
+    const pageMax = Math.min(games.length, currentMax);
+    console.log("GAMES", pageMax, games)
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
         const {
             fields: {
@@ -137,7 +153,8 @@ const loadNextPage = async () => {
                 leader_address: leaderAddress,
                 game_id: gameId,
             },
-        } = leaderboardObject.top_games[i];
+        } = games[i];
+        console.log("GAMEID", gameId)
 
         const name = await ethos.lookup(leaderAddress);
 
@@ -262,7 +279,7 @@ const loadNextPage = async () => {
         leaderboardList.append(leaderElement);
     }
 
-    if (currentMax >= leaderboardObject.top_games.length - 1) {
+    if (currentMax >= games.length - 1) {
         addClass(eById("more-leaderboard"), "hidden");
     } else {
         page += 1;

@@ -274,7 +274,8 @@ async function loadGames() {
 
   for (const game of games) {
     const gameElement = document.createElement("DIV");
-    let topGames = leaderboard.topGames();
+    let topGames = await leaderboard.topGames();
+    console.log("TOP GAMES" ,topGames)
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.fields.game_id === game.address

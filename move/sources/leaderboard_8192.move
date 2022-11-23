@@ -2,8 +2,6 @@ module ethos::leaderboard_8192 {
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{Self, TxContext};
     use std::ascii::{Self, String};
-    // use std::vector;
-    // use sui::vec_map::{Self, VecMap};
     use sui::table::{Self, Table};
     use sui::transfer;
     use std::option::{Self, Option};

@@ -5,7 +5,7 @@ module ethos::game_8192 {
     use std::string::{Self, String};
     use sui::event;
     use sui::transfer;
-    use sui::dynamic_field as field; 
+    use sui::table::{Self, Table};
     use std::option::Option;
     use ethos::game_board_8192::{Self, GameBoard8192};
     
@@ -23,12 +23,12 @@ module ethos::game_8192 {
         url: Url,
         player: address,
         active_board: GameBoard8192,
+        boards: Table<u64, GameBoard8192>,
+        moves: Table<u64, GameMove8192>,
+        leaderboard_games: Table<u64, LeaderboardGame8192>,
         score: u64,
         top_tile: u64,      
-        game_over: bool,
-        move_count: u64,
-        board_count: u64,
-        leaderboard_game_count: u64
+        game_over: bool
     }
 
     struct GameMove8192 has store {
@@ -43,18 +43,6 @@ module ethos::game_8192 {
         score: u64,
         position: u64,
         epoch: u64
-    }
-
-    struct GameBoard8192Index has copy, store, drop {
-        index: u64
-    }
-
-    struct GameMove8192Index has copy, store, drop {
-        index: u64
-    }
-
-    struct LeaderboardGame8192Index has copy, store, drop {
-        index: u64
     }
 
     struct NewGameEvent8192 has copy, drop {
@@ -110,15 +98,14 @@ module ethos::game_8192 {
             score,
             top_tile,
             active_board: initial_game_board,
+            boards: table::new<u64, GameBoard8192>(ctx),
+            moves: table::new<u64, GameMove8192>(ctx),
             game_over: false,
-            move_count: 0,
-            board_count: 1,
             url: image_url_for_tile(top_tile),
-            leaderboard_game_count: 0
+            leaderboard_games: table::new<u64, LeaderboardGame8192>(ctx),
         };
 
-        let index = GameBoard8192Index { index: 0 };
-        field::add<GameBoard8192Index, GameBoard8192>(&mut game.id, index, initial_game_board);
+        table::add(&mut game.boards, 0, initial_game_board);
 
         event::emit(NewGameEvent8192 {
             game_id: object::uid_to_inner(&game.id),
@@ -136,9 +123,7 @@ module ethos::game_8192 {
         
         let new_board;
         {
-            let last_board_index = GameBoard8192Index { index: game.board_count - 1 };
-            let current_board = field::borrow_mut<GameBoard8192Index, GameBoard8192>(&mut game.id, last_board_index);
-            new_board = *current_board;
+            new_board = *&game.active_board;
 
             let uid = object::new(ctx);
             let random = object::uid_to_bytes(&uid);
@@ -155,7 +140,7 @@ module ethos::game_8192 {
         event::emit(GameMoveEvent8192 {
             game_id: object::uid_to_inner(&game.id),
             direction: direction,
-            move_count: game.move_count,
+            move_count: table::length(&game.moves),
             board_spaces,
             top_tile,
             score,
@@ -189,14 +174,12 @@ module ethos::game_8192 {
             epoch: tx_context::epoch(ctx)
         };
 
-        let moveIndex = GameMove8192Index { index: game.move_count };
-        field::add<GameMove8192Index, GameMove8192>(&mut game.id, moveIndex, new_move);
+        let moveIndex = table::length(&game.moves);
+        table::add(&mut game.moves, moveIndex, new_move);
 
-        let boardIndex = GameBoard8192Index { index: game.board_count };
-        field::add<GameBoard8192Index, GameBoard8192>(&mut game.id, boardIndex, new_board);
+        let boardIndex = table::length(&game.boards);
+        table::add(&mut game.boards, boardIndex, new_board);
 
-        game.board_count = game.board_count + 1;
-        game.move_count = game.move_count + 1;
         game.active_board = new_board;
         game.score = score;
         game.top_tile = top_tile;
@@ -214,8 +197,8 @@ module ethos::game_8192 {
             epoch
         };
 
-        field::add<u64, LeaderboardGame8192>(&mut game.id, game.leaderboard_game_count, leaderboard_game);
-        game.leaderboard_game_count = game.leaderboard_game_count + 1;
+        let index = table::length(&game.leaderboard_games);
+        table::add(&mut game.leaderboard_games, index, leaderboard_game);
     }
  
     public (friend) fun image_url_for_tile(tile: u64): Url {
@@ -247,18 +230,17 @@ module ethos::game_8192 {
         &game.player
     }
 
-    public fun active_game_board(game: &Game8192): &GameBoard8192 {
-        let game_board_index = GameBoard8192Index { index: game.board_count - 1 };
-        field::borrow(&game.id, game_board_index)
+    public fun active_board(game: &Game8192): &GameBoard8192 {
+        &game.active_board
     }
 
     public fun top_tile(game: &Game8192): &u64 {
-        let game_board = active_game_board(game);
+        let game_board = active_board(game);
         game_board_8192::top_tile(game_board)
     }
 
     public fun score(game: &Game8192): &u64 {
-        let game_board = active_game_board(game);
+        let game_board = active_board(game);
         game_board_8192::score(game_board)
     }
 
@@ -267,26 +249,24 @@ module ethos::game_8192 {
     }
 
     public fun move_count(game: &Game8192): u64 {
-        game.move_count
+        table::length(&game.moves)
     }
 
     public fun move_at(game: &Game8192, index: u64): (&u64, &address) {
-        let moveIndex = GameMove8192Index { index };
-        let moveItem = field::borrow<GameMove8192Index, GameMove8192>(&game.id, moveIndex);
+        let moveItem = table::borrow(&game.moves, index);
         (&moveItem.direction, &moveItem.player)
     }
 
     public fun board_at(game: &Game8192, index: u64): &GameBoard8192 {
-        let boardIndex = GameBoard8192Index { index };
-        field::borrow<GameBoard8192Index, GameBoard8192>(&game.id, boardIndex)
+        table::borrow(&game.boards, index)
     }
 
     public fun leaderboard_game_count(game: &Game8192): u64 {
-        game.leaderboard_game_count
+        table::length(&game.leaderboard_games)
     }
 
     public fun leaderboard_game_at(game: &Game8192, index: u64): &LeaderboardGame8192 {
-        field::borrow<u64, LeaderboardGame8192>(&game.id, index)
+        table::borrow(&game.leaderboard_games, index)
     }
 
     public fun leaderboard_game_position(leaderboard_game: &LeaderboardGame8192): &u64 {
