@@ -661,8 +661,6 @@ const onWalletConnected = async ({ signer }) => {
               signableTransaction,
             });
 
-            console.log("DATA", data)
-
             if (!data || data.error) {
               eById("create-error-error-message").innerHTML = data.error;
               modal.open("create-error", "container");
@@ -671,7 +669,6 @@ const onWalletConnected = async ({ signer }) => {
 
             const { effects } = data.EffectsCert?.effects || data;
             const gameData = effects.events.find((e) => e.moveEvent).moveEvent.fields;
-            console.log("effects", effects)
             const { game_id, board_spaces, score } = gameData;
             const game = {
               address: game_id,
@@ -1228,7 +1225,6 @@ let preapprovalNotified = false;
 let executingMove = false;
 
 const constructTransaction = (direction, activeGameAddress) => {
-  console.log("activeGameAddress", activeGameAddress)
   return {
     kind: "moveCall",
     data: {
