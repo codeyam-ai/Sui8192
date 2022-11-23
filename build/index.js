@@ -661,6 +661,8 @@ const onWalletConnected = async ({ signer }) => {
               signableTransaction,
             });
 
+            console.log("DATA", data)
+
             if (!data || data.error) {
               eById("create-error-error-message").innerHTML = data.error;
               modal.open("create-error", "container");
@@ -668,18 +670,16 @@ const onWalletConnected = async ({ signer }) => {
             }
 
             const { effects } = data.EffectsCert?.effects || data;
-            const gameData = effects.events.find((e) => e.moveEvent).moveEvent
-              .fields;
-            const { board_spaces, score } = gameData;
+            const gameData = effects.events.find((e) => e.moveEvent).moveEvent.fields;
+            console.log("effects", effects)
+            const { game_id, board_spaces, score } = gameData;
             const game = {
-              address: effects.created[0].reference.objectId,
-              boards: [
-                {
-                  score,
-                  board_spaces,
-                  game_over: false,
-                },
-              ],
+              address: game_id,
+              board: {
+                score,
+                board_spaces,
+                game_over: false,
+              },
             };
             setActiveGame(game);
             ethos.hideWallet(walletSigner);
@@ -1228,6 +1228,7 @@ let preapprovalNotified = false;
 let executingMove = false;
 
 const constructTransaction = (direction, activeGameAddress) => {
+  console.log("activeGameAddress", activeGameAddress)
   return {
     kind: "moveCall",
     data: {
@@ -1396,6 +1397,8 @@ const execute = async (
   } finally {
     executingMove = false;
   }
+
+  console.log("MOVE DATA", data)
 
   if (!data) return;
 

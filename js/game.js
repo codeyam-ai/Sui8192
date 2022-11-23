@@ -487,18 +487,15 @@ const onWalletConnected = async ({ signer }) => {
             }
 
             const { effects } = data.EffectsCert?.effects || data;
-            const gameData = effects.events.find((e) => e.moveEvent).moveEvent
-              .fields;
-            const { board_spaces, score } = gameData;
+            const gameData = effects.events.find((e) => e.moveEvent).moveEvent.fields;
+            const { game_id, board_spaces, score } = gameData;
             const game = {
-              address: effects.created[0].reference.objectId,
-              boards: [
-                {
-                  score,
-                  board_spaces,
-                  game_over: false,
-                },
-              ],
+              address: game_id,
+              board: {
+                score,
+                board_spaces,
+                game_over: false,
+              },
             };
             setActiveGame(game);
             ethos.hideWallet(walletSigner);

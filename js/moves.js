@@ -185,6 +185,8 @@ const execute = async (
     executingMove = false;
   }
 
+  console.log("MOVE DATA", data)
+
   if (!data) return;
 
   const { error, effects } = data.EffectsCert || data;
