@@ -46,21 +46,24 @@ const get = async () => {
             data: { fields: leaderboard },
         },
     } = await getObject(leaderboardAddress);
-    console.log("LEADERBOARD", leaderboard)
     leaderboardObject = leaderboard;
     return leaderboard;
 };
 
 const getLeaderboardGame = async (gameObjectId) => {
     const gameObject = await getObject(gameObjectId);
-    console.log("GAME OBJECT", gameObject)
     let {
         details: {
             data: {
-                fields: { boards, move_count: moveCount, game_over: gameOver },
+                fields: { boards: boardsTable, move_count: moveCount, game_over: gameOver },
             },
         },
     } = gameObject;
+    const boardInfos = await provider.getObjectsOwnedByObject(boardsTable.fields.id.id);
+    const boardDetails = await provider.getObjectBatch(boardInfos.map((info) => info.objectId))
+    const boards = boardDetails.map(
+      (details) => details.details.data.fields.value
+    )
     gameOver = boards[boards.length - 1].fields.game_over;
     return { id: gameObjectId, gameOver, moveCount, boards };
 };
@@ -144,7 +147,6 @@ const loadNextPage = async () => {
     const currentMax = page * perPage;
     const games = await topGames();
     const pageMax = Math.min(games.length, currentMax);
-    console.log("GAMES", pageMax, games)
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
         const {
             fields: {
@@ -154,8 +156,7 @@ const loadNextPage = async () => {
                 game_id: gameId,
             },
         } = games[i];
-        console.log("GAMEID", gameId)
-
+    
         const name = await ethos.lookup(leaderAddress);
 
         const leaderElement = document.createElement("DIV");

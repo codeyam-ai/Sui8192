@@ -160,8 +160,8 @@ module.exports = {
 };
 },{"canvas-confetti":44}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0x6330c8277fd570bc73b574f4d34aac9bd28e3505",
-  leaderboardAddress: "0xdf4db0a31e6799794dcb6c96fbd732f5cbbc5583",
+  contractAddress: "0x563ef3ab1ae75376e53667cd5e77dd2badad0566",
+  leaderboardAddress: "0x3fae39da8335f7e4e42bbf1637d8e7073a41348e",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -456,7 +456,6 @@ async function loadGames() {
   for (const game of games) {
     const gameElement = document.createElement("DIV");
     let topGames = await leaderboard.topGames();
-    console.log("TOP GAMES" ,topGames)
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.fields.game_id === game.address
@@ -889,23 +888,26 @@ const get = async () => {
             data: { fields: leaderboard },
         },
     } = await getObject(leaderboardAddress);
-    console.log("LEADERBOARD", leaderboard)
     leaderboardObject = leaderboard;
     return leaderboard;
 };
 
 const getLeaderboardGame = async (gameObjectId) => {
     const gameObject = await getObject(gameObjectId);
-    console.log("GAME OBJECT", gameObject)
     let {
         details: {
             data: {
-                fields: { boards, moves, game_over: gameOver },
+                fields: { boards: boardsTable, move_count: moveCount, game_over: gameOver },
             },
         },
     } = gameObject;
+    const boardInfos = await provider.getObjectsOwnedByObject(boardsTable.fields.id.id);
+    const boardDetails = await provider.getObjectBatch(boardInfos.map((info) => info.objectId))
+    const boards = boardDetails.map(
+      (details) => details.details.data.fields.value
+    )
     gameOver = boards[boards.length - 1].fields.game_over;
-    return { id: gameObjectId, gameOver, moveCount: moves.length, boards };
+    return { id: gameObjectId, gameOver, moveCount, boards };
 };
 
 const boardHTML = (moveIndex, totalMoves, boards) => {
@@ -987,7 +989,6 @@ const loadNextPage = async () => {
     const currentMax = page * perPage;
     const games = await topGames();
     const pageMax = Math.min(games.length, currentMax);
-    console.log("GAMES", pageMax, games)
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
         const {
             fields: {
@@ -997,8 +998,7 @@ const loadNextPage = async () => {
                 game_id: gameId,
             },
         } = games[i];
-        console.log("GAMEID", gameId)
-
+    
         const name = await ethos.lookup(leaderAddress);
 
         const leaderElement = document.createElement("DIV");
