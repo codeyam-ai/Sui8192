@@ -294,7 +294,14 @@ module ethos::game_board_8192 {
         assert!(empty_spaces_count > 0, ENoEmptySpaces);
 
         let tile = TILE2;
-        if (*vector::borrow(&random, 0) % 4 == 0) {
+        let top = *top_tile(game_board);
+        if (top >= TILE8192 && *vector::borrow(&random, 0) % 6 == 0) {
+            tile = TILE32; 
+        } else if (top >= TILE4096 && *vector::borrow(&random, 0) % 5 == 0) {
+            tile = TILE16; 
+        } else if (top >= TILE2048 && *vector::borrow(&random, 0) % 4 == 0) {
+            tile = TILE8; 
+        } else if (*vector::borrow(&random, 0) % 4 == 0) {
             tile = TILE4; 
         };
 
@@ -521,6 +528,32 @@ module ethos::game_board_8192 {
           return option::none()
         };
         option::some(value)
+    }
+
+    #[test_only]
+    fun print_board(board: &GameBoard8192) {
+        let spaces = spaces(board);
+        
+        let row_index = 0;
+        while (row_index < vector::length(spaces)) {
+            let row = vector::borrow(spaces, row_index);
+
+            let printable_row = vector<u64>[];
+            let column_index = 0;
+            while (column_index < vector::length(row)) {
+                let space = vector::borrow(row, column_index);
+                if (option::is_none(space)) {
+                    vector::push_back(&mut printable_row, 99);
+                } else {
+                    vector::push_back(&mut printable_row, *option::borrow(space));
+                };
+
+                column_index = column_index + 1;
+            };
+
+            std::debug::print(&printable_row);
+            row_index = row_index + 1;
+        }
     }
 
     #[test_only]
@@ -1087,6 +1120,75 @@ module ethos::game_board_8192 {
             TILE32, TILE16, TILE2, EMPTY,
             TILE64, TILE32, TILE4, EMPTY, 
             TILE128, TILE4, TILE2, EMPTY
+        ]), 1);
+    }
+
+    #[test]
+    fun test_move__adds_higher_value_tile_2048() {
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(EMPTY), o(EMPTY), o(TILE2048), o(EMPTY)],
+                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(EMPTY)],
+                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)],
+                vector[o(TILE2), o(EMPTY), o(EMPTY), o(EMPTY)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE2048,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[4,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE2048, EMPTY, EMPTY, TILE8, 
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE2, EMPTY, EMPTY, EMPTY
+        ]), 1);
+    }
+
+    #[test]
+    fun test_move__adds_higher_value_tile_4096() {
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(EMPTY), o(EMPTY), o(TILE4096), o(EMPTY)],
+                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(EMPTY)],
+                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)],
+                vector[o(TILE2), o(EMPTY), o(EMPTY), o(EMPTY)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE4096,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[5,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE4096, EMPTY, EMPTY, TILE16, 
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE2, EMPTY, EMPTY, EMPTY
+        ]), 1);
+    }
+
+    #[test]
+    fun test_move__adds_higher_value_tile_8192() {
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(EMPTY), o(EMPTY), o(TILE8192), o(EMPTY)],
+                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(EMPTY)],
+                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)],
+                vector[o(TILE2), o(EMPTY), o(EMPTY), o(EMPTY)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE8192,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[6,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE8192, EMPTY, EMPTY, TILE32, 
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
 }
