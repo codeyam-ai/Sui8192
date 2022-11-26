@@ -24,7 +24,7 @@ const constructTransaction = (direction, activeGameAddress) => {
       function: "make_move",
       typeArguments: [],
       arguments: [activeGameAddress, direction],
-      gasBudget: 100000,
+      gasBudget: 10000,
     },
   };
 };
