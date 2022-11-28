@@ -22,7 +22,7 @@ module ethos::leaderboard_8192 {
         min_score: u64
     }
 
-    struct TopGame8192 has store, drop {
+    struct TopGame8192 has store, copy, drop {
         game_id: ID,
         leader_address: address,
         top_tile: u64,
@@ -81,13 +81,20 @@ module ethos::leaderboard_8192 {
         };
         
         let index = 0;
+        let top_game_found = false;
         while (index < top_game_count) {
-          let top_game = top_game_at(leaderboard, index);
-          if (top_game.game_id == game_id) {
-              table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
-              top_game_count = top_game_count - 1;
-          };
-          index = index + 1;
+            let top_game = top_game_at(leaderboard, index);
+            if (top_game_found) {
+                let swap = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
+                table::add<u64, TopGame8192>(&mut leaderboard.top_games, index - 1, swap);
+            };
+
+            if (top_game.game_id == game_id) {
+                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
+                top_game_found = true;
+                top_game_count = top_game_count - 1;
+            };
+            index = index + 1;
         };
 
         table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, new_top_game);
@@ -149,19 +156,6 @@ module ethos::leaderboard_8192 {
         };
 
         leaderboard.game_count = table::length(&leaderboard.top_games);
-    }
-
-    public entry fun set_name(leaderboard: &mut Leaderboard8192, name: vector<u8>, ctx: &mut TxContext) {
-        let address = tx_context::sender(ctx);
-        assert!(table::contains(&leaderboard.leaders, address), ENotALeader);        
-        let leader_option = table::borrow_mut(&mut leaderboard.leaders, address);
-
-        let name_string = ascii::string(name);
-        if (option::is_none(leader_option)) {
-            option::fill(leader_option, name_string);
-        } else {
-            option::swap(leader_option, name_string);
-        }
     }
 
     // PUBLIC ACCESSOR FUNCTIONS //

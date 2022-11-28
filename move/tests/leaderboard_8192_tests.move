@@ -252,8 +252,158 @@ module ethos::leaderboard_8192_tests {
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
             
-        let leaderboard_game_count = table::length(leaderboard_8192::top_games(&leaderboard));
+            let leaderboard_game_count = table::length(leaderboard_8192::top_games(&leaderboard));
             assert!(leaderboard_game_count == 1, leaderboard_game_count);
+          
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::end(scenario);
+    }
+
+    #[test]
+    fun test_submit_game__only_one_entry_per_game_with_multiple_games() {
+        use sui::object::{ID};
+
+        let scenario = test_scenario::begin(PLAYER);
+        leaderboard_8192::create(test_scenario::ctx(&mut scenario)); 
+
+        let game1Id: ID;
+        let game2Id: ID;
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            create_game(&mut scenario);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            game1Id = *object::uid_as_inner(game_8192::id(&game));
+            
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard)
+        };
+        
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let game = test_scenario::take_from_sender_by_id<Game8192>(&mut scenario, game1Id);
+            
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let game = test_scenario::take_from_sender_by_id<Game8192>(&mut scenario, game1Id);
+            
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let game = test_scenario::take_from_sender_by_id<Game8192>(&mut scenario, game1Id);
+            
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let leaderboard_game_count = table::length(leaderboard_8192::top_games(&leaderboard));
+            assert!(leaderboard_game_count == 1, leaderboard_game_count);
+          
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            create_game(&mut scenario);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            game2Id = *object::uid_as_inner(game_8192::id(&game));
+            
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let game = test_scenario::take_from_sender_by_id<Game8192>(&mut scenario, game2Id);
+            
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let game = test_scenario::take_from_sender_by_id<Game8192>(&mut scenario, game1Id);
+            
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard, test_scenario::ctx(&mut scenario));
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard)
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let leaderboard_game_count = table::length(leaderboard_8192::top_games(&leaderboard));
+            assert!(leaderboard_game_count == 2, leaderboard_game_count);
           
             test_scenario::return_shared(leaderboard)
         };
@@ -433,62 +583,6 @@ module ethos::leaderboard_8192_tests {
             test_scenario::return_shared<Leaderboard8192>(leaderboard)
         };
 
-        test_scenario::end(scenario);
-    }
-
-    // #[test]
-    // fun test_set_name_on_address() {
-    //     let scenario = test_scenario::begin(PLAYER);
-    //     leaderboard_8192::create( test_scenario::ctx(&mut scenario); 
-
-    //     test_scenario::next_tx(&mut scenario, PLAYER);
-    //     {
-    //         create_game(&mut scenario);
-    //     };
-
-    //     test_scenario::next_tx(&mut scenario, PLAYER);
-    //     {
-    //         let leaderboard_wrapper = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-    //         let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut leaderboard_wrapper);
-            
-    //         let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
-    //         leaderboard_8192::submit_game(&game, leaderboard);
-
-    //         test_scenario::return_shared(leaderboard);
-    //         test_scenario::return_to_sender(&mut scenario, game)
-    //     };
-
-    //     test_scenario::next_tx(&mut scenario, PLAYER);
-    //     {
-    //         let leaderboard_wrapper = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-    //         let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut leaderboard_wrapper);
-
-    //         let name = b"irrationaljared";
-    //         leaderboard_8192::set_name(leaderboard, name, test_scenario::ctx(&mut scenario));
-
-    //         test_scenario::return_shared(leaderboard);
-    //     }
-    // }
-
-    #[test]
-    #[expected_failure(abort_code = 0)]
-    fun test_set_name_on_address__not_if_you_are_not_a_leader() {
-      let scenario = test_scenario::begin(PLAYER);
-        leaderboard_8192::create(test_scenario::ctx(&mut scenario)); 
-
-        test_scenario::next_tx(&mut scenario, PLAYER);
-        {
-            create_game(&mut scenario);
-        };
-
-        test_scenario::next_tx(&mut scenario, PLAYER);
-        {
-            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-            let name = b"irrationaljared";
-            leaderboard_8192::set_name(&mut leaderboard, name, test_scenario::ctx(&mut scenario));
-
-            test_scenario::return_shared(leaderboard);
-        };
         test_scenario::end(scenario);
     }
 
