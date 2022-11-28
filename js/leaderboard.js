@@ -63,7 +63,9 @@ const getLeaderboardGame = async (gameObjectId) => {
     } = gameObject;
     const boardInfos = await provider.getObjectsOwnedByObject(boardsTable.fields.id.id);
     const boardDetails = await provider.getObjectBatch(boardInfos.map((info) => info.objectId))
-    const boards = boardDetails.map(
+    const boards = boardDetails.sort(
+      (a, b) => a.details.data.fields.name - b.details.data.fields.name
+    ).map(
       (details) => details.details.data.fields.value
     )
     gameOver = boards[boards.length - 1].fields.game_over;
@@ -246,7 +248,7 @@ const loadNextPage = async () => {
           </div>
           <div class='leader-boards'>
             <div class='leader-board'>
-              ${boardHTML(index, game.moveCount, game.boards)}
+              ${boardHTML(index, game.boards.length - 1, game.boards)}
             </div>
             <div class='game-instructions'>
               <div>
