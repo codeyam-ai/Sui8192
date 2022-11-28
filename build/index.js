@@ -858,7 +858,9 @@ const topGames = async (force) => {
   const topGamesId = leaderboardObject.top_games.fields.id.id;
   const gameInfos = await provider.getObjectsOwnedByObject(topGamesId);
   const gameDetails = await provider.getObjectBatch(gameInfos.map((info) => info.objectId))
-  _topGames = gameDetails.map(
+  _topGames = gameDetails.sort(
+    (a,b) => a.details.data.fields.name - b.details.data.fields.name
+  ).map(
     (details) => details.details.data.fields.value
   )
   return _topGames;
