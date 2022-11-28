@@ -1,7 +1,7 @@
 module ethos::leaderboard_8192 {
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{Self, TxContext};
-    use std::ascii::{Self, String};
+    use std::string::{String};
     use sui::table::{Self, Table};
     use sui::transfer;
     use std::option::{Self, Option};
@@ -83,18 +83,22 @@ module ethos::leaderboard_8192 {
         let index = 0;
         let top_game_found = false;
         while (index < top_game_count) {
-            let top_game = top_game_at(leaderboard, index);
             if (top_game_found) {
                 let swap = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
                 table::add<u64, TopGame8192>(&mut leaderboard.top_games, index - 1, swap);
+            } else {
+                top_game_found = top_game_at_has_id(leaderboard, index, game_id);
+                
+                if (top_game_found) {
+                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
+                };
             };
 
-            if (top_game.game_id == game_id) {
-                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
-                top_game_found = true;
-                top_game_count = top_game_count - 1;
-            };
             index = index + 1;
+        };
+
+        if (top_game_found) {
+            top_game_count = top_game_count - 1;
         };
 
         table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, new_top_game);
@@ -170,6 +174,11 @@ module ethos::leaderboard_8192 {
 
     public fun top_game_at(leaderboard: &Leaderboard8192, index: u64): &TopGame8192 {
         table::borrow(&leaderboard.top_games, index)
+    }
+
+    public fun top_game_at_has_id(leaderboard: &Leaderboard8192, index: u64, game_id: ID): bool {
+        let top_game = top_game_at(leaderboard, index);
+        top_game.game_id == game_id
     }
 
     public fun top_game_game_id(top_game: &TopGame8192): &ID {
