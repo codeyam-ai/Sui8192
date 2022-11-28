@@ -2,8 +2,7 @@ module ethos::leaderboard_8192 {
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{Self, TxContext};
     use std::ascii::{Self, String};
-    use std::vector;
-    use sui::vec_map::{Self, VecMap};
+    use sui::table::{Self, Table};
     use sui::transfer;
     use std::option::{Self, Option};
 
@@ -17,8 +16,8 @@ module ethos::leaderboard_8192 {
         id: UID,
         game_count: u64,
         max_leaderboard_game_count: u64,
-        top_games: vector<TopGame8192>,
-        leaders: VecMap<address, Option<String>>,
+        top_games: Table<u64, TopGame8192>,
+        leaders: Table<address, Option<String>>,
         min_tile: u64,
         min_score: u64
     }
@@ -42,8 +41,8 @@ module ethos::leaderboard_8192 {
             id: object::new(ctx),
             game_count: 0,
             max_leaderboard_game_count: 200,
-            top_games: vector[],
-            leaders: vec_map::empty<address, Option<String>>(),
+            top_games: table::new<u64, TopGame8192>(ctx),
+            leaders: table::new<address, Option<String>>(ctx),
             min_tile: 0,
             min_score: 0
         };
@@ -65,8 +64,8 @@ module ethos::leaderboard_8192 {
 
         let leader_address = *game_8192::player(game);
 
-        if (!vec_map::contains(&leaderboard.leaders, &leader_address)) {
-            vec_map::insert(&mut leaderboard.leaders, leader_address, option::none());
+        if (!table::contains<address, Option<String>>(&leaderboard.leaders, leader_address)) {
+            table::add(&mut leaderboard.leaders, leader_address, option::none());
         };
 
         let game_id = object::uid_to_inner(game_8192::id(game));
@@ -85,13 +84,13 @@ module ethos::leaderboard_8192 {
         while (index < top_game_count) {
           let top_game = top_game_at(leaderboard, index);
           if (top_game.game_id == game_id) {
-              vector::remove(&mut leaderboard.top_games, index);
+              table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
               top_game_count = top_game_count - 1;
           };
           index = index + 1;
         };
 
-        vector::push_back(&mut leaderboard.top_games, new_top_game);
+        table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, new_top_game);
           
         if (top_game_count == 0) {
             leaderboard.game_count = 1;
@@ -124,35 +123,38 @@ module ethos::leaderboard_8192 {
             };
 
             if (slot_found) {
-                vector::swap(&mut leaderboard.top_games, index, top_game_count);
+                let top_game_1 = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count);
+                let top_game_2 = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
+                table::add<u64, TopGame8192>(&mut leaderboard.top_games, index, top_game_1);
+                table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, top_game_2);
             };
 
             index = index + 1;
         };
 
         if (!slot_found) {
-            let position = vector::length(&leaderboard.top_games) - 1;
+            let position = table::length(&leaderboard.top_games) - 1;
             game_8192::record_leaderboard_game(game, leaderboard_id, position, epoch);
         };
         
-        let game_count = vector::length(&leaderboard.top_games);
+        let game_count = table::length(&leaderboard.top_games);
         if (game_count >= leaderboard.max_leaderboard_game_count) {
             leaderboard.min_tile = min_tile;
             leaderboard.min_score = min_score;
 
             while (game_count > leaderboard.max_leaderboard_game_count) {
-                vector::pop_back(&mut leaderboard.top_games);
+                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, game_count);
                 game_count = game_count - 1;
             };
         };
 
-        leaderboard.game_count = vector::length(&leaderboard.top_games);
+        leaderboard.game_count = table::length(&leaderboard.top_games);
     }
 
     public entry fun set_name(leaderboard: &mut Leaderboard8192, name: vector<u8>, ctx: &mut TxContext) {
         let address = tx_context::sender(ctx);
-        assert!(vec_map::contains(&leaderboard.leaders, &address), ENotALeader);        
-        let leader_option = vec_map::get_mut(&mut leaderboard.leaders, &address);
+        assert!(table::contains(&leaderboard.leaders, address), ENotALeader);        
+        let leader_option = table::borrow_mut(&mut leaderboard.leaders, address);
 
         let name_string = ascii::string(name);
         if (option::is_none(leader_option)) {
@@ -168,12 +170,12 @@ module ethos::leaderboard_8192 {
         &leaderboard.game_count
     }
 
-    public fun top_games(leaderboard: &Leaderboard8192): &vector<TopGame8192> {
+    public fun top_games(leaderboard: &Leaderboard8192): &Table<u64, TopGame8192> {
         &leaderboard.top_games
     }
 
     public fun top_game_at(leaderboard: &Leaderboard8192, index: u64): &TopGame8192 {
-        vector::borrow(&leaderboard.top_games, index)
+        table::borrow(&leaderboard.top_games, index)
     }
 
     public fun top_game_game_id(top_game: &TopGame8192): &ID {
@@ -205,12 +207,13 @@ module ethos::leaderboard_8192 {
 
     #[test_only]
     public fun blank_leaderboard(scenario: &mut Scenario, max_leaderboard_game_count: u64, min_tile: u64, min_score: u64) {
+        let ctx = test_scenario::ctx(scenario);
         let leaderboard = Leaderboard8192 {
-            id: object::new(test_scenario::ctx(scenario)),
+            id: object::new(ctx),
             game_count: 0,
             max_leaderboard_game_count: max_leaderboard_game_count,
-            top_games: vector[],
-            leaders: vec_map::empty<address, Option<String>>(),
+            top_games: table::new<u64, TopGame8192>(ctx),
+            leaders: table::new<address, Option<String>>(ctx),
             min_tile: min_tile,
             min_score: min_score
         };

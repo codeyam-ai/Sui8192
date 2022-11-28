@@ -5,6 +5,7 @@ module ethos::leaderboard_8192_tests {
     use ethos::game_board_8192::{left, up};
     use sui::object::{Self};
     use std::vector;
+    use sui::table;
 
     use ethos::leaderboard_8192::{Self, Leaderboard8192};
     use ethos::game_8192::{Self, Game8192};
@@ -251,7 +252,7 @@ module ethos::leaderboard_8192_tests {
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
             
-        let leaderboard_game_count = vector::length(leaderboard_8192::top_games(&leaderboard));
+        let leaderboard_game_count = table::length(leaderboard_8192::top_games(&leaderboard));
             assert!(leaderboard_game_count == 1, leaderboard_game_count);
           
             test_scenario::return_shared(leaderboard)
@@ -422,7 +423,6 @@ module ethos::leaderboard_8192_tests {
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
@@ -484,13 +484,11 @@ module ethos::leaderboard_8192_tests {
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-
             let name = b"irrationaljared";
             leaderboard_8192::set_name(&mut leaderboard, name, test_scenario::ctx(&mut scenario));
 
             test_scenario::return_shared(leaderboard);
         };
-
         test_scenario::end(scenario);
     }
 
@@ -507,7 +505,6 @@ module ethos::leaderboard_8192_tests {
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
@@ -543,7 +540,6 @@ module ethos::leaderboard_8192_tests {
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
@@ -575,7 +571,6 @@ module ethos::leaderboard_8192_tests {
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
-
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));

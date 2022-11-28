@@ -246,7 +246,7 @@ async function loadGames() {
     .filter((nft) => nft.package === contractAddress)
     .map((nft) => ({
       address: nft.address,
-      boards: nft.extraFields.boards,
+      board: nft.extraFields.active_board,
       topTile: nft.extraFields.top_tile,
       score: nft.extraFields.score,
       imageUri: nft.imageUri,
@@ -274,7 +274,7 @@ async function loadGames() {
 
   for (const game of games) {
     const gameElement = document.createElement("DIV");
-    let topGames = leaderboard.topGames();
+    let topGames = await leaderboard.topGames();
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.fields.game_id === game.address
@@ -338,24 +338,7 @@ async function setActiveGame(game) {
   moves.reset();
   moves.checkPreapprovals(activeGameAddress, walletSigner);
 
-  moves.load(
-    walletSigner,
-    activeGameAddress,
-    (newBoard, direction) => {
-      handleResult(newBoard, direction);
-      loadWalletContents();
-    },
-    (error) => {
-      if (error) {
-        showUnknownError(error);
-      } else {
-        showGasError();
-      }
-    }
-  );
-
-  const boards = game.boards;
-  const activeBoard = board.convertInfo(boards[boards.length - 1]);
+  const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
   board.display(activeBoard);
 
@@ -443,6 +426,10 @@ const initializeClicks = () => {
   setOnClick(eById("close-preapproval"), () => {
     addClass(eById("preapproval"), "hidden");
   });
+
+  setOnClick(eById("close-hosted"), () => {
+    addClass(eById("hosted"), "hidden");
+  });
 };
 
 const onWalletConnected = async ({ signer }) => {
@@ -452,8 +439,9 @@ const onWalletConnected = async ({ signer }) => {
 
     addClass(document.body, "signed-in");
 
-    // const response = await ethos.sign({ signer: walletSigner, signData: "YO" });
-    // console.log("SIGN", response);
+    if (walletSigner.type === "hosted") {
+      removeClass(eById("hosted"), "hidden");
+    }
 
     const prepMint = async () => {
       const mint = eById("mint-game");
@@ -488,18 +476,15 @@ const onWalletConnected = async ({ signer }) => {
             }
 
             const { effects } = data.EffectsCert?.effects || data;
-            const gameData = effects.events.find((e) => e.moveEvent).moveEvent
-              .fields;
-            const { board_spaces, score } = gameData;
+            const gameData = effects.events.find((e) => e.moveEvent).moveEvent.fields;
+            const { game_id, board_spaces, score } = gameData;
             const game = {
-              address: effects.created[0].reference.objectId,
-              boards: [
-                {
-                  score,
-                  board_spaces,
-                  game_over: false,
-                },
-              ],
+              address: game_id,
+              board: {
+                score,
+                board_spaces,
+                game_over: false,
+              },
             };
             setActiveGame(game);
             ethos.hideWallet(walletSigner);

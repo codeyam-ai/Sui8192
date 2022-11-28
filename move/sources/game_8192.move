@@ -5,7 +5,7 @@ module ethos::game_8192 {
     use std::string::{Self, String};
     use sui::event;
     use sui::transfer;
-    use std::vector;
+    use sui::table::{Self, Table};
     use std::option::Option;
     use ethos::game_board_8192::{Self, GameBoard8192};
     
@@ -22,12 +22,13 @@ module ethos::game_8192 {
         description: String,
         url: Url,
         player: address,
+        active_board: GameBoard8192,
+        boards: Table<u64, GameBoard8192>,
+        moves: Table<u64, GameMove8192>,
+        leaderboard_games: Table<u64, LeaderboardGame8192>,
         score: u64,
         top_tile: u64,      
-        game_over: bool,
-        moves: vector<GameMove8192>,
-        boards: vector<GameBoard8192>,
-        leaderboard_games: vector<LeaderboardGame8192>
+        game_over: bool
     }
 
     struct GameMove8192 has store {
@@ -93,16 +94,18 @@ module ethos::game_8192 {
             id: uid,
             name: string::utf8(b"Sui 8192"),
             description: string::utf8(b"Sui 8192 is a fun, 100% on-chain game. Combine the tiles to get a high score!"),
-            // leaderboard_id,
             player,
             score,
             top_tile,
+            active_board: initial_game_board,
+            boards: table::new<u64, GameBoard8192>(ctx),
+            moves: table::new<u64, GameMove8192>(ctx),
             game_over: false,
-            moves: vector[],
-            boards: vector[initial_game_board],
             url: image_url_for_tile(top_tile),
-            leaderboard_games: vector[]
+            leaderboard_games: table::new<u64, LeaderboardGame8192>(ctx),
         };
+
+        table::add(&mut game.boards, 0, initial_game_board);
 
         event::emit(NewGameEvent8192 {
             game_id: object::uid_to_inner(&game.id),
@@ -118,20 +121,15 @@ module ethos::game_8192 {
     public entry fun make_move(game: &mut Game8192, direction: u64, ctx: &mut TxContext)  {
         // assert!(player(game) == &tx_context::sender(ctx), EInvalidPlayer);
         
-        let new_move = GameMove8192 {
-          direction: direction,
-          player: tx_context::sender(ctx),
-          epoch: tx_context::epoch(ctx)
+        let new_board;
+        {
+            new_board = *&game.active_board;
+
+            let uid = object::new(ctx);
+            let random = object::uid_to_bytes(&uid);
+            object::delete(uid);
+            game_board_8192::move_direction(&mut new_board, direction, random);
         };
-
-        let last_board_index = vector::length(&game.boards) - 1;
-        let current_board = vector::borrow_mut(&mut game.boards, last_board_index);
-        let new_board = *current_board;
-
-        let uid = object::new(ctx);
-        let random = object::uid_to_bytes(&uid);
-        object::delete(uid);
-        game_board_8192::move_direction(&mut new_board, direction, random);
 
         let board_spaces = *game_board_8192::spaces(&new_board);
         let last_tile = *game_board_8192::last_tile(&new_board);
@@ -142,7 +140,7 @@ module ethos::game_8192 {
         event::emit(GameMoveEvent8192 {
             game_id: object::uid_to_inner(&game.id),
             direction: direction,
-            move_count: vector::length(&game.moves),
+            move_count: table::length(&game.moves),
             board_spaces,
             top_tile,
             score,
@@ -151,7 +149,7 @@ module ethos::game_8192 {
             url
         });
 
-        if (game_board_8192::top_tile(&new_board) != game_board_8192::top_tile(current_board)) {
+        if (game_board_8192::top_tile(&new_board) != &game.top_tile) {
             event::emit(GameTopTileEvent8192 {
                 game_id: object::uid_to_inner(&game.id),
                 top_tile: top_tile,
@@ -170,8 +168,19 @@ module ethos::game_8192 {
             });
         };
 
-        vector::push_back(&mut game.moves, new_move);
-        vector::push_back(&mut game.boards, new_board);
+        let new_move = GameMove8192 {
+            direction: direction,
+            player: tx_context::sender(ctx),
+            epoch: tx_context::epoch(ctx)
+        };
+
+        let moveIndex = table::length(&game.moves);
+        table::add(&mut game.moves, moveIndex, new_move);
+
+        let boardIndex = table::length(&game.boards);
+        table::add(&mut game.boards, boardIndex, new_board);
+
+        game.active_board = new_board;
         game.score = score;
         game.top_tile = top_tile;
         game.url = url;
@@ -188,7 +197,8 @@ module ethos::game_8192 {
             epoch
         };
 
-        vector::push_back(&mut game.leaderboard_games, leaderboard_game);
+        let index = table::length(&game.leaderboard_games);
+        table::add(&mut game.leaderboard_games, index, leaderboard_game);
     }
  
     public (friend) fun image_url_for_tile(tile: u64): Url {
@@ -220,17 +230,17 @@ module ethos::game_8192 {
         &game.player
     }
 
-    public fun moves(game: &Game8192): &vector<GameMove8192> {
-        &game.moves
+    public fun active_board(game: &Game8192): &GameBoard8192 {
+        &game.active_board
     }
 
     public fun top_tile(game: &Game8192): &u64 {
-        let game_board = vector::borrow(&game.boards, vector::length(&game.boards) - 1);
+        let game_board = active_board(game);
         game_board_8192::top_tile(game_board)
     }
 
     public fun score(game: &Game8192): &u64 {
-        let game_board = vector::borrow(&game.boards, vector::length(&game.boards) - 1);
+        let game_board = active_board(game);
         game_board_8192::score(game_board)
     }
 
@@ -239,24 +249,24 @@ module ethos::game_8192 {
     }
 
     public fun move_count(game: &Game8192): u64 {
-        vector::length(&game.moves)
+        table::length(&game.moves)
     }
 
     public fun move_at(game: &Game8192, index: u64): (&u64, &address) {
-        let moveItem = vector::borrow(&game.moves, index);
+        let moveItem = table::borrow(&game.moves, index);
         (&moveItem.direction, &moveItem.player)
     }
 
     public fun board_at(game: &Game8192, index: u64): &GameBoard8192 {
-        vector::borrow(&game.boards, index)
+        table::borrow(&game.boards, index)
     }
 
     public fun leaderboard_game_count(game: &Game8192): u64 {
-        vector::length(&game.leaderboard_games)
+        table::length(&game.leaderboard_games)
     }
 
     public fun leaderboard_game_at(game: &Game8192, index: u64): &LeaderboardGame8192 {
-        vector::borrow(&game.leaderboard_games, index)
+        table::borrow(&game.leaderboard_games, index)
     }
 
     public fun leaderboard_game_position(leaderboard_game: &LeaderboardGame8192): &u64 {
