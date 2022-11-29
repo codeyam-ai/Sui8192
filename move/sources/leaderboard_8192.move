@@ -154,7 +154,7 @@ module ethos::leaderboard_8192 {
             leaderboard.min_score = min_score;
 
             while (game_count > leaderboard.max_leaderboard_game_count) {
-                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, game_count);
+                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, game_count - 1);
                 game_count = game_count - 1;
             };
         };
