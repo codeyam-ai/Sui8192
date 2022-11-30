@@ -281,7 +281,9 @@ async function loadGames() {
     );
     const leaderboardItem = topGames[leaderboardItemIndex];
     const leaderboardItemUpToDate =
-      leaderboardItem?.fields.score === game.score;
+      leaderboardItem?.fields.score === game.score ||
+      game.minTile <= leaderboard.minTile() || 
+      game.score <= leaderboard.minScore();
     addClass(gameElement, "game-preview");
     setOnClick(gameElement, () => {
       addClass(eById("leaderboard"), "hidden");

@@ -462,7 +462,9 @@ async function loadGames() {
     );
     const leaderboardItem = topGames[leaderboardItemIndex];
     const leaderboardItemUpToDate =
-      leaderboardItem?.fields.score === game.score;
+      leaderboardItem?.fields.score === game.score ||
+      game.minTile <= leaderboard.minTile() || 
+      game.score <= leaderboard.minScore();
     addClass(gameElement, "game-preview");
     setOnClick(gameElement, () => {
       addClass(eById("leaderboard"), "hidden");
@@ -858,7 +860,6 @@ const topGames = async (force) => {
   const topGamesId = leaderboardObject.top_games.fields.id.id;
   const gameInfos = await provider.getObjectsOwnedByObject(topGamesId);
   const gameDetails = await provider.getObjectBatch(gameInfos.map((info) => info.objectId))
-  console.log(gameDetails)
   _topGames = gameDetails.sort(
     (a,b) => a.details.data.fields.name - b.details.data.fields.name
   ).map(
