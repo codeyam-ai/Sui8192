@@ -89,6 +89,10 @@ module ethos::game_board_8192 {
         let top_tile = move_spaces(&mut game_board.spaces, direction);
 
         if (existing_spaces == game_board.spaces) {
+            if (!move_possible(game_board)) {
+                game_board.game_over = true;
+            };
+            
             return
         };
         
@@ -1191,4 +1195,48 @@ module ethos::game_board_8192 {
             TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
+
+    #[test]
+    #[expected_failure(abort_code = 3)]
+    fun test_game_over_move_error() {        
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(TILE1024), o(TILE8),    o(TILE4),   o(TILE2)],
+                vector[o(TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
+                vector[o(TILE256),  o(TILE32),   o(TILE8),   o(TILE2)],
+                vector[o(TILE64),   o(TILE16),   o(TILE2),   o(TILE16)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+
+        assert!(*game_over(&game_board), 1);
+
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+    }  
+
+    #[test]
+    #[expected_failure(abort_code = 3)]
+    fun test_next_move_game_over_move_error() {        
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(TILE1024), o(TILE8),    o(TILE4),   o(TILE2)],
+                vector[o(TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
+                vector[o(EMPTY),    o(TILE32),   o(TILE8),   o(TILE2)],
+                vector[o(TILE64),   o(TILE16),   o(TILE2),   o(TILE16)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+
+        assert!(*game_over(&game_board), 1);
+
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+    }  
 }
