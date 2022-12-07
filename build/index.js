@@ -1293,14 +1293,12 @@ const execute = async (
 
   const directionNumber = directionToDirectionNumber(direction);
   
-  if (walletSigner.type === "hosted") {
-    if (!directionOrQueuedMove.id) {
-      directionOrQueuedMove = queue.add(direction);
-    }
-   
-    if (queue.length() > 1) return;
-  } 
-
+  if (!directionOrQueuedMove.id) {
+    directionOrQueuedMove = queue.add(direction);
+  }
+  
+  if (queue.length() > 1) return;
+  
   const signableTransaction = constructTransaction(
     directionNumber,
     activeGameAddress
@@ -1328,10 +1326,8 @@ const execute = async (
 
   const { error, effects } = data.EffectsCert || data;
 
-  if (walletSigner.type === "hosted") {
-    queue.remove(directionOrQueuedMove);
-  }
-
+  queue.remove(directionOrQueuedMove);
+  
   if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
     onError({});
     return;
