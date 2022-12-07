@@ -14,6 +14,11 @@ let moves = {};
 let preapproval;
 let preapprovalNotified = false;
 let executingMove = false;
+const responseTimes = {
+  total: 0,
+  count: 0,
+  start: null,
+}
 
 const constructTransaction = (direction, activeGameAddress) => {
   return {
@@ -87,11 +92,13 @@ const execute = async (
 
   const directionNumber = directionToDirectionNumber(direction);
   
-  if (!directionOrQueuedMove.id) {
-    directionOrQueuedMove = queue.add(direction);
+  if (responseTimes.count > 0 && (responseTimes.total / responseTimes.count) > 1000) {
+    if (!directionOrQueuedMove.id) {
+      directionOrQueuedMove = queue.add(direction);
+    }
+
+    if (queue.length() > 1) return;
   }
-  
-  if (queue.length() > 1) return;
   
   const signableTransaction = constructTransaction(
     directionNumber,
@@ -109,7 +116,12 @@ const execute = async (
 
   let data;
   try {
+    responseTimes.start = Date.now();
+
     data = await dataPromise;
+
+    responseTimes.total += Date.now() - responseTimes.start;
+    responseTimes.count += 1;
   } catch (e) {
     onError({ error: e.message });
   } finally {
