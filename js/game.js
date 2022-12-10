@@ -24,7 +24,7 @@ const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 let walletSigner;
 let games;
 let activeGameAddress;
-let walletContents = {};
+let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
@@ -197,10 +197,13 @@ async function tryDrip(address, suiBalance) {
   }
 
   if (!success) {
-    const { suiBalance: balanceCheck } = await ethos.getWalletContents(
+    const contents = await ethos.getWalletContents({ 
       address,
-      "sui"
-    );
+      existingContents: walletContents
+    });
+
+    const { suiBalance: balanceCheck } = contents || walletContents;
+
     if (suiBalance !== balanceCheck) {
       success = true;
     }
@@ -218,7 +221,13 @@ async function loadWalletContents() {
   const address = await walletSigner.getAddress();
   eById("wallet-address").innerHTML = truncateMiddle(address, 4);
 
-  walletContents = await ethos.getWalletContents(address, "sui");
+  const contents = await ethos.getWalletContents({ 
+    address, 
+    existingContents: walletContents 
+  });
+
+  if (contents) walletContents = contents;
+  
   const { suiBalance } = walletContents;
 
   if (suiBalance < 5000000) {
@@ -384,7 +393,7 @@ const initializeClicks = () => {
     walletSigner = null;
     games = null;
     activeGameAddress = null;
-    walletContents = {};
+    walletContents = null;
 
     addClass(document.body, "signed-out");
     removeClass(document.body, "signed-in");
