@@ -1356,7 +1356,7 @@ const execute = async (
 
   if (
     ((effects.effects || effects)?.status?.error || "").indexOf(
-      'name: Identifier("game_board_8192") }, 3)'
+      'name: Identifier("game_board_8192") }, function: 17, instruction: 8 }, 3)'
     ) > -1
   ) {
     onError({ gameOver: true });

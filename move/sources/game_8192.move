@@ -60,6 +60,7 @@ module ethos::game_8192 {
         top_tile: u64,
         url: Url,
         score: u64,
+        game_over: bool,
         last_tile: vector<u64>,
         epoch: u64
     }
@@ -136,6 +137,7 @@ module ethos::game_8192 {
         let top_tile = *game_board_8192::top_tile(&new_board);
         let url = image_url_for_tile(top_tile);
         let score = *game_board_8192::score(&new_board);
+        let game_over = *game_board_8192::game_over(&new_board);
 
         event::emit(GameMoveEvent8192 {
             game_id: object::uid_to_inner(&game.id),
@@ -145,6 +147,7 @@ module ethos::game_8192 {
             top_tile,
             score,
             last_tile,
+            game_over: game_over,
             epoch: tx_context::epoch(ctx),
             url
         });
@@ -158,8 +161,7 @@ module ethos::game_8192 {
             });
         };
 
-        if (*game_board_8192::game_over(&new_board)) {
-            game.game_over = true;
+        if (game_over) {            
             event::emit(GameOverEvent8192 {
                 game_id: object::uid_to_inner(&game.id),
                 top_tile,
@@ -183,6 +185,7 @@ module ethos::game_8192 {
         game.active_board = new_board;
         game.score = score;
         game.top_tile = top_tile;
+        game.game_over = game_over;
         game.url = url;
     }
 
@@ -223,7 +226,7 @@ module ethos::game_8192 {
     // PUBLIC ACCESSOR FUNCTIONS //
 
     public fun id(game: &Game8192): &UID {
-      &game.id
+        &game.id
     }
 
     public fun player(game: &Game8192): &address {

@@ -819,7 +819,7 @@ module ethos::game_board_8192 {
     }
 
     #[test]
-    #[expected_failure(abort_code = 3)]
+    #[expected_failure(abort_code = EGameOver)]
     fun test_can_not_move_if_game_over() {        
         let game_board = GameBoard8192 {
             spaces: vector[
@@ -1197,7 +1197,7 @@ module ethos::game_board_8192 {
     }
 
     #[test]
-    #[expected_failure(abort_code = 3)]
+    #[expected_failure(abort_code = EGameOver)]
     fun test_game_over_move_error() {        
         let game_board = GameBoard8192 {
             spaces: vector[
@@ -1219,7 +1219,25 @@ module ethos::game_board_8192 {
     }  
 
     #[test]
-    #[expected_failure(abort_code = 3)]
+    fun test_game_over() {        
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(TILE1024), o(TILE8),    o(EMPTY),   o(TILE2)],
+                vector[o(TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
+                vector[o(TILE256),  o(TILE32),   o(TILE8),   o(TILE128)],
+                vector[o(TILE64),   o(TILE16),   o(TILE64),   o(TILE16)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(*game_over(&game_board), 1);
+    }  
+
+    #[test]
+    #[expected_failure(abort_code = EGameOver)]
     fun test_next_move_game_over_move_error() {        
         let game_board = GameBoard8192 {
             spaces: vector[

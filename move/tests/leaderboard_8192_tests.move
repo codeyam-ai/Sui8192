@@ -412,7 +412,7 @@ module ethos::leaderboard_8192_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = 0)]
+    #[expected_failure(abort_code = leaderboard_8192::ENotALeader)]
     fun test_submit_game__aborts_if_not_a_leader() {
         let scenario = test_scenario::begin(PLAYER);
         leaderboard_8192::blank_leaderboard(&mut scenario, 2, 0, 0);
@@ -532,7 +532,7 @@ module ethos::leaderboard_8192_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = 1)]
+    #[expected_failure(abort_code = leaderboard_8192::ELowTile)]
     fun test_submit_game__aborts_if_not_above_min_tile() {
         let scenario = test_scenario::begin(PLAYER);
         leaderboard_8192::blank_leaderboard(&mut scenario, 2, 3, 30);
@@ -560,7 +560,7 @@ module ethos::leaderboard_8192_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = 2)]
+    #[expected_failure(abort_code = leaderboard_8192::ELowScore)]
     fun test_submit_game__aborts_if_not_above_min_score() {
         let scenario = test_scenario::begin(PLAYER);
         leaderboard_8192::blank_leaderboard(&mut scenario, 2, 0, 30);
