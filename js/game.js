@@ -300,10 +300,11 @@ async function loadGames() {
       setActiveGame(game);
     });
 
+    const topTile = parseInt(game.topTile) + 1
     gameElement.innerHTML = `
       <div class='leader-stats flex-1'> 
-        <div class='leader-tile subsubtitle color${game.topTile + 1}'>
-          ${Math.pow(2, game.topTile + 1)}
+        <div class='leader-tile subsubtitle color${topTile}'>
+          ${Math.pow(2, topTile)}
         </div>
         <div class='leader-score'>
           Score <span>${game.score}</span>

@@ -13,7 +13,7 @@ module.exports = {
     let topTile = 0;
     for (let i=0; i<spaces.length; ++i) {
       for (let j=0; j<spaces[i].length; ++j) {
-        const tile = spaces[i][j];
+        const tile = spaces[i][j] ? parseInt(spaces[i][j]) : null;
         if (tile !== null && tile + 1 > topTile) {
           topTile = tile + 1;
         }
