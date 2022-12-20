@@ -157,12 +157,13 @@ const loadNextPage = async () => {
         const {
             fields: {
                 score,
-                top_tile: topTile,
+                top_tile: topTileString,
                 leader_address: leaderAddress,
                 game_id: gameId,
             },
         } = games[i];
     
+        const topTile = parseInt(topTileString);
         const name = await ethos.lookup(leaderAddress);
 
         const leaderElement = document.createElement("DIV");
