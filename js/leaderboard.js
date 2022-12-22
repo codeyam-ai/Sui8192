@@ -323,7 +323,7 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
         signableTransaction,
     });
 
-    load(true);
+    await load(true);
     ethos.hideWallet(walletSigner);
     onComplete();
 };

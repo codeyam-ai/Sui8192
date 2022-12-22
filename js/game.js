@@ -29,6 +29,8 @@ let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
 
+const int = (intString = "-1") => parseInt(intString);
+
 const initializeKeyListener = () => {
   window.onkeydown = (e) => {
     let direction;
@@ -290,9 +292,10 @@ async function loadGames() {
     );
     const leaderboardItem = topGames[leaderboardItemIndex];
     const leaderboardItemUpToDate =
-      leaderboardItem?.fields.score === game.score ||
-      game.minTile <= leaderboard.minTile() || 
-      game.score <= leaderboard.minScore();
+      int(leaderboardItem?.fields.score) === int(game.score) || (
+        int(game.topTile) <= int(leaderboard.minTile()) && 
+        int(game.score) <= int(leaderboard.minScore())
+      );
     addClass(gameElement, "game-preview");
     setOnClick(gameElement, () => {
       addClass(eById("leaderboard"), "hidden");
