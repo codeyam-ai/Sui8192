@@ -80,15 +80,16 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
     for (const row of board.fields.spaces) {
         const rowHTML = [];
         rowHTML.push("<div class='leaderboard-board-row'>");
-        for (const column of row) {
+        for (const columnString of row) {
+            const column = parseInt(columnString || 0);
             rowHTML.push(`
-        <div class='leaderboard-board-tile color${column === null ? "-none" : column + 1
+        <div class='leaderboard-board-tile color${columnString === null ? "-none" : column + 1
                 } '>
           <div>
-            ${column === null ? "&nbsp;" : Math.pow(2, column + 1)}
+            ${columnString === null ? "&nbsp;" : Math.pow(2, column + 1)}
           </div>
           <div class='leaderboard-board-tile-name'>
-            ${column === null ? "&nbsp;" : tileNames[column + 1]}
+            ${columnString === null ? "&nbsp;" : tileNames[column + 1]}
           </div>
         </div>
       `);
