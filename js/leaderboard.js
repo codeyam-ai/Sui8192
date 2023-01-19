@@ -165,7 +165,7 @@ const loadNextPage = async () => {
         } = games[i];
     
         const topTile = parseInt(topTileString);
-        const name = await ethos.lookup(leaderAddress);
+        const name = await ethos.getSuiName(leaderAddress);
 
         const leaderElement = document.createElement("DIV");
         addClass(leaderElement, "leader");
