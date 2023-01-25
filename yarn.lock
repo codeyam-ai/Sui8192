@@ -40,7 +40,7 @@
     rpc-websockets "^7.5.0"
     tweetnacl "^1.0.3"
 
-"@mysten/sui.js@0.22.0", "@mysten/sui.js@^0.22.0":
+"@mysten/sui.js@0.22.0":
   version "0.22.0"
   resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.22.0.tgz#4435325f669181109f640a2718ec9f5082b60875"
   integrity sha512-eaP4xgGUfTihL1P/ywTrYI3bz/pQWw4uohL6l9ro5ZaL92LPtkJnXBO/sT3ngQdjG0Z4HJh4YhUnVHNVRIM7mg==
@@ -76,6 +76,25 @@
     js-sha3 "^0.8.0"
     lossless-json "^1.0.5"
     rpc-websockets "^7.5.0"
+    tweetnacl "^1.0.3"
+
+"@mysten/sui.js@^0.23.0":
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.23.0.tgz#81540e2f6d29a662ff29e1ed44195d0b2b165b17"
+  integrity sha512-UeDTYm8czV955AKJ4MXCtax8A3F0lrPPNl4PzIkfK9FvprwAFKtILh/nsYdqvilyFSf6ySMJe+RafyWJlSCjHw==
+  dependencies:
+    "@mysten/bcs" "0.5.0"
+    "@noble/hashes" "^1.1.5"
+    "@noble/secp256k1" "^1.7.0"
+    "@scure/bip32" "^1.1.1"
+    "@scure/bip39" "^1.1.0"
+    "@suchipi/femver" "^1.0.0"
+    bs58 "^5.0.0"
+    cross-fetch "^3.1.5"
+    jayson "^4.0.0"
+    js-sha3 "^0.8.0"
+    rpc-websockets "^7.5.0"
+    superstruct "^1.0.3"
     tweetnacl "^1.0.3"
 
 "@mysten/wallet-adapter-all-wallets@^0.3.8":
@@ -897,12 +916,12 @@ escape-string-regexp@^1.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==
 
-ethos-connect@^0.0.74:
-  version "0.0.74"
-  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.74.tgz#bae52f7640bcfd5b65fa1f0f29e6f714dc6f7599"
-  integrity sha512-ZTIgxd6fLCF0WH6s+mlgPQrK1qWNDzm50+VGYubyCROqUw02Wl8L7Lvugo7mepkAP+03D8LIgsoH+tWYQfDWmw==
+ethos-connect@^0.0.86:
+  version "0.0.86"
+  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.86.tgz#c71e4f0fa74673bd62cb12bdc86014f4d5356480"
+  integrity sha512-RqaEeTP/w8w4JBrGyCN/k96aY9b/4xiVkzfqFKE7ZT21WXV55BF4tn4+LD2ARmVepfX3MeeK91C3UkLGtjMLNg==
   dependencies:
-    "@mysten/sui.js" "^0.22.0"
+    "@mysten/sui.js" "^0.23.0"
     "@mysten/wallet-adapter-all-wallets" "^0.3.8"
     "@mysten/wallet-adapter-base" "^0.3.9"
     "@mysten/wallet-adapter-react" "^11.0.0"

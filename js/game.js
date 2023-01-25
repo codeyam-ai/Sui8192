@@ -20,6 +20,8 @@ const moves = require("./moves");
 const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
+const DEVNET = "https://fullnode.devnet.sui.io/";
+const TESTNET = "https://fullnode.testnet.sui.io/"
 
 let walletSigner;
 let games;
@@ -28,6 +30,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
+let network = DEVNET;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -75,7 +78,7 @@ const initializeKeyListener = () => {
 function init() {
   // test();
 
-  leaderboard.load();
+  leaderboard.load(network);
 
   const ethosConfiguration = {
     apiKey: "sui-8192",
@@ -191,7 +194,7 @@ async function tryDrip(address, suiBalance) {
 
   let success;
   try {
-    success = await ethos.dripSui({ address });
+    success = await ethos.dripSui({ address, network });
   } catch (e) {
     console.log("Error with drip", e);
     faucetUsed = false;
@@ -201,6 +204,7 @@ async function tryDrip(address, suiBalance) {
   if (!success) {
     const contents = await ethos.getWalletContents({ 
       address,
+      network,
       existingContents: walletContents
     });
 
@@ -225,6 +229,7 @@ async function loadWalletContents() {
 
   const contents = await ethos.getWalletContents({ 
     address, 
+    network,
     existingContents: walletContents 
   });
 
@@ -285,7 +290,7 @@ async function loadGames() {
 
   for (const game of games) {
     const gameElement = document.createElement("DIV");
-    let topGames = await leaderboard.topGames();
+    let topGames = await leaderboard.topGames(network);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.fields.game_id === game.address
@@ -372,7 +377,7 @@ async function setActiveGame(game) {
 }
 
 function showLeaderboard() {
-  leaderboard.load();
+  leaderboard.load(network);
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -386,7 +391,7 @@ const initializeClicks = () => {
   });
   setOnClick(eById("sign-in"), ethos.showSignInModal);
   setOnClick(eByClass("leaderboard-button"), showLeaderboard);
-  setOnClick(eByClass("title"), ethos.showWallet);
+  setOnClick(eByClass("title"), () => ethos.showWallet(walletSigner));
 
   setOnClick(eById("balance"), () => window.open(DASHBOARD_LINK));
   setOnClick(eById("wallet-address"), () => window.open(DASHBOARD_LINK));

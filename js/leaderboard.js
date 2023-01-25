@@ -1,4 +1,4 @@
-const { JsonRpcProvider, Network } = require("@mysten/sui.js");
+const { JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos } = require("ethos-connect");
 const {
     contractAddress,
@@ -23,9 +23,9 @@ let loadingNextPage = 0;
 let page = 1;
 let perPage = 25;
 
-const provider = new JsonRpcProvider(Network.DEVNET);
+const topGames = async (network, force) => {
+  const provider = new JsonRpcProvider(network);
 
-const topGames = async (force) => {
   if (_topGames && !force) return _topGames;
   const topGamesId = leaderboardObject.top_games.fields.id.id;
   const gameInfos = await provider.getObjectsOwnedByObject(topGamesId);
@@ -40,22 +40,23 @@ const topGames = async (force) => {
   return _topGames;
 }
 
-const getObject = async (objectId) => {
+const getObject = async (network, objectId) => {
+    const provider = new JsonRpcProvider(network);
     return provider.getObject(objectId);
 };
 
-const get = async () => {
+const get = async (network) => {
     const {
         details: {
             data: { fields: leaderboard },
         },
-    } = await getObject(leaderboardAddress);
+    } = await getObject(network, leaderboardAddress);
     leaderboardObject = leaderboard;
     return leaderboard;
 };
 
-const getLeaderboardGame = async (gameObjectId) => {
-    const gameObject = await getObject(gameObjectId);
+const getLeaderboardGame = async (network, gameObjectId) => {
+    const gameObject = await getObject(network, gameObjectId);
     let {
         details: {
             data: {
@@ -120,7 +121,7 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
     return completeHTML;
 };
 
-const load = async (force = false) => {
+const load = async (network, force = false) => {
     if (!force && leaderboardTimestamp && Date.now() - leaderboardTimestamp < 1000 * 60) {
         return;
     }
@@ -131,28 +132,28 @@ const load = async (force = false) => {
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;
-    leaderboardObject = await get();
+    leaderboardObject = await get(network);
 
     addClass(eById("loading-leaderboard"), "hidden");
 
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
-    const games = await topGames(true);
+    const games = await topGames(network, true);
     eById("best").innerHTML = games[0]?.fields?.score || 0;
     setOnClick(eById("more-leaderboard"), loadNextPage);
 
     await loadNextPage();
 };
 
-const loadNextPage = async () => {
+const loadNextPage = async (network) => {
     if (loadingNextPage) return;
 
     loadingNextPage = true;
 
     const leaderboardList = eById("leaderboard-list");
     const currentMax = page * perPage;
-    const games = await topGames();
+    const games = await topGames(network);
     const pageMax = Math.min(games.length, currentMax);
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
         const {
