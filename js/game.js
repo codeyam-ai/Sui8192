@@ -30,7 +30,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = DEVNET;
+let network = TESTNET;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -456,6 +456,22 @@ const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
     modal.close();
+
+    if (
+      signer.name === "Ethos Wallet" && 
+      "ethosWallet" in window && 
+      window.ethosWallet &&
+      typeof window.ethosWallet === "object" &&
+      "getNetwork" in window.ethosWallet && 
+      typeof window.ethosWallet.getNetwork === "function"
+  ) {
+      const activeNetwork = await window.ethosWallet.getNetwork()
+      if (network.toLowerCase().indexOf(activeNetwork.toLowerCase()) === -1) {
+          eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
+          removeClass(eById("error-network"), "hidden");
+          return;
+      }
+  }
 
     addClass(document.body, "signed-in");
 

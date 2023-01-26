@@ -160,8 +160,10 @@ module.exports = {
 };
 },{"canvas-confetti":43}],3:[function(require,module,exports){
 module.exports = {
-  contractAddress: "0xd6742d7dc515988a53353b917edd1a5f66f41d45",
-  leaderboardAddress: "0x087210d5e038fc2f4f404e493205ea0910020936",
+  // contractAddress: "0xd6742d7dc515988a53353b917edd1a5f66f41d45",
+  // leaderboardAddress: "0x087210d5e038fc2f4f404e493205ea0910020936",
+  contractAddress: "0x137aebf47cd16956b68633b6f6f00a992d87d9c6",
+  leaderboardAddress: "0xd06f261094026ce6a34fe3b9d4a83024a68e0177",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -211,7 +213,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = DEVNET;
+let network = TESTNET;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -637,6 +639,22 @@ const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
     modal.close();
+
+    if (
+      signer.name === "Ethos Wallet" && 
+      "ethosWallet" in window && 
+      window.ethosWallet &&
+      typeof window.ethosWallet === "object" &&
+      "getNetwork" in window.ethosWallet && 
+      typeof window.ethosWallet.getNetwork === "function"
+  ) {
+      const activeNetwork = await window.ethosWallet.getNetwork()
+      if (network.toLowerCase().indexOf(activeNetwork.toLowerCase()) === -1) {
+          eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
+          removeClass(eById("error-network"), "hidden");
+          return;
+      }
+  }
 
     addClass(document.body, "signed-in");
 
