@@ -343,7 +343,7 @@ async function loadGames() {
       dataset: { address },
     } = e.target;
     e.stopPropagation();
-    leaderboard.submit(address, walletSigner, () => {
+    leaderboard.submit(network, address, walletSigner, () => {
       loadGames();
     });
   });
@@ -370,7 +370,7 @@ async function setActiveGame(game) {
 
   setOnClick(eById("submit-game-to-leaderboard"), () => {
     showLeaderboard();
-    leaderboard.submit(activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -432,7 +432,7 @@ const initializeClicks = () => {
   setOnClick(eById("modal-submit-to-leaderboard"), () => {
     modal.close();
     showLeaderboard();
-    leaderboard.submit(activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });

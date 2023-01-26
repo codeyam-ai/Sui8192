@@ -307,7 +307,7 @@ const minTile = () => {
     return leaderboardObject.min_tile;
 };
 
-const submit = async (gameAddress, walletSigner, onComplete) => {
+const submit = async (network, gameAddress, walletSigner, onComplete) => {
     const signableTransaction = {
         kind: "moveCall",
         data: {
@@ -316,7 +316,7 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
             function: "submit_game",
             typeArguments: [],
             arguments: [gameAddress, leaderboardAddress],
-            gasBudget: 50000,
+            gasBudget: 30000,
         },
     };
 
@@ -325,7 +325,7 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
         signableTransaction,
     });
 
-    await load(true);
+    await load(network, true);
     ethos.hideWallet(walletSigner);
     onComplete();
 };

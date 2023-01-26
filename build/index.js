@@ -526,7 +526,7 @@ async function loadGames() {
       dataset: { address },
     } = e.target;
     e.stopPropagation();
-    leaderboard.submit(address, walletSigner, () => {
+    leaderboard.submit(network, address, walletSigner, () => {
       loadGames();
     });
   });
@@ -553,7 +553,7 @@ async function setActiveGame(game) {
 
   setOnClick(eById("submit-game-to-leaderboard"), () => {
     showLeaderboard();
-    leaderboard.submit(activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -615,7 +615,7 @@ const initializeClicks = () => {
   setOnClick(eById("modal-submit-to-leaderboard"), () => {
     modal.close();
     showLeaderboard();
-    leaderboard.submit(activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -1173,7 +1173,7 @@ const minTile = () => {
     return leaderboardObject.min_tile;
 };
 
-const submit = async (gameAddress, walletSigner, onComplete) => {
+const submit = async (network, gameAddress, walletSigner, onComplete) => {
     const signableTransaction = {
         kind: "moveCall",
         data: {
@@ -1182,7 +1182,7 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
             function: "submit_game",
             typeArguments: [],
             arguments: [gameAddress, leaderboardAddress],
-            gasBudget: 50000,
+            gasBudget: 30000,
         },
     };
 
@@ -1191,7 +1191,7 @@ const submit = async (gameAddress, walletSigner, onComplete) => {
         signableTransaction,
     });
 
-    await load(true);
+    await load(network, true);
     ethos.hideWallet(walletSigner);
     onComplete();
 };
@@ -1294,7 +1294,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
         function: "make_move",
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
-        totalGasLimit: 500000,
+        totalGasLimit: 5000000,
         maxTransactionCount: 25,
       },
     });
