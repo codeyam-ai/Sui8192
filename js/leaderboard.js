@@ -316,7 +316,7 @@ const submit = async (network, gameAddress, walletSigner, onComplete) => {
             function: "submit_game",
             typeArguments: [],
             arguments: [gameAddress, leaderboardAddress],
-            gasBudget: 30000,
+            gasBudget: 100000,
         },
     };
 
