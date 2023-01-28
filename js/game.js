@@ -245,10 +245,12 @@ async function loadWalletContents() {
 }
 
 async function loadGames() {
+  console.log("HIx")
   if (!walletSigner || !leaderboard) {
     setTimeout(loadGames, 500);
     return;
   }
+  console.log("HI")
   removeClass(eById("loading-games"), "hidden");
 
   const gamesElement = eById("games-list");
@@ -466,7 +468,7 @@ const onWalletConnected = async ({ signer }) => {
       typeof window.ethosWallet.getNetwork === "function"
   ) {
       const activeNetwork = await window.ethosWallet.getNetwork()
-      if (network.toLowerCase().indexOf(activeNetwork.toLowerCase()) === -1) {
+      if (activeNetwork && network.toLowerCase().indexOf(activeNetwork.toLowerCase()) === -1) {
           eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
           removeClass(eById("error-network"), "hidden");
           return;
