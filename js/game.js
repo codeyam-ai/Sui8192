@@ -21,8 +21,9 @@ const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const DEVNET = "https://fullnode.devnet.sui.io/";
-const TESTNET = "https://fullnode.testnet.vincagame.com"
+const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
+const NETWORK_NAME = 'testNet';
 
 let walletSigner;
 let games;
@@ -475,7 +476,7 @@ const onWalletConnected = async ({ signer }) => {
       typeof window.ethosWallet.getNetwork === "function"
   ) {
       const activeNetwork = await window.ethosWallet.getNetwork()
-      if (activeNetwork && network.toLowerCase().indexOf(activeNetwork.toLowerCase()) === -1) {
+      if (activeNetwork !== NETWORK_NAME) {
           eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
           removeClass(eById("error-network"), "hidden");
           return;
