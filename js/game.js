@@ -21,7 +21,8 @@ const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const DEVNET = "https://fullnode.devnet.sui.io/";
-const TESTNET = "https://fullnode.testnet.sui.io/"
+const TESTNET = "https://fullnode.testnet.vincagame.com"
+// const TESTNET = "https://fullnode.testnet.sui.io/"
 
 let walletSigner;
 let games;
