@@ -20,7 +20,7 @@ const responseTimes = {
   start: null,
 }
 
-const constructTransaction = (direction, activeGameAddress) => {
+const constructTransaction = (direction, activeGameAddress, largestCoinId) => {
   return {
     kind: "moveCall",
     data: {
@@ -30,6 +30,7 @@ const constructTransaction = (direction, activeGameAddress) => {
       typeArguments: [],
       arguments: [activeGameAddress, direction],
       gasBudget: 10000,
+      gasPayment: largestCoinId
     },
   };
 };
@@ -72,6 +73,7 @@ const execute = async (
   directionOrQueuedMove,
   activeGameAddress,
   walletSigner,
+  largestCoinId,
   onComplete,
   onError
 ) => {
@@ -102,7 +104,8 @@ const execute = async (
   
   const signableTransaction = constructTransaction(
     directionNumber,
-    activeGameAddress
+    activeGameAddress,
+    largestCoinId
   );
 
   moves = {};
@@ -193,7 +196,7 @@ const execute = async (
   transactionElement.innerHTML = `
     <div class='transaction-left'>
       <div class='transaction-count'>
-        ${transaction.moveCount + 1}
+        ${parseInt(transaction.moveCount) + 1}
       </div>
       <div class='transaction-direction'>
         ${directionNumberToSymbol(transaction.move.toString())}

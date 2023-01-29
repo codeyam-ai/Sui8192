@@ -54,10 +54,16 @@ const initializeKeyListener = () => {
     if (!direction) return;
 
     e.preventDefault();
+    
+    const largestCoinId = walletContents.tokens['0x2::sui::SUI'].coins.sort(
+      (a, b) => b.balance - a.balance
+    )[0].objectId;
+
     moves.execute(
       direction,
       activeGameAddress,
       walletSigner,
+      largestCoinId,
       (newBoard, direction) => {
         handleResult(newBoard, direction);
         loadWalletContents();
@@ -82,6 +88,8 @@ function init() {
 
   const ethosConfiguration = {
     apiKey: "sui-8192",
+    network,
+    preferredWallets: ['Ethos Wallet']
   };
 
   const start = eById("ethos-start");
@@ -245,12 +253,10 @@ async function loadWalletContents() {
 }
 
 async function loadGames() {
-  console.log("HIx")
   if (!walletSigner || !leaderboard) {
     setTimeout(loadGames, 500);
     return;
   }
-  console.log("HI")
   removeClass(eById("loading-games"), "hidden");
 
   const gamesElement = eById("games-list");
