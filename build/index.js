@@ -1017,9 +1017,9 @@ const load = async (network, force = false) => {
 
     const games = await topGames(network, true);
     eById("best").innerHTML = games[0]?.fields?.score || 0;
-    setOnClick(eById("more-leaderboard"), loadNextPage);
+    setOnClick(eById("more-leaderboard"), () => loadNextPage(network));
 
-    await loadNextPage();
+    await loadNextPage(network);
 };
 
 const loadNextPage = async (network) => {
