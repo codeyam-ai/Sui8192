@@ -112,7 +112,7 @@ const execute = async (
 
   const dataPromise = ethos.transact({
     signer: walletSigner,
-    signableTransaction,
+    signableTransaction
   });
 
   ethos.hideWallet(walletSigner);
