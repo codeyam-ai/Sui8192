@@ -1042,7 +1042,7 @@ const loadNextPage = async (network) => {
         } = games[i];
     
         const topTile = parseInt(topTileString);
-        const name = "N/A"
+        const name = leaderAddress
         // const name = await ethos.getSuiName(leaderAddress);
 
         const leaderElement = document.createElement("DIV");
