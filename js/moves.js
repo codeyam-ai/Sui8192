@@ -50,7 +50,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
         function: "make_move",
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
-        totalGasLimit: 5000000,
+        totalGasLimit: 50000000,
         maxTransactionCount: 25,
       },
     });

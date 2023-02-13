@@ -166,7 +166,8 @@ const loadNextPage = async (network) => {
         } = games[i];
     
         const topTile = parseInt(topTileString);
-        const name = await ethos.getSuiName(leaderAddress);
+        const name = "N/A"
+        // const name = await ethos.getSuiName(leaderAddress);
 
         const leaderElement = document.createElement("DIV");
         addClass(leaderElement, "leader");

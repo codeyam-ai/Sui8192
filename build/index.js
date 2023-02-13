@@ -1042,7 +1042,8 @@ const loadNextPage = async (network) => {
         } = games[i];
     
         const topTile = parseInt(topTileString);
-        const name = await ethos.getSuiName(leaderAddress);
+        const name = "N/A"
+        // const name = await ethos.getSuiName(leaderAddress);
 
         const leaderElement = document.createElement("DIV");
         addClass(leaderElement, "leader");
@@ -1305,7 +1306,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
         function: "make_move",
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
-        totalGasLimit: 5000000,
+        totalGasLimit: 50000000,
         maxTransactionCount: 25,
       },
     });
