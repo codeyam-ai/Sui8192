@@ -28,8 +28,8 @@ const topGames = async (network, force) => {
 
   if (_topGames && !force) return _topGames;
   const topGamesId = leaderboardObject.top_games.fields.id.id;
-  const gameInfos = await provider.getObjectsOwnedByObject(topGamesId);
-  const gameDetails = await provider.getObjectBatch(gameInfos.map((info) => info.objectId))
+  const gameInfos = await provider.getDynamicFields(topGamesId)
+  const gameDetails = await provider.getObjectBatch(gameInfos.data.map((info) => info.objectId))
   _topGames = gameDetails.sort(
     (a,b) => a.details.data.fields.name - b.details.data.fields.name
   ).map(
