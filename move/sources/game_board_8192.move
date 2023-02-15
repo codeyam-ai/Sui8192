@@ -535,7 +535,7 @@ module ethos::game_board_8192 {
     }
 
     #[test_only]
-    fun print_board(board: &GameBoard8192) {
+    public fun print_board(board: &GameBoard8192) {
         let spaces = spaces(board);
         
         let row_index = 0;

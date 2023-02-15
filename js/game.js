@@ -23,7 +23,7 @@ const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const DEVNET = "https://fullnode.devnet.sui.io/";
 const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
-const NETWORK_NAME = 'testNet';
+const NETWORK_NAME = 'devNet';
 
 let walletSigner;
 let games;
@@ -32,7 +32,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = TESTNET;
+let network = DEVNET;
 
 const int = (intString = "-1") => parseInt(intString);
 
