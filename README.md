@@ -54,11 +54,11 @@ The immutable object is the contract address and the shared object is the leader
 
 From the `move` folder:
 
-#### Build
+#### Build Contract
 
 `sui move build`
 
-#### Test
+#### Test Contract
 
 `sui move test`
 
@@ -66,7 +66,7 @@ or
 
 `sui move test --filter SUBSTRING`
 
-#### Deploy
+#### Deploy Contract
 
 `sui client publish --gas-budget 10000`
 
@@ -78,12 +78,16 @@ It has react as a dependency to work properly with the Ethos apis which provide 
 
 ### Working With The Front-End
 
-#### Initialization
+#### Initialize Front End
 
 `yarn`
 
-#### Running
+#### Running Front End
 
 `yarn start`
 
-(Note: the site can also be built using `yarn build` and `index.html` can be opened, but some aspects of the game require it be run via a server - it still works as a statically hosted website, though)
+This should automatically open a browser window with the latest code running.
+
+### Deploy Front End
+
+Running `yarn start` will generate the necessary static files for deployment. Simply commit those files to the `main` branch of github and the live site should be updated.
