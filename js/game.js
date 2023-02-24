@@ -199,12 +199,13 @@ function showUnknownError(error) {
 
 async function tryDrip(address, suiBalance) {
   if (!walletSigner || faucetUsed) return;
-
+  const dripNetwork = "DEVNET"
   faucetUsed = true;
 
   let success;
+  
   try {
-    success = await ethos.dripSui({ address, network });
+    success = await ethos.dripSui({ address, network: dripNetwork });
   } catch (e) {
     console.log("Error with drip", e);
     faucetUsed = false;
