@@ -419,7 +419,10 @@ async function tryDrip(address, suiBalance) {
 async function loadWalletContents() {
   if (!walletSigner) return;
   const address = await walletSigner.getAddress();
-  eById("wallet-address").innerHTML = truncateMiddle(address, 4);
+  const addressElement = eById("wallet-address")
+  if (addressElement) {
+    addressElement.innerHTML = truncateMiddle(address, 4);
+  }
 
   const contents = await ethos.getWalletContents({ 
     address, 
@@ -435,7 +438,10 @@ async function loadWalletContents() {
     tryDrip(address, suiBalance);
   }
 
-  eById("balance").innerHTML = formatBalance(suiBalance, 9) + " SUI";
+  const balance = eById("balance")
+  if (balance) {
+    balance.innerHTML = formatBalance(suiBalance, 9) + " SUI";
+  }
 }
 
 async function loadGames() {
