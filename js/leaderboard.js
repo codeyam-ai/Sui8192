@@ -104,11 +104,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
       // const bcs = new BCS(getSuiMoveConfig());
 
       bcs.registerAddressType('SuiAddress', 20, 'hex');
-
-      bcs.registerStructType(["Option", "T"], {
-        contents: "T"
-      });
-
+      
       bcs.registerStructType('GameHistory8192', {
           move_count: 'u64',
           direction: 'u64',
