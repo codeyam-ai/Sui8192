@@ -1,4 +1,5 @@
-const { JsonRpcProvider } = require("@mysten/sui.js");
+const { BCS, getSuiMoveConfig } = require('@mysten/bcs');
+const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos } = require("ethos-connect");
 const {
     contractAddress,
@@ -24,7 +25,8 @@ let page = 1;
 let perPage = 25;
 
 const topGames = async (network, force) => {
-  const provider = new JsonRpcProvider(network);
+  const connection = new Connection({ fullnode: network })
+  const provider = new JsonRpcProvider(connection);
 
   if (_topGames && !force) return _topGames;
   const topGamesId = leaderboardObject.top_games.fields.id.id;
@@ -41,7 +43,8 @@ const topGames = async (network, force) => {
 }
 
 const getObject = async (network, objectId) => {
-    const provider = new JsonRpcProvider(network);
+    const connection = new Connection({ fullnode: network })
+    const provider = new JsonRpcProvider(connection);
     return provider.getObject(objectId);
 };
 
@@ -64,60 +67,115 @@ const getLeaderboardGame = async (network, gameObjectId) => {
             },
         },
     } = gameObject;
-    const boardInfos = await provider.getObjectsOwnedByObject(boardsTable.fields.id.id);
-    const boardDetails = await provider.getObjectBatch(boardInfos.map((info) => info.objectId))
-    const boards = boardDetails.sort(
-      (a, b) => a.details.data.fields.name - b.details.data.fields.name
-    ).map(
-      (details) => details.details.data.fields.value
-    )
-    gameOver = boards[boards.length - 1].fields.game_over;
-    return { id: gameObjectId, gameOver, moveCount, boards };
+
+    const connection = new Connection({ fullnode: network })
+    const provider = new JsonRpcProvider(connection);
+  
+    const history = await provider.devInspectTransaction(
+      "0x0000000000000000000000000000000000000002",
+      {
+        kind: "moveCall",
+        data: {
+          packageObjectId: contractAddress,
+          module: "game_8192",
+          function: "all_moves",
+          typeArguments: [],
+          arguments: [gameObjectId]
+        },
+      }
+    );
+
+  if ('Ok' in history.results) {
+      const enums = {}
+      enums['Option<u64>'] = {
+        none: null,
+        some: 'u64'
+      };
+    
+      const bcsConfig = {
+        vectorType: 'vector',
+        addressLength: 20,
+        addressEncoding: 'hex',
+        types: { enums },
+        withPrimitives: true
+      };
+      
+      const bcs = new BCS(bcsConfig);
+      // const bcs = new BCS(getSuiMoveConfig());
+
+      bcs.registerAddressType('SuiAddress', 20, 'hex');
+
+      bcs.registerStructType(["Option", "T"], {
+        contents: "T"
+      });
+
+      bcs.registerStructType('GameHistory8192', {
+          move_count: 'u64',
+          direction: 'u64',
+          board_spaces: 'vector<vector<Option<u64>>>',
+          top_tile: 'u64',
+          url: 'string',
+          score: 'u64',
+          game_over: 'bool',
+          last_tile: 'vector<u64>',
+          epoch: 'u64',
+          player: 'SuiAddress'
+      });
+
+      const dataNumberArray =
+          history.results.Ok[0][1].returnValues?.[0]?.[0];
+      if (!dataNumberArray) return;
+
+      const data = Uint8Array.from(dataNumberArray);
+      const histories = bcs.de('vector<GameHistory8192>', data);
+
+      gameOver = histories[histories.length - 1].game_over;
+      return { id: gameObjectId, gameOver, moveCount, histories };
+  }
 };
 
-const boardHTML = (moveIndex, totalMoves, boards) => {
-    const board = boards[moveIndex];
+const historyHTML = (moveIndex, totalMoves, histories) => {
+    const history = histories[moveIndex];
     const rows = [];
-    for (const row of board.fields.spaces) {
+    for (const row of history.board_spaces) {
         const rowHTML = [];
         rowHTML.push("<div class='leaderboard-board-row'>");
-        for (const columnString of row) {
-            const column = parseInt(columnString || 0);
+        for (const columnInfo of row) {
+            const column = columnInfo.none ? null : parseInt(BigInt(columnInfo.some).toString());
             rowHTML.push(`
-        <div class='leaderboard-board-tile color${columnString === null ? "-none" : column + 1
-                } '>
-          <div>
-            ${columnString === null ? "&nbsp;" : Math.pow(2, column + 1)}
-          </div>
-          <div class='leaderboard-board-tile-name'>
-            ${columnString === null ? "&nbsp;" : tileNames[column + 1]}
-          </div>
-        </div>
-      `);
+            <div class='leaderboard-board-tile color${column === null ? "-none" : column + 1} '>
+              <div>
+                ${column === null ? "&nbsp;" : Math.pow(2, column + 1)}
+              </div>
+              <div class='leaderboard-board-tile-name'>
+                ${column === null ? "&nbsp;" : tileNames[column + 1]}
+              </div>
+            </div>
+          `);
         }
         rowHTML.push("</div>");
         rows.push(rowHTML.join(""));
     }
 
     const completeHTML = `
-    <div class='leaderboard-board'>
-      ${rows.join("")}
-    </div>
-    <div class='leaderboard-board-stats'>
-      <div>
-        <div>Move</div>
-        <div class='game-highlighted'>
-          ${moveIndex} of ${totalMoves}
+      <div class='leaderboard-board'>
+        ${rows.join("")}
+      </div>
+      <div class='leaderboard-board-stats'>
+        <div>
+          <div>Move</div>
+          <div class='game-highlighted'>
+            ${moveIndex} of ${totalMoves}
+          </div>
+        </div>
+        <div>
+          <div>Score</div>
+          <div class='game-highlighted'> 
+            ${history.score}
+          </div>
         </div>
       </div>
-      <div>
-        <div>Score</div>
-        <div class='game-highlighted'> 
-          ${board.fields.score}
-        </div>
-      </div>
-    </div>
-  `;
+    `;
     return completeHTML;
 };
 
@@ -219,13 +277,13 @@ const loadNextPage = async (network) => {
             details.innerHTML = "<div class='text-center'>Loading game...</div>";
             leaderElement.append(details);
 
-            const game = await getLeaderboardGame(gameId);
+            const game = await getLeaderboardGame(network, gameId);
 
-            let currentIndex = game.boards.length - 1;
+            let currentIndex = game.histories.length - 1;
             details.onmousewheel = (e) => {
                 currentIndex += Math.round(e.deltaY / 2);
-                if (currentIndex > game.boards.length - 1) {
-                    currentIndex = game.boards.length - 1;
+                if (currentIndex > game.histories.length - 1) {
+                    currentIndex = game.histories.length - 1;
                 } else if (currentIndex < 0) {
                     currentIndex = 0;
                 }
@@ -260,7 +318,7 @@ const loadNextPage = async (network) => {
           </div>
           <div class='leader-boards'>
             <div class='leader-board'>
-              ${boardHTML(index, game.boards.length - 1, game.boards)}
+              ${historyHTML(index, game.histories.length - 1, game.histories)}
             </div>
             <div class='game-instructions'>
               <div>

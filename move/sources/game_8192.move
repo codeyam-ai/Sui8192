@@ -7,6 +7,7 @@ module ethos::game_8192 {
     use sui::transfer;
     use sui::table::{Self, Table};
     use std::option::Option;
+    use std::vector;
     use ethos::game_board_8192::{Self, GameBoard8192};
     
     friend ethos::leaderboard_8192;
@@ -35,6 +36,19 @@ module ethos::game_8192 {
         direction: u64,
         player: address,
         epoch: u64
+    }
+
+    struct GameHistory8192 has store, drop {
+        move_count: u64,
+        direction: u64,
+        board_spaces: vector<vector<Option<u64>>>,
+        top_tile: u64,
+        url: Url,
+        score: u64,
+        game_over: bool,
+        last_tile: vector<u64>,
+        epoch: u64,
+        player: address
     }
 
     struct LeaderboardGame8192 has store, copy, drop {
@@ -262,6 +276,42 @@ module ethos::game_8192 {
 
     public fun board_at(game: &Game8192, index: u64): &GameBoard8192 {
         table::borrow(&game.boards, index)
+    }
+
+    public fun all_moves(game: &Game8192): vector<GameHistory8192> {
+        let all = vector<GameHistory8192>[];
+        let count = move_count(game);
+        let i = 0;
+        while (i < count) {
+            let board = board_at(game, i);
+            let direction = 5;
+            let player = game.player;
+            let epoch = 0;
+            if (i > 0) {
+                let index_move = table::borrow(&game.moves, i);
+                direction = index_move.direction;
+                player = index_move.player;
+                epoch = index_move.epoch;
+            };
+
+            let top_tile = *game_board_8192::top_tile(board);
+
+            vector::push_back(&mut all, GameHistory8192 {
+                move_count: i,
+                direction,
+                board_spaces: *game_board_8192::spaces(board),
+                top_tile,
+                url: image_url_for_tile(top_tile),
+                score: *game_board_8192::score(board),
+                game_over: *game_board_8192::game_over(board),
+                last_tile: *game_board_8192::last_tile(board),
+                epoch,
+                player
+            });
+            i = i + 1;
+        };
+
+        return all
     }
 
     public fun leaderboard_game_count(game: &Game8192): u64 {
