@@ -1031,7 +1031,10 @@ const load = async (network, force = false) => {
     leaderboardList.innerHTML = "";
 
     const games = await topGames(network, true);
-    eById("best").innerHTML = games[0]?.fields?.score || 0;
+    const best = eById("best");
+    if (best) {
+      best.innerHTML = games[0]?.fields?.score || 0;
+    }
     setOnClick(eById("more-leaderboard"), () => loadNextPage(network));
 
     await loadNextPage(network);
