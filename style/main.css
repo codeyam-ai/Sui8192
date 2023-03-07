@@ -715,6 +715,11 @@ a:visited {
   padding: 30px 0;
 }
 
+.dark .spinner_jCIR {
+  color: white;
+  fill: white;
+}
+
 #signed-out,
 #mint-message {
   text-align: center;
