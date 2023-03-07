@@ -162,8 +162,8 @@ module.exports = {
 module.exports = {
   // contractAddress: "0xd6742d7dc515988a53353b917edd1a5f66f41d45",
   // leaderboardAddress: "0x087210d5e038fc2f4f404e493205ea0910020936",
-  contractAddress: "0xfb9c3dc44a7423d691af9032ab8fd9e887e0b895",
-  leaderboardAddress: "0x09a7856c7f60506982161a5cde68c894019c436c",
+  contractAddress: "0x70c896665a49407b1dc25df6673c27084c66e285",
+  leaderboardAddress: "0xde14a9339dafbeadc44cf26f6f07d27d5e7a743c",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -203,7 +203,7 @@ const moves = require("./moves");
 const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
-const DEVNET = "https://fullnode.devnet.sui.io/";
+const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
 const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
 const NETWORK_NAME = 'devNet';
