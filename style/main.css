@@ -720,6 +720,15 @@ a:visited {
   fill: white;
 }
 
+#initial-spinner {
+  display: none;
+}
+
+.signed-in.signed-out #initial-spinner {
+  display: block;
+  margin: auto;
+}
+
 #signed-out,
 #mint-message {
   text-align: center;
