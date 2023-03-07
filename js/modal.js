@@ -8,6 +8,8 @@ const modal = {
 
   open: (messageId, containerId, mandatory=false) => {
     const modal = eById("modal-overlay");
+    if (!modal) return;
+
     const messages = eByClass('message');
     for (const message of messages) {
       addClass(message, 'hidden');
@@ -15,6 +17,7 @@ const modal = {
     
     if (modal.parentNode.id !== containerId) {
       const container = eById(containerId);
+      if (!container) return;
       modal.parentNode.removeChild(modal);
       container.prepend(modal);
     }

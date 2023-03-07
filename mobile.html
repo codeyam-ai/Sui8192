@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3KX75YDDR9"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-3KX75YDDR9');
+        </script>
+        
+        <meta charset="utf-8">
+        <title>Sui 8192</title>
+        <link href="style/main.css" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        <link rel="apple-touch-icon" href="meta/apple-touch-icon.png">
+        <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x1096.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone 5+ -->
+        <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x920.png"  media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone, retina -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    </head>
+    <body class="signed-in signed-out dark">
+        <div id="container" class="container">
+            <div id="ethos-start" class="hidden"></div> 
+            <div class="signed-out">
+                <p>
+                    Welcome to Sui8192. Please connect your wallet to start!
+                </p>
+                <button id='sign-in'>
+                    Connect
+                </button>
+            </div>
+            <div class="signed-in">
+                <h2>Your Games</h2>
+                <div id="loading-games">
+                    <div class="spinner">
+                        <div>
+                        Loading, Please Wait...
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
+                        <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
+                        <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
+                        <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
+                        <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
+                        <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
+                        <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <script src="build/index.js"></script>
+    </body>
+</html> 

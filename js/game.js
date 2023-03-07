@@ -256,11 +256,14 @@ async function loadWalletContents() {
 }
 
 async function loadGames() {
+  const loadGames = eById("loading-games");
+  if (!loadGames) return;
+
   if (!walletSigner || !leaderboard) {
     setTimeout(loadGames, 500);
     return;
   }
-  removeClass(eById("loading-games"), "hidden");
+  removeClass(loadGames, "hidden");
 
   const gamesElement = eById("games-list");
   gamesElement.innerHTML = "";
@@ -469,20 +472,20 @@ const onWalletConnected = async ({ signer }) => {
     modal.close();
 
     if (
-      signer.name === "Ethos Wallet" && 
-      "ethosWallet" in window && 
-      window.ethosWallet &&
-      typeof window.ethosWallet === "object" &&
-      "getNetwork" in window.ethosWallet && 
-      typeof window.ethosWallet.getNetwork === "function"
-  ) {
-      const activeNetwork = await window.ethosWallet.getNetwork()
-      if (activeNetwork !== NETWORK_NAME) {
-          eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
-          removeClass(eById("error-network"), "hidden");
-          return;
-      }
-  }
+        signer.name === "Ethos Wallet" && 
+        "ethosWallet" in window && 
+        window.ethosWallet &&
+        typeof window.ethosWallet === "object" &&
+        "getNetwork" in window.ethosWallet && 
+        typeof window.ethosWallet.getNetwork === "function"
+    ) {
+        const activeNetwork = await window.ethosWallet.getNetwork()
+        if (activeNetwork !== NETWORK_NAME) {
+            eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
+            removeClass(eById("error-network"), "hidden");
+            return;
+        }
+    }
 
     addClass(document.body, "signed-in");
 
@@ -492,6 +495,8 @@ const onWalletConnected = async ({ signer }) => {
 
     const prepMint = async () => {
       const mint = eById("mint-game");
+      if (!mint) return;
+
       const mintButtonTitle = "Mint New Game";
       if (mint.innerHTML.indexOf(mintButtonTitle) === -1) {
         const mintButton = document.createElement("BUTTON");

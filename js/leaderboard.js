@@ -122,13 +122,16 @@ const boardHTML = (moveIndex, totalMoves, boards) => {
 };
 
 const load = async (network, force = false) => {
+    const loadingLeaderboard = eById("loading-leaderboard");
+    if (!loadingLeaderboard) return;
+
     if (!force && leaderboardTimestamp && Date.now() - leaderboardTimestamp < 1000 * 60) {
         return;
     }
 
     leaderboardTimestamp = Date.now();
 
-    removeClass(eById("loading-leaderboard"), "hidden");
+    removeClass(loadingLeaderboard, "hidden");
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;

@@ -13,23 +13,34 @@ const utils = {
   },
 
   addClass: (elementOrElements, className) => {
+    if (!elementOrElements) return;
+
     const allElements = utils.toArray(elementOrElements) 
     for (const element of allElements) {
+      if (!element) continue;
       element.classList.add(className)
     }
   },
 
   removeClass: (elementOrElements, classNameOrNames) => {
+    if (!elementOrElements) return;
+
     const allClassNames = utils.toArray(classNameOrNames) 
     const allElements = utils.toArray(elementOrElements) 
     for (const element of allElements) {
+      if (!element) continue;
+
       element.classList.remove(...allClassNames)
     }
   },
 
   setOnClick: (elementOrElements, onClick) => {
+    if (!elementOrElements) return;
+
     const allElements = utils.toArray(elementOrElements) 
     for (const element of allElements) {
+      if (!element) continue;
+
       element.onclick = onClick;
     }
   },
