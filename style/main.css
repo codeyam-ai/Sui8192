@@ -890,6 +890,11 @@ a:visited.link-button {
   border-radius: 12px;
 }
 
+.dark .leader:hover,
+.dark .leader.selected {
+  background-color:rgba(0, 0, 0, 0.4)
+}
+
 .leader .leader-listing {
   display: flex;
   flex-direction: row;
@@ -961,6 +966,10 @@ a:visited.link-button {
   background-color: white;
 }
 
+.dark .leaderboard-board {
+  background-color: black;
+}
+
 .leaderboard-board-stats {
   display: flex;
   justify-content: center;
@@ -991,6 +1000,14 @@ a:visited.link-button {
   font-size: 24px;
   border-radius: 12px;
   color: white;
+}
+
+.dark .leaderboard-board-tile {
+  width: 60px;
+  height: 60px;
+  font-size: 21px;
+  line-height: 21px;
+  gap: 0;
 }
 
 .leaderboard-board-tile-name {

@@ -374,7 +374,10 @@ async function setActiveGame(game) {
   initializeKeyListener();
   activeGameAddress = game.address;
 
-  eById("transactions-list").innerHTML = "";
+  const transactionsList = eById("transactions-list");
+  if (!transactionsList) return;
+  
+  transactionsList.innerHTML = "";
   moves.reset();
   moves.checkPreapprovals(activeGameAddress, walletSigner);
 

@@ -302,6 +302,59 @@ const loadNextPage = async (network) => {
                 };
             };
 
+            details.addEventListener('touchstart', handleTouchStart, false);        
+            details.addEventListener('touchmove', handleTouchMove, false);
+
+            let xDown = null;                                                        
+            let yDown = null;
+
+            function getTouches(evt) {
+              return evt.touches ||
+                    evt.originalEvent.touches; 
+            }                                                     
+                                                                                    
+            function handleTouchStart(evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                const firstTouch = getTouches(evt)[0];                                      
+                xDown = firstTouch.clientX;                                      
+                yDown = firstTouch.clientY;                                      
+            };                                                
+                                                                                    
+            function handleTouchMove(evt) {
+                if ( ! xDown || ! yDown ) {
+                    return;
+                }
+
+                evt.stopPropagation();
+                evt.preventDefault();
+
+                var xUp = evt.touches[0].clientX;                                    
+                var yUp = evt.touches[0].clientY;
+
+                var xDiff = xDown - xUp;
+                var yDiff = yDown - yUp;
+                                                                                    
+                if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
+                    if ( xDiff > 0 ) {
+                        /* right swipe */ 
+                    } else {
+                        /* left swipe */
+                    }                       
+                } else {
+                    currentIndex += Math.round(yDiff / -0.05);
+                    if (currentIndex > game.histories.length - 1) {
+                        currentIndex = game.histories.length - 1;
+                    } else if (currentIndex < 0) {
+                        currentIndex = 0;
+                    }
+                    indexDetails(currentIndex);
+                    return false;                                                                 
+                }
+                xDown = null;
+                yDown = null;                                             
+            };
+
             const indexDetails = (index) => {
                 details.innerHTML = `
           <div class='game-status'>
