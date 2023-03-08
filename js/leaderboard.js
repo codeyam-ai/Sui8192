@@ -369,7 +369,7 @@ const loadNextPage = async (network) => {
             <div class='leader-board'>
               ${historyHTML(index, game.histories.length - 1, game.histories)}
             </div>
-            <div class='game-instructions'>
+            <div class='desktop game-instructions'>
               <div>
                 <div>Go forward in time:</div>
                 <div class='game-highlighted'>hover over game & scroll up</div>
@@ -384,7 +384,7 @@ const loadNextPage = async (network) => {
               </div>
             </div>
           </div>
-          <div class='game-info'>
+          <div class='desktop game-info'>
             <div>
               <div class='game-info-header'>Game ID</div>
               <div class='game-highlighted'>${game.id}</div>

@@ -31,6 +31,14 @@ a:visited {
   display: none !important;
 }
 
+.mobile .desktop {
+  display: none !important;
+}
+
+.desktop .mobile {
+  display: none !important;
+}
+
 .title {
   font-size: 21px;
   font-weight: 500;
