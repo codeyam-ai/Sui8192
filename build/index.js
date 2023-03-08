@@ -1233,8 +1233,7 @@ const loadNextPage = async (network) => {
                         /* left swipe */
                     }                       
                 } else {
-                    currentIndex += Math.round(yDiff / -0.05);
-                    console.log("yDiff", yDiff, currentIndex)
+                    currentIndex += Math.round(yDiff / -1);
                     if (currentIndex > game.histories.length - 1) {
                         currentIndex = game.histories.length - 1;
                     } else if (currentIndex < 0) {
