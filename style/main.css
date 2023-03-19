@@ -5,6 +5,10 @@ body {
   line-height: 24px;
 }
 
+.purple {
+  color: #9040F5;
+}
+
 body.dark {
   background-color: black;
   color: white;
@@ -963,6 +967,10 @@ a:visited.link-button {
   color: #333;
 }
 
+.dark .leader-score span {
+  color: white;
+}
+
 .leaderboard-board {
   display: flex;
   flex-direction: column;
@@ -1156,6 +1164,22 @@ a:visited.link-button {
   animation-duration: 2s;
   animation-timing-function: linear;
   animation-iteration-count: 1;
+}
+
+.game-image {
+  display: block; 
+  margin: auto;
+}
+
+.mobile-leaderboard {
+  background-color: #1A1C26;
+  border-radius: 24px;
+  padding: 6px;
+  margin: 12px 0;
+}
+
+#personal-high-score {
+  margin-top: -6px;
 }
 
 @keyframes float {

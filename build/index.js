@@ -203,7 +203,8 @@ const moves = require("./moves");
 const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
-const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
+const DEVNET = "https://fullnode.devnet.sui.io/"
+// const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
 const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
 const NETWORK_NAME = 'devNet';
@@ -491,7 +492,12 @@ async function loadGames() {
     gamesElement.append(newGameArea);
   }
 
+  let highScore = 0;
   for (const game of games) {
+    if (highScore < parseInt(game.score)) {
+      highScore = parseInt(game.score);
+    }
+
     const gameElement = document.createElement("DIV");
     let topGames = await leaderboard.topGames(network);
     if (topGames.length === 0) topGames = [];
@@ -550,6 +556,11 @@ async function loadGames() {
       loadGames();
     });
   });
+
+  const personalHighScore = eById('personal-high-score')
+  if (personalHighScore) {
+    personalHighScore.innerHTML = highScore;
+  }
 }
 
 async function setActiveGame(game) {
