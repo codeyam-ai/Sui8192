@@ -1,6 +1,6 @@
 const React = require("react");
 const ReactDOM = require("react-dom/client");
-const { EthosConnectProvider, SignInButton, ethos } = require("ethos-connect");
+const { EthosConnectProvider, SignInButton, Transaction, ethos } = require("ethos-connect");
 
 const leaderboard = require("./leaderboard");
 const { contractAddress } = require("./constants");
@@ -20,9 +20,10 @@ const moves = require("./moves");
 const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
+const LOCALNET = "http://127.0.0.1:9000";
 const DEVNET = "https://fullnode.devnet.sui.io/"
 // const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
-const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
+// const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
 const NETWORK_NAME = 'devNet';
 
@@ -33,7 +34,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = DEVNET;
+let network = LOCALNET;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -200,7 +201,7 @@ function showUnknownError(error) {
 
 async function tryDrip(address, suiBalance) {
   if (!walletSigner || faucetUsed) return;
-  const dripNetwork = "DEVNET"
+  const dripNetwork = LOCALNET
   faucetUsed = true;
 
   let success;
@@ -235,8 +236,8 @@ async function tryDrip(address, suiBalance) {
 }
 
 async function loadWalletContents() {
-  if (!walletSigner) return;
-  const address = await walletSigner.getAddress();
+  if (!walletSigner?.currentAccount) return;
+  const address = walletSigner.currentAccount.address
   const addressElement = eById("wallet-address")
   if (addressElement) {
     addressElement.innerHTML = truncateMiddle(address, 4);
@@ -523,22 +524,17 @@ const onWalletConnected = async ({ signer }) => {
         setOnClick(mintButton, async () => {
           modal.open("loading", "container");
 
-          const signableTransaction = {
-            kind: "moveCall",
-            data: {
-              packageObjectId: contractAddress,
-              module: "game_8192",
-              function: "create",
-              typeArguments: [],
-              arguments: [],
-              gasBudget: 10000,
-            },
-          };
+          const transaction = new Transaction();
+          transaction.moveCall({
+            target: `${contractAddress}::game_8192::create`,
+            typeArguments: [],
+            arguments: []
+          })
 
           try {
             const data = await ethos.transact({
               signer: walletSigner,
-              signableTransaction,
+              transaction,
             });
 
             if (!data || data.error) {
@@ -598,7 +594,7 @@ const onWalletConnected = async ({ signer }) => {
 
     removeClass(document.body, "signed-out");
 
-    const address = await signer.getAddress();
+    const address = signer.currentAccount.address;
 
     setOnClick(eById("copy-address"), () => {
       const innerHTML = eById("copy-address").innerHTML;

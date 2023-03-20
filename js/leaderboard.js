@@ -30,12 +30,17 @@ const topGames = async (network, force) => {
 
   if (_topGames && !force) return _topGames;
   const topGamesId = leaderboardObject.top_games.fields.id.id;
-  const gameInfos = await provider.getDynamicFields(topGamesId)
-  const gameDetails = await provider.getObjectBatch(gameInfos.data.map((info) => info.objectId))
+  const gameInfos = await provider.getDynamicFields({ parentId: topGamesId })
+  const gameDetails = await provider.multiGetObjects({
+    ids: gameInfos.data.map((info) => info.objectId),
+    options: {
+      showContent: true
+    }
+  })
   _topGames = gameDetails.sort(
-    (a,b) => a.details.data.fields.name - b.details.data.fields.name
+    (a,b) => a.details.content.fields.name - b.details.content.fields.name
   ).map(
-    (details) => details.details.data.fields.value
+    (details) => details.details.content.fields.value
   ).filter(
     (game) => !!game
   )
@@ -45,13 +50,13 @@ const topGames = async (network, force) => {
 const getObject = async (network, objectId) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
-    return provider.getObject(objectId);
+    return provider.getObject({ id: objectId, options: { showContent: true } });
 };
 
 const get = async (network) => {
     const {
         details: {
-            data: { fields: leaderboard },
+            content: { fields: leaderboard },
         },
     } = await getObject(network, leaderboardAddress);
     leaderboardObject = leaderboard;
@@ -62,7 +67,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     const gameObject = await getObject(network, gameObjectId);
     let {
         details: {
-            data: {
+            content: {
                 fields: { boards: boardsTable, move_count: moveCount, game_over: gameOver },
             },
         },
