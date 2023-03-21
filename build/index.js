@@ -712,9 +712,14 @@ const onWalletConnected = async ({ signer }) => {
           try {
             const data = await ethos.transact({
               signer: walletSigner,
-              transaction: {
-                transaction
-              },
+              transactionInput: {
+                transaction,
+                options: {
+                  contentOptions: {
+                    showEvents: true
+                  }
+                }
+              }
             });
 
             console.log("data", data)
@@ -724,8 +729,9 @@ const onWalletConnected = async ({ signer }) => {
               return;
             }
 
-            const { effects } = data.EffectsCert?.effects || data;
-            const gameData = effects.events.find((e) => e.moveEvent).moveEvent.fields;
+            const { events } = data;
+            console.log(events)
+            const gameData = events.find((e) => e.type === `${contractAddress}`)
             const { game_id, board_spaces, score } = gameData;
             const game = {
               address: game_id,
@@ -1577,18 +1583,14 @@ const execute = async (
 
   onComplete(newBoard, direction);
 
-  const { fields } = event;
-  const { last_tile: lastTile } = fields;
+  const { direction: lastDirection, last_tile: lastTile, move_count: moveCount } = event.parsedJson;
   const transaction = {
     gas: computationCost + storageCost - storageRebate,
     computation: computationCost,
     storage: storageCost - storageRebate,
-    move: fields.direction,
-    lastTile: {
-      row: lastTile[0],
-      column: fields.last_tile[1],
-    },
-    moveCount: fields.move_count,
+    move: lastDirection,
+    lastTile,
+    moveCount
   };
   const transactionElement = document.createElement("DIV");
   addClass(transactionElement, "transaction");

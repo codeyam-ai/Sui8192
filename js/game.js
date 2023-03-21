@@ -529,9 +529,14 @@ const onWalletConnected = async ({ signer }) => {
           try {
             const data = await ethos.transact({
               signer: walletSigner,
-              transaction: {
-                transaction
-              },
+              transactionInput: {
+                transaction,
+                options: {
+                  contentOptions: {
+                    showEvents: true
+                  }
+                }
+              }
             });
 
             console.log("data", data)
@@ -541,8 +546,9 @@ const onWalletConnected = async ({ signer }) => {
               return;
             }
 
-            const { effects } = data.EffectsCert?.effects || data;
-            const gameData = effects.events.find((e) => e.moveEvent).moveEvent.fields;
+            const { events } = data;
+            console.log(events)
+            const gameData = events.find((e) => e.type === `${contractAddress}`)
             const { game_id, board_spaces, score } = gameData;
             const game = {
               address: game_id,

@@ -140,7 +140,6 @@ const execute = async (
 
   if (!data) return;
 
-  console.log("move data", data)
   const { events, effects } = data;
 
   queue.remove(directionOrQueuedMove);
@@ -180,18 +179,14 @@ const execute = async (
 
   onComplete(newBoard, direction);
 
-  const { fields } = event;
-  const { last_tile: lastTile } = fields;
+  const { direction: lastDirection, last_tile: lastTile, move_count: moveCount } = event.parsedJson;
   const transaction = {
     gas: computationCost + storageCost - storageRebate,
     computation: computationCost,
     storage: storageCost - storageRebate,
-    move: fields.direction,
-    lastTile: {
-      row: lastTile[0],
-      column: fields.last_tile[1],
-    },
-    moveCount: fields.move_count,
+    move: lastDirection,
+    lastTile,
+    moveCount
   };
   const transactionElement = document.createElement("DIV");
   addClass(transactionElement, "transaction");
