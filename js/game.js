@@ -25,7 +25,7 @@ const DEVNET = "https://fullnode.devnet.sui.io/"
 // const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
 // const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
-const NETWORK_NAME = 'devNet';
+const NETWORK_NAME = 'local';
 
 let walletSigner;
 let games;
@@ -58,16 +58,11 @@ const initializeKeyListener = () => {
     if (!direction) return;
 
     e.preventDefault();
-    
-    const largestCoinId = walletContents.tokens['0x2::sui::SUI'].coins.sort(
-      (a, b) => b.balance - a.balance
-    )[0].objectId;
 
     moves.execute(
       direction,
       activeGameAddress,
       walletSigner,
-      largestCoinId,
       (newBoard, direction) => {
         handleResult(newBoard, direction);
         loadWalletContents();
@@ -534,9 +529,12 @@ const onWalletConnected = async ({ signer }) => {
           try {
             const data = await ethos.transact({
               signer: walletSigner,
-              transaction,
+              transaction: {
+                transaction
+              },
             });
 
+            console.log("data", data)
             if (!data || data.error) {
               eById("create-error-error-message").innerHTML = data.error;
               modal.open("create-error", "container");

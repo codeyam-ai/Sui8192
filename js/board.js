@@ -119,7 +119,7 @@ module.exports = {
       score, 
       game_over: gameOver,
       url
-    } = board.fields || board;
+    } = board.fields || board.parsedJson
     const spaces = (rawSpaces || rawBoardSpaces);
     return { spaces, lastTile, topTile, score, gameOver, url }
   }

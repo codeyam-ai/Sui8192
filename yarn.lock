@@ -9,19 +9,19 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@mysten/bcs@0.0.0-experimental-20230319172139":
-  version "0.0.0-experimental-20230319172139"
-  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.0.0-experimental-20230319172139.tgz#96697b6db80834beef8599bed9c5837b5491c6fb"
-  integrity sha512-dF1us+HNiHTV2OBNaLf+Udgq+uU9+Szz9XBz5+Lbhn/iqLIQEeRzHOBnNequXBhEHfsclvFPwyUsmftBRbsSbQ==
+"@mysten/bcs@0.0.0-experimental-20230320194439":
+  version "0.0.0-experimental-20230320194439"
+  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.0.0-experimental-20230320194439.tgz#b8f0a79d200295afe31099d1a2dcf3a80e81c7a3"
+  integrity sha512-O8/1BiU2wg2ha5EreD06bSNE7v9iqde1JicbYZwPyA/KYCUsB7syCBWxIlugR56dkEOCdIZaBm70hC2AGD2uIA==
   dependencies:
     bs58 "^5.0.0"
 
-"@mysten/sui.js@0.0.0-experimental-20230319172139":
-  version "0.0.0-experimental-20230319172139"
-  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.0.0-experimental-20230319172139.tgz#525e7291c26783c1a4625f8e8df5e6b8d585dc23"
-  integrity sha512-cBuGFKEbI4wQ33tba6dzngMb1JKhEh1WivLxaiqGXYg7YhEPqIlkle2Q8P10ZZecuMIVle3q4s7IVEA6PdNJEw==
+"@mysten/sui.js@0.0.0-experimental-20230320194439":
+  version "0.0.0-experimental-20230320194439"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.0.0-experimental-20230320194439.tgz#a7edf1342cbd93a883631bf2cf0afe7be9f2bb68"
+  integrity sha512-IJLkOqKsy415ovq7/E7kgWvd2HPQdihF2754wkUE7QEJjRAan2ZMG5X6PIMXYeV4pAggvsy/UXcJXqmir/G3Cw==
   dependencies:
-    "@mysten/bcs" "0.0.0-experimental-20230319172139"
+    "@mysten/bcs" "0.0.0-experimental-20230320194439"
     "@noble/hashes" "^1.2.0"
     "@noble/secp256k1" "^1.7.1"
     "@scure/bip32" "^1.1.5"

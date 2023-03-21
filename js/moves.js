@@ -1,4 +1,4 @@
-const { ethos } = require("ethos-connect");
+const { ethos, Transaction } = require("ethos-connect");
 const { contractAddress } = require("./constants");
 const {
   eById,
@@ -20,19 +20,16 @@ const responseTimes = {
   start: null,
 }
 
-const constructTransaction = (direction, activeGameAddress, largestCoinId) => {
-  return {
-    kind: "moveCall",
-    data: {
-      packageObjectId: contractAddress,
-      module: "game_8192",
-      function: "make_move",
-      typeArguments: [],
-      arguments: [activeGameAddress, direction],
-      gasBudget: 10000,
-      gasPayment: largestCoinId
-    },
-  };
+const constructTransaction = (direction, activeGameAddress) => {
+  const transaction = new Transaction();
+  transaction.moveCall({
+    target: `${contractAddress}::game_8192::make_move`,
+    arguments: [
+      transaction.object(activeGameAddress),
+      transaction.pure(direction)
+    ]
+  })
+  return transaction;
 };
 
 const checkPreapprovals = async (activeGameAddress, walletSigner) => {
@@ -73,7 +70,6 @@ const execute = async (
   directionOrQueuedMove,
   activeGameAddress,
   walletSigner,
-  largestCoinId,
   onComplete,
   onError
 ) => {
@@ -102,17 +98,28 @@ const execute = async (
     if (queue.length() > 1) return;
   }
   
-  const signableTransaction = constructTransaction(
+  const moveTransaction = constructTransaction(
     directionNumber,
-    activeGameAddress,
-    largestCoinId
+    activeGameAddress
   );
 
   moves = {};
 
   const dataPromise = ethos.transact({
     signer: walletSigner,
-    signableTransaction
+    transactionInput: {
+      transaction: moveTransaction,
+      options: {
+        contentOptions: {
+          showBalanceChanges: true,
+          showEffects: true,
+          showEvents: true,
+          showInput: true,
+          showObjectChanges: true
+        },
+        requestType: 'WaitForLocalExecution'
+      }
+    }
   });
 
   ethos.hideWallet(walletSigner);
@@ -133,17 +140,18 @@ const execute = async (
 
   if (!data) return;
 
-  const { error, effects } = data.EffectsCert || data;
+  console.log("move data", data)
+  const { events, effects } = data;
 
   queue.remove(directionOrQueuedMove);
   
-  if ((effects.effects || effects)?.status?.error === "InsufficientGas") {
+  if (effects?.status?.error === "InsufficientGas") {
     onError({});
     return;
   }
 
   if (
-    ((effects.effects || effects)?.status?.error || "").indexOf(
+    (effects?.status?.error || "").indexOf(
       'name: Identifier("game_board_8192") }, function: 17, instruction: 8 }, 3)'
     ) > -1
   ) {
@@ -151,23 +159,17 @@ const execute = async (
     return;
   }
 
-  if (
-    (effects.effects || effects)?.status?.error
-  ) {
-    const { error } = (effects.effects || effects)?.status;
+  if (effects?.status?.error) {
+    const { error } = effects.status;
     onError({ error });
     return;
   }
 
-  if (error) {
-    onError(error);
-    return;
-  }
-
   if (!effects) return;
-  const { gasUsed, events } = effects.effects || effects;
+
+  const { gasUsed } = effects;
   const { computationCost, storageCost, storageRebate } = gasUsed;
-  const event = events.find((e) => e.moveEvent).moveEvent;
+  const event = events.find((e) => e.type === `${contractAddress}::game_8192::GameMoveEvent8192`)
 
   const newBoard = board.convertInfo(event);
 
