@@ -539,7 +539,6 @@ const onWalletConnected = async ({ signer }) => {
               }
             });
 
-            console.log("data", data)
             if (!data || data.error) {
               eById("create-error-error-message").innerHTML = data.error;
               modal.open("create-error", "container");
@@ -547,9 +546,8 @@ const onWalletConnected = async ({ signer }) => {
             }
 
             const { events } = data;
-            console.log(events)
-            const gameData = events.find((e) => e.type === `${contractAddress}`)
-            const { game_id, board_spaces, score } = gameData;
+            const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
+            const { game_id, board_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
               board: {

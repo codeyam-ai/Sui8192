@@ -120,7 +120,7 @@ module.exports = {
       score, 
       game_over: gameOver,
       url
-    } = board.fields || board.parsedJson
+    } = board.fields || board.parsedJson || board;
     const spaces = (rawSpaces || rawBoardSpaces);
     return { spaces, lastTile, topTile, score, gameOver, url }
   }
@@ -722,7 +722,6 @@ const onWalletConnected = async ({ signer }) => {
               }
             });
 
-            console.log("data", data)
             if (!data || data.error) {
               eById("create-error-error-message").innerHTML = data.error;
               modal.open("create-error", "container");
@@ -730,9 +729,8 @@ const onWalletConnected = async ({ signer }) => {
             }
 
             const { events } = data;
-            console.log(events)
-            const gameData = events.find((e) => e.type === `${contractAddress}`)
-            const { game_id, board_spaces, score } = gameData;
+            const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
+            const { game_id, board_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
               board: {
@@ -1543,7 +1541,6 @@ const execute = async (
 
   if (!data) return;
 
-  console.log("move data", data)
   const { events, effects } = data;
 
   queue.remove(directionOrQueuedMove);
