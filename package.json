@@ -6,8 +6,8 @@
   "author": "Jared Cosulich <jared.cosulich@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@mysten/bcs": "0.0.0-experimental-20230320194439",
-    "@mysten/sui.js": "0.0.0-experimental-20230320194439",
+    "@mysten/bcs": "0.0.0-experimental-20230315194803",
+    "@mysten/sui.js": "0.0.0-experimental-20230315194803",
     "bignumber.js": "^9.1.0",
     "browserify": "^17.0.0",
     "canvas-confetti": "^1.5.1",

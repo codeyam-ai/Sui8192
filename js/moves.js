@@ -41,10 +41,8 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
     const result = await ethos.preapprove({
       signer: walletSigner,
       preapproval: {
-        packageObjectId: contractAddress,
+        target: `${contractAddress}::game_8192::make_move`,
         objectId: activeGameAddress,
-        module: "game_8192",
-        function: "make_move",
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
         totalGasLimit: 50000000,
