@@ -571,7 +571,7 @@ async function setActiveGame(game) {
   
   transactionsList.innerHTML = "";
   moves.reset();
-  moves.checkPreapprovals(activeGameAddress, walletSigner);
+  moves.checkPreapprovals(CHAIN, activeGameAddress, walletSigner);
 
   const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
@@ -978,21 +978,20 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
   
-    const history = await provider.devInspectTransaction(
-      "0x0000000000000000000000000000000000000002",
-      {
-        kind: "moveCall",
-        data: {
-          packageObjectId: contractAddress,
-          module: "game_8192",
-          function: "all_moves",
-          typeArguments: [],
-          arguments: [gameObjectId]
-        },
-      }
-    );
+    const query = new Transaction();
+    query.moveCall({
+        target: `${contractAddress}::game_8192::all_moves`,
+        arguments: [
+          query.object(gameObjectId)
+        ]
+    })
+    const history = await provider.devInspectTransaction({
+      transaction: query,
+      sender: "0x0000000000000000000000000000000000000000000000000000000000000000"
+    });
 
-  if ('Ok' in history.results) {
+    const results = history.results[0]
+  if (results) {
       const enums = {}
       enums['Option<u64>'] = {
         none: null,
@@ -1001,7 +1000,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     
       const bcsConfig = {
         vectorType: 'vector',
-        addressLength: 20,
+        addressLength: 32,
         addressEncoding: 'hex',
         types: { enums },
         withPrimitives: true
@@ -1010,7 +1009,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
       const bcs = new BCS(bcsConfig);
       // const bcs = new BCS(getSuiMoveConfig());
 
-      bcs.registerAddressType('SuiAddress', 20, 'hex');
+      bcs.registerAddressType('SuiAddress', 32, 'hex');
       
       bcs.registerStructType('GameHistory8192', {
           move_count: 'u64',
@@ -1025,8 +1024,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
           player: 'SuiAddress'
       });
 
-      const dataNumberArray =
-          history.results.Ok[0][1].returnValues?.[0]?.[0];
+      const dataNumberArray = results.returnValues?.[0]?.[0];
       if (!dataNumberArray) return;
 
       const data = Uint8Array.from(dataNumberArray);
