@@ -32,7 +32,7 @@ const constructTransaction = (direction, activeGameAddress) => {
   return transaction;
 };
 
-const checkPreapprovals = async (activeGameAddress, walletSigner) => {
+const checkPreapprovals = async (chain, activeGameAddress, walletSigner) => {
   if (walletSigner.type === "hosted") {
     return true;
   }
@@ -42,7 +42,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
       signer: walletSigner,
       preapproval: {
         target: `${contractAddress}::game_8192::make_move`,
-        chain: "sui::local",
+        chain,
         objectId: activeGameAddress,
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
@@ -66,6 +66,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
 };
 
 const execute = async (
+  chain,
   directionOrQueuedMove,
   activeGameAddress,
   walletSigner,
@@ -81,7 +82,7 @@ const execute = async (
     return;
   }
 
-  await checkPreapprovals(activeGameAddress, walletSigner);
+  await checkPreapprovals(chain, activeGameAddress, walletSigner);
 
   const direction = directionOrQueuedMove.id
     ? directionOrQueuedMove.direction
@@ -108,7 +109,7 @@ const execute = async (
     signer: walletSigner,
     transactionInput: {
       transaction: moveTransaction,
-      chain: "sui::local",
+      chain,
       options: {
         contentOptions: {
           showBalanceChanges: true,

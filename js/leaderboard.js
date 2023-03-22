@@ -1,6 +1,6 @@
 const { BCS, getSuiMoveConfig } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
-const { ethos } = require("ethos-connect");
+const { ethos, Transaction } = require("ethos-connect");
 const {
     contractAddress,
     leaderboardAddress,
@@ -426,22 +426,22 @@ const minTile = () => {
     return leaderboardObject.min_tile;
 };
 
-const submit = async (network, gameAddress, walletSigner, onComplete) => {
-    const signableTransaction = {
-        kind: "moveCall",
-        data: {
-            packageObjectId: contractAddress,
-            module: "leaderboard_8192",
-            function: "submit_game",
-            typeArguments: [],
-            arguments: [gameAddress, leaderboardAddress],
-            gasBudget: 100000,
-        },
-    };
+const submit = async (network, chain, gameAddress, walletSigner, onComplete) => {
+    const transaction = new Transaction();
+    transaction.moveCall({
+      target: `${contractAddress}::leaderboard_8192::submit_game`,
+      arguments: [
+        transaction.object(gameAddress),
+        transaction.object(leaderboardAddress)
+      ]
+    })
 
-    const response = await ethos.transact({
+    await ethos.transact({
         signer: walletSigner,
-        signableTransaction,
+        transactionInput: {
+          transaction,
+          chain
+        },
     });
 
     await load(network, true);

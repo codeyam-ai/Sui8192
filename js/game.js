@@ -26,6 +26,7 @@ const DEVNET = "https://fullnode.devnet.sui.io/"
 // const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
 const NETWORK_NAME = 'local';
+const CHAIN = "sui::local";
 
 let walletSigner;
 let games;
@@ -60,6 +61,7 @@ const initializeKeyListener = () => {
     e.preventDefault();
 
     moves.execute(
+      CHAIN,
       direction,
       activeGameAddress,
       walletSigner,
@@ -259,21 +261,21 @@ async function loadWalletContents() {
 }
 
 async function loadGames() {
-  const loadGames = eById("loading-games");
-  if (!loadGames) return;
+  const loadGamesElement = eById("loading-games");
+  if (!loadGamesElement) return;
 
   if (!walletSigner || !leaderboard) {
     setTimeout(loadGames, 500);
     return;
   }
-  removeClass(loadGames, "hidden");
+  removeClass(loadGamesElement, "hidden");
 
   const gamesElement = eById("games-list");
   gamesElement.innerHTML = "";
 
   await loadWalletContents();
 
-  addClass(eById("loading-games"), "hidden");
+  addClass(loadGamesElement, "hidden");
 
   games = walletContents.nfts
     .filter((nft) => nft.package === contractAddress)
@@ -365,7 +367,7 @@ async function loadGames() {
       dataset: { address },
     } = e.target;
     e.stopPropagation();
-    leaderboard.submit(network, address, walletSigner, () => {
+    leaderboard.submit(network, CHAIN, address, walletSigner, () => {
       loadGames();
     });
   });
