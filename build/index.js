@@ -1443,6 +1443,7 @@ const checkPreapprovals = async (activeGameAddress, walletSigner) => {
       signer: walletSigner,
       preapproval: {
         target: `${contractAddress}::game_8192::make_move`,
+        chain: "sui::local",
         objectId: activeGameAddress,
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
@@ -1508,6 +1509,7 @@ const execute = async (
     signer: walletSigner,
     transactionInput: {
       transaction: moveTransaction,
+      chain: "sui::local",
       options: {
         contentOptions: {
           showBalanceChanges: true,
