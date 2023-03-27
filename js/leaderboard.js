@@ -55,7 +55,7 @@ const getObject = async (network, objectId) => {
 
 const get = async (network) => {
     const {
-        details: {
+        data: {
             content: { fields: leaderboard },
         },
     } = await getObject(network, leaderboardAddress);

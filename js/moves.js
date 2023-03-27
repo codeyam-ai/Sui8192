@@ -111,15 +111,13 @@ const execute = async (
       transaction: moveTransaction,
       chain,
       options: {
-        contentOptions: {
-          showBalanceChanges: true,
-          showEffects: true,
-          showEvents: true,
-          showInput: true,
-          showObjectChanges: true
-        },
-        requestType: 'WaitForLocalExecution'
-      }
+        showBalanceChanges: true,
+        showEffects: true,
+        showEvents: true,
+        showInput: true,
+        showObjectChanges: true
+      },
+      requestType: 'WaitForLocalExecution'
     }
   });
 

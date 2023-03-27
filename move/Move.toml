@@ -3,7 +3,7 @@ name = "sui8192"
 version = "0.0.1"
 
 [dependencies]
-Sui = { git = "../../../sui/sui", subdir = "crates/sui-framework", rev = "main" }
+Sui = { local = "../../../sui/sui/crates/sui-framework/packages/sui-framework" }
 
 [addresses]
 ethos = "0x0"

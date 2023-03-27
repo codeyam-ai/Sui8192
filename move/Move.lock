@@ -9,11 +9,11 @@ dependencies = [
 
 [[move.package]]
 name = "MoveStdlib"
-source = { git = "../../../sui/sui", rev = "main", subdir = "crates/sui-framework/deps/move-stdlib" }
+source = { local = "../../../sui/sui/crates/sui-framework/packages/move-stdlib" }
 
 [[move.package]]
 name = "Sui"
-source = { git = "../../../sui/sui", rev = "main", subdir = "crates/sui-framework" }
+source = { local = "../../../sui/sui/crates/sui-framework/packages/sui-framework" }
 
 dependencies = [
   { name = "MoveStdlib" },

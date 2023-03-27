@@ -534,9 +534,7 @@ const onWalletConnected = async ({ signer }) => {
               transactionInput: {
                 transaction,
                 options: {
-                  contentOptions: {
-                    showEvents: true
-                  }
+                  showEvents: true
                 }
               }
             });
