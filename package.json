@@ -6,12 +6,12 @@
   "author": "Jared Cosulich <jared.cosulich@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@mysten/bcs": "0.0.0-experimental-20230326165705",
-    "@mysten/sui.js": "0.0.0-experimental-20230326165705",
+    "@mysten/bcs": "^0.6.1",
+    "@mysten/sui.js": "^0.30.0",
     "bignumber.js": "^9.1.0",
     "browserify": "^17.0.0",
     "canvas-confetti": "^1.5.1",
-    "ethos-connect": "0.0.105-beta.5",
+    "ethos-connect": "0.0.107",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "static-server": "^2.2.1"

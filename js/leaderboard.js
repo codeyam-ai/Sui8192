@@ -1,6 +1,6 @@
-const { BCS, getSuiMoveConfig } = require('@mysten/bcs');
+const { BCS } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
-const { ethos, Transaction } = require("ethos-connect");
+const { ethos, TransactionBlock } = require("ethos-connect");
 const {
     contractAddress,
     leaderboardAddress,
@@ -38,9 +38,9 @@ const topGames = async (network, force) => {
     }
   })
   _topGames = gameDetails.sort(
-    (a,b) => a.details.content.fields.name - b.details.content.fields.name
+    (a,b) => a.data.content.fields.name - b.data.content.fields.name
   ).map(
-    (details) => details.details.content.fields.value
+    (details) => details.data.content.fields.value
   ).filter(
     (game) => !!game
   )
@@ -66,7 +66,7 @@ const get = async (network) => {
 const getLeaderboardGame = async (network, gameObjectId) => {
     const gameObject = await getObject(network, gameObjectId);
     let {
-        details: {
+        data: {
             content: {
                 fields: { boards: boardsTable, move_count: moveCount, game_over: gameOver },
             },
@@ -76,15 +76,15 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
   
-    const query = new Transaction();
+    const query = new TransactionBlock();
     query.moveCall({
         target: `${contractAddress}::game_8192::all_moves`,
         arguments: [
           query.object(gameObjectId)
         ]
     })
-    const history = await provider.devInspectTransaction({
-      transaction: query,
+    const history = await provider.devInspectTransactionBlock({
+      transactionBlock: query,
       sender: "0x0000000000000000000000000000000000000000000000000000000000000000"
     });
 
@@ -128,6 +128,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
       const data = Uint8Array.from(dataNumberArray);
       const histories = bcs.de('vector<GameHistory8192>', data);
 
+      console.log("HISTORIES", histories)
       gameOver = histories[histories.length - 1].game_over;
       return { id: gameObjectId, gameOver, moveCount, histories };
   }
@@ -425,19 +426,19 @@ const minTile = () => {
 };
 
 const submit = async (network, chain, gameAddress, walletSigner, onComplete) => {
-    const transaction = new Transaction();
-    transaction.moveCall({
+    const transactionBlock = new TransactionBlock();
+    transactionBlock.moveCall({
       target: `${contractAddress}::leaderboard_8192::submit_game`,
       arguments: [
-        transaction.object(gameAddress),
-        transaction.object(leaderboardAddress)
+        transactionBlock.object(gameAddress),
+        transactionBlock.object(leaderboardAddress)
       ]
     })
 
     await ethos.transact({
         signer: walletSigner,
         transactionInput: {
-          transaction,
+          transactionBlock,
           chain
         },
     });

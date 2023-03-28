@@ -1,4 +1,4 @@
-const { ethos, Transaction } = require("ethos-connect");
+const { ethos, TransactionBlock } = require("ethos-connect");
 const { contractAddress } = require("./constants");
 const {
   eById,
@@ -21,15 +21,15 @@ const responseTimes = {
 }
 
 const constructTransaction = (direction, activeGameAddress) => {
-  const transaction = new Transaction();
-  transaction.moveCall({
+  const transactionBlock = new TransactionBlock();
+  transactionBlock.moveCall({
     target: `${contractAddress}::game_8192::make_move`,
     arguments: [
-      transaction.object(activeGameAddress),
-      transaction.pure(direction)
+      transactionBlock.object(activeGameAddress),
+      transactionBlock.pure(direction)
     ]
   })
-  return transaction;
+  return transactionBlock;
 };
 
 const checkPreapprovals = async (chain, activeGameAddress, walletSigner) => {
@@ -108,7 +108,7 @@ const execute = async (
   const dataPromise = ethos.transact({
     signer: walletSigner,
     transactionInput: {
-      transaction: moveTransaction,
+      transactionBlock: moveTransaction,
       chain,
       options: {
         showBalanceChanges: true,
