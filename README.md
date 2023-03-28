@@ -70,6 +70,8 @@ or
 
 `sui client publish --gas-budget 10000`
 
+You will need to update the contract and leaderboard address in `constants.ts` with the values provided when you publish the contract.
+
 ## The Front-End
 
 The front end is written in plain javascript, html, and css. It has minimal dependencies and is statically hosted on GitHub, using the blockchain for all persistent state.

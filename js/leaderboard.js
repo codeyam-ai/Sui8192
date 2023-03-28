@@ -1,6 +1,6 @@
-const { BCS, getSuiMoveConfig } = require('@mysten/bcs');
+const { BCS } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
-const { ethos } = require("ethos-connect");
+const { ethos, TransactionBlock } = require("ethos-connect");
 const {
     contractAddress,
     leaderboardAddress,
@@ -30,12 +30,17 @@ const topGames = async (network, force) => {
 
   if (_topGames && !force) return _topGames;
   const topGamesId = leaderboardObject.top_games.fields.id.id;
-  const gameInfos = await provider.getDynamicFields(topGamesId)
-  const gameDetails = await provider.getObjectBatch(gameInfos.data.map((info) => info.objectId))
+  const gameInfos = await provider.getDynamicFields({ parentId: topGamesId })
+  const gameDetails = await provider.multiGetObjects({
+    ids: gameInfos.data.map((info) => info.objectId),
+    options: {
+      showContent: true
+    }
+  })
   _topGames = gameDetails.sort(
-    (a,b) => a.details.data.fields.name - b.details.data.fields.name
+    (a,b) => a.data.content.fields.name - b.data.content.fields.name
   ).map(
-    (details) => details.details.data.fields.value
+    (details) => details.data.content.fields.value
   ).filter(
     (game) => !!game
   )
@@ -45,13 +50,13 @@ const topGames = async (network, force) => {
 const getObject = async (network, objectId) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
-    return provider.getObject(objectId);
+    return provider.getObject({ id: objectId, options: { showContent: true } });
 };
 
 const get = async (network) => {
     const {
-        details: {
-            data: { fields: leaderboard },
+        data: {
+            content: { fields: leaderboard },
         },
     } = await getObject(network, leaderboardAddress);
     leaderboardObject = leaderboard;
@@ -61,8 +66,8 @@ const get = async (network) => {
 const getLeaderboardGame = async (network, gameObjectId) => {
     const gameObject = await getObject(network, gameObjectId);
     let {
-        details: {
-            data: {
+        data: {
+            content: {
                 fields: { boards: boardsTable, move_count: moveCount, game_over: gameOver },
             },
         },
@@ -71,21 +76,20 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
   
-    const history = await provider.devInspectTransaction(
-      "0x0000000000000000000000000000000000000002",
-      {
-        kind: "moveCall",
-        data: {
-          packageObjectId: contractAddress,
-          module: "game_8192",
-          function: "all_moves",
-          typeArguments: [],
-          arguments: [gameObjectId]
-        },
-      }
-    );
+    const query = new TransactionBlock();
+    query.moveCall({
+        target: `${contractAddress}::game_8192::all_moves`,
+        arguments: [
+          query.object(gameObjectId)
+        ]
+    })
+    const history = await provider.devInspectTransactionBlock({
+      transactionBlock: query,
+      sender: "0x0000000000000000000000000000000000000000000000000000000000000000"
+    });
 
-  if ('Ok' in history.results) {
+    const results = history.results[0]
+  if (results) {
       const enums = {}
       enums['Option<u64>'] = {
         none: null,
@@ -94,7 +98,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     
       const bcsConfig = {
         vectorType: 'vector',
-        addressLength: 20,
+        addressLength: 32,
         addressEncoding: 'hex',
         types: { enums },
         withPrimitives: true
@@ -103,7 +107,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
       const bcs = new BCS(bcsConfig);
       // const bcs = new BCS(getSuiMoveConfig());
 
-      bcs.registerAddressType('SuiAddress', 20, 'hex');
+      bcs.registerAddressType('SuiAddress', 32, 'hex');
       
       bcs.registerStructType('GameHistory8192', {
           move_count: 'u64',
@@ -118,13 +122,13 @@ const getLeaderboardGame = async (network, gameObjectId) => {
           player: 'SuiAddress'
       });
 
-      const dataNumberArray =
-          history.results.Ok[0][1].returnValues?.[0]?.[0];
+      const dataNumberArray = results.returnValues?.[0]?.[0];
       if (!dataNumberArray) return;
 
       const data = Uint8Array.from(dataNumberArray);
       const histories = bcs.de('vector<GameHistory8192>', data);
 
+      console.log("HISTORIES", histories)
       gameOver = histories[histories.length - 1].game_over;
       return { id: gameObjectId, gameOver, moveCount, histories };
   }
@@ -421,22 +425,22 @@ const minTile = () => {
     return leaderboardObject.min_tile;
 };
 
-const submit = async (network, gameAddress, walletSigner, onComplete) => {
-    const signableTransaction = {
-        kind: "moveCall",
-        data: {
-            packageObjectId: contractAddress,
-            module: "leaderboard_8192",
-            function: "submit_game",
-            typeArguments: [],
-            arguments: [gameAddress, leaderboardAddress],
-            gasBudget: 100000,
-        },
-    };
+const submit = async (network, chain, gameAddress, walletSigner, onComplete) => {
+    const transactionBlock = new TransactionBlock();
+    transactionBlock.moveCall({
+      target: `${contractAddress}::leaderboard_8192::submit_game`,
+      arguments: [
+        transactionBlock.object(gameAddress),
+        transactionBlock.object(leaderboardAddress)
+      ]
+    })
 
-    const response = await ethos.transact({
+    await ethos.transact({
         signer: walletSigner,
-        signableTransaction,
+        transactionInput: {
+          transactionBlock,
+          chain
+        },
     });
 
     await load(network, true);

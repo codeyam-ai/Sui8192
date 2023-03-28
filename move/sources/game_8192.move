@@ -1,21 +1,27 @@
 module ethos::game_8192 {
     use sui::object::{Self, ID, UID};
-    use sui::tx_context::{Self, TxContext};
+    use sui::tx_context::{Self, TxContext, sender};
     use sui::url::{Self, Url};
-    use std::string::{Self, String};
+    use std::string::{utf8, Self, String};
     use sui::event;
-    use sui::transfer;
+    use sui::transfer::{transfer, public_transfer};
     use sui::table::{Self, Table};
     use std::option::Option;
     use std::vector;
     use ethos::game_board_8192::{Self, GameBoard8192};
     
+    use sui::package;
+    use sui::display;
+
     friend ethos::leaderboard_8192;
 
     #[test_only]
     friend ethos::game_8192_tests;
 
     const EInvalidPlayer: u64 = 0;
+
+    /// One-Time-Witness for the module.
+    struct GAME_8192 has drop {}
 
     struct Game8192 has key, store {
         id: UID,
@@ -93,6 +99,38 @@ module ethos::game_8192 {
         url: Url
     }
 
+    fun init(otw: GAME_8192, ctx: &mut TxContext) {
+        let keys = vector[
+            utf8(b"name"),
+            utf8(b"image_url"),
+            utf8(b"description"),
+            utf8(b"project_url"),
+            utf8(b"creator"),
+        ];
+
+        let values = vector[
+            utf8(b"{name}"),
+            utf8(b"{url}"),
+            utf8(b"{description}"),
+            utf8(b"https://ethoswallet.github.io/Sui8192/"),
+            utf8(b"Ethos")
+        ];
+
+        // Claim the `Publisher` for the package!
+        let publisher = package::claim(otw, ctx);
+
+        // Get a new `Display` object for the `Hero` type.
+        let display = display::new_with_fields<Game8192>(
+            &publisher, keys, values, ctx
+        );
+
+        // Commit first version of `Display` to apply changes.
+        display::update_version(&mut display);
+
+        public_transfer(publisher, sender(ctx));
+        public_transfer(display, sender(ctx));
+    }
+
     // PUBLIC ENTRY FUNCTIONS //
     
     public entry fun create(ctx: &mut TxContext) {
@@ -130,7 +168,7 @@ module ethos::game_8192 {
             score
         });
         
-        transfer::transfer(game, player);
+        transfer(game, player);
     }
 
     public entry fun make_move(game: &mut Game8192, direction: u64, ctx: &mut TxContext)  {

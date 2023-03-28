@@ -1,6 +1,6 @@
 const React = require("react");
 const ReactDOM = require("react-dom/client");
-const { EthosConnectProvider, SignInButton, ethos } = require("ethos-connect");
+const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require("ethos-connect");
 
 const leaderboard = require("./leaderboard");
 const { contractAddress } = require("./constants");
@@ -20,11 +20,13 @@ const moves = require("./moves");
 const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
-const DEVNET = "https://fullnode.devnet.sui.io/"
-// const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
+const LOCALNET = "http://127.0.0.1:9000";
+// const DEVNET = "https://fullnode.devnet.sui.io/"
+const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
 const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 // const TESTNET = "https://fullnode.testnet.sui.io/"
 const NETWORK_NAME = 'devNet';
+const CHAIN = "sui::devnet";
 
 let walletSigner;
 let games;
@@ -57,16 +59,12 @@ const initializeKeyListener = () => {
     if (!direction) return;
 
     e.preventDefault();
-    
-    const largestCoinId = walletContents.tokens['0x2::sui::SUI'].coins.sort(
-      (a, b) => b.balance - a.balance
-    )[0].objectId;
 
     moves.execute(
+      CHAIN,
       direction,
       activeGameAddress,
       walletSigner,
-      largestCoinId,
       (newBoard, direction) => {
         handleResult(newBoard, direction);
         loadWalletContents();
@@ -200,7 +198,7 @@ function showUnknownError(error) {
 
 async function tryDrip(address, suiBalance) {
   if (!walletSigner || faucetUsed) return;
-  const dripNetwork = "DEVNET"
+  const dripNetwork = LOCALNET
   faucetUsed = true;
 
   let success;
@@ -235,8 +233,8 @@ async function tryDrip(address, suiBalance) {
 }
 
 async function loadWalletContents() {
-  if (!walletSigner) return;
-  const address = await walletSigner.getAddress();
+  if (!walletSigner?.currentAccount) return;
+  const address = walletSigner.currentAccount.address
   const addressElement = eById("wallet-address")
   if (addressElement) {
     addressElement.innerHTML = truncateMiddle(address, 4);
@@ -263,21 +261,21 @@ async function loadWalletContents() {
 }
 
 async function loadGames() {
-  const loadGames = eById("loading-games");
-  if (!loadGames) return;
+  const loadGamesElement = eById("loading-games");
+  if (!loadGamesElement) return;
 
   if (!walletSigner || !leaderboard) {
     setTimeout(loadGames, 500);
     return;
   }
-  removeClass(loadGames, "hidden");
+  removeClass(loadGamesElement, "hidden");
 
   const gamesElement = eById("games-list");
   gamesElement.innerHTML = "";
 
   await loadWalletContents();
 
-  addClass(eById("loading-games"), "hidden");
+  addClass(loadGamesElement, "hidden");
 
   games = walletContents.nfts
     .filter((nft) => nft.package === contractAddress)
@@ -369,7 +367,7 @@ async function loadGames() {
       dataset: { address },
     } = e.target;
     e.stopPropagation();
-    leaderboard.submit(network, address, walletSigner, () => {
+    leaderboard.submit(network, CHAIN, address, walletSigner, () => {
       loadGames();
     });
   });
@@ -390,7 +388,7 @@ async function setActiveGame(game) {
   
   transactionsList.innerHTML = "";
   moves.reset();
-  moves.checkPreapprovals(activeGameAddress, walletSigner);
+  moves.checkPreapprovals(CHAIN, activeGameAddress, walletSigner);
 
   const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
@@ -523,22 +521,22 @@ const onWalletConnected = async ({ signer }) => {
         setOnClick(mintButton, async () => {
           modal.open("loading", "container");
 
-          const signableTransaction = {
-            kind: "moveCall",
-            data: {
-              packageObjectId: contractAddress,
-              module: "game_8192",
-              function: "create",
-              typeArguments: [],
-              arguments: [],
-              gasBudget: 10000,
-            },
-          };
+          const transactionBlock = new TransactionBlock();
+          transactionBlock.moveCall({
+            target: `${contractAddress}::game_8192::create`,
+            typeArguments: [],
+            arguments: []
+          })
 
           try {
             const data = await ethos.transact({
               signer: walletSigner,
-              signableTransaction,
+              transactionInput: {
+                transactionBlock,
+                options: {
+                  showEvents: true
+                }
+              }
             });
 
             if (!data || data.error) {
@@ -547,9 +545,9 @@ const onWalletConnected = async ({ signer }) => {
               return;
             }
 
-            const { effects } = data.EffectsCert?.effects || data;
-            const gameData = effects.events.find((e) => e.moveEvent).moveEvent.fields;
-            const { game_id, board_spaces, score } = gameData;
+            const { events } = data;
+            const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
+            const { game_id, board_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
               board: {
@@ -598,7 +596,7 @@ const onWalletConnected = async ({ signer }) => {
 
     removeClass(document.body, "signed-out");
 
-    const address = await signer.getAddress();
+    const address = signer.currentAccount.address;
 
     setOnClick(eById("copy-address"), () => {
       const innerHTML = eById("copy-address").innerHTML;
