@@ -88,7 +88,7 @@ function init() {
   leaderboard.load(network);
 
   const ethosConfiguration = {
-    apiKey: "sui-8192",
+    apiKey: "8b6347aa-c5fb-460a-8fcc-efeb277f76fc",
     network,
     preferredWallets: ['Ethos Wallet']
   };
