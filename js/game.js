@@ -3,7 +3,12 @@ const ReactDOM = require("react-dom/client");
 const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require("ethos-connect");
 
 const leaderboard = require("./leaderboard");
-const { contractAddress } = require("./constants");
+const { 
+  devnetContractAddress,
+  devnetLeaderboardAddress,
+  testnetContractAddress,
+  testnetLeaderboardAddress,
+} = require("./constants");
 const {
   eById,
   eByClass,
@@ -21,13 +26,21 @@ const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
-// const DEVNET = "https://fullnode.devnet.sui.io/"
-const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
-const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
-// const TESTNET = "https://fullnode.testnet.sui.io/"
-const NETWORK_NAME = 'devNet';
-const CHAIN = "sui::devnet";
+const DEVNET = "https://fullnode.devnet.sui.io/"
+// const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
+const TESTNET = "https://fullnode.testnet.sui.io/"
+// const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
+const LOCALNET_NETWORK_NAME = 'local';
+const DEVNET_NETWORK_NAME = 'devNet';
+const TESTNET_NETWORK_NAME = 'testNet';
+const LOCALNET_CHAIN = "sui::local";
+const DEVNET_CHAIN = "sui::devnet";
+const TESTNET_CHAIN = "sui::testnet";
 
+let contractAddress;
+let leaderboardAddress;
+let networkName;
+let chain;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -35,9 +48,59 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = DEVNET;
+let network = TESTNET;
+let root;
 
 const int = (intString = "-1") => parseInt(intString);
+
+const setNetwork = (newNetworkName) => {
+  if (newNetworkName === networkName) return;
+
+  window.history.pushState(
+    {},
+    '',
+    `?network=${newNetworkName}`
+  );
+
+  if (networkName) {
+    window.location.reload();
+  }
+
+  if (newNetworkName === LOCALNET_CHAIN) {
+    networkName = LOCALNET_NETWORK_NAME;
+    network = LOCALNET;
+    chain = LOCALNET_CHAIN;
+    contrcontractAddressact = devnetContractAddress;
+    leaderboardAddress = devnetLeaderboardAddress;
+  } else if (newNetworkName === TESTNET_NETWORK_NAME) {
+    networkName = TESTNET_NETWORK_NAME;
+    network = TESTNET;
+    chain = TESTNET_CHAIN;
+    contractAddress = testnetContractAddress
+    leaderboardAddress = testnetLeaderboardAddress;
+  } else {
+    networkName = DEVNET_NETWORK_NAME;
+    network = DEVNET;
+    chain = DEVNET_CHAIN;
+    contractAddress = devnetContractAddress;
+    leaderboardAddress = devnetLeaderboardAddress;
+  }
+
+  removeClass(eByClass('network-button'), 'selected');
+  addClass(eById(newNetworkName), 'selected');
+  
+  // init();
+}
+
+const initializeNetwork = () => {
+  const queryParams = new URLSearchParams(window.location.search);
+  const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
+  
+  setNetwork(initialNetwork);
+
+  setOnClick(eById(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
+  setOnClick(eById(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
+}
 
 const initializeKeyListener = () => {
   window.onkeydown = (e) => {
@@ -61,7 +124,8 @@ const initializeKeyListener = () => {
     e.preventDefault();
 
     moves.execute(
-      CHAIN,
+      chain,
+      contractAddress,
       direction,
       activeGameAddress,
       walletSigner,
@@ -84,8 +148,9 @@ const initializeKeyListener = () => {
 
 function init() {
   // test();
+  initializeNetwork();
 
-  leaderboard.load(network);
+  leaderboard.load(network, leaderboardAddress);
 
   const ethosConfiguration = {
     apiKey: "8b6347aa-c5fb-460a-8fcc-efeb277f76fc",
@@ -106,7 +171,9 @@ function init() {
     children: [button],
   });
 
-  const root = ReactDOM.createRoot(start);
+  if (!root) {
+    root = ReactDOM.createRoot(start);
+  }
   root.render(wrapper);
 
   initializeClicks();
@@ -314,7 +381,7 @@ async function loadGames() {
     }
 
     const gameElement = document.createElement("DIV");
-    let topGames = await leaderboard.topGames(network);
+    let topGames = await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.fields.game_id === game.address
@@ -367,7 +434,7 @@ async function loadGames() {
       dataset: { address },
     } = e.target;
     e.stopPropagation();
-    leaderboard.submit(network, CHAIN, address, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, leaderboardAddress, address, walletSigner, () => {
       loadGames();
     });
   });
@@ -388,7 +455,7 @@ async function setActiveGame(game) {
   
   transactionsList.innerHTML = "";
   moves.reset();
-  moves.checkPreapprovals(CHAIN, activeGameAddress, walletSigner);
+  moves.checkPreapprovals(chain, activeGameAddress, walletSigner, contractAddress);
 
   const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
@@ -402,14 +469,14 @@ async function setActiveGame(game) {
 
   setOnClick(eById("submit-game-to-leaderboard"), () => {
     showLeaderboard();
-    leaderboard.submit(network, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, leaderboardAddress, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });
 }
 
 function showLeaderboard() {
-  leaderboard.load(network);
+  leaderboard.load(network, leaderboardAddress);
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -464,7 +531,7 @@ const initializeClicks = () => {
   setOnClick(eById("modal-submit-to-leaderboard"), () => {
     modal.close();
     showLeaderboard();
-    leaderboard.submit(network, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, leaderboardAddress, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -488,22 +555,6 @@ const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
     modal.close();
-
-    if (
-        signer.name === "Ethos Wallet" && 
-        "ethosWallet" in window && 
-        window.ethosWallet &&
-        typeof window.ethosWallet === "object" &&
-        "getNetwork" in window.ethosWallet && 
-        typeof window.ethosWallet.getNetwork === "function"
-    ) {
-        const activeNetwork = await window.ethosWallet.getNetwork()
-        if (activeNetwork !== NETWORK_NAME) {
-            eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
-            removeClass(eById("error-network"), "hidden");
-            return;
-        }
-    }
 
     addClass(document.body, "signed-in");
 
