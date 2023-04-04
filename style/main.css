@@ -158,6 +158,30 @@ a:visited {
   color: #323541;
 }
 
+.network-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  border-radius: 24px;
+  text-align: center;
+  cursor: pointer;
+  color: #83808e;
+  background-color: #f2f1f0;
+  padding: 0;
+}
+
+.network-buttons .network-button {
+  border-radius: 24px;
+  background-color: #f2f1f0;
+  padding: 9px 12px;
+}
+ 
+
+.network-buttons .network-button.selected {
+  background-color: #D6F1F6;
+  color: #323541;
+}
+
 .header-address {
   flex: 1;
   display: flex;

@@ -1,8 +1,8 @@
 module.exports = {
-  // contractAddress: "0xd6742d7dc515988a53353b917edd1a5f66f41d45",
-  // leaderboardAddress: "0x087210d5e038fc2f4f404e493205ea0910020936",
-  contractAddress: "0x8f1df3acef6846eedc97c126b70a3ac49c92e94eb7ecacfa14b07dd7e51f0fca",
-  leaderboardAddress: "0x487a4c18a3da7001c21ed5a48c17c59c26b5d7cd53b6088eff0909ded0534b25",
+  testnetContractAddress: "0x6aa21302ec6da1e665f6be7ac2243b5b27d72b52d74c87730fc1b825196ced79",
+  testnetLeaderboardAddress: "0x17d38d6e2ed761142b827383624ebdad8b51dccbeb459f0264001f37817bb0ff",
+  devnetContractAddress: "0x8f1df3acef6846eedc97c126b70a3ac49c92e94eb7ecacfa14b07dd7e51f0fca",
+  devnetLeaderboardAddress: "0x487a4c18a3da7001c21ed5a48c17c59c26b5d7cd53b6088eff0909ded0534b25",
   tileNames: {
     1: "Air",
     2: "Mist",

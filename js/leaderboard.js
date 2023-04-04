@@ -2,9 +2,7 @@ const { BCS } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");
 const {
-    contractAddress,
-    leaderboardAddress,
-    tileNames,
+   tileNames,
 } = require("./constants");
 const {
     eById,
@@ -47,13 +45,13 @@ const topGames = async (network, force) => {
   return _topGames;
 }
 
-const getObject = async (network, objectId) => {
+const getObject = async (network, leaderboardAddress) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
-    return provider.getObject({ id: objectId, options: { showContent: true } });
+    return provider.getObject({ id: leaderboardAddress, options: { showContent: true } });
 };
 
-const get = async (network) => {
+const get = async (network, leaderboardAddress) => {
     const {
         data: {
             content: { fields: leaderboard },
@@ -63,7 +61,7 @@ const get = async (network) => {
     return leaderboard;
 };
 
-const getLeaderboardGame = async (network, gameObjectId) => {
+const getLeaderboardGame = async (network, contractAddress, gameObjectId) => {
     const gameObject = await getObject(network, gameObjectId);
     let {
         data: {
@@ -85,8 +83,9 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     })
     const history = await provider.devInspectTransactionBlock({
       transactionBlock: query,
-      sender: "0x0000000000000000000000000000000000000000000000000000000000000000"
+      sender: "0x000000000000000000000000000000000000000000000000000000000000000"
     });
+    console.log('history', history)
 
     const results = history.results[0]
   if (results) {
@@ -179,7 +178,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
     return completeHTML;
 };
 
-const load = async (network, force = false) => {
+const load = async (network, leaderboardAddress, force = false) => {
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
 
@@ -193,7 +192,7 @@ const load = async (network, force = false) => {
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;
-    leaderboardObject = await get(network);
+    leaderboardObject = await get(network, leaderboardAddress);
 
     addClass(eById("loading-leaderboard"), "hidden");
 
@@ -425,7 +424,7 @@ const minTile = () => {
     return leaderboardObject.min_tile;
 };
 
-const submit = async (network, chain, gameAddress, walletSigner, onComplete) => {
+const submit = async (network, chain, contractAddress, leaderboardAddress, gameAddress, walletSigner, onComplete) => {
     const transactionBlock = new TransactionBlock();
     transactionBlock.moveCall({
       target: `${contractAddress}::leaderboard_8192::submit_game`,
