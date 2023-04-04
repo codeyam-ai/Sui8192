@@ -87,7 +87,7 @@ const setNetwork = (newNetworkName) => {
   }
 
   removeClass(eByClass('network-button'), 'selected');
-  addClass(eById(newNetworkName), 'selected');
+  addClass(eByClass(newNetworkName), 'selected');
   
   // init();
 }
@@ -98,8 +98,8 @@ const initializeNetwork = () => {
   
   setNetwork(initialNetwork);
 
-  setOnClick(eById(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
-  setOnClick(eById(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
+  setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
+  setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
 }
 
 const initializeKeyListener = () => {

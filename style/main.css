@@ -1238,6 +1238,7 @@ a:visited.link-button {
 
   .header-buttons {
     padding-top: 24px;
+    gap: 12px;
   }
 
   .content {
