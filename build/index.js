@@ -211,8 +211,8 @@ const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
 const DEVNET = "https://fullnode.devnet.sui.io/"
 // const DEVNET = "https://node.shinami.com/api/v1/3be8a6da87256601554fae7b46f9cf71";
-const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
-// const TESTNET = "https://fullnode.testnet.sui.io/"
+const TESTNET = "https://fullnode.testnet.sui.io/"
+// const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8c"
 const LOCALNET_NETWORK_NAME = 'local';
 const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
@@ -738,22 +738,6 @@ const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
     modal.close();
-
-    if (
-        signer.name === "Ethos Wallet" && 
-        "ethosWallet" in window && 
-        window.ethosWallet &&
-        typeof window.ethosWallet === "object" &&
-        "getNetwork" in window.ethosWallet && 
-        typeof window.ethosWallet.getNetwork === "function"
-    ) {
-        const activeNetwork = await window.ethosWallet.getNetwork()
-        if (activeNetwork !== networkName) {
-            eById('network').innerHTML = network === DEVNET ? "DevNet" : "TestNet";
-            removeClass(eById("error-network"), "hidden");
-            return;
-        }
-    }
 
     addClass(document.body, "signed-in");
 
@@ -1409,7 +1393,7 @@ const submit = async (network, chain, contractAddress, leaderboardAddress, gameA
         },
     });
 
-    await load(network, true);
+    await load(network, leaderboardAddress, true);
     ethos.hideWallet(walletSigner);
     onComplete();
 };

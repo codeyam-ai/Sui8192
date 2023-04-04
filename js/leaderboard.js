@@ -442,7 +442,7 @@ const submit = async (network, chain, contractAddress, leaderboardAddress, gameA
         },
     });
 
-    await load(network, true);
+    await load(network, leaderboardAddress, true);
     ethos.hideWallet(walletSigner);
     onComplete();
 };
