@@ -638,7 +638,7 @@ async function setActiveGame(game) {
   
   transactionsList.innerHTML = "";
   moves.reset();
-  moves.checkPreapprovals(chain, activeGameAddress, walletSigner, contractAddress);
+  moves.checkPreapprovals(chain, contractAddress, activeGameAddress, walletSigner);
 
   const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
@@ -1487,7 +1487,7 @@ const constructTransaction = (direction, activeGameAddress, contractAddress) => 
   return transactionBlock;
 };
 
-const checkPreapprovals = async (chain, activeGameAddress, walletSigner, contractAddress) => {
+const checkPreapprovals = async (chain, contractAddress, activeGameAddress, walletSigner) => {
   if (walletSigner.type === "hosted") {
     return true;
   }
@@ -1538,7 +1538,7 @@ const execute = async (
     return;
   }
 
-  await checkPreapprovals(chain, activeGameAddress, walletSigner);
+  await checkPreapprovals(chain, contractAddress, activeGameAddress, walletSigner);
 
   const direction = directionOrQueuedMove.id
     ? directionOrQueuedMove.direction

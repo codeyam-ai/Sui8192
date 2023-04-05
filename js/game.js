@@ -455,7 +455,7 @@ async function setActiveGame(game) {
   
   transactionsList.innerHTML = "";
   moves.reset();
-  moves.checkPreapprovals(chain, activeGameAddress, walletSigner, contractAddress);
+  moves.checkPreapprovals(chain, contractAddress, activeGameAddress, walletSigner);
 
   const activeBoard = board.convertInfo(game.board);
   topTile = activeBoard.topTile || 2;
