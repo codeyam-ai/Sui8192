@@ -15,6 +15,7 @@ const {
 
 const PAGE_COUNT = 25;
 
+let cachedLeaderboardAddress;
 let leaderboardObject;
 let _topGames;
 let leaderboardTimestamp;
@@ -27,6 +28,10 @@ const topGames = async (network, force) => {
   const provider = new JsonRpcProvider(connection);
 
   if (_topGames && !force) return _topGames;
+
+  if (!leaderboardObject) {
+    await get(network);
+  }
   const topGamesId = leaderboardObject.top_games.fields.id.id;
   const gameInfos = await provider.getDynamicFields({ parentId: topGamesId })
   const gameDetails = await provider.multiGetObjects({
@@ -45,18 +50,18 @@ const topGames = async (network, force) => {
   return _topGames;
 }
 
-const getObject = async (network, leaderboardAddress) => {
+const getObject = async (network) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
-    return provider.getObject({ id: leaderboardAddress, options: { showContent: true } });
+    return provider.getObject({ id: cachedLeaderboardAddress, options: { showContent: true } });
 };
 
-const get = async (network, leaderboardAddress) => {
+const get = async (network) => {
     const {
         data: {
             content: { fields: leaderboard },
         },
-    } = await getObject(network, leaderboardAddress);
+    } = await getObject(network);
     leaderboardObject = leaderboard;
     return leaderboard;
 };
@@ -179,6 +184,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
 };
 
 const load = async (network, leaderboardAddress, force = false) => {
+    cachedLeaderboardAddress = leaderboardAddress
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
 
@@ -192,7 +198,7 @@ const load = async (network, leaderboardAddress, force = false) => {
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;
-    leaderboardObject = await get(network, leaderboardAddress);
+    leaderboardObject = await get(network);
 
     addClass(eById("loading-leaderboard"), "hidden");
 
@@ -424,13 +430,13 @@ const minTile = () => {
     return leaderboardObject.min_tile;
 };
 
-const submit = async (network, chain, contractAddress, leaderboardAddress, gameAddress, walletSigner, onComplete) => {
+const submit = async (network, chain, contractAddress, gameAddress, walletSigner, onComplete) => {
     const transactionBlock = new TransactionBlock();
     transactionBlock.moveCall({
       target: `${contractAddress}::leaderboard_8192::submit_game`,
       arguments: [
         transactionBlock.object(gameAddress),
-        transactionBlock.object(leaderboardAddress)
+        transactionBlock.object(cachedLeaderboardAddress)
       ]
     })
 
@@ -442,7 +448,7 @@ const submit = async (network, chain, contractAddress, leaderboardAddress, gameA
         },
     });
 
-    await load(network, leaderboardAddress, true);
+    await load(network, cachedLeaderboardAddress, true);
     ethos.hideWallet(walletSigner);
     onComplete();
 };
