@@ -33,9 +33,9 @@ const TESTNET = "https://node.shinami.com/api/v1/f938918cd0e02cb8ae13d899fa10ad8
 const LOCALNET_NETWORK_NAME = 'local';
 const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
-const LOCALNET_CHAIN = "sui::local";
-const DEVNET_CHAIN = "sui::devnet";
-const TESTNET_CHAIN = "sui::testnet";
+const LOCALNET_CHAIN = "sui:local";
+const DEVNET_CHAIN = "sui:devnet";
+const TESTNET_CHAIN = "sui:testnet";
 
 let contractAddress;
 let leaderboardAddress;
