@@ -7,11 +7,11 @@
   "license": "MIT",
   "dependencies": {
     "@mysten/bcs": "^0.6.1",
-    "@mysten/sui.js": "^0.30.0",
+    "@mysten/sui.js": "^0.31.0",
     "bignumber.js": "^9.1.0",
     "browserify": "^17.0.0",
     "canvas-confetti": "^1.5.1",
-    "ethos-connect": "0.0.107",
+    "ethos-connect": "^0.0.126",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "static-server": "^2.2.1"
