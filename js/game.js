@@ -434,7 +434,7 @@ async function loadGames() {
       dataset: { address },
     } = e.target;
     e.stopPropagation();
-    leaderboard.submit(network, chain, contractAddress, leaderboardAddress, address, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, address, walletSigner, () => {
       loadGames();
     });
   });
@@ -469,7 +469,7 @@ async function setActiveGame(game) {
 
   setOnClick(eById("submit-game-to-leaderboard"), () => {
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, leaderboardAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -531,7 +531,7 @@ const initializeClicks = () => {
   setOnClick(eById("modal-submit-to-leaderboard"), () => {
     modal.close();
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, leaderboardAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
       loadGames();
     });
   });
