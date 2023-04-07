@@ -37,10 +37,10 @@ const LOCALNET_CHAIN = "sui:local";
 const DEVNET_CHAIN = "sui:devnet";
 const TESTNET_CHAIN = "sui:testnet";
 
-let contractAddress;
-let leaderboardAddress;
-let networkName;
-let chain;
+let contractAddress = testnetContractAddress;
+let leaderboardAddress = testnetLeaderboardAddress;
+let networkName = TESTNET_NETWORK_NAME;
+let chain = TESTNET_CHAIN;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -96,7 +96,7 @@ const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
   const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
   
-  setNetwork(initialNetwork);
+  setNetwork(initialNetwork, true);
 
   setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
