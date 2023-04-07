@@ -154,6 +154,7 @@ function init() {
 
   const ethosConfiguration = {
     apiKey: "8b6347aa-c5fb-460a-8fcc-efeb277f76fc",
+    chain,
     network,
     preferredWallets: ['Ethos Wallet']
   };
