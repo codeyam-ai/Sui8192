@@ -56,14 +56,14 @@ const int = (intString = "-1") => parseInt(intString);
 const setNetwork = (newNetworkName) => {
   if (newNetworkName === networkName) return;
 
-  window.history.pushState(
-    {},
-    '',
-    `?network=${newNetworkName}`
-  );
-
-  if (networkName) {
-    window.location.reload();
+  const queryParams = new URLSearchParams(window.location.search);
+  if (queryParams.get('network') !== newNetworkName) {
+    window.history.pushState(
+      {},
+      '',
+      `?network=${newNetworkName}`
+    );
+    window.location.reload();  
   }
 
   if (newNetworkName === LOCALNET_CHAIN) {
@@ -89,7 +89,7 @@ const setNetwork = (newNetworkName) => {
   removeClass(eByClass('network-button'), 'selected');
   addClass(eByClass(newNetworkName), 'selected');
   
-  // init();
+  init();
 }
 
 const initializeNetwork = () => {
