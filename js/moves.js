@@ -181,9 +181,9 @@ const execute = async (
 
   const { direction: lastDirection, last_tile: lastTile, move_count: moveCount } = event.parsedJson;
   const transaction = {
-    gas: computationCost + storageCost - storageRebate,
+    gas: BigInt(computationCost) + BigInt(storageCost) - BigInt(storageRebate),
     computation: computationCost,
-    storage: storageCost - storageRebate,
+    storage: BigInt(storageCost) - BigInt(storageRebate),
     move: lastDirection,
     lastTile,
     moveCount
