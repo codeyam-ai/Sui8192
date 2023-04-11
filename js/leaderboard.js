@@ -444,7 +444,10 @@ const submit = async (network, chain, contractAddress, gameAddress, walletSigner
         signer: walletSigner,
         transactionInput: {
           transactionBlock,
-          chain
+          chain,
+          options: {
+            showEffects: true
+          }
         },
     });
 
