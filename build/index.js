@@ -1504,7 +1504,7 @@ const checkPreapprovals = async (chain, contractAddress, activeGameAddress, wall
         objectId: activeGameAddress,
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
-        totalGasLimit: 50000000,
+        totalGasLimit: 250000000,
         maxTransactionCount: 25,
       },
     });
