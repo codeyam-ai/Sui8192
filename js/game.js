@@ -26,10 +26,10 @@ const confetti = require("./confetti");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
-// const DEVNET = "https://fullnode.devnet.sui.io/"
-const DEVNET = "https://00h4175td6.execute-api.us-east-1.amazonaws.com/sui?env=dev";
-// const TESTNET = "https://fullnode.testnet.sui.io/"
-const TESTNET = "https://00h4175td6.execute-api.us-east-1.amazonaws.com/sui?env=test"
+const DEVNET = "https://fullnode.devnet.sui.io/"
+// const DEVNET = "https://00h4175td6.execute-api.us-east-1.amazonaws.com/sui?env=dev";
+const TESTNET = "https://fullnode.testnet.sui.io/"
+// const TESTNET = "https://00h4175td6.execute-api.us-east-1.amazonaws.com/sui?env=test"
 const LOCALNET_NETWORK_NAME = 'local';
 const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
