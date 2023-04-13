@@ -90,7 +90,6 @@ const getLeaderboardGame = async (network, contractAddress, gameObjectId) => {
       transactionBlock: query,
       sender: "0x000000000000000000000000000000000000000000000000000000000000000"
     });
-    console.log('history', history)
 
     const results = history.results[0]
   if (results) {
