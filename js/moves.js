@@ -112,11 +112,8 @@ const execute = async (
       transactionBlock: moveTransaction,
       chain,
       options: {
-        showBalanceChanges: true,
-        showEffects: true,
         showEvents: true,
-        showInput: true,
-        showObjectChanges: true
+        showEffects: true
       },
       requestType: 'WaitForLocalExecution'
     }

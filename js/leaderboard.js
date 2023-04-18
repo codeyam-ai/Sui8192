@@ -445,8 +445,12 @@ const submit = async (network, chain, contractAddress, gameAddress, walletSigner
           transactionBlock,
           chain,
           options: {
-            showEffects: true
-          }
+            showEvents: true,
+            showEffects: true,
+            showBalanceChanges: true,
+            showObjectChanges: true
+          },
+          requestType: 'WaitForLocalExecution'
         },
     });
 

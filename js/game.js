@@ -585,7 +585,8 @@ const onWalletConnected = async ({ signer }) => {
                 transactionBlock,
                 options: {
                   showEvents: true
-                }
+                },
+                requestType: 'WaitForLocalExecution'
               }
             });
 
