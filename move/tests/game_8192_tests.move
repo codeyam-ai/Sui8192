@@ -51,7 +51,6 @@ module ethos::game_8192_tests {
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             
             let board = game_8192::board_at(&game, 0);
-            game_board_8192::print_board(board);
             let space_value = game_board_8192::board_space_at(board, 0, 1);
             assert!(space_value == 1, space_value);
 
@@ -83,11 +82,8 @@ module ethos::game_8192_tests {
             let space_value1 = game_board_8192::board_space_at(board, 0, 0);
             assert!(space_value1 == 0, 1);
 
-            game_board_8192::print_board(game_8192::board_at(&game, 0));
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
-            game_board_8192::print_board(game_8192::board_at(&game, 1));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
-            game_board_8192::print_board(game_8192::board_at(&game, 2));
 
             assert!(game_8192::move_count(&game) == 2, game_8192::move_count(&game));
             let (moveDirection0, _) = game_8192::move_at(&game, 0);
@@ -102,15 +98,13 @@ module ethos::game_8192_tests {
 
             // Original board is unchanged
             let space_value = game_board_8192::board_space_at(board, 0, 1);
-            assert!(space_value == 0, space_value);
-
+            assert!(space_value == 1, space_value);
             let space_value1 = game_board_8192::board_space_at(board, 0, 0);
             assert!(space_value1 == 0, 1);
 
             board = game_8192::board_at(&game, 1);
             let space_value = game_board_8192::board_space_at(board, 0, 0);
-            assert!(space_value == 0, space_value);
-
+            assert!(space_value == 1, space_value);
             let space_value1 = game_board_8192::board_space_at(board, 0, 1);
             assert!(space_value1 == 0, space_value1);
             

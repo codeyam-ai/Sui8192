@@ -520,7 +520,13 @@ module ethos::game_board_8192 {
                         packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, next_space);
                         packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);                        
                     } else if (next_space == space) {
-                        score_addition = score_addition + (space * 2);
+                        let score = 2;
+                        let space_steps = space;
+                        while (space_steps > 0) {
+                            score = score * 2;
+                            space_steps = space_steps - 1;
+                        };
+                        score_addition = score_addition + score;
                         packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, (space * 2));
                         packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);
                     };
@@ -529,12 +535,6 @@ module ethos::game_board_8192 {
                     relevant_column = next_column(relevant_column, current_direction);
                 }; 
 
-                std::debug::print(&3030303);
-                std::debug::print(&row);
-                std::debug::print(&column);
-                print_packed_spaces(packed_spaces);
-                std::debug::print(&4040404);
-               
                 column = column + 1;
             };
 
