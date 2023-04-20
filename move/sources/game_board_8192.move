@@ -107,9 +107,6 @@ module ethos::game_board_8192 {
         let existing_spaces = *&game_board.packed_spaces;
 
         let (packed_spaces, top_tile, add) = move_spaces(game_board.packed_spaces, direction); // 3000
-        std::debug::print(&1010101);
-        std::debug::print(&add);
-        std::debug::print(&2020202);
         game_board.packed_spaces = packed_spaces;
 
         if (existing_spaces == game_board.packed_spaces) {
@@ -226,55 +223,6 @@ module ethos::game_board_8192 {
         score_value
     }
 
-    fun score_add(old_packed_spaces: u64, new_packed_spaces: u64): u64 {
-        std::debug::print(&old_packed_spaces);
-        std::debug::print(&new_packed_spaces);
-        // let old_tiles = vector[];
-        
-        // let row_index = 0;
-        // while (row_index < vector::length(old_spaces)) {
-        //     let old_row = vector::borrow(old_spaces, row_index);
-            
-        //     let column_index = 0;
-        //     while (column_index < vector::length(old_row)) {
-        //         let old_option = vector::borrow(old_row, column_index);
-            
-        //         if (option::is_some(old_option)) {
-        //             vector::push_back(&mut old_tiles, *option::borrow(old_option));
-        //         };
-
-        //         column_index = column_index + 1;
-        //     };
-        //     row_index = row_index + 1;
-        // };
-
-        // let total_score_value: u64 = 0;
-        // let row_index = 0;
-        // while (row_index < vector::length(new_spaces)) {
-        //     let new_row = vector::borrow(new_spaces, row_index);
-            
-        //     let column_index = 0;
-        //     while (column_index < vector::length(new_row)) {
-        //         let new_option = vector::borrow(new_row, column_index);
-                
-        //         if (option::is_some(new_option)) {
-        //             let value = *option::borrow(new_option);
-        //             let score = remove_value_or_combined(
-        //                 &mut old_tiles, 
-        //                 value, 
-        //                 true
-        //             );
-        //             total_score_value = total_score_value + score;
-        //         };
-        //         column_index = column_index + 1;
-        //     };
-        //     row_index = row_index + 1;
-        // };
-        
-        // total_score_value
-        0
-    }
-
     fun move_possible(game_board: &GameBoard8192): bool {
         std::debug::print(game_board);
         // if (empty_space_available(game_board)) {
@@ -354,7 +302,6 @@ module ethos::game_board_8192 {
     }
 
     fun empty_space_available(game_board: &GameBoard8192): bool {
-        std::debug::print(game_board);
         let rows = row_count();
         let columns = column_count();
         
@@ -362,11 +309,8 @@ module ethos::game_board_8192 {
         while (row < rows) {
           let column = 0;
           while (column < columns) {
-            if (column > 0) return true;
-            // let space = space_at(game_board, row, column);
-            // if (option::is_none(space)) {
-            //   return true
-            // };
+            let space = board_space_at(game_board, row, column);
+            if (space > 0) return true;
             column = column + 1;
           };
           row = row + 1;
@@ -420,65 +364,7 @@ module ethos::game_board_8192 {
         }   
     }
 
-    fun move_space_direction_at(
-      packed_spaces: u64, 
-      direction: u64, 
-      row_index: u64, 
-      column_index: u64,
-      combine_map: &mut VecMap<SpacePosition, bool>
-    ): (bool, u64) {    
-        std::debug::print(&packed_spaces);
-        std::debug::print(&direction);
-        std::debug::print(&row_index);
-        std::debug::print(&column_index);
-        std::debug::print(combine_map);
-        // let space = spaces_at(spaces, row_index, column_index);
-        // let space_value = *option::borrow(space);
-        // if (is_vertical(direction)) {
-        //     if (row_index == 0) {
-        //         return (true, space_value)
-        //     };
-        // } else {
-        //     if (column_index == 0) {
-        //         return (true, space_value)
-        //     };   
-        // };
-
-        // let previous_column_index = column_index;
-        // let previous_row_index = row_index;
-
-        // if (is_vertical(direction)) {
-        //     previous_row_index = row_index - 1;
-        // } else {
-        //     previous_column_index = column_index - 1;
-        // };
-
-        // let previous = spaces_at(spaces, previous_row_index, previous_column_index);
-        // if (option::is_some(previous)) {
-        //     if (option::borrow(previous) == &space_value) {
-        //         let previous_space_position = SpacePosition {
-        //           row: previous_row_index,
-        //           column: previous_column_index
-        //         };
-
-        //         if (check_combined(combine_map, previous_space_position)) {
-        //             return (true, space_value)
-        //         };
-
-        //         space_value  = combine_spaces(spaces, row_index, column_index, previous_row_index, previous_column_index);
-                
-        //         set_combined(combine_map, previous_space_position);
-                
-        //         return (true, space_value)
-        //     }
-        // } else {
-        //     let value = clear_space_at(spaces, row_index, column_index);
-        //     fill_in_space_at(spaces, previous_row_index, previous_column_index, value);
-        //     return (false, space_value)
-        // };
-        // return (true, space_value)
-        return (true, 2)
-    }
+    
 
     fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64, u64) {
         let current_direction = direction;
@@ -486,60 +372,69 @@ module ethos::game_board_8192 {
         let top_tile: u64 = 0;
         let score_addition: u64 = 0;
 
-        let row = 0;
-        while (row < ROW_COUNT) {
-            let column = 0;
-            while (column < COLUMN_COUNT) {
-                let relevant_row = row;
-                if (current_direction == DOWN) {
-                    relevant_row = ROW_COUNT - row - 1;
+        let starter_row = 0;
+        if (current_direction == DOWN) {
+            starter_row = ROW_COUNT - 1;
+        };
+
+        let starter_column = 0;
+        if (current_direction == RIGHT) {
+            starter_column = COLUMN_COUNT  - 1;
+        };
+        let relevant_row = starter_row;
+        let relevant_column = starter_column;
+        
+        let space = space_at(packed_spaces, relevant_row, relevant_column);
+        
+        let next_relevant_row = next_row(relevant_row, current_direction);
+        let next_relevant_column = next_column(relevant_column, current_direction);
+
+        while (true) {
+            if (!valid_row(next_relevant_row)) {
+                relevant_row = starter_row;
+                relevant_column = next_row(relevant_column, current_direction);
+                if (!valid_column(relevant_column)) {
+                    break
                 };
-
-                let relevant_column = column;
-                if (current_direction == RIGHT) {
-                    relevant_column = COLUMN_COUNT - column - 1;
-                };
-                
-                let space = space_at(packed_spaces, relevant_row, relevant_column);
-                
-                let next_relevant_row = relevant_row;
-                let next_relevant_column = relevant_column;
-
-                while (true) {
-                    next_relevant_row = next_row(next_relevant_row, current_direction);
-                    next_relevant_column = next_column(next_relevant_column, current_direction);
-
-                    if (!valid_row(next_relevant_row)) break;
-                    if (!valid_column(next_relevant_column)) break;
-
-                    let next_space = space_at(packed_spaces, next_relevant_row, next_relevant_column);
-
-                    if (next_space == EMPTY) {
-                        continue
-                    } else if (space == EMPTY && next_space != EMPTY) {
-                        packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, next_space);
-                        packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);                        
-                    } else if (next_space == space) {
-                        let score = 2;
-                        let space_steps = space;
-                        while (space_steps > 0) {
-                            score = score * 2;
-                            space_steps = space_steps - 1;
-                        };
-                        score_addition = score_addition + score;
-                        packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, (space * 2));
-                        packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);
-                    };
-
-                    relevant_row = next_row(relevant_row, current_direction);
-                    relevant_column = next_column(relevant_column, current_direction);
-                }; 
-
-                column = column + 1;
+                next_relevant_row = next_row(relevant_row, current_direction);
+                next_relevant_column = next_column(relevant_column, current_direction);
             };
 
-            row = row + 1;
-        };
+            if (!valid_column(next_relevant_column)) {
+                relevant_row = next_column(relevant_row, current_direction);
+                relevant_column = starter_column;
+                if (!valid_row(relevant_row)) {
+                    break
+                };
+                next_relevant_row = next_row(relevant_row, current_direction);
+                next_relevant_column = next_column(relevant_column, current_direction);
+            };
+
+            let next_space = space_at(packed_spaces, next_relevant_row, next_relevant_column);
+
+            if (next_space != EMPTY) {
+                if (space == EMPTY && next_space != EMPTY) {
+                    packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, next_space);
+                    packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);                        
+                } else if (next_space == space) {
+                    let score = 2;
+                    let space_steps = space;
+                    while (space_steps > 0) {
+                        score = score * 2;
+                        space_steps = space_steps - 1;
+                    };
+                    score_addition = score_addition + score;
+                    packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, (space * 2));
+                    packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);
+                };
+
+                relevant_row = next_row(next_relevant_row, current_direction);
+                relevant_column = next_column(next_relevant_column, current_direction);
+            };
+
+            next_relevant_row = next_row(next_relevant_row, current_direction);
+            next_relevant_column = next_column(next_relevant_column, current_direction);
+        }; 
 
         (packed_spaces, top_tile, score_addition)
     }
