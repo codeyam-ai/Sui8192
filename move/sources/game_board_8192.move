@@ -59,33 +59,32 @@ module ethos::game_board_8192 {
     // PUBLIC FRIEND FUNCTIONS //
 
     public(friend) fun default(random: vector<u8>): GameBoard8192 {
-        let packed: u64 = 0;
+        // let packed: u64 = 0;
 
-        let row: u8 = 0;
-        while (row < ROW_COUNT) {
-          let column: u8 = 0;
-          while (column < COLUMN_COUNT) {
-            let element = ((row as u64) + ((column as u64) * 2));
-            packed = packed | element << (ROW_COUNT * (row + column * COLUMN_COUNT));
-            column = column + 1;
-          };
-          row = row + 1;
-        };
+        // let row: u8 = 0;
+        // while (row < ROW_COUNT) {
+        //   let column: u8 = 0;
+        //   while (column < COLUMN_COUNT) {
+        //     let element = ((row as u64) + ((column as u64) * 2));
+        //     packed = packed | element << (ROW_COUNT * (row + column * COLUMN_COUNT));
+        //     column = column + 1;
+        //   };
+        //   row = row + 1;
+        // };
 
-        let i = 3;
-        let j = 2;
-        packed = replace_value_at(packed, i, j, 9);
+        // let i = 3;
+        // let j = 2;
+        // packed = replace_value_at(packed, i, j, 9);
 
-        let x = (packed >> (ROW_COUNT * (i + j * COLUMN_COUNT))) & 0xF;
-        std::debug::print(&x);
-        std::debug::print(&123456);
+        // let x = (packed >> (ROW_COUNT * (i + j * COLUMN_COUNT))) & 0xF;
+        // std::debug::print(&x);
+        // std::debug::print(&123456);
 
         let packed_spaces: u64 = 0;
 
         let row1 = (*vector::borrow(&random, 1) % 2);
         let column1 = (*vector::borrow(&random, 2) % 4);
         packed_spaces = fill_in_space_at(packed_spaces, row1, column1, TILE2);
-        std::debug::print(&packed_spaces);
 
         let row2 = ((*vector::borrow(&random, 3) % 2) + 2);
         let column2 = (*vector::borrow(&random, 4) % 4);
@@ -108,8 +107,7 @@ module ethos::game_board_8192 {
         
         let existing_spaces = *&game_board.packed_spaces;
 
-        let top_tile = move_spaces(game_board.packed_spaces, direction); // 3000
-        std::debug::print(&top_tile);
+        let (top_tile, add) = move_spaces(game_board.packed_spaces, direction); // 3000
 
         if (existing_spaces == game_board.packed_spaces) {
             if (!move_possible(game_board)) {
@@ -119,20 +117,19 @@ module ethos::game_board_8192 {
             return
         };
 
-        // let add = score_add(&existing_spaces, &game_board.spaces); // 1900
-        // game_board.score = game_board.score + add;
+        game_board.score = game_board.score + add;
 
-        // let new_tile = add_new_tile(game_board, random); // 1600
+        let new_tile = add_new_tile(game_board, random); // 1600
  
-        // if (new_tile > top_tile) {
-        //     top_tile = new_tile;
-        // };
+        if (new_tile > top_tile) {
+            top_tile = new_tile;
+        };
 
-        // game_board.top_tile = top_tile; 
+        game_board.top_tile = top_tile; 
 
-        // if (!move_possible(game_board)) {
-        //     game_board.game_over = true;
-        // };
+        if (!move_possible(game_board)) {
+            game_board.game_over = true;
+        };
     }
 
     public(friend) fun packed_spaces(game_board: &GameBoard8192): &u64 { 
@@ -481,11 +478,11 @@ module ethos::game_board_8192 {
         return (true, 2)
     }
 
-    fun move_spaces(packed_spaces: u64, direction: u64): u64 {
+    fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64) {
         let current_direction = direction;
         
         let top_tile: u64 = 0;
-        // let score_addition: u64 = 0;
+        let score_addition: u64 = 0;
 
         let row = 0;
         while (row < ROW_COUNT) {
@@ -502,28 +499,33 @@ module ethos::game_board_8192 {
                 };
                 
                 let space = space_at(packed_spaces, relevant_row, relevant_column);
-
+                
                 let next_relevant_row = relevant_row;
-                if (current_direction == UP) {
-                    next_relevant_row = relevant_row + 1;
-                };
-                if (current_direction == DOWN) {
-                    next_relevant_row = relevant_row - 1;
-                };
-
                 let next_relevant_column = relevant_column;
-                if (current_direction == LEFT) {
-                    next_relevant_column = relevant_column + 1;
-                };
-                if (current_direction == RIGHT) {
-                    next_relevant_column = relevant_column - 1;
-                };
 
-                let next_space = space_at(packed_spaces, next_relevant_row, next_relevant_column);
-                std::debug::print(&space);
-                std::debug::print(&next_space);
+                while (true) {
+                    next_relevant_row = next_row(next_relevant_row, current_direction);
+                    next_relevant_column = next_column(next_relevant_column, current_direction);
 
-                // if (relevant_space)
+                    if (!valid_row(next_relevant_row)) break;
+                    if (!valid_column(next_relevant_column)) break;
+
+                    let next_space = space_at(packed_spaces, next_relevant_row, next_relevant_column);
+
+                    if (next_space == EMPTY) {
+                        continue
+                    } else if (space == EMPTY && next_space != EMPTY) {
+                        replace_value_at(packed_spaces, relevant_row, relevant_column, next_space);
+                        replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);                        
+                    } else if (next_space == space) {
+                        score_addition = score_addition + (space * 2);
+                        replace_value_at(packed_spaces, relevant_row, relevant_column, (space * 2));
+                        replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);
+                    };
+
+                    relevant_row = next_row(relevant_row, current_direction);
+                    relevant_column = next_column(relevant_column, current_direction);
+                };                
 
                 column = column + 1;
             };
@@ -531,7 +533,25 @@ module ethos::game_board_8192 {
             row = row + 1;
         };
 
-        top_tile
+        (top_tile, score_addition)
+    }
+
+    fun next_row(row: u8, direction: u64): u8 {
+        if (direction == RIGHT) return row - 1;
+        row + 1
+    }
+
+    fun next_column(column: u8, direction: u64): u8 {
+        if (direction == UP) return column - 1;
+        column + 1
+    }
+
+    fun valid_row(row: u8): bool {
+        row >= 0 && row < ROW_COUNT
+    }
+
+    fun valid_column(column: u8): bool {
+        column >= 0 && column < COLUMN_COUNT
     }
 
     // TESTS //
