@@ -121,7 +121,6 @@ module ethos::game_8192 {
 
         event::emit(NewGameEvent8192 {
             game_id: object::uid_to_inner(&game.id),
-            // leaderboard_id,
             player,
             score
         });
