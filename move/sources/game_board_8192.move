@@ -285,7 +285,8 @@ module ethos::game_board_8192 {
         let random_empty_position = (*vector::borrow(&random, 1) as u64) % empty_spaces_count;
         let empty_space = vector::borrow(&empty_spaces, random_empty_position);
 
-        fill_in_space_at(game_board.packed_spaces, empty_space.row, empty_space.column, tile);
+        let packed_spaces = fill_in_space_at(game_board.packed_spaces, empty_space.row, empty_space.column, tile);
+        game_board.packed_spaces = packed_spaces;
         game_board.last_tile = vector[(empty_space.row as u64), (empty_space.column as u64), (tile as u64)];
 
         tile
@@ -493,62 +494,47 @@ module ethos::game_board_8192 {
         print_packed_spaces(board.packed_spaces);
     }
 
-    // #[test_only]
-    // fun game_board_matches(game_board: &GameBoard8192, expected_spaces: vector<u64>): bool {
-    //     let rows = row_count(game_board);
-    //     let columns = column_count(game_board);
+    #[test_only]
+    fun game_board_matches(game_board: &GameBoard8192, expected_spaces: vector<u64>): bool {
+        let rows = ROW_COUNT;
+        let columns = COLUMN_COUNT;
         
-    //     let row=0;
-    //     while (row < rows) {
-    //         let column=0;
-    //         while (column < columns) {
-    //             let index = (row * columns) + column;
-    //             let space = space_at(game_board, row, column);
-    //             let expected = vector::borrow(&expected_spaces, index);
-    //             if (option::is_none(space)) {
-    //                 if(expected != &EMPTY) {
-    //                     return false
-    //                 }
-    //             } else {
-    //                 if (option::borrow(space) != expected) {
-    //                     return false
-    //                 }
-    //             };
-    //             column = column + 1;
-    //         };
-    //         row = row + 1;
-    //     };
+        let row=0;
+        while (row < rows) {
+            let column=0;
+            while (column < columns) {
+                let index = (row * columns) + column;
+                let space = board_space_at(game_board, row, column);
+                if (&space != vector::borrow<u64>(&expected_spaces, (index as u64))) {
+                    return false
+                };
+                column = column + 1;
+            };
+            row = row + 1;
+        };
 
-    //     true
-    // }
+        true
+    }
 
-    // #[test]
-    // fun test_raw_move() {
-    //     let game_board = default(vector[1,2,3,4,5,6]);
-    //     move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-    // }
+    #[test]
+    fun test_default_game_board() {
+        let game_board = default(vector[1,2,3,4,5,6]);
+        let empty_space_count = empty_space_count(&game_board);
+        assert!(empty_space_count == 14, empty_space_count);
+    }
 
-    // #[test]
-    // fun test_default_game_board() {
-    //     let game_board = default(vector[1,2,3,4,5,6]);
-    //     assert!(row_count(&game_board) == 4, row_count(&game_board));
-    //     assert!(column_count(&game_board) == 4, column_count(&game_board));
-    //     let empty_space_count = empty_space_count(&game_board);
-    //     assert!(empty_space_count == 14, empty_space_count);
-    // }
-
-    // #[test]
-    // fun test_move_left() {
-    //     let game_board = default(vector[1,2,3,4,5,6]);
-    //     move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(0 as u64), (3 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         TILE2, EMPTY, EMPTY, TILE2,
-    //         EMPTY, EMPTY, EMPTY, EMPTY,
-    //         TILE2, EMPTY, EMPTY, EMPTY,
-    //         EMPTY, EMPTY, EMPTY, EMPTY
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_move_left() {
+        let game_board = default(vector[1,2,3,4,5,6]);
+        move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(0 as u64), (3 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+            TILE2, EMPTY, EMPTY, TILE2,
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE2, EMPTY, EMPTY, EMPTY,
+            EMPTY, EMPTY, EMPTY, EMPTY
+        ]), 1);
+    }
 
     // #[test]
     // fun test_move_left__complex() {
