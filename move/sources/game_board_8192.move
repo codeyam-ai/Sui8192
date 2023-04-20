@@ -15,19 +15,20 @@ module ethos::game_board_8192 {
     const UP: u64 = 2;
     const DOWN: u64 = 3;
 
-    const TILE2: u64 = 0;
-    const TILE4: u64 = 1;
-    const TILE8: u64 = 2;
-    const TILE16: u64 = 3;
-    const TILE32: u64 = 4;
-    const TILE64: u64 = 5;
-    const TILE128: u64 = 6;
-    const TILE256: u64 = 7;
-    const TILE512: u64 = 8;
-    const TILE1024: u64 = 9;
-    const TILE2048: u64 = 10;
-    const TILE4096: u64 = 11;
-    const TILE8192: u64 = 12;
+    const EMPTY: u64 = 0;
+    const TILE2: u64 = 1;
+    const TILE4: u64 = 2;
+    const TILE8: u64 = 3;
+    const TILE16: u64 = 4;
+    const TILE32: u64 = 5;
+    const TILE64: u64 = 6;
+    const TILE128: u64 = 7;
+    const TILE256: u64 = 8;
+    const TILE512: u64 = 9;
+    const TILE1024: u64 = 10;
+    const TILE2048: u64 = 11;
+    const TILE4096: u64 = 12;
+    const TILE8192: u64 = 13;
 
     const ESpaceEmpty: u64 = 0;
     const ESpaceNotEmpty: u64 = 1;
@@ -58,34 +59,35 @@ module ethos::game_board_8192 {
     // PUBLIC FRIEND FUNCTIONS //
 
     public(friend) fun default(random: vector<u8>): GameBoard8192 {
-        let packed: u64 = 0;
+        // let packed: u64 = 0;
 
-        let row: u8 = 0;
-        while (row < ROW_COUNT) {
-          let column: u8 = 0;
-          while (column < COLUMN_COUNT) {
-            let element = ((row as u64) + ((column as u64) * 2));
-            packed = packed | element << (ROW_COUNT * (row + column * COLUMN_COUNT));
-            column = column + 1;
-          };
-          row = row + 1;
-        };
+        // let row: u8 = 0;
+        // while (row < ROW_COUNT) {
+        //   let column: u8 = 0;
+        //   while (column < COLUMN_COUNT) {
+        //     let element = ((row as u64) + ((column as u64) * 2));
+        //     packed = packed | element << (ROW_COUNT * (row + column * COLUMN_COUNT));
+        //     column = column + 1;
+        //   };
+        //   row = row + 1;
+        // };
 
-        let i = 3;
-        let j = 2;
-        // let mask = (0xF << ((ROW_COUNT * (i + j * COLUMN_COUNT))) - 1); // Clear the bits for the original value
-        // packed = packed & mask;
-        // packed = packed | (10 << (ROW_COUNT * (i + j * COLUMN_COUNT))); // Set the bits for the new value
+        // let i = 3;
+        // let j = 2;
+        // // let mask = (0xF << ((ROW_COUNT * (i + j * COLUMN_COUNT))) - 1); // Clear the bits for the original value
+        // // packed = packed & mask;
+        // // packed = packed | (10 << (ROW_COUNT * (i + j * COLUMN_COUNT))); // Set the bits for the new value
 
 
-        let x = (packed >> (ROW_COUNT * (i + j * COLUMN_COUNT))) & 0xFF;
-        std::debug::print(&x);
+        // let x = (packed >> (ROW_COUNT * (i + j * COLUMN_COUNT))) & 0xFF;
+        // std::debug::print(&x);
 
         let packed_spaces: u64 = 0;
 
         let row1 = (*vector::borrow(&random, 1) % 2);
         let column1 = (*vector::borrow(&random, 2) % 4);
         packed_spaces = fill_in_space_at(packed_spaces, row1, column1, TILE2);
+        std::debug::print(&packed_spaces);
 
         let row2 = ((*vector::borrow(&random, 3) % 2) + 2);
         let column2 = (*vector::borrow(&random, 4) % 4);
