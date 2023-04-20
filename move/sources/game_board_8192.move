@@ -1128,6 +1128,30 @@ module ethos::game_board_8192 {
     }
 
     #[test]
+    fun test_move__MoveAbortError() {
+        let game_board = GameBoard8192 {
+            spaces: vector[
+                vector[o(TILE2), o(TILE128), o(TILE4),  o(TILE8)],
+                vector[o(TILE8), o(TILE2),   o(TILE16), o(TILE16)],
+                vector[o(TILE4), o(TILE64),  o(TILE2),  o(TILE4)],
+                vector[o(TILE2), o(TILE4),   o(TILE8),  o(TILE2)]
+            ],
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE128,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
+
+        assert!(game_board_matches(&game_board, vector[
+            TILE2, TILE128, TILE4, TILE8, 
+            TILE8, TILE2, TILE32, TILE2,
+            TILE4, TILE64, TILE2, TILE4, 
+            TILE2, TILE4, TILE8, TILE2
+        ]), 1);
+    }
+
+    #[test]
     fun test_move__adds_higher_value_tile_2048() {
         let game_board = GameBoard8192 {
             spaces: vector[
