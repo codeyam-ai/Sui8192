@@ -52,10 +52,10 @@ module ethos::game_8192_tests {
             
             let board = game_8192::board_at(&game, 0);
             game_board_8192::print_board(board);
-            let space_value = game_board_8192::space_at(board, 0, 1);
+            let space_value = game_board_8192::board_space_at(board, 0, 1);
             assert!(space_value == 1, space_value);
 
-            let space_value_1 = game_board_8192::space_at(board, 0, 0);
+            let space_value_1 = game_board_8192::board_space_at(board, 0, 0);
             assert!(space_value_1 == 0, space_value_1);
 
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
