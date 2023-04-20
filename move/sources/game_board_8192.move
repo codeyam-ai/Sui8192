@@ -73,7 +73,7 @@ module ethos::game_board_8192 {
         };
 
         let i = 3;
-        let j = 1;
+        let j = 2;
         packed = replace_value_at(packed, i, j, 9);
 
         let x = (packed >> (ROW_COUNT * (i + j * COLUMN_COUNT))) & 0xF;
@@ -202,7 +202,7 @@ module ethos::game_board_8192 {
     // PRIVATE FUNCTIONS //
 
     fun replace_value_at(packed_spaces: u64, row_index: u8, column_index: u8, value: u64): u64 {
-        let mask = (0xF << (ROW_COUNT * (row_index + column_index * COLUMN_COUNT))) ^ 0xFFFFFFFF;
+        let mask = (0xFFFF << (ROW_COUNT * (row_index + column_index * COLUMN_COUNT))) ^ 0xFFFFFFFFFFFFFFFF;
         packed_spaces = packed_spaces & mask;
         packed_spaces | (value << (ROW_COUNT * (row_index + column_index * COLUMN_COUNT)))
     }
