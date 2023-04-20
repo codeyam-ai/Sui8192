@@ -6,7 +6,7 @@ module ethos::game_8192_tests {
     // use std::option;
 
     use ethos::game_8192::{Self, Game8192};
-    use ethos::game_board_8192::{Self, left};
+    use ethos::game_board_8192::{Self, left, up};
 
     const PLAYER: address = @0xCAFE;
     const OTHER: address = @0xA1C05;
@@ -66,50 +66,57 @@ module ethos::game_8192_tests {
         test_scenario::end(scenario);
     }
 
-    // #[test]
-    // fun test_make_move() {
-    //     let scenario = test_scenario::begin(PLAYER);
-    //     {
-    //         create_game(&mut scenario);
-    //     };
+    #[test]
+    fun test_make_move() {
+        let scenario = test_scenario::begin(PLAYER);
+        {
+            create_game(&mut scenario);
+        };
 
-    //     test_scenario::next_tx(&mut scenario, PLAYER);
-    //     {
-    //         let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             
-    //         let board = game_8192::board_at(&game, 0);
-    //         let space_value = option::borrow(game_board_8192::space_at(board, 0, 1));
-    //         assert!(space_value == &(0 as u64), (*space_value as u64));
-    //         assert!(option::is_none(game_board_8192::space_at(board, 0, 0)), 1);
+            let board = game_8192::board_at(&game, 0);
+            let space_value = game_board_8192::board_space_at(board, 0, 1);
+            assert!(space_value == 1, space_value);
+            let space_value1 = game_board_8192::board_space_at(board, 0, 0);
+            assert!(space_value1 == 0, 1);
 
-    //         game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
-    //         game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
+            game_board_8192::print_board(game_8192::board_at(&game, 0));
+            game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
+            game_board_8192::print_board(game_8192::board_at(&game, 1));
+            game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
+            game_board_8192::print_board(game_8192::board_at(&game, 2));
+
+            assert!(game_8192::move_count(&game) == 2, game_8192::move_count(&game));
+            let (moveDirection0, _) = game_8192::move_at(&game, 0);
+            assert!(moveDirection0 == &left(), 1);
             
-    //         assert!(game_8192::move_count(&game) == 2, game_8192::move_count(&game));
-    //         let (moveDirection0, _) = game_8192::move_at(&game, 0);
-    //         assert!(moveDirection0 == &left(), 1);
+            let (moveDirection1, _) = game_8192::move_at(&game, 1);
+            assert!(moveDirection1 == &up(), 2);
+            assert!(game_8192::score(&game) == &4, *game_8192::score(&game));
+            assert!(game_8192::top_tile(&game) == &1, (*game_8192::top_tile(&game) as u64));
+
+            board = game_8192::board_at(&game, 0);
+
+            // Original board is unchanged
+            let space_value = game_board_8192::board_space_at(board, 0, 1);
+            assert!(space_value == 0, space_value);
+
+            let space_value1 = game_board_8192::board_space_at(board, 0, 0);
+            assert!(space_value1 == 0, 1);
+
+            board = game_8192::board_at(&game, 1);
+            let space_value = game_board_8192::board_space_at(board, 0, 0);
+            assert!(space_value == 0, space_value);
+
+            let space_value1 = game_board_8192::board_space_at(board, 0, 1);
+            assert!(space_value1 == 0, space_value1);
             
-    //         let (moveDirection1, _) = game_8192::move_at(&game, 1);
-    //         assert!(moveDirection1 == &up(), 2);
-    //         assert!(game_8192::score(&game) == &4, *game_8192::score(&game));
-    //         assert!(game_8192::top_tile(&game) == &1, (*game_8192::top_tile(&game) as u64));
+            test_scenario::return_to_sender(&mut scenario, game);
+        };
 
-    //         board = game_8192::board_at(&game, 0);
-
-    //         // Original board is unchanged
-    //         let space_value = option::borrow(game_board_8192::space_at(board, 0, 1));
-    //         assert!(space_value == &(0 as u64), (*space_value as u64));
-    //         assert!(option::is_none(game_board_8192::space_at(board, 0, 0)), 1);
-
-    //         board = game_8192::board_at(&game, 1);
-    //         let space_value = option::borrow(game_board_8192::space_at(board, 0, 0));
-    //         assert!(space_value == &(0 as u64), (*space_value as u64));
-
-    //         assert!(option::is_none(game_board_8192::space_at(board, 0, 1)), 1);
-            
-    //         test_scenario::return_to_sender(&mut scenario, game);
-    //     };
-
-    //     test_scenario::end(scenario);
-    // }
+        test_scenario::end(scenario);
+    }
 }
