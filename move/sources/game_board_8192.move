@@ -686,42 +686,42 @@ module ethos::game_board_8192 {
         ]), 1);
     }
 
-    // #[test]
-    // fun test_move_down() {
-    //     let game_board = default(vector[1,2,3,4,5,6]);
-    //     move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         EMPTY, EMPTY, TILE2, EMPTY,
-    //         EMPTY, EMPTY, EMPTY, EMPTY,
-    //         EMPTY, EMPTY, EMPTY, EMPTY,
-    //         EMPTY, TILE2, EMPTY, TILE2
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_move_down() {
+        let game_board = default(vector[1,2,3,4,5,6]);
+        move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+            EMPTY, EMPTY, TILE2, EMPTY,
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            EMPTY, TILE2, EMPTY, TILE2
+        ]), 1);
+    }
 
-    // #[test]
-    // fun test_move_down__complex() {
-    //     let game_board = GameBoard8192 {
-    //         spaces: vector[
-    //             TILE16, EMPTY, EMPTY, TILE32)],
-    //             EMPTY, EMPTY, TILE8, EMPTY)],
-    //             TILE128, TILE256, TILE8, EMPTY)],
-    //             TILE128, EMPTY, TILE8, TILE32)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE256,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         EMPTY,   EMPTY,   TILE2,  EMPTY, 
-    //         EMPTY,   EMPTY,   EMPTY,  EMPTY,
-    //         TILE16,  EMPTY,   TILE8,  EMPTY, 
-    //         TILE256, TILE256, TILE16, TILE64
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_move_down__complex() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE16, EMPTY, EMPTY, TILE32,
+                EMPTY, EMPTY, TILE8, EMPTY,
+                TILE128, TILE256, TILE8, EMPTY,
+                TILE128, EMPTY, TILE8, TILE32
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE256,
+            game_over: false
+        };
+        move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+            EMPTY,   EMPTY,   TILE2,  EMPTY, 
+            EMPTY,   EMPTY,   EMPTY,  EMPTY,
+            TILE16,  EMPTY,   TILE8,  EMPTY, 
+            TILE256, TILE256, TILE16, TILE64
+        ]), 1);
+    }
 
     // #[test]
     // fun test_stop_scenario() {
