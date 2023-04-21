@@ -322,7 +322,7 @@ module ethos::game_board_8192 {
     }
 
     fun fill_in_space_at(packed_spaces: u64, row_index: u8, column_index: u8, value: u64): u64 {
-        packed_spaces | value << (ROW_COUNT * (row_index + column_index * COLUMN_COUNT))
+        packed_spaces | value << (ROW_COUNT * (column_index + row_index * COLUMN_COUNT))
     }
 
     fun increment_space_at(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64): u64 {
@@ -369,7 +369,7 @@ module ethos::game_board_8192 {
     fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64, u64) {
         let current_direction = direction;
         
-        let top_tile: u64 = 0;
+        let top_tile: u64 = 1;
         let score_addition: u64 = 0;
 
         let starter_row = 0;
@@ -427,6 +427,8 @@ module ethos::game_board_8192 {
             if (space == EMPTY) {
                 last_empty_row = relevant_row;
                 last_empty_column = relevant_column;
+            } else if (space > top_tile) {
+                top_tile = space;
             };
 
             if (next_space == EMPTY) {
@@ -443,6 +445,10 @@ module ethos::game_board_8192 {
                         space_steps = space_steps - 1;
                     };
                     score_addition = score_addition + score;
+
+                    if (space + 1 > top_tile) {
+                        top_tile = space + 1;
+                    };
 
                     packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, (space + 1));
                     packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);

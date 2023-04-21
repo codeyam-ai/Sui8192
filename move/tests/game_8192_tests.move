@@ -92,7 +92,7 @@ module ethos::game_8192_tests {
             let (moveDirection1, _) = game_8192::move_at(&game, 1);
             assert!(moveDirection1 == &up(), 2);
             assert!(game_8192::score(&game) == &4, *game_8192::score(&game));
-            assert!(game_8192::top_tile(&game) == &1, (*game_8192::top_tile(&game) as u64));
+            assert!(game_8192::top_tile(&game) == &2, (*game_8192::top_tile(&game) as u64));
 
             board = game_8192::board_at(&game, 0);
 
@@ -102,9 +102,9 @@ module ethos::game_8192_tests {
             let space_value1 = game_board_8192::board_space_at(board, 0, 0);
             assert!(space_value1 == 0, 1);
 
-            board = game_8192::board_at(&game, 1);
+            board = game_8192::board_at(&game, 2);
             let space_value = game_board_8192::board_space_at(board, 0, 0);
-            assert!(space_value == 1, space_value);
+            assert!(space_value == 2, space_value);
             let space_value1 = game_board_8192::board_space_at(board, 0, 1);
             assert!(space_value1 == 0, space_value1);
             
