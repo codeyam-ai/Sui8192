@@ -715,11 +715,11 @@ module ethos::game_board_8192 {
     fun test_move_down() {
         let game_board = default(vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (1 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
-            EMPTY, EMPTY, TILE2, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE2, EMPTY, EMPTY, EMPTY,
             EMPTY, TILE2, EMPTY, TILE2
         ]), 1);
     }
@@ -739,9 +739,9 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (1 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(0 as u64), (0 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
-            EMPTY,   EMPTY,   TILE2,  EMPTY, 
+            TILE2,   EMPTY,   EMPTY,  EMPTY, 
             EMPTY,   EMPTY,   EMPTY,  EMPTY,
             TILE16,  EMPTY,   TILE8,  EMPTY, 
             TILE256, TILE256, TILE16, TILE64
@@ -1054,8 +1054,8 @@ module ethos::game_board_8192 {
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
             TILE512,    TILE128,  EMPTY,   EMPTY,
-            TILE8,      TILE16,   TILE2,   EMPTY,
-            TILE2048,   TILE16,   EMPTY,   EMPTY,
+            TILE8,      TILE16,   EMPTY,   EMPTY,
+            TILE2048,   TILE16,   EMPTY,   TILE2,
             TILE2048,   TILE16,   EMPTY,   EMPTY
         ]), 1);
     }
@@ -1078,8 +1078,8 @@ module ethos::game_board_8192 {
         assert!(game_board_matches(&game_board, vector[
             TILE2048, TILE4, TILE2, TILE4, 
             TILE512, TILE16, TILE8, EMPTY,
-            TILE128, TILE2, EMPTY, TILE2, 
-            TILE16, EMPTY, EMPTY, EMPTY
+            TILE128, TILE2, EMPTY, EMPTY, 
+            TILE16, EMPTY, EMPTY, TILE2
         ]), 1);
     }
 
@@ -1101,8 +1101,8 @@ module ethos::game_board_8192 {
         assert!(game_board_matches(&game_board, vector[
             TILE4, TILE2, TILE4, TILE16, 
             EMPTY, TILE8, TILE16, TILE256,
-            EMPTY, TILE2, EMPTY, TILE512, 
-            EMPTY, EMPTY, EMPTY, TILE128
+            EMPTY, EMPTY, EMPTY, TILE512, 
+            EMPTY, EMPTY, TILE2, TILE128
         ]), 1);
     }
 
@@ -1215,9 +1215,9 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, LEFT, vector[6,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
-            TILE8192, EMPTY, EMPTY, TILE32, 
+            TILE8192, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
-            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE4, EMPTY, EMPTY, TILE32, 
             TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
