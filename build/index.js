@@ -373,12 +373,11 @@ function init() {
 }
 
 function handleResult(newBoard, direction) {
-  console.log("NEWBOARD", newBoard, direction);
   if (newBoard.topTile > topTile) {
     topTile = newBoard.topTile;
     const topTiles = eByClass("top-tile-display");
     for (const topTile of topTiles) {
-      topTile.innerHTML = `<img src='${newBoard.url}' />`;
+      topTile.innerHTML = `<img src='https://sui8192.s3.amazonaws.com/${newBoard.topTile}.png' />`;
     }
     confetti.run();
 
