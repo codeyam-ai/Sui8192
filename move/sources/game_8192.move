@@ -47,13 +47,19 @@ module ethos::game_8192 {
     struct NewGameEvent8192 has copy, drop {
         game_id: ID,
         player: address,
-        score: u64
+        score: u64,
+        packed_spaces: u64
     }
 
     struct GameMoveEvent8192 has copy, drop {
         game_id: ID,
         direction: u64,
-        move_count: u64
+        move_count: u64,
+        packed_spaces: u64,
+        last_tile: vector<u64>,
+        top_tile: u64,
+        score: u64,
+        game_over: bool
     }
 
     struct GameOverEvent8192 has copy, drop {
@@ -122,7 +128,8 @@ module ethos::game_8192 {
         event::emit(NewGameEvent8192 {
             game_id: object::uid_to_inner(&game.id),
             player,
-            score
+            score,
+            packed_spaces: *game_board_8192::packed_spaces(&initial_game_board)
         });
         
         transfer(game, player);
@@ -147,6 +154,11 @@ module ethos::game_8192 {
             game_id: object::uid_to_inner(&game.id),
             direction: direction,
             move_count: table::length(&game.moves),
+            packed_spaces: *game_board_8192::packed_spaces(&new_board),
+            last_tile: *game_board_8192::last_tile(&new_board),
+            top_tile,
+            score,
+            game_over
         });
 
         if (game_over) {            

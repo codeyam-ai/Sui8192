@@ -179,6 +179,7 @@ function init() {
 }
 
 function handleResult(newBoard, direction) {
+  console.log("NEWBOARD", newBoard, direction);
   if (newBoard.topTile > topTile) {
     topTile = newBoard.topTile;
     const topTiles = eByClass("top-tile-display");
@@ -201,8 +202,8 @@ function handleResult(newBoard, direction) {
 
   const tiles = eByClass("tile");
   const resultDiff = board.diff(
-    board.active().spaces,
-    newBoard.spaces,
+    board.active().packedSpaces,
+    newBoard.packedSpaces,
     direction
   );
 
@@ -598,12 +599,12 @@ const onWalletConnected = async ({ signer }) => {
 
             const { events } = data;
             const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
-            const { game_id, board_spaces, score } = gameData.parsedJson;
+            const { game_id, packed_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
               board: {
                 score,
-                board_spaces,
+                packed_spaces,
                 game_over: false,
               },
             };

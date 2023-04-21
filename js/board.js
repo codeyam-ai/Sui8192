@@ -1,25 +1,31 @@
 const { tileNames } = require("./constants");
 const { eById, eByClass, addClass, removeClass, isReverse, isVertical } = require("./utils");
 
+const ROWS = 4;
+const COLUMNS = 4;
+
 let active;
+
+const spaceAt = (packedSpaces, row, column) => 
+  Number((BigInt(packedSpaces) >> BigInt((row * COLUMNS + column) * ROWS)) & BigInt(0xF));
 
 module.exports = {
   active: () => active,
 
+  spaceAt,
+
   display: (board) => {
-    const rows = 4;
-    const columns = 4;
-    const packedSpaces = BigInt(board.packedSpaces);
+    const { packedSpaces } = board;
     const allColors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(i => `color${i}`);
     const tiles = eByClass('tile');
     let topTile = 1;
-    for (let i=0; i<rows; ++i) {
-      for (let j=0; j<columns; ++j) {
-        const tile = Number((packedSpaces >> BigInt((i * columns + j) * rows)) & BigInt(0xF));
+    for (let i=0; i<ROWS; ++i) {
+      for (let j=0; j<COLUMNS; ++j) {
+        const tile = spaceAt(packedSpaces, i, j);
         if (tile > topTile) {
           topTile = tile;
         }
-        const tileElement = tiles[(i * rows) + j];
+        const tileElement = tiles[(i * ROWS) + j];
         removeClass(tileElement, allColors);
         if (tile === 0) {
           tileElement.innerHTML = ""
@@ -54,41 +60,39 @@ module.exports = {
     }
   },
 
-  diff: (spaces1, spaces2, direction) => {
+  diff: (packedSpaces1, packedSpaces2, direction) => {
     const reverse = isReverse(direction);
     const vertical = isVertical(direction);
 
     const tiles = {}
-    const columns = spaces1[0].length;
 
-    const start = reverse ? columns - 1 : 0;
-    const end = reverse ? 0 : columns - 1;
+    const start = reverse ? COLUMNS - 1 : 0;
+    const end = reverse ? 0 : COLUMNS - 1;
     const increment = reverse ? -1 : 1;
 
     for (let i=start; reverse ? i>=end : i<=end; i+=increment) {
-      const row1 = spaces1[i];
       for (let j=start; reverse ? j>=end : j<=end; j+=increment) {
-        let tile1 = spaces1[i][j];
-        const tile2 = spaces2[i][j];
-        const index = (i * columns) + j;
+        let tile1 = spaceAt(packedSpaces1, i, j);
+        const tile2 = spaceAt(packedSpaces2, i, j);
+        const index = (i * COLUMNS) + j;
 
-        if (tile2 !== null) {
+        if (tile2 !== 0) {
           if (tile1 === tile2) continue;
 
           const searchStart = (vertical ? i : j) + increment;
           for (let x=searchStart; reverse ? x>=end : x<=end; x+=increment) {
             const distance = Math.abs(vertical ? x - i : x - j);
-            const nextTile = vertical ? spaces1[x][j] : spaces1[i][x]
+            const nextTile = vertical ? spaceAt(packedSpaces1, x, j) : spaceAt(packedSpaces1, i, x);
             
-            if (nextTile === null) continue;
+            if (nextTile === 0) continue;
             
-            if (vertical) {
-              spaces1[x][j] = null;
-            } else {
-              spaces1[i][x] = null;
-            }
+            // if (vertical) {
+            //   spaces1[x][j] = null;
+            // } else {
+            //   spaces1[i][x] = null;
+            // }
             
-            const tile1Index = vertical ? (x * columns) + j : (i * columns) + x;
+            const tile1Index = vertical ? (x * COLUMNS) + j : (i * COLUMNS) + x;
             tiles[tile1Index] = {
               [direction]: distance
             }
@@ -120,9 +124,14 @@ module.exports = {
       top_tile: topTile,
       score, 
       game_over: gameOver,
-      url
     } = board.fields || board.parsedJson || board;
     // const packedSpaces = (packedSpaces || rawBoardSpaces);
-    return { packedSpaces, lastTile, topTile, score, gameOver, url }
+    return { 
+      packedSpaces, 
+      lastTile, 
+      topTile: Number(topTile), 
+      score: Number(score), 
+      gameOver, 
+    }
   }
 }

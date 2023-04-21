@@ -2,25 +2,31 @@
 const { tileNames } = require("./constants");
 const { eById, eByClass, addClass, removeClass, isReverse, isVertical } = require("./utils");
 
+const ROWS = 4;
+const COLUMNS = 4;
+
 let active;
+
+const spaceAt = (packedSpaces, row, column) => 
+  Number((BigInt(packedSpaces) >> BigInt((row * COLUMNS + column) * ROWS)) & BigInt(0xF));
 
 module.exports = {
   active: () => active,
 
+  spaceAt,
+
   display: (board) => {
-    const rows = 4;
-    const columns = 4;
-    const packedSpaces = BigInt(board.packedSpaces);
+    const { packedSpaces } = board;
     const allColors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(i => `color${i}`);
     const tiles = eByClass('tile');
     let topTile = 1;
-    for (let i=0; i<rows; ++i) {
-      for (let j=0; j<columns; ++j) {
-        const tile = Number((packedSpaces >> BigInt((i * columns + j) * rows)) & BigInt(0xF));
+    for (let i=0; i<ROWS; ++i) {
+      for (let j=0; j<COLUMNS; ++j) {
+        const tile = spaceAt(packedSpaces, i, j);
         if (tile > topTile) {
           topTile = tile;
         }
-        const tileElement = tiles[(i * rows) + j];
+        const tileElement = tiles[(i * ROWS) + j];
         removeClass(tileElement, allColors);
         if (tile === 0) {
           tileElement.innerHTML = ""
@@ -55,41 +61,39 @@ module.exports = {
     }
   },
 
-  diff: (spaces1, spaces2, direction) => {
+  diff: (packedSpaces1, packedSpaces2, direction) => {
     const reverse = isReverse(direction);
     const vertical = isVertical(direction);
 
     const tiles = {}
-    const columns = spaces1[0].length;
 
-    const start = reverse ? columns - 1 : 0;
-    const end = reverse ? 0 : columns - 1;
+    const start = reverse ? COLUMNS - 1 : 0;
+    const end = reverse ? 0 : COLUMNS - 1;
     const increment = reverse ? -1 : 1;
 
     for (let i=start; reverse ? i>=end : i<=end; i+=increment) {
-      const row1 = spaces1[i];
       for (let j=start; reverse ? j>=end : j<=end; j+=increment) {
-        let tile1 = spaces1[i][j];
-        const tile2 = spaces2[i][j];
-        const index = (i * columns) + j;
+        let tile1 = spaceAt(packedSpaces1, i, j);
+        const tile2 = spaceAt(packedSpaces2, i, j);
+        const index = (i * COLUMNS) + j;
 
-        if (tile2 !== null) {
+        if (tile2 !== 0) {
           if (tile1 === tile2) continue;
 
           const searchStart = (vertical ? i : j) + increment;
           for (let x=searchStart; reverse ? x>=end : x<=end; x+=increment) {
             const distance = Math.abs(vertical ? x - i : x - j);
-            const nextTile = vertical ? spaces1[x][j] : spaces1[i][x]
+            const nextTile = vertical ? spaceAt(packedSpaces1, x, j) : spaceAt(packedSpaces1, i, x);
             
-            if (nextTile === null) continue;
+            if (nextTile === 0) continue;
             
-            if (vertical) {
-              spaces1[x][j] = null;
-            } else {
-              spaces1[i][x] = null;
-            }
+            // if (vertical) {
+            //   spaces1[x][j] = null;
+            // } else {
+            //   spaces1[i][x] = null;
+            // }
             
-            const tile1Index = vertical ? (x * columns) + j : (i * columns) + x;
+            const tile1Index = vertical ? (x * COLUMNS) + j : (i * COLUMNS) + x;
             tiles[tile1Index] = {
               [direction]: distance
             }
@@ -121,10 +125,15 @@ module.exports = {
       top_tile: topTile,
       score, 
       game_over: gameOver,
-      url
     } = board.fields || board.parsedJson || board;
     // const packedSpaces = (packedSpaces || rawBoardSpaces);
-    return { packedSpaces, lastTile, topTile, score, gameOver, url }
+    return { 
+      packedSpaces, 
+      lastTile, 
+      topTile: Number(topTile), 
+      score: Number(score), 
+      gameOver, 
+    }
   }
 }
 },{"./constants":3,"./utils":9}],2:[function(require,module,exports){
@@ -164,8 +173,8 @@ module.exports = {
 module.exports = {
   testnetContractAddress: "0x6aa21302ec6da1e665f6be7ac2243b5b27d72b52d74c87730fc1b825196ced79",
   testnetLeaderboardAddress: "0x17d38d6e2ed761142b827383624ebdad8b51dccbeb459f0264001f37817bb0ff",
-  devnetContractAddress: "0xeb0a4e32322eeaab7d62e45a6eaf3bd394a924c5e0c1075b3ac3d63a7db5288f",
-  devnetLeaderboardAddress: "0x584f304a7b8406e5df53d8740b4b6843b7a9791dc61f946bd90b997f95aa9562",
+  devnetContractAddress: "0x215aa41b09c00989ca27e3a7f9632996776af79fb11db343ce5ca473e156fa7a",
+  devnetLeaderboardAddress: "0x2bb1915b2161ac43e338f1ea843a20ad70e50e0a58c61a26bb21b222dcade950",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -364,6 +373,7 @@ function init() {
 }
 
 function handleResult(newBoard, direction) {
+  console.log("NEWBOARD", newBoard, direction);
   if (newBoard.topTile > topTile) {
     topTile = newBoard.topTile;
     const topTiles = eByClass("top-tile-display");
@@ -386,8 +396,8 @@ function handleResult(newBoard, direction) {
 
   const tiles = eByClass("tile");
   const resultDiff = board.diff(
-    board.active().spaces,
-    newBoard.spaces,
+    board.active().packedSpaces,
+    newBoard.packedSpaces,
     direction
   );
 
@@ -783,12 +793,12 @@ const onWalletConnected = async ({ signer }) => {
 
             const { events } = data;
             const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
-            const { game_id, board_spaces, score } = gameData.parsedJson;
+            const { game_id, packed_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
               board: {
                 score,
-                board_spaces,
+                packed_spaces,
                 game_over: false,
               },
             };
