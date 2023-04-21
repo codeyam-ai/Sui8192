@@ -430,7 +430,7 @@ module ethos::game_board_8192 {
             } else if (space > top_tile) {
                 top_tile = space;
             };
-            
+
             if (next_space == EMPTY) {
                 if (last_empty_row == 99 && last_empty_column == 99) {
                     last_empty_row = next_relevant_row;
@@ -750,59 +750,59 @@ module ethos::game_board_8192 {
         ]), 1);
     }
 
-    // #[test]
-    // fun test_stop_scenario__left() {
-    //     let game_board = GameBoard8192 {
-    //         spaces: vector[
-    //             TILE4, TILE2, TILE2, EMPTY)],
-    //             TILE2, TILE2, TILE4, TILE8)],
-    //             TILE2, TILE2, TILE4, TILE4)],
-    //             TILE16, TILE2, TILE2, TILE4)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE16,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(1 as u64), (3 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //       TILE4,  TILE4, EMPTY, EMPTY, 
-    //       TILE4,  TILE4, TILE8, TILE2,
-    //       TILE4,  TILE8, EMPTY, EMPTY, 
-    //       TILE16, TILE4, TILE4, EMPTY
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_stop_scenario__left() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE4, TILE2, TILE2, EMPTY,
+                TILE2, TILE2, TILE4, TILE8,
+                TILE2, TILE2, TILE4, TILE4,
+                TILE16, TILE2, TILE2, TILE4
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE16,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(1 as u64), (3 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+          TILE4,  TILE4, EMPTY, EMPTY, 
+          TILE4,  TILE4, TILE8, TILE2,
+          TILE4,  TILE8, EMPTY, EMPTY, 
+          TILE16, TILE4, TILE4, EMPTY
+        ]), 1);
+    }
 
-    // #[test]
-    // fun test_stop_scenario__up_inward() {
-    //     let game_board = GameBoard8192 {
-    //         spaces: vector[
-    //             TILE4, TILE2, EMPTY, EMPTY)],
-    //             TILE4, TILE2, EMPTY, EMPTY)],
-    //             TILE8, TILE4, EMPTY, EMPTY)],
-    //             EMPTY, TILE8, EMPTY, EMPTY)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE8,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(1 as u64), (2 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //       TILE8, TILE4, EMPTY, EMPTY, 
-    //       TILE8, TILE4, TILE2, EMPTY,
-    //       EMPTY, TILE8, EMPTY, EMPTY, 
-    //       EMPTY, EMPTY, EMPTY, EMPTY
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_stop_scenario__up_inward() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE4, TILE2, EMPTY, EMPTY,
+                TILE4, TILE2, EMPTY, EMPTY,
+                TILE8, TILE4, EMPTY, EMPTY,
+                EMPTY, TILE8, EMPTY, EMPTY
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE8,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(1 as u64), (2 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+          TILE8, TILE4, EMPTY, EMPTY, 
+          TILE8, TILE4, TILE2, EMPTY,
+          EMPTY, TILE8, EMPTY, EMPTY, 
+          EMPTY, EMPTY, EMPTY, EMPTY
+        ]), 1);
+    }
 
     // #[test]
     // #[expected_failure(abort_code = EGameOver)]
     // fun test_can_not_move_if_game_over() {        
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, TILE64, TILE128, TILE256)],
     //             TILE512, TILE1024, EMPTY, TILE512)],
@@ -823,7 +823,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_game_not_over_if_move_can_be_made() {        
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE2, TILE64, TILE128, TILE256)],
     //             TILE512, TILE1024, EMPTY, TILE2)],
@@ -842,7 +842,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move_possible() {        
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, TILE64, TILE128, TILE256)],
     //             TILE512, TILE1024, EMPTY, TILE512)],
@@ -859,7 +859,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move_possible_no_move_possible() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, TILE64, TILE128, TILE32)],
     //             TILE512, TILE1024, TILE16, TILE512)],
@@ -876,7 +876,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move_possible_move_possible_down() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, TILE64, TILE128, TILE256)],
     //             TILE512, TILE1024, TILE16, TILE512)],
@@ -893,7 +893,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move_possible_move_possible_right() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, TILE64, TILE128, TILE256)],
     //             TILE512, TILE1024, TILE16, TILE16)],
@@ -910,7 +910,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move_possible_move_possible_left() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, TILE64, TILE128, TILE256)],
     //             TILE512, TILE16, TILE16, TILE512)],
@@ -927,7 +927,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move_possible_move_possible_up() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, TILE64, TILE16, TILE256)],
     //             TILE512, TILE1024, TILE16, TILE512)],
@@ -944,7 +944,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_increments_score() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, EMPTY, TILE4, TILE256)],
     //             TILE32, EMPTY, EMPTY, TILE512)],
@@ -965,7 +965,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_increments_top_tile() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, EMPTY, EMPTY, TILE256)],
     //             EMPTY, EMPTY, TILE16, TILE512)],
@@ -1000,7 +1000,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_no_tile_added_if_no_move_made() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, EMPTY, EMPTY, EMPTY)],
     //             TILE4, EMPTY, EMPTY, EMPTY)],
     //             TILE8, EMPTY, EMPTY, EMPTY)],
@@ -1018,7 +1018,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move_high_gas() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE256, TILE256, TILE64, TILE64)],
     //             TILE4, TILE4, TILE8, TILE8)],
     //             TILE1024, TILE1024, TILE8, TILE8)],
@@ -1041,7 +1041,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move__vector_error() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2048, EMPTY, EMPTY, EMPTY)],
     //             TILE512, TILE4, TILE2, EMPTY)],
     //             TILE128, TILE16, TILE4, TILE2)],
@@ -1064,7 +1064,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move__vector_error_2() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             EMPTY, EMPTY, EMPTY, TILE16)],
     //             EMPTY, TILE2, TILE4, TILE256)],
     //             TILE2, TILE4, TILE8, TILE512)],
@@ -1087,7 +1087,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move__MovePrimitiveRuntimeError_error() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE8, TILE2, EMPTY, TILE2)],
     //             TILE32, TILE8, TILE8, EMPTY)],
     //             TILE64, TILE16, TILE16, TILE4)],
@@ -1110,7 +1110,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move__MoveAbortError() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE2, TILE128, TILE4, TILE8)],
     //             TILE8, TILE2, TILE16, TILE16)],
     //             TILE4, TILE64, TILE2, TILE4)],
@@ -1134,7 +1134,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move__adds_higher_value_tile_2048() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             EMPTY, EMPTY, TILE2048, EMPTY)],
     //             EMPTY, EMPTY, EMPTY, EMPTY)],
     //             TILE4, EMPTY, EMPTY, EMPTY)],
@@ -1157,7 +1157,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move__adds_higher_value_tile_4096() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             EMPTY, EMPTY, TILE4096, EMPTY)],
     //             EMPTY, EMPTY, EMPTY, EMPTY)],
     //             TILE4, EMPTY, EMPTY, EMPTY)],
@@ -1180,7 +1180,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_move__adds_higher_value_tile_8192() {
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             EMPTY, EMPTY, TILE8192, EMPTY)],
     //             EMPTY, EMPTY, EMPTY, EMPTY)],
     //             TILE4, EMPTY, EMPTY, EMPTY)],
@@ -1204,7 +1204,7 @@ module ethos::game_board_8192 {
     // #[expected_failure(abort_code = EGameOver)]
     // fun test_game_over_move_error() {        
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE1024, TILE8, TILE4, TILE2)],
     //             TILE512, TILE4, TILE16, TILE4)],
     //             TILE256, TILE32, TILE8, TILE2)],
@@ -1225,7 +1225,7 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test_game_over() {        
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE1024, TILE8, EMPTY, TILE2)],
     //             TILE512, TILE4, TILE16, TILE4)],
     //             TILE256, TILE32, TILE8, TILE128)],
@@ -1244,7 +1244,7 @@ module ethos::game_board_8192 {
     // #[expected_failure(abort_code = EGameOver)]
     // fun test_next_move_game_over_move_error() {        
     //     let game_board = GameBoard8192 {
-    //         spaces: vector[
+    //         packed_spaces: pack_spaces(vector[
     //             TILE1024, TILE8, TILE4, TILE2)],
     //             TILE512, TILE4, TILE16, TILE4)],
     //             EMPTY, TILE32, TILE8, TILE2)],
