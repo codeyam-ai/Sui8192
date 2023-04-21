@@ -1,7 +1,5 @@
 module ethos::game_board_8192 {
-    use std::option::{Self, Option};
     use std::vector;
-    use sui::vec_map::{Self, VecMap};
     
     friend ethos::game_8192;
     #[test_only]
@@ -14,28 +12,33 @@ module ethos::game_board_8192 {
     const RIGHT: u64 = 1;
     const UP: u64 = 2;
     const DOWN: u64 = 3;
+    const ALL: u64 = 4;
 
-    const TILE2: u64 = 0;
-    const TILE4: u64 = 1;
-    const TILE8: u64 = 2;
-    const TILE16: u64 = 3;
-    const TILE32: u64 = 4;
-    const TILE64: u64 = 5;
-    const TILE128: u64 = 6;
-    const TILE256: u64 = 7;
-    const TILE512: u64 = 8;
-    const TILE1024: u64 = 9;
-    const TILE2048: u64 = 10;
-    const TILE4096: u64 = 11;
-    const TILE8192: u64 = 12;
+    const EMPTY: u64 = 0;
+    const TILE2: u64 = 1;
+    const TILE4: u64 = 2;
+    const TILE8: u64 = 3;
+    const TILE16: u64 = 4;
+    const TILE32: u64 = 5;
+    const TILE64: u64 = 6;
+    const TILE128: u64 = 7;
+    const TILE256: u64 = 8;
+    const TILE512: u64 = 9;
+    const TILE1024: u64 = 10;
+    const TILE2048: u64 = 11;
+    const TILE4096: u64 = 12;
+    const TILE8192: u64 = 13;
 
     const ESpaceEmpty: u64 = 0;
     const ESpaceNotEmpty: u64 = 1;
     const ENoEmptySpaces: u64 = 2;
     const EGameOver: u64 = 3;
 
+    const ROW_COUNT: u8 = 4;
+    const COLUMN_COUNT: u8 = 4;
+
     struct GameBoard8192 has store, copy, drop{
-        spaces: vector<vector<Option<u64>>>,
+        packed_spaces: u64,
         score: u64,
         last_tile: vector<u64>,
         top_tile: u64,
@@ -43,8 +46,8 @@ module ethos::game_board_8192 {
     }
 
     struct SpacePosition has copy, drop {
-        row: u64,
-        column: u64
+        row: u8,
+        column: u8
     }
 
     public fun left(): u64 { LEFT }
@@ -55,23 +58,18 @@ module ethos::game_board_8192 {
     // PUBLIC FRIEND FUNCTIONS //
 
     public(friend) fun default(random: vector<u8>): GameBoard8192 {
-        let spaces = vector[
-            vector[option::none(), option::none(), option::none(), option::none()],
-            vector[option::none(), option::none(), option::none(), option::none()],
-            vector[option::none(), option::none(), option::none(), option::none()],
-            vector[option::none(), option::none(), option::none(), option::none()]
-        ];
+        let packed_spaces: u64 = 0;
 
-        let row1 = ((*vector::borrow(&random, 1) % 2) as u64);
-        let column1 = ((*vector::borrow(&random, 2) % 4) as u64);
-        fill_in_space_at(&mut spaces, row1, column1, TILE2);
+        let row1 = (*vector::borrow(&random, 1) % 2);
+        let column1 = (*vector::borrow(&random, 2) % 4);
+        packed_spaces = fill_in_space_at(packed_spaces, row1, column1, TILE2);
 
-        let row2 = (((*vector::borrow(&random, 3) % 2) + 2) as u64);
-        let column2 = ((*vector::borrow(&random, 4) % 4) as u64);
-        fill_in_space_at(&mut spaces, row2, column2, TILE2);
+        let row2 = ((*vector::borrow(&random, 3) % 2) + 2);
+        let column2 = (*vector::borrow(&random, 4) % 4);
+        packed_spaces = fill_in_space_at(packed_spaces, row2, column2, TILE2);
 
         let game_board = GameBoard8192 { 
-          spaces, 
+          packed_spaces, 
           score: 0,
           last_tile: vector[3, 1, (TILE2 as u64)],
           top_tile: TILE2,
@@ -84,23 +82,23 @@ module ethos::game_board_8192 {
     public(friend) fun move_direction(game_board: &mut GameBoard8192, direction: u64, random: vector<u8>) {
         assert!(!game_board.game_over, 3);
         
-        let existing_spaces = *&game_board.spaces;
+        let existing_spaces = *&game_board.packed_spaces;
 
-        let top_tile = move_spaces(&mut game_board.spaces, direction);
+        let (packed_spaces, top_tile, add) = move_spaces(game_board.packed_spaces, direction);
+        game_board.packed_spaces = packed_spaces;
 
-        if (existing_spaces == game_board.spaces) {
+        if (existing_spaces == game_board.packed_spaces) {
             if (!move_possible(game_board)) {
                 game_board.game_over = true;
             };
             
             return
         };
-        
-        let add = score_add(&existing_spaces, &game_board.spaces);
-        game_board.score = game_board.score + add;
-        
-        let new_tile = add_new_tile(game_board, random);
 
+        game_board.score = game_board.score + add;
+
+        let new_tile = add_new_tile(game_board, direction, random);
+ 
         if (new_tile > top_tile) {
             top_tile = new_tile;
         };
@@ -112,8 +110,8 @@ module ethos::game_board_8192 {
         };
     }
 
-    public(friend) fun spaces(game_board: &GameBoard8192): &vector<vector<Option<u64>>> { 
-        &game_board.spaces 
+    public(friend) fun packed_spaces(game_board: &GameBoard8192): &u64 { 
+        &game_board.packed_spaces 
     }
 
     public(friend) fun score(game_board: &GameBoard8192): &u64 { 
@@ -132,43 +130,50 @@ module ethos::game_board_8192 {
         &game_board.game_over
     }
 
-    public(friend) fun row_count(game_board: &GameBoard8192): u64 {
-        vector::length(&game_board.spaces)
+    public(friend) fun row_count(): u8 {
+        ROW_COUNT
     }
 
-    public(friend) fun row_at(game_board: &GameBoard8192, index: u64): &vector<Option<u64>> {
-        vector::borrow(&game_board.spaces, index)
+    public(friend) fun column_count(): u8 {
+        COLUMN_COUNT
     }
 
-    public(friend) fun row_at_mut(game_board: &mut GameBoard8192, index: u64): &mut vector<Option<u64>> {
-        vector::borrow_mut(&mut game_board.spaces, index)
+    public(friend) fun space_at(packed_spaces: u64, row_index: u8, column_index: u8): u64 {
+        (packed_spaces >> (row_index * COLUMN_COUNT + column_index) * ROW_COUNT) & 0xF
     }
 
-    public(friend) fun column_count(game_board: &GameBoard8192): u64 {
-        let row = vector::borrow(&game_board.spaces, 0);
-        vector::length(row)
+    public(friend) fun board_space_at(game_board: &GameBoard8192, row_index: u8, column_index: u8): u64 {
+        space_at(game_board.packed_spaces, row_index, column_index)
     }
 
-    public(friend) fun space_at(game_board: &GameBoard8192, row_index: u64, column_index: u64): &Option<u64> {
-        spaces_at(&game_board.spaces, row_index, column_index)
-    }
-
-    public(friend) fun space_at_mut(game_board: &mut GameBoard8192, row_index: u64, column_index: u64): &mut Option<u64> {
-        spaces_at_mut(&mut game_board.spaces, row_index, column_index)
-    }
-
-    public(friend) fun empty_space_positions(game_board: &GameBoard8192): vector<SpacePosition> {
+    public(friend) fun empty_space_positions(game_board: &GameBoard8192, direction: u64): vector<SpacePosition> {
         let empty_spaces = vector<SpacePosition>[];
 
-        let rows = row_count(game_board);
-        let columns = column_count(game_board);
+        let rows = ROW_COUNT;
+        let columns = COLUMN_COUNT;
+        let starter_row = 0;
+        let starter_column = 0;
         
-        let row = 0;
+        if (direction != ALL) {
+            if (direction == LEFT) {
+                starter_row = 0;
+                starter_column = 3;
+            } else if (direction == RIGHT) {
+                columns = 1;
+            } else if (direction == UP) {
+                starter_row = 3;
+                starter_column = 0;
+            } else if (direction == DOWN) {
+                columns = 1;
+            };
+        };
+        
+        let row = starter_row;
         while (row < rows) {
-          let column = 0;
+          let column = starter_column;
           while (column < columns) {
-            let space = space_at(game_board, row, column);
-            if (option::is_none(space)) {
+            let space = board_space_at(game_board, row, column);
+            if (space == EMPTY) {
               vector::push_back(&mut empty_spaces, SpacePosition { row, column })
             };
             column = column + 1;
@@ -180,11 +185,17 @@ module ethos::game_board_8192 {
     }
 
     public(friend) fun empty_space_count(game_board: &GameBoard8192): u64 {
-        vector::length(&empty_space_positions(game_board))
+        vector::length(&empty_space_positions(game_board, ALL))
     }
 
 
     // PRIVATE FUNCTIONS //
+
+    fun replace_value_at(packed_spaces: u64, row_index: u8, column_index: u8, value: u64): u64 {
+        let shift_bits = (ROW_COUNT * (column_index + row_index * COLUMN_COUNT));
+        let mask = (0xF << shift_bits) ^ 0xFFFFFFFFFFFFFFFF;
+        (packed_spaces & mask) | (value << shift_bits)
+    }
 
     fun remove_value_or_combined(tiles: &mut vector<u64>, value: u64, start: bool): u64 {
         let score_value = 0;
@@ -206,94 +217,43 @@ module ethos::game_board_8192 {
         score_value
     }
 
-    fun score_add(old_spaces: &vector<vector<Option<u64>>>, new_spaces: &vector<vector<Option<u64>>>): u64 {
-        let old_tiles = vector[];
-        
-        let row_index = 0;
-        while (row_index < vector::length(old_spaces)) {
-            let old_row = vector::borrow(old_spaces, row_index);
-            
-            let column_index = 0;
-            while (column_index < vector::length(old_row)) {
-                let old_option = vector::borrow(old_row, column_index);
-            
-                if (option::is_some(old_option)) {
-                    vector::push_back(&mut old_tiles, *option::borrow(old_option));
-                };
-
-                column_index = column_index + 1;
-            };
-            row_index = row_index + 1;
-        };
-
-        let total_score_value: u64 = 0;
-        let row_index = 0;
-        while (row_index < vector::length(new_spaces)) {
-            let new_row = vector::borrow(new_spaces, row_index);
-            
-            let column_index = 0;
-            while (column_index < vector::length(new_row)) {
-                let new_option = vector::borrow(new_row, column_index);
-                
-                if (option::is_some(new_option)) {
-                    let value = *option::borrow(new_option);
-                    let score = remove_value_or_combined(
-                        &mut old_tiles, 
-                        value, 
-                        true
-                    );
-                    total_score_value = total_score_value + score;
-                };
-                column_index = column_index + 1;
-            };
-            row_index = row_index + 1;
-        };
-        
-        total_score_value
-    }
-
     fun move_possible(game_board: &GameBoard8192): bool {
-        if (empty_space_available(game_board)) {
-          return true
-        };
-
-        let rows = row_count(game_board);
-        let columns = column_count(game_board);
+        let rows = ROW_COUNT;
+        let columns = COLUMN_COUNT;
         
         let row = 0;
         while (row < rows) {
-          let column = 0;
-          while (column < columns) {
-            let space = space_at(game_board, row, column);
-            if (option::is_none(space)) {
-              return true
-            };
+            let column = 0;
+            while (column < columns) {
+                let space = board_space_at(game_board, row, column);
+                if (space == EMPTY) {
+                    return true
+                };
 
-            let value = option::borrow(space);
-            if (column < columns - 1) {
-              let right_space = space_at(game_board, row, column + 1);
-              if (option::is_some(right_space) && option::contains(right_space, value)) {
-                return true
-              }
-            };
+                if (column < columns - 1) {
+                    let right_space = board_space_at(game_board, row, column + 1);
+                    if (right_space == EMPTY || right_space == space) {
+                        return true
+                    }
+                };
 
-            if (row < rows - 1) {
-              let down_space = space_at(game_board, row + 1, column);
-              if (option::is_some(down_space) && option::contains(down_space, value)) {
-                return true
-              }
+                if (row < rows - 1) {
+                    let down_space = board_space_at(game_board, row + 1, column);
+                    if (down_space == EMPTY || down_space == space) {
+                        return true
+                    }
+                };
+                
+                column = column + 1;
             };
-            
-            column = column + 1;
-          };
-          row = row + 1;
+            row = row + 1;
         };
 
         return false
     }
 
-    fun add_new_tile(game_board: &mut GameBoard8192, random: vector<u8>): u64 {
-        let empty_spaces = empty_space_positions(game_board);
+    fun add_new_tile(game_board: &mut GameBoard8192, direction: u64, random: vector<u8>): u64 {
+        let empty_spaces = empty_space_positions(game_board, direction);
         let empty_spaces_count = vector::length(&empty_spaces);
         assert!(empty_spaces_count > 0, ENoEmptySpaces);
 
@@ -312,211 +272,272 @@ module ethos::game_board_8192 {
         let random_empty_position = (*vector::borrow(&random, 1) as u64) % empty_spaces_count;
         let empty_space = vector::borrow(&empty_spaces, random_empty_position);
 
-        fill_in_space_at(&mut game_board.spaces, empty_space.row, empty_space.column, tile);
-        game_board.last_tile = vector[empty_space.row, empty_space.column, (tile as u64)];
+        let packed_spaces = fill_in_space_at(game_board.packed_spaces, empty_space.row, empty_space.column, tile);
+        game_board.packed_spaces = packed_spaces;
+        game_board.last_tile = vector[(empty_space.row as u64), (empty_space.column as u64), (tile as u64)];
 
         tile
     }
 
-    fun spaces_at(spaces: &vector<vector<Option<u64>>>, row_index: u64, column_index: u64): &Option<u64> {
-        let row = vector::borrow(spaces, row_index);
-        vector::borrow(row, column_index)
+    fun fill_in_space_at(packed_spaces: u64, row_index: u8, column_index: u8, value: u64): u64 {
+        packed_spaces | value << (ROW_COUNT * (column_index + row_index * COLUMN_COUNT))
     }
 
-    fun spaces_at_mut(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64): &mut Option<u64> {
-        let row = vector::borrow_mut(spaces, row_index);
-        vector::borrow_mut(row, column_index)
-    }
-
-    fun empty_space_available(game_board: &GameBoard8192): bool {
-        let rows = row_count(game_board);
-        let columns = column_count(game_board);
-        
-        let row = 0;
-        while (row < rows) {
-          let column = 0;
-          while (column < columns) {
-            let space = space_at(game_board, row, column);
-            if (option::is_none(space)) {
-              return true
-            };
-            column = column + 1;
-          };
-          row = row + 1;
-        };
-
-        return false
-    }
-
-    fun fill_in_space_at(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64, value: u64) {
-        let space = spaces_at_mut(spaces, row_index, column_index);
-        option::fill(space, value);
-    }
-
-    fun increment_space_at(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64): u64 {
-        let space = spaces_at_mut(spaces, row_index, column_index);
-        assert!(option::is_some(space), ESpaceEmpty);
-        let current = option::extract(space);
-        let new_value = current + 1;
-        option::fill(space, new_value);
-        new_value
-    }
-
-    fun clear_space_at(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64): u64 {
-        let space = spaces_at_mut(spaces, row_index, column_index);
-        assert!(option::is_some(space), ESpaceEmpty);
-        option::extract(space)
-    }
-
-    fun combine_spaces(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64, combine_into_row_index: u64, combine_into_column_index: u64): u64 {
-        let space1value = option::borrow(spaces_at(spaces, row_index, column_index));
-        let space2 = spaces_at(spaces, combine_into_row_index, combine_into_column_index);
-        assert!(option::contains(space2, space1value), 1);
-        clear_space_at(spaces, row_index, column_index);
-        increment_space_at(spaces, combine_into_row_index, combine_into_column_index)
-    }
-
-    fun is_vertical(direction: u64): bool {
-        direction == UP || direction == DOWN
-    }
-
-    fun is_reverse(direction: u64): bool {
-        direction == RIGHT || direction == DOWN
-    }
-
-    fun check_combined(combined_map: &VecMap<SpacePosition, bool>, position: SpacePosition): bool {
-        vec_map::contains(combined_map, &position)
-    }
-
-    fun set_combined(combined_map: &mut VecMap<SpacePosition, bool>, position: SpacePosition) {
-        if (!vec_map::contains(combined_map, &position)) {
-            vec_map::insert(combined_map, position, true);
-        }   
-    }
-
-    fun move_space_direction_at(
-      spaces: &mut vector<vector<Option<u64>>>, 
-      direction: u64, 
-      row_index: u64, 
-      column_index: u64,
-      combine_map: &mut VecMap<SpacePosition, bool>
-    ): (bool, u64) {    
-        let space = spaces_at(spaces, row_index, column_index);
-        let space_value = *option::borrow(space);
-        if (is_vertical(direction)) {
-            if (row_index == 0) {
-                return (true, space_value)
-            };
+    fun spaces_at(packed_spaces: u64, row_index: u8, column_index: u8, direction: u64): (u64, u64, u64, u64) {
+        let space1: u64;
+        let space2: u64;
+        let space3: u64;
+        let space4: u64;
+        if (direction == LEFT) {
+            space1 = space_at(packed_spaces, row_index, 0);
+            space2 = space_at(packed_spaces, row_index, 1);
+            space3 = space_at(packed_spaces, row_index, 2);
+            space4 = space_at(packed_spaces, row_index, 3);
+        } else if (direction == RIGHT) {
+            space1 = space_at(packed_spaces, row_index, 3);
+            space2 = space_at(packed_spaces, row_index, 2);
+            space3 = space_at(packed_spaces, row_index, 1);
+            space4 = space_at(packed_spaces, row_index, 0);
+        } else if (direction == UP) {
+            space1 = space_at(packed_spaces, 0, column_index);
+            space2 = space_at(packed_spaces, 1, column_index);
+            space3 = space_at(packed_spaces, 2, column_index);
+            space4 = space_at(packed_spaces, 3, column_index);
         } else {
-            if (column_index == 0) {
-                return (true, space_value)
-            };   
+            space1 = space_at(packed_spaces, 3, column_index);
+            space2 = space_at(packed_spaces, 2, column_index);
+            space3 = space_at(packed_spaces, 1, column_index);
+            space4 = space_at(packed_spaces, 0, column_index);
         };
 
-        let previous_column_index = column_index;
-        let previous_row_index = row_index;
-
-        if (is_vertical(direction)) {
-            previous_row_index = row_index - 1;
-        } else {
-            previous_column_index = column_index - 1;
-        };
-
-        let previous = spaces_at(spaces, previous_row_index, previous_column_index);
-        if (option::is_some(previous)) {
-            if (option::borrow(previous) == &space_value) {
-                let previous_space_position = SpacePosition {
-                  row: previous_row_index,
-                  column: previous_column_index
-                };
-
-                if (check_combined(combine_map, previous_space_position)) {
-                    return (true, space_value)
-                };
-
-                space_value  = combine_spaces(spaces, row_index, column_index, previous_row_index, previous_column_index);
-                
-                set_combined(combine_map, previous_space_position);
-                
-                return (true, space_value)
-            }
-        } else {
-            let value = clear_space_at(spaces, row_index, column_index);
-            fill_in_space_at(spaces, previous_row_index, previous_column_index, value);
-            return (false, space_value)
-        };
-        return (true, space_value)
+        (space1, space2, space3, space4)
     }
 
-    fun move_spaces(spaces: &mut vector<vector<Option<u64>>>, direction: u64): u64 {
-        let rows = vector::length(spaces);
-        let columns = vector::length(vector::borrow(spaces, 0));
-        
+    fun save_spaces(packed_spaces: u64, row_index: u8, column_index: u8, space1: u64, space2: u64, space3: u64, space4: u64, space1Changed: bool, space2Changed: bool, space3Changed: bool, space4Changed: bool, direction: u64): u64 {
+        if (direction == LEFT) {
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 0, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 1, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 2, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 3, space4);
+        } else if (direction == RIGHT) {
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 3, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 2, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 1, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 0, space4);
+        } else if (direction == UP) {
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, 0, column_index, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, 1, column_index, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, 2, column_index, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, 3, column_index, space4);
+        } else if (direction == DOWN) {
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, 3, column_index, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, 2, column_index, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, 1, column_index, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, 0, column_index, space4);
+        };
+
+        packed_spaces
+    }
+
+    fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64, u64) {
         let current_direction = direction;
         
-        if (direction == RIGHT) {
-            current_direction = LEFT;
-        } else if (direction == DOWN) {
-            current_direction = UP;
-            vector::reverse(spaces);
+        let top_tile: u64 = 1;
+        let score_addition: u64 = 0;
+
+        let relevant_row = 0;
+        if (current_direction == DOWN) {
+            relevant_row = ROW_COUNT - 1;
         };
-        
-        let top_tile: u64 = 0;
 
-        let combined_map = vec_map::empty<SpacePosition, bool>();
-        let row = 0;
-        while (row < rows) {
-            let column = 0;
-
-            if (direction == RIGHT) {
-                vector::reverse(vector::borrow_mut(spaces, row))
-            };
-
-            while (column < columns) {
-                let space = spaces_at(spaces, row, column);
+        let relevant_column = 0;
+        if (current_direction == RIGHT) {
+            relevant_column = COLUMN_COUNT  - 1;
+        };
                 
-                if (option::is_some(space)) {
-                    let current_row = row;
-                    let current_column = column;
-                    loop {
-                        let (stop, tile_value) = move_space_direction_at(
-                          spaces, 
-                          current_direction, 
-                          current_row, 
-                          current_column, 
-                          &mut combined_map
-                        );
+        let last_empty_index: u8 = 99;
 
-                        if (tile_value > top_tile) {
-                          top_tile = tile_value;
-                        };
+        let (space1, space2, space3, space4) = spaces_at(
+            packed_spaces, 
+            relevant_row, 
+            relevant_column, 
+            current_direction
+        );
 
-                        if (stop) {
-                          break
-                        };
+        let original_space1 = space1;
+        let original_space2 = space2;
+        let original_space3 = space3;
+        let original_space4 = space4;
 
-                        if (is_vertical(current_direction)) {
-                            current_row = current_row - 1;
-                        } else {
-                            current_column = current_column - 1;
-                        };
-                    }
+        let space_index = 1;
+        let next_space_index = 2;
+
+        while (true) {
+            if (next_space_index > ROW_COUNT) {
+                packed_spaces = save_spaces(
+                    packed_spaces, 
+                    relevant_row, 
+                    relevant_column, 
+                    space1, 
+                    space2, 
+                    space3, 
+                    space4,
+                    original_space1 != space1,
+                    original_space2 != space2,
+                    original_space3 != space3,
+                    original_space4 != space4, 
+                    current_direction
+                );
+
+                relevant_row = next_row(relevant_row, current_direction);
+                relevant_column = next_column(relevant_column, current_direction);
+
+                if (!valid_row(relevant_row) || !valid_column(relevant_column)) {
+                    break
                 };
-                column = column + 1;
+
+                (space1, space2, space3, space4) = spaces_at(
+                    packed_spaces, 
+                    relevant_row, 
+                    relevant_column, 
+                    current_direction
+                );                        
+
+                last_empty_index = 99;
+
+                original_space1 = space1;
+                original_space2 = space2;
+                original_space3 = space3;
+                original_space4 = space4;
+
+                space_index = 1; 
+                next_space_index = 2;
             };
 
-            if (direction == RIGHT) {
-                vector::reverse(vector::borrow_mut(spaces, row))
+            let space;
+            if (space_index == 1) { space = space1 }
+            else if (space_index == 2) { space = space2 }
+            else if (space_index == 3) { space = space3 }
+            else { space = space4 };
+
+            let next_space;
+            if (next_space_index == 1) { next_space = space1 }
+            else if (next_space_index == 2) { next_space = space2 }
+            else if (next_space_index == 3) { next_space = space3 }
+            else { next_space = space4 };
+
+            if (space == EMPTY) {
+                last_empty_index = space_index;
+            } else if (space > top_tile) {
+                top_tile = space;
             };
 
-            row = row + 1;
+            if (next_space == EMPTY) {
+                if (last_empty_index == 99) {
+                    last_empty_index = next_space_index;
+                };
+            } else {
+                if (next_space == space) {
+                    let score = 2;
+                    let space_steps = space;
+                    while (space_steps > 0) {
+                        score = score * 2;
+                        space_steps = space_steps - 1;
+                    };
+                    score_addition = score_addition + score;
+
+                    if (space + 1 > top_tile) {
+                        top_tile = space + 1;
+                    };
+
+                    if (space_index == 1) {
+                        space1 = space + 1;
+                    } else if (space_index == 2) {
+                        space2 = space + 1;
+                    } else if (space_index == 3) {
+                        space3 = space + 1;
+                    } else {
+                        space4 = space + 1;
+                    };
+
+                    if (next_space_index == 1) {
+                        space1 = EMPTY;
+                    } else if (next_space_index == 2) {
+                        space2 = EMPTY;
+                    } else if (next_space_index == 3) {
+                        space3 = EMPTY;
+                    } else {
+                        space4 = EMPTY;
+                    };
+
+                    if (last_empty_index != 99) {
+                        space_index = last_empty_index;
+                    } else {
+                        space_index = next_space_index;
+                    };
+
+                    next_space_index = space_index;
+                } else if (next_space != space) {
+                    if (last_empty_index != 99) {
+
+                        if (last_empty_index == 1) {
+                            space1 = next_space;
+                        } else if (last_empty_index == 2) {
+                            space2 = next_space;
+                        } else if (last_empty_index == 3) {
+                            space3 = next_space;
+                        } else {
+                            space4 = next_space;
+                        };
+                        
+                        if (next_space_index == 1) {
+                            space1 = EMPTY;
+                        } else if (next_space_index == 2) {
+                            space2 = EMPTY;
+                        } else if (next_space_index == 3) {
+                            space3 = EMPTY;
+                        } else {
+                            space4 = EMPTY;
+                        };
+                        
+
+                        space_index = last_empty_index;
+                        next_space_index = space_index;
+                        last_empty_index = 99;
+                    } else {
+                        space_index = next_space_index;
+                    }               
+                };
+            };
+
+            next_space_index = next_space_index + 1;
+        }; 
+
+        (packed_spaces, top_tile, score_addition)
+    }
+
+    fun next_row(row: u8, direction: u64): u8 {
+        if (direction == RIGHT || direction == LEFT) {
+            return row + 1
         };
 
-        if (direction == DOWN) {
-            vector::reverse(spaces);
+        row
+    }
+
+    fun next_column(column: u8, direction: u64): u8 {
+        if (direction == DOWN || direction == UP) {
+            return column + 1
         };
 
-        top_tile
+        column
+    }
+
+    fun valid_row(row: u8): bool {
+        row >= 0 && row < ROW_COUNT
+    }
+
+    fun valid_column(column: u8): bool {
+        column >= 0 && column < COLUMN_COUNT
     }
 
     // TESTS //
@@ -524,34 +545,14 @@ module ethos::game_board_8192 {
     // In here due to number of constants
 
     #[test_only]
-    const EMPTY: u64 = 99;
-
-    #[test_only]
-    fun o(value: u64): Option<u64> {
-        if (value == EMPTY) {
-          return option::none()
-        };
-        option::some(value)
-    }
-
-    #[test_only]
-    public fun print_board(board: &GameBoard8192) {
-        let spaces = spaces(board);
-        
+    public fun print_packed_spaces(packed_spaces: u64) {
         let row_index = 0;
-        while (row_index < vector::length(spaces)) {
-            let row = vector::borrow(spaces, row_index);
-
-            let printable_row = vector<u64>[];
+        while (row_index < ROW_COUNT) {
             let column_index = 0;
-            while (column_index < vector::length(row)) {
-                let space = vector::borrow(row, column_index);
-                if (option::is_none(space)) {
-                    vector::push_back(&mut printable_row, 99);
-                } else {
-                    vector::push_back(&mut printable_row, *option::borrow(space));
-                };
-
+            let printable_row = vector<u64>[];
+            while (column_index < COLUMN_COUNT) {
+                let space = space_at(packed_spaces, row_index, column_index);
+                vector::push_back(&mut printable_row, space);
                 column_index = column_index + 1;
             };
 
@@ -561,39 +562,40 @@ module ethos::game_board_8192 {
     }
 
     #[test_only]
-    fun game_board_matches(game_board: &GameBoard8192, expected_spaces: vector<u64>): bool {
-        let rows = row_count(game_board);
-        let columns = column_count(game_board);
+    public fun print_board(board: &GameBoard8192) {        
+        print_packed_spaces(board.packed_spaces);
+    }
+
+    #[test_only]
+    fun pack_spaces(spaces: vector<u64>): u64 {
+        let packed_spaces = 0;
+        let rows = ROW_COUNT;
+        let columns = COLUMN_COUNT;
         
         let row=0;
         while (row < rows) {
             let column=0;
             while (column < columns) {
                 let index = (row * columns) + column;
-                let space = space_at(game_board, row, column);
-                let expected = vector::borrow(&expected_spaces, index);
-                if (option::is_none(space)) {
-                    if(expected != &EMPTY) {
-                        return false
-                    }
-                } else {
-                    if (option::borrow(space) != expected) {
-                        return false
-                    }
-                };
+                let space = *vector::borrow<u64>(&spaces, (index as u64));
+                packed_spaces = packed_spaces | space << ((row * COLUMN_COUNT + column) * ROW_COUNT);
                 column = column + 1;
             };
             row = row + 1;
         };
 
-        true
+        packed_spaces
+    }
+
+    #[test_only]
+    fun game_board_matches(game_board: &GameBoard8192, expected_spaces: vector<u64>): bool {
+        let expected_packed_spaces = pack_spaces(expected_spaces);
+        game_board.packed_spaces == expected_packed_spaces
     }
 
     #[test]
     fun test_default_game_board() {
         let game_board = default(vector[1,2,3,4,5,6]);
-        assert!(row_count(&game_board) == 4, row_count(&game_board));
-        assert!(column_count(&game_board) == 4, column_count(&game_board));
         let empty_space_count = empty_space_count(&game_board);
         assert!(empty_space_count == 14, empty_space_count);
     }
@@ -602,11 +604,11 @@ module ethos::game_board_8192 {
     fun test_move_left() {
         let game_board = default(vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(0 as u64), (3 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (3 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
-            TILE2, EMPTY, EMPTY, TILE2,
-            EMPTY, EMPTY, EMPTY, EMPTY,
             TILE2, EMPTY, EMPTY, EMPTY,
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE2, EMPTY, EMPTY, TILE2,
             EMPTY, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
@@ -614,23 +616,23 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_left__complex() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE16), o(EMPTY), o(TILE128), o(TILE128)],
-                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(TILE256)],
-                vector[o(EMPTY), o(TILE8), o(TILE8), o(TILE8)],
-                vector[o(TILE32), o(EMPTY), o(EMPTY), o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE16, EMPTY, TILE128, TILE128,
+                EMPTY, EMPTY, EMPTY, TILE256,
+                EMPTY, TILE8, TILE8, TILE8,
+                TILE32, EMPTY, EMPTY, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE128,
             game_over: false
         };
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(1 as u64), (1 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (3 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
             TILE16,  TILE256, EMPTY, EMPTY,
-            TILE256, TILE2,   EMPTY, EMPTY,
-            TILE16,  TILE8,   EMPTY, EMPTY,
+            TILE256, EMPTY,   EMPTY, EMPTY,
+            TILE16,  TILE8,   EMPTY, TILE2,
             TILE64,  EMPTY,   EMPTY, EMPTY
         ]), 1);
     }
@@ -639,11 +641,11 @@ module ethos::game_board_8192 {
     fun test_move_right() {
         let game_board = default(vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, RIGHT, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
-            EMPTY, EMPTY, TILE2, TILE2,
-            EMPTY, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, TILE2,
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE2, EMPTY, EMPTY, TILE2,
             EMPTY, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
@@ -651,23 +653,23 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_right__complex() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE16), o(EMPTY), o(TILE128), o(TILE128)],
-                vector[o(EMPTY), o(TILE256), o(EMPTY), o(EMPTY)],
-                vector[o(EMPTY), o(TILE8), o(TILE8), o(TILE8)],
-                vector[o(TILE32), o(EMPTY), o(EMPTY), o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE16, EMPTY, TILE128, TILE128,
+                EMPTY, TILE256, EMPTY, EMPTY,
+                EMPTY, TILE8, TILE8, TILE8,
+                TILE32, EMPTY, EMPTY, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE128,
             game_over: false
         };
         move_direction(&mut game_board, RIGHT, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(1 as u64), (0 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
             EMPTY, EMPTY, TILE16, TILE256, 
-            TILE2, EMPTY, EMPTY, TILE256,
-            EMPTY, EMPTY, TILE8, TILE16, 
+            EMPTY, EMPTY, EMPTY, TILE256,
+            TILE2, EMPTY, TILE8, TILE16, 
             EMPTY, EMPTY, EMPTY, TILE64
         ]), 1);
     }
@@ -676,36 +678,36 @@ module ethos::game_board_8192 {
     fun test_move_up() {
         let game_board = default(vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(1 as u64), (0 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(3 as u64), (2 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
             EMPTY, TILE2, EMPTY, TILE2,
-            TILE2, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY,
-            EMPTY, EMPTY, EMPTY, EMPTY
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            EMPTY, EMPTY, TILE2, EMPTY
         ]), 1);
     }
 
     #[test]
     fun test_move_up__complex() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE16),  o(EMPTY),   o(EMPTY), o(TILE32)],
-                vector[o(EMPTY),   o(EMPTY),   o(TILE8), o(EMPTY)],
-                vector[o(TILE128), o(TILE256), o(TILE8), o(EMPTY)],
-                vector[o(TILE128), o(EMPTY),   o(TILE8), o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE16, EMPTY, EMPTY, TILE32,
+                EMPTY, EMPTY, TILE8, EMPTY,
+                TILE128, TILE256, TILE8, EMPTY,
+                TILE128, EMPTY, TILE8, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE256,
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(3 as u64), (2 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
             TILE16,  TILE256, TILE16, TILE64, 
             TILE256, EMPTY,   TILE8,  EMPTY,
-            TILE2,   EMPTY,   EMPTY,  EMPTY, 
-            EMPTY,   EMPTY,   EMPTY,  EMPTY
+            EMPTY,   EMPTY,   EMPTY,  EMPTY, 
+            EMPTY,   EMPTY,   TILE2,  EMPTY
         ]), 1);
     }
 
@@ -713,11 +715,11 @@ module ethos::game_board_8192 {
     fun test_move_down() {
         let game_board = default(vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
-            EMPTY, EMPTY, TILE2, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY,
+            TILE2, EMPTY, EMPTY, EMPTY,
             EMPTY, TILE2, EMPTY, TILE2
         ]), 1);
     }
@@ -725,21 +727,21 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_down__complex() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE16),  o(EMPTY),   o(EMPTY), o(TILE32)],
-                vector[o(EMPTY),   o(EMPTY),   o(TILE8), o(EMPTY)],
-                vector[o(TILE128), o(TILE256), o(TILE8), o(EMPTY)],
-                vector[o(TILE128), o(EMPTY),   o(TILE8), o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE16, EMPTY, EMPTY, TILE32,
+                EMPTY, EMPTY, TILE8, EMPTY,
+                TILE128, TILE256, TILE8, EMPTY,
+                TILE128, EMPTY, TILE8, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE256,
             game_over: false
         };
         move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(0 as u64), (0 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
-            EMPTY,   EMPTY,   TILE2,  EMPTY, 
+            TILE2,   EMPTY,   EMPTY,  EMPTY, 
             EMPTY,   EMPTY,   EMPTY,  EMPTY,
             TILE16,  EMPTY,   TILE8,  EMPTY, 
             TILE256, TILE256, TILE16, TILE64
@@ -749,47 +751,47 @@ module ethos::game_board_8192 {
     #[test]
     fun test_stop_scenario() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE4), o(TILE2), o(TILE2), o(EMPTY)],
-                vector[o(TILE2), o(TILE2), o(TILE4), o(TILE8)],
-                vector[o(TILE2), o(TILE2), o(TILE4), o(TILE4)],
-                vector[o(EMPTY), o(TILE2), o(TILE2), o(TILE4)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE4, TILE2, TILE2, EMPTY,
+                TILE2, TILE2, TILE4, TILE8,
+                TILE2, TILE2, TILE4, TILE4,
+                EMPTY, TILE2, TILE2, TILE4
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE8,
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(2 as u64), (3 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(3 as u64), (2 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
           TILE4, TILE4, TILE2, TILE8, 
           TILE4, TILE4, TILE8, TILE8,
-          EMPTY, EMPTY, TILE2, TILE2, 
-          EMPTY, EMPTY, EMPTY, EMPTY
+          EMPTY, EMPTY, TILE2, EMPTY, 
+          EMPTY, EMPTY, TILE2, EMPTY
         ]), 1);
     }
 
     #[test]
     fun test_stop_scenario__left() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE4),  o(TILE2), o(TILE2), o(EMPTY)],
-                vector[o(TILE2),  o(TILE2), o(TILE4), o(TILE8)],
-                vector[o(TILE2),  o(TILE2), o(TILE4), o(TILE4)],
-                vector[o(TILE16), o(TILE2), o(TILE2), o(TILE4)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE4, TILE2, TILE2, EMPTY,
+                TILE2, TILE2, TILE4, TILE8,
+                TILE2, TILE2, TILE4, TILE4,
+                TILE16, TILE2, TILE2, TILE4
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE16,
             game_over: false
         };
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(1 as u64), (3 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (3 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
           TILE4,  TILE4, EMPTY, EMPTY, 
-          TILE4,  TILE4, TILE8, TILE2,
-          TILE4,  TILE8, EMPTY, EMPTY, 
+          TILE4,  TILE4, TILE8, EMPTY,
+          TILE4,  TILE8, EMPTY, TILE2, 
           TILE16, TILE4, TILE4, EMPTY
         ]), 1);
     }
@@ -797,24 +799,24 @@ module ethos::game_board_8192 {
     #[test]
     fun test_stop_scenario__up_inward() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE4), o(TILE2), o(EMPTY), o(EMPTY)],
-                vector[o(TILE4), o(TILE2), o(EMPTY), o(EMPTY)],
-                vector[o(TILE8), o(TILE4), o(EMPTY), o(EMPTY)],
-                vector[o(EMPTY), o(TILE8), o(EMPTY), o(EMPTY)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE4, TILE2, EMPTY, EMPTY,
+                TILE4, TILE2, EMPTY, EMPTY,
+                TILE8, TILE4, EMPTY, EMPTY,
+                EMPTY, TILE8, EMPTY, EMPTY
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE8,
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(1 as u64), (2 as u64), (0 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(3 as u64), (2 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
           TILE8, TILE4, EMPTY, EMPTY, 
-          TILE8, TILE4, TILE2, EMPTY,
+          TILE8, TILE4, EMPTY, EMPTY,
           EMPTY, TILE8, EMPTY, EMPTY, 
-          EMPTY, EMPTY, EMPTY, EMPTY
+          EMPTY, EMPTY, TILE2, EMPTY
         ]), 1);
     }
 
@@ -822,12 +824,12 @@ module ethos::game_board_8192 {
     #[expected_failure(abort_code = EGameOver)]
     fun test_can_not_move_if_game_over() {        
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(TILE64),   o(TILE128), o(TILE256)],
-                vector[o(TILE512), o(TILE1024), o(EMPTY),   o(TILE512)],
-                vector[o(TILE4),   o(TILE8),    o(TILE16),  o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE1024, EMPTY, TILE512,
+                TILE4, TILE8, TILE16, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE8,
@@ -843,12 +845,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_game_not_over_if_move_can_be_made() {        
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE2),   o(TILE64),   o(TILE128), o(TILE256)],
-                vector[o(TILE512), o(TILE1024), o(EMPTY),   o(TILE2)],
-                vector[o(TILE4),   o(TILE8),    o(TILE4),   o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE2, TILE64, TILE128, TILE256,
+                TILE512, TILE1024, EMPTY, TILE2,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE8,
@@ -862,12 +864,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_possible() {        
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(TILE64),   o(TILE128), o(TILE256)],
-                vector[o(TILE512), o(TILE1024), o(EMPTY),   o(TILE512)],
-                vector[o(TILE4),   o(TILE8),    o(TILE4),   o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE1024, EMPTY, TILE512,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -879,12 +881,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_possible_no_move_possible() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(TILE64),   o(TILE128), o(TILE32)],
-                vector[o(TILE512), o(TILE1024), o(TILE16),  o(TILE512)],
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE32,
+                TILE512, TILE1024, TILE16, TILE512,
+                TILE2, TILE4, TILE8, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -896,12 +898,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_possible_move_possible_down() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(TILE64),   o(TILE128), o(TILE256)],
-                vector[o(TILE512), o(TILE1024), o(TILE16),   o(TILE512)],
-                vector[o(TILE4),   o(TILE8),    o(TILE16),   o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE1024, TILE16, TILE512,
+                TILE4, TILE8, TILE16, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -913,12 +915,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_possible_move_possible_right() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(TILE64),   o(TILE128), o(TILE256)],
-                vector[o(TILE512), o(TILE1024), o(TILE16),  o(TILE16)],
-                vector[o(TILE4),   o(TILE8),    o(TILE2),   o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE1024, TILE16, TILE16,
+                TILE4, TILE8, TILE2, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -930,12 +932,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_possible_move_possible_left() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(TILE64),   o(TILE128), o(TILE256)],
-                vector[o(TILE512), o(TILE16),   o(TILE16),   o(TILE512)],
-                vector[o(TILE4),   o(TILE8),    o(TILE2),   o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE16, TILE16, TILE512,
+                TILE4, TILE8, TILE2, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -947,12 +949,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_possible_move_possible_up() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(TILE64),   o(TILE16),   o(TILE256)],
-                vector[o(TILE512), o(TILE1024), o(TILE16),   o(TILE512)],
-                vector[o(TILE4),   o(TILE8),    o(TILE4),    o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE16, TILE256,
+                TILE512, TILE1024, TILE16, TILE512,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -964,12 +966,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_increments_score() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),  o(TILE4), o(TILE8), o(TILE16)],
-                vector[o(TILE32), o(EMPTY), o(TILE4), o(TILE256)],
-                vector[o(TILE32), o(EMPTY), o(EMPTY), o(TILE512)],
-                vector[o(TILE4),  o(TILE8), o(TILE4), o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, EMPTY, TILE4, TILE256,
+                TILE32, EMPTY, EMPTY, TILE512,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
             score: 500,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -985,47 +987,47 @@ module ethos::game_board_8192 {
     #[test]
     fun test_increments_top_tile() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-                vector[o(TILE32),  o(EMPTY),   o(EMPTY),   o(TILE256)],
-                vector[o(EMPTY), o(EMPTY), o(TILE16),   o(TILE512)],
-                vector[o(TILE4),   o(TILE8),    o(TILE4),    o(TILE32)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, EMPTY, EMPTY, TILE256,
+                EMPTY, EMPTY, TILE16, TILE512,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
             score: 500,
             last_tile: vector[],
             top_tile: TILE1024,
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-        assert!(top_tile(&game_board) == &8, (*top_tile(&game_board) as u64));
+        assert!(top_tile(&game_board) == &9, (*top_tile(&game_board) as u64));
     }   
 
     #[test]
     fun test_increments_top_tile__with_new_tile() {
         let game_board = default(vector[1,2,3,4,5,6]);
-        assert!(top_tile(&game_board) == &0, (*top_tile(&game_board) as u64));
-        move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
         assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
+        move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
+        assert!(top_tile(&game_board) == &2, (*top_tile(&game_board) as u64));
     }  
 
     #[test]
     fun test_increments_top_tile__with_combine() {
         let game_board = default(vector[1,2,3,4,5,6]);
-        assert!(top_tile(&game_board) == &0, (*top_tile(&game_board) as u64));
+        assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-        assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
+        assert!(top_tile(&game_board) == &2, (*top_tile(&game_board) as u64));
     } 
 
     #[test]
     fun test_no_tile_added_if_no_move_made() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE8), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY,
+                TILE8, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY
+            ]),
             score: 500,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -1038,12 +1040,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move_high_gas() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE256),  o(TILE256), o(TILE64), o(TILE64)],
-                vector[o(TILE4),    o(TILE4),   o(TILE8),  o(TILE8)],
-                vector[o(TILE1024), o(TILE1024),   o(TILE8),  o(TILE8)],
-                vector[o(TILE1024), o(TILE1024),   o(TILE8),  o(TILE8)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE256, TILE256, TILE64, TILE64,
+                TILE4, TILE4, TILE8, TILE8,
+                TILE1024, TILE1024, TILE8, TILE8,
+                TILE1024, TILE1024, TILE8, TILE8
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -1052,8 +1054,8 @@ module ethos::game_board_8192 {
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
             TILE512,    TILE128,  EMPTY,   EMPTY,
-            TILE8,      TILE16,   TILE2,   EMPTY,
-            TILE2048,   TILE16,   EMPTY,   EMPTY,
+            TILE8,      TILE16,   EMPTY,   EMPTY,
+            TILE2048,   TILE16,   EMPTY,   TILE2,
             TILE2048,   TILE16,   EMPTY,   EMPTY
         ]), 1);
     }
@@ -1061,12 +1063,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move__vector_error() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2048), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE512), o(TILE4), o(TILE2), o(EMPTY)],
-                vector[o(TILE128), o(TILE16), o(TILE4), o(TILE2)],
-                vector[o(TILE16), o(TILE2), o(TILE4), o(TILE2)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2048, EMPTY, EMPTY, EMPTY,
+                TILE512, TILE4, TILE2, EMPTY,
+                TILE128, TILE16, TILE4, TILE2,
+                TILE16, TILE2, TILE4, TILE2
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE2048,
@@ -1076,20 +1078,20 @@ module ethos::game_board_8192 {
         assert!(game_board_matches(&game_board, vector[
             TILE2048, TILE4, TILE2, TILE4, 
             TILE512, TILE16, TILE8, EMPTY,
-            TILE128, TILE2, EMPTY, TILE2, 
-            TILE16, EMPTY, EMPTY, EMPTY
+            TILE128, TILE2, EMPTY, EMPTY, 
+            TILE16, EMPTY, EMPTY, TILE2
         ]), 1);
     }
 
     #[test]
     fun test_move__vector_error_2() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(TILE16)],
-                vector[o(EMPTY), o(TILE2), o(TILE4), o(TILE256)],
-                vector[o(TILE2), o(TILE4), o(TILE8), o(TILE512)],
-                vector[o(TILE2), o(TILE4), o(TILE8), o(TILE128)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                EMPTY, EMPTY, EMPTY, TILE16,
+                EMPTY, TILE2, TILE4, TILE256,
+                TILE2, TILE4, TILE8, TILE512,
+                TILE2, TILE4, TILE8, TILE128
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE512,
@@ -1099,20 +1101,20 @@ module ethos::game_board_8192 {
         assert!(game_board_matches(&game_board, vector[
             TILE4, TILE2, TILE4, TILE16, 
             EMPTY, TILE8, TILE16, TILE256,
-            EMPTY, TILE2, EMPTY, TILE512, 
-            EMPTY, EMPTY, EMPTY, TILE128
+            EMPTY, EMPTY, EMPTY, TILE512, 
+            EMPTY, EMPTY, TILE2, TILE128
         ]), 1);
     }
 
     #[test]
     fun test_move__MovePrimitiveRuntimeError_error() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE8), o(TILE2), o(EMPTY), o(TILE2)],
-                vector[o(TILE32), o(TILE8), o(TILE8), o(EMPTY)],
-                vector[o(TILE64), o(TILE16), o(TILE16), o(TILE4)],
-                vector[o(TILE128), o(TILE2), o(TILE2), o(TILE2)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE8, TILE2, EMPTY, TILE2,
+                TILE32, TILE8, TILE8, EMPTY,
+                TILE64, TILE16, TILE16, TILE4,
+                TILE128, TILE2, TILE2, TILE2
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE128,
@@ -1121,8 +1123,8 @@ module ethos::game_board_8192 {
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
             TILE8, TILE4, EMPTY, EMPTY, 
-            TILE32, TILE16, TILE2, EMPTY,
-            TILE64, TILE32, TILE4, EMPTY, 
+            TILE32, TILE16, EMPTY, EMPTY,
+            TILE64, TILE32, TILE4, TILE2, 
             TILE128, TILE4, TILE2, EMPTY
         ]), 1);
     }
@@ -1130,12 +1132,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move__MoveAbortError() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE2), o(TILE128), o(TILE4),  o(TILE8)],
-                vector[o(TILE8), o(TILE2),   o(TILE16), o(TILE16)],
-                vector[o(TILE4), o(TILE64),  o(TILE2),  o(TILE4)],
-                vector[o(TILE2), o(TILE4),   o(TILE8),  o(TILE2)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE128, TILE4, TILE8,
+                TILE8, TILE2, TILE16, TILE16,
+                TILE4, TILE64, TILE2, TILE4,
+                TILE2, TILE4, TILE8, TILE2
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE128,
@@ -1154,12 +1156,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move__adds_higher_value_tile_2048() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(EMPTY), o(EMPTY), o(TILE2048), o(EMPTY)],
-                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE2), o(EMPTY), o(EMPTY), o(EMPTY)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                EMPTY, EMPTY, TILE2048, EMPTY,
+                EMPTY, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY,
+                TILE2, EMPTY, EMPTY, EMPTY
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE2048,
@@ -1167,9 +1169,9 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, LEFT, vector[4,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
-            TILE2048, EMPTY, EMPTY, TILE8, 
+            TILE2048, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
-            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE4, EMPTY, EMPTY, TILE8, 
             TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
@@ -1177,12 +1179,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move__adds_higher_value_tile_4096() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(EMPTY), o(EMPTY), o(TILE4096), o(EMPTY)],
-                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE2), o(EMPTY), o(EMPTY), o(EMPTY)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                EMPTY, EMPTY, TILE4096, EMPTY,
+                EMPTY, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY,
+                TILE2, EMPTY, EMPTY, EMPTY
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE4096,
@@ -1190,9 +1192,9 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, LEFT, vector[5,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
-            TILE4096, EMPTY, EMPTY, TILE16, 
+            TILE4096, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
-            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE4, EMPTY, EMPTY, TILE16, 
             TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
@@ -1200,12 +1202,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_move__adds_higher_value_tile_8192() {
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(EMPTY), o(EMPTY), o(TILE8192), o(EMPTY)],
-                vector[o(EMPTY), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE4), o(EMPTY), o(EMPTY), o(EMPTY)],
-                vector[o(TILE2), o(EMPTY), o(EMPTY), o(EMPTY)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                EMPTY, EMPTY, TILE8192, EMPTY,
+                EMPTY, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY,
+                TILE2, EMPTY, EMPTY, EMPTY
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE8192,
@@ -1213,9 +1215,9 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, LEFT, vector[6,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
-            TILE8192, EMPTY, EMPTY, TILE32, 
+            TILE8192, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
-            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE4, EMPTY, EMPTY, TILE32, 
             TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
@@ -1224,12 +1226,12 @@ module ethos::game_board_8192 {
     #[expected_failure(abort_code = EGameOver)]
     fun test_game_over_move_error() {        
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE1024), o(TILE8),    o(TILE4),   o(TILE2)],
-                vector[o(TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
-                vector[o(TILE256),  o(TILE32),   o(TILE8),   o(TILE2)],
-                vector[o(TILE64),   o(TILE16),   o(TILE2),   o(TILE16)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE1024, TILE8, TILE4, TILE2,
+                TILE512, TILE4, TILE16, TILE4,
+                TILE256, TILE32, TILE8, TILE2,
+                TILE64, TILE16, TILE2, TILE16
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -1245,12 +1247,12 @@ module ethos::game_board_8192 {
     #[test]
     fun test_game_over() {        
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE1024), o(TILE8),    o(EMPTY),   o(TILE2)],
-                vector[o(TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
-                vector[o(TILE256),  o(TILE32),   o(TILE8),   o(TILE128)],
-                vector[o(TILE64),   o(TILE16),   o(TILE64),   o(TILE16)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE1024, TILE8, EMPTY, TILE2,
+                TILE512, TILE4, TILE16, TILE4,
+                TILE256, TILE32, TILE8, TILE128,
+                TILE64, TILE16, TILE64, TILE16
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,
@@ -1264,12 +1266,12 @@ module ethos::game_board_8192 {
     #[expected_failure(abort_code = EGameOver)]
     fun test_next_move_game_over_move_error() {        
         let game_board = GameBoard8192 {
-            spaces: vector[
-                vector[o(TILE1024), o(TILE8),    o(TILE4),   o(TILE2)],
-                vector[o(TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
-                vector[o(EMPTY),    o(TILE32),   o(TILE8),   o(TILE2)],
-                vector[o(TILE64),   o(TILE16),   o(TILE2),   o(TILE16)]
-            ],
+            packed_spaces: pack_spaces(vector[
+                TILE1024, TILE8, TILE4, TILE2,
+                TILE512, TILE4, TILE16, TILE4,
+                EMPTY, TILE32, TILE8, TILE2,
+                TILE64, TILE16, TILE2, TILE16
+            ]),
             score: 0,
             last_tile: vector[],
             top_tile: TILE1024,

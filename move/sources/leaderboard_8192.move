@@ -1,6 +1,6 @@
 module ethos::leaderboard_8192 {
     use sui::object::{Self, ID, UID};
-    use sui::tx_context::{Self, TxContext};
+    use sui::tx_context::{TxContext};
     use std::string::{String};
     use sui::table::{Self, Table};
     use sui::transfer;
@@ -26,8 +26,7 @@ module ethos::leaderboard_8192 {
         game_id: ID,
         leader_address: address,
         top_tile: u64,
-        score: u64,
-        epoch: u64
+        score: u64
     }
 
     fun init(ctx: &mut TxContext) {
@@ -50,9 +49,10 @@ module ethos::leaderboard_8192 {
         transfer::share_object(leaderboard);
     }
 
-    public entry fun submit_game(game: &mut Game8192, leaderboard: &mut Leaderboard8192, ctx: &mut TxContext) {
+    public entry fun submit_game(game: &mut Game8192, leaderboard: &mut Leaderboard8192) {
         let top_tile = *game_8192::top_tile(game);
         let score = *game_8192::score(game);
+
         assert!(top_tile >= leaderboard.min_tile, ELowTile);
         assert!(score >= leaderboard.min_score, ELowScore);
 
@@ -70,14 +70,12 @@ module ethos::leaderboard_8192 {
 
         let game_id = object::uid_to_inner(game_8192::id(game));
         let leaderboard_id = object::uid_to_inner(&leaderboard.id);
-        let epoch = tx_context::epoch(ctx);
         
         let new_top_game = TopGame8192 {
             game_id,
             leader_address,
             score: *game_8192::score(game),
-            top_tile: *game_8192::top_tile(game),
-            epoch
+            top_tile: *game_8192::top_tile(game)
         };
         
         let index = 0;
@@ -105,7 +103,7 @@ module ethos::leaderboard_8192 {
           
         if (top_game_count == 0) {
             leaderboard.game_count = 1;
-            game_8192::record_leaderboard_game(game, leaderboard_id, 0, epoch);
+            game_8192::record_leaderboard_game(game, leaderboard_id, 0);
             return
         };
 
@@ -120,7 +118,7 @@ module ethos::leaderboard_8192 {
             
             if (!slot_found && top_tile >= top_game.top_tile) {
                 if (top_tile > top_game.top_tile || score > top_game.score) {
-                    game_8192::record_leaderboard_game(game, leaderboard_id, index, epoch);
+                    game_8192::record_leaderboard_game(game, leaderboard_id, index);
                     slot_found = true;
                 }
             };
@@ -145,7 +143,7 @@ module ethos::leaderboard_8192 {
 
         if (!slot_found) {
             let position = table::length(&leaderboard.top_games) - 1;
-            game_8192::record_leaderboard_game(game, leaderboard_id, position, epoch);
+            game_8192::record_leaderboard_game(game, leaderboard_id, position);
         };
         
         let game_count = table::length(&leaderboard.top_games);

@@ -2,29 +2,37 @@
 const { tileNames } = require("./constants");
 const { eById, eByClass, addClass, removeClass, isReverse, isVertical } = require("./utils");
 
+const ROWS = 4;
+const COLUMNS = 4;
+
 let active;
+
+const spaceAt = (packedSpaces, row, column) => 
+  Number((BigInt(packedSpaces) >> BigInt((row * COLUMNS + column) * ROWS)) & BigInt(0xF));
 
 module.exports = {
   active: () => active,
 
+  spaceAt,
+
   display: (board) => {
-    const spaces = board.spaces
+    const { packedSpaces } = board;
     const allColors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(i => `color${i}`);
     const tiles = eByClass('tile');
-    let topTile = 0;
-    for (let i=0; i<spaces.length; ++i) {
-      for (let j=0; j<spaces[i].length; ++j) {
-        const tile = spaces[i][j] ? parseInt(spaces[i][j]) : null;
-        if (tile !== null && tile + 1 > topTile) {
-          topTile = tile + 1;
+    let topTile = 1;
+    for (let i=0; i<ROWS; ++i) {
+      for (let j=0; j<COLUMNS; ++j) {
+        const tile = spaceAt(packedSpaces, i, j);
+        if (tile > topTile) {
+          topTile = tile;
         }
-        const tileElement = tiles[(i * spaces[i].length) + j];
+        const tileElement = tiles[(i * ROWS) + j];
         removeClass(tileElement, allColors);
-        if (tile === null) {
+        if (tile === 0) {
           tileElement.innerHTML = ""
         } else {
-          tileElement.innerHTML = `<div><div class='value'>${Math.pow(2, tile + 1)}</div><div>${tileNames[tile + 1]}</div></div>`;
-          addClass(tileElement, `color${tile + 1}`)
+          tileElement.innerHTML = `<div><div class='value'>${Math.pow(2, tile)}</div><div>${tileNames[tile]}</div></div>`;
+          addClass(tileElement, `color${tile}`)
         }
       }
     }
@@ -53,41 +61,39 @@ module.exports = {
     }
   },
 
-  diff: (spaces1, spaces2, direction) => {
+  diff: (packedSpaces1, packedSpaces2, direction) => {
     const reverse = isReverse(direction);
     const vertical = isVertical(direction);
 
     const tiles = {}
-    const columns = spaces1[0].length;
 
-    const start = reverse ? columns - 1 : 0;
-    const end = reverse ? 0 : columns - 1;
+    const start = reverse ? COLUMNS - 1 : 0;
+    const end = reverse ? 0 : COLUMNS - 1;
     const increment = reverse ? -1 : 1;
 
     for (let i=start; reverse ? i>=end : i<=end; i+=increment) {
-      const row1 = spaces1[i];
       for (let j=start; reverse ? j>=end : j<=end; j+=increment) {
-        let tile1 = spaces1[i][j];
-        const tile2 = spaces2[i][j];
-        const index = (i * columns) + j;
+        let tile1 = spaceAt(packedSpaces1, i, j);
+        const tile2 = spaceAt(packedSpaces2, i, j);
+        const index = (i * COLUMNS) + j;
 
-        if (tile2 !== null) {
+        if (tile2 !== 0) {
           if (tile1 === tile2) continue;
 
           const searchStart = (vertical ? i : j) + increment;
           for (let x=searchStart; reverse ? x>=end : x<=end; x+=increment) {
             const distance = Math.abs(vertical ? x - i : x - j);
-            const nextTile = vertical ? spaces1[x][j] : spaces1[i][x]
+            const nextTile = vertical ? spaceAt(packedSpaces1, x, j) : spaceAt(packedSpaces1, i, x);
             
-            if (nextTile === null) continue;
+            if (nextTile === 0) continue;
             
-            if (vertical) {
-              spaces1[x][j] = null;
-            } else {
-              spaces1[i][x] = null;
-            }
+            // if (vertical) {
+            //   spaces1[x][j] = null;
+            // } else {
+            //   spaces1[i][x] = null;
+            // }
             
-            const tile1Index = vertical ? (x * columns) + j : (i * columns) + x;
+            const tile1Index = vertical ? (x * COLUMNS) + j : (i * COLUMNS) + x;
             tiles[tile1Index] = {
               [direction]: distance
             }
@@ -113,16 +119,21 @@ module.exports = {
 
   convertInfo: (board) => {
     const { 
-      spaces: rawSpaces, 
-      board_spaces: rawBoardSpaces, 
+      packed_spaces: packedSpaces, 
+      // board_spaces: rawBoardSpaces, 
       last_tile: lastTile, 
       top_tile: topTile,
       score, 
       game_over: gameOver,
-      url
     } = board.fields || board.parsedJson || board;
-    const spaces = (rawSpaces || rawBoardSpaces);
-    return { spaces, lastTile, topTile, score, gameOver, url }
+    // const packedSpaces = (packedSpaces || rawBoardSpaces);
+    return { 
+      packedSpaces, 
+      lastTile, 
+      topTile: Number(topTile), 
+      score: Number(score), 
+      gameOver, 
+    }
   }
 }
 },{"./constants":3,"./utils":9}],2:[function(require,module,exports){
@@ -160,10 +171,10 @@ module.exports = {
 };
 },{"canvas-confetti":61}],3:[function(require,module,exports){
 module.exports = {
-  testnetContractAddress: "0x6aa21302ec6da1e665f6be7ac2243b5b27d72b52d74c87730fc1b825196ced79",
-  testnetLeaderboardAddress: "0x17d38d6e2ed761142b827383624ebdad8b51dccbeb459f0264001f37817bb0ff",
-  devnetContractAddress: "0xf634a2d561fb29be25a0c985ca33cceeb5313aa439b14b41c5eebbc12432a21c",
-  devnetLeaderboardAddress: "0xf6773f58b864d43cb7a1be98f41fc4471bc259076580d15adb31b43aadb286af",
+  testnetContractAddress: "0xc44a4068e4546f7fa711f9cfdd90e69effb5ab234192dae2cd5070f76f6ccc3a",
+  testnetLeaderboardAddress: "0xbf9f4fd34c134fd2cb43e9439529ee0bf5b25bbbb8176fca29afe2d1af69cfa9",
+  devnetContractAddress: "0x968df5c30b3dfc3c43b1705afcb1bd7b7bd640fe4251733fd9a9c744f8764dd8",
+  devnetLeaderboardAddress: "0x370db15a90d3c39d7e802065a53288ec73d45e82b6cea28bb8c9a8f6d0db610c",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -366,7 +377,7 @@ function handleResult(newBoard, direction) {
     topTile = newBoard.topTile;
     const topTiles = eByClass("top-tile-display");
     for (const topTile of topTiles) {
-      topTile.innerHTML = `<img src='${newBoard.url}' />`;
+      topTile.innerHTML = `<img src='https://sui8192.s3.amazonaws.com/${newBoard.topTile}.png' />`;
     }
     confetti.run();
 
@@ -384,8 +395,8 @@ function handleResult(newBoard, direction) {
 
   const tiles = eByClass("tile");
   const resultDiff = board.diff(
-    board.active().spaces,
-    newBoard.spaces,
+    board.active().packedSpaces,
+    newBoard.packedSpaces,
     direction
   );
 
@@ -781,12 +792,12 @@ const onWalletConnected = async ({ signer }) => {
 
             const { events } = data;
             const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
-            const { game_id, board_spaces, score } = gameData.parsedJson;
+            const { game_id, packed_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
               board: {
                 score,
-                board_spaces,
+                packed_spaces,
                 game_over: false,
               },
             };
