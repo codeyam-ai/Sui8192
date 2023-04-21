@@ -848,170 +848,170 @@ module ethos::game_board_8192 {
         assert!(!move_possible(&game_board), 1);
     }
 
-    // #[test]
-    // fun test_move_possible_move_possible_down() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE2, TILE4, TILE8, TILE16)],
-    //             TILE32, TILE64, TILE128, TILE256)],
-    //             TILE512, TILE1024, TILE16, TILE512)],
-    //             TILE4, TILE8, TILE16, TILE32)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     assert!(move_possible(&game_board), 1);
-    // }
+    #[test]
+    fun test_move_possible_move_possible_down() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE1024, TILE16, TILE512,
+                TILE4, TILE8, TILE16, TILE32
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        assert!(move_possible(&game_board), 1);
+    }
 
-    // #[test]
-    // fun test_move_possible_move_possible_right() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE2, TILE4, TILE8, TILE16)],
-    //             TILE32, TILE64, TILE128, TILE256)],
-    //             TILE512, TILE1024, TILE16, TILE16)],
-    //             TILE4, TILE8, TILE2, TILE32)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     assert!(move_possible(&game_board), 1);
-    // }
+    #[test]
+    fun test_move_possible_move_possible_right() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE1024, TILE16, TILE16,
+                TILE4, TILE8, TILE2, TILE32
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        assert!(move_possible(&game_board), 1);
+    }
 
-    // #[test]
-    // fun test_move_possible_move_possible_left() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE2, TILE4, TILE8, TILE16)],
-    //             TILE32, TILE64, TILE128, TILE256)],
-    //             TILE512, TILE16, TILE16, TILE512)],
-    //             TILE4, TILE8, TILE2, TILE32)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     assert!(move_possible(&game_board), 1);
-    // }
+    #[test]
+    fun test_move_possible_move_possible_left() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE128, TILE256,
+                TILE512, TILE16, TILE16, TILE512,
+                TILE4, TILE8, TILE2, TILE32
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        assert!(move_possible(&game_board), 1);
+    }
 
-    // #[test]
-    // fun test_move_possible_move_possible_up() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE2, TILE4, TILE8, TILE16)],
-    //             TILE32, TILE64, TILE16, TILE256)],
-    //             TILE512, TILE1024, TILE16, TILE512)],
-    //             TILE4, TILE8, TILE4, TILE32)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     assert!(move_possible(&game_board), 1);
-    // }
+    #[test]
+    fun test_move_possible_move_possible_up() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, TILE64, TILE16, TILE256,
+                TILE512, TILE1024, TILE16, TILE512,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        assert!(move_possible(&game_board), 1);
+    }
 
-    // #[test]
-    // fun test_increments_score() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE2, TILE4, TILE8, TILE16)],
-    //             TILE32, EMPTY, TILE4, TILE256)],
-    //             TILE32, EMPTY, EMPTY, TILE512)],
-    //             TILE4, TILE8, TILE4, TILE32)]
-    //         ],
-    //         score: 500,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-    //     assert!(score(&game_board) == &572, *score(&game_board));
+    #[test]
+    fun test_increments_score() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, EMPTY, TILE4, TILE256,
+                TILE32, EMPTY, EMPTY, TILE512,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
+            score: 500,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(score(&game_board) == &572, *score(&game_board));
 
-    //     move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
-    //     assert!(score(&game_board) == &588, *score(&game_board));
-    // } 
+        move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
+        assert!(score(&game_board) == &588, *score(&game_board));
+    } 
 
-    // #[test]
-    // fun test_increments_top_tile() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE2, TILE4, TILE8, TILE16)],
-    //             TILE32, EMPTY, EMPTY, TILE256)],
-    //             EMPTY, EMPTY, TILE16, TILE512)],
-    //             TILE4, TILE8, TILE4, TILE32)]
-    //         ],
-    //         score: 500,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-    //     assert!(top_tile(&game_board) == &8, (*top_tile(&game_board) as u64));
-    // }   
+    #[test]
+    fun test_increments_top_tile() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE2, TILE4, TILE8, TILE16,
+                TILE32, EMPTY, EMPTY, TILE256,
+                EMPTY, EMPTY, TILE16, TILE512,
+                TILE4, TILE8, TILE4, TILE32
+            ]),
+            score: 500,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &9, (*top_tile(&game_board) as u64));
+    }   
 
-    // #[test]
-    // fun test_increments_top_tile__with_new_tile() {
-    //     let game_board = default(vector[1,2,3,4,5,6]);
-    //     assert!(top_tile(&game_board) == &0, (*top_tile(&game_board) as u64));
-    //     move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
-    //     assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
-    // }  
+    #[test]
+    fun test_increments_top_tile__with_new_tile() {
+        let game_board = default(vector[1,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
+        move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
+        assert!(top_tile(&game_board) == &2, (*top_tile(&game_board) as u64));
+    }  
 
-    // #[test]
-    // fun test_increments_top_tile__with_combine() {
-    //     let game_board = default(vector[1,2,3,4,5,6]);
-    //     assert!(top_tile(&game_board) == &0, (*top_tile(&game_board) as u64));
-    //     move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-    //     move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-    //     assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
-    // } 
+    #[test]
+    fun test_increments_top_tile__with_combine() {
+        let game_board = default(vector[1,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &1, (*top_tile(&game_board) as u64));
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &2, (*top_tile(&game_board) as u64));
+    } 
 
-    // #[test]
-    // fun test_no_tile_added_if_no_move_made() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE2, EMPTY, EMPTY, EMPTY)],
-    //             TILE4, EMPTY, EMPTY, EMPTY)],
-    //             TILE8, EMPTY, EMPTY, EMPTY)],
-    //             TILE4, EMPTY, EMPTY, EMPTY)]
-    //         ],
-    //         score: 500,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-    //     assert!(empty_space_count(&game_board) == (12 as u64), empty_space_count(&game_board));
-    // }  
+    #[test]
+    fun test_no_tile_added_if_no_move_made() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE2, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY,
+                TILE8, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY
+            ]),
+            score: 500,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(empty_space_count(&game_board) == (12 as u64), empty_space_count(&game_board));
+    }  
 
-    // #[test]
-    // fun test_move_high_gas() {
-    //     let game_board = GameBoard8192 {
-    //         packed_spaces: pack_spaces(vector[
-    //             TILE256, TILE256, TILE64, TILE64)],
-    //             TILE4, TILE4, TILE8, TILE8)],
-    //             TILE1024, TILE1024, TILE8, TILE8)],
-    //             TILE1024, TILE1024, TILE8, TILE8)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE1024,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         TILE512,    TILE128,  EMPTY,   EMPTY,
-    //         TILE8,      TILE16,   TILE2,   EMPTY,
-    //         TILE2048,   TILE16,   EMPTY,   EMPTY,
-    //         TILE2048,   TILE16,   EMPTY,   EMPTY
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_move_high_gas() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE256, TILE256, TILE64, TILE64,
+                TILE4, TILE4, TILE8, TILE8,
+                TILE1024, TILE1024, TILE8, TILE8,
+                TILE1024, TILE1024, TILE8, TILE8
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE512,    TILE128,  EMPTY,   EMPTY,
+            TILE8,      TILE16,   TILE2,   EMPTY,
+            TILE2048,   TILE16,   EMPTY,   EMPTY,
+            TILE2048,   TILE16,   EMPTY,   EMPTY
+        ]), 1);
+    }
 
     // #[test]
     // fun test_move__vector_error() {
