@@ -12,6 +12,7 @@ module ethos::game_board_8192 {
     const RIGHT: u64 = 1;
     const UP: u64 = 2;
     const DOWN: u64 = 3;
+    const ALL: u64 = 4;
 
     const EMPTY: u64 = 0;
     const TILE2: u64 = 1;
@@ -57,27 +58,6 @@ module ethos::game_board_8192 {
     // PUBLIC FRIEND FUNCTIONS //
 
     public(friend) fun default(random: vector<u8>): GameBoard8192 {
-        // let packed: u64 = 0;
-
-        // let row: u8 = 0;
-        // while (row < ROW_COUNT) {
-        //   let column: u8 = 0;
-        //   while (column < COLUMN_COUNT) {
-        //     let element = ((row as u64) + ((column as u64) * 2));
-        //     packed = packed | element << (ROW_COUNT * (row + column * COLUMN_COUNT));
-        //     column = column + 1;
-        //   };
-        //   row = row + 1;
-        // };
-
-        // let i = 3;
-        // let j = 2;
-        // packed = replace_value_at(packed, i, j, 9);
-
-        // let x = (packed >> (ROW_COUNT * (i + j * COLUMN_COUNT))) & 0xF;
-        // std::debug::print(&x);
-        // std::debug::print(&123456);
-
         let packed_spaces: u64 = 0;
 
         let row1 = (*vector::borrow(&random, 1) % 2);
@@ -117,7 +97,7 @@ module ethos::game_board_8192 {
 
         game_board.score = game_board.score + add;
 
-        let new_tile = add_new_tile(game_board, random);
+        let new_tile = add_new_tile(game_board, direction, random);
  
         if (new_tile > top_tile) {
             top_tile = new_tile;
@@ -166,16 +146,32 @@ module ethos::game_board_8192 {
         space_at(game_board.packed_spaces, row_index, column_index)
     }
 
-    // No loop: 3268 -> loop no space: 3472 -> loop no save: 4115 -> loop w save: 4546
-    public(friend) fun empty_space_positions(game_board: &GameBoard8192): vector<SpacePosition> {
+    // No loop: 3268 -> loop no space: 3472 -> loop no save: 4115 -> loop w save: 4546 -> less looping: 3744
+    public(friend) fun empty_space_positions(game_board: &GameBoard8192, direction: u64): vector<SpacePosition> {
         let empty_spaces = vector<SpacePosition>[];
 
         let rows = ROW_COUNT;
         let columns = COLUMN_COUNT;
+        let starter_row = 0;
+        let starter_column = 0;
         
-        let row = 0;
+        if (direction != ALL) {
+            if (direction == LEFT) {
+                starter_row = 0;
+                starter_column = 3;
+            } else if (direction == RIGHT) {
+                columns = 1;
+            } else if (direction == UP) {
+                starter_row = 3;
+                starter_column = 0;
+            } else if (direction == DOWN) {
+                columns = 1;
+            };
+        };
+        
+        let row = starter_row;
         while (row < rows) {
-          let column = 0;
+          let column = starter_column;
           while (column < columns) {
             let space = board_space_at(game_board, row, column);
             if (space == EMPTY) {
@@ -190,7 +186,7 @@ module ethos::game_board_8192 {
     }
 
     public(friend) fun empty_space_count(game_board: &GameBoard8192): u64 {
-        vector::length(&empty_space_positions(game_board))
+        vector::length(&empty_space_positions(game_board, ALL))
     }
 
 
@@ -257,8 +253,8 @@ module ethos::game_board_8192 {
         return false
     }
 
-    fun add_new_tile(game_board: &mut GameBoard8192, random: vector<u8>): u64 {
-        let empty_spaces = empty_space_positions(game_board);
+    fun add_new_tile(game_board: &mut GameBoard8192, direction: u64, random: vector<u8>): u64 {
+        let empty_spaces = empty_space_positions(game_board, direction);
         let empty_spaces_count = vector::length(&empty_spaces);
         assert!(empty_spaces_count > 0, ENoEmptySpaces);
 
