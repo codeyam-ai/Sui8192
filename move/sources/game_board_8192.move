@@ -392,8 +392,6 @@ module ethos::game_board_8192 {
                 relevant_row = next_row(relevant_row, current_direction);
                 relevant_column = next_column(relevant_column, current_direction);
 
-                last_empty_index = 99;
-
                 if (!valid_row(relevant_row) || !valid_column(relevant_column)) {
                     break
                 };
@@ -404,6 +402,8 @@ module ethos::game_board_8192 {
                     relevant_column, 
                     current_direction
                 );
+
+                last_empty_index = 99;
 
                 original_space1 = space1;
                 original_space2 = space2;
@@ -514,10 +514,10 @@ module ethos::game_board_8192 {
     }
 
     fun next_row(row: u8, direction: u64): u8 {
-        if (direction == DOWN) {
+        if (direction == RIGHT) {
             if (row == 0) return 99;
             return row - 1
-        } else if (direction == UP) {
+        } else if (direction == LEFT) {
             return row + 1
         };
 
@@ -525,10 +525,10 @@ module ethos::game_board_8192 {
     }
 
     fun next_column(column: u8, direction: u64): u8 {
-        if (direction == RIGHT) {
+        if (direction == DOWN) {
             if (column == 0) return 99;
             return column - 1
-        } else if (direction == LEFT) {
+        } else if (direction == UP) {
             return column + 1
         };
 
