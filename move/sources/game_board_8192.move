@@ -369,8 +369,8 @@ module ethos::game_board_8192 {
         let original_space3 = space3;
         let original_space4 = space4;
 
-        let space_index = 0;
-        let next_space_index = 1;
+        let space_index = 1;
+        let next_space_index = 2;
 
         while (true) {
             if (next_space_index > ROW_COUNT) {
@@ -401,7 +401,7 @@ module ethos::game_board_8192 {
                     relevant_row, 
                     relevant_column, 
                     current_direction
-                );
+                );                        
 
                 last_empty_index = 99;
 
@@ -410,7 +410,8 @@ module ethos::game_board_8192 {
                 original_space3 = space3;
                 original_space4 = space4;
 
-                next_space_index = 1;
+                space_index = 1; 
+                next_space_index = 2;
             };
 
             let space;
@@ -473,7 +474,9 @@ module ethos::game_board_8192 {
                         space_index = last_empty_index;
                     } else {
                         space_index = next_space_index;
-                    }
+                    };
+
+                    next_space_index = space_index;
                 } else if (next_space != space) {
                     if (last_empty_index != 99) {
 
@@ -814,12 +817,12 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(1 as u64), (2 as u64), (1 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(3 as u64), (2 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
           TILE8, TILE4, EMPTY, EMPTY, 
-          TILE8, TILE4, TILE2, EMPTY,
+          TILE8, TILE4, EMPTY, EMPTY,
           EMPTY, TILE8, EMPTY, EMPTY, 
-          EMPTY, EMPTY, EMPTY, EMPTY
+          EMPTY, EMPTY, TILE2, EMPTY
         ]), 1);
     }
 
