@@ -146,7 +146,6 @@ module ethos::game_board_8192 {
         space_at(game_board.packed_spaces, row_index, column_index)
     }
 
-    // No loop: 3268 -> loop no space: 3472 -> loop no save: 4115 -> loop w save: 4546 -> less looping: 3744
     public(friend) fun empty_space_positions(game_board: &GameBoard8192, direction: u64): vector<SpacePosition> {
         let empty_spaces = vector<SpacePosition>[];
 
@@ -284,75 +283,143 @@ module ethos::game_board_8192 {
         packed_spaces | value << (ROW_COUNT * (column_index + row_index * COLUMN_COUNT))
     }
 
+    fun spaces_at(packed_spaces: u64, row_index: u8, column_index: u8, direction: u64): (u64, u64, u64, u64) {
+        let space1: u64;
+        let space2: u64;
+        let space3: u64;
+        let space4: u64;
+        if (direction == LEFT) {
+            space1 = space_at(packed_spaces, row_index, 0);
+            space2 = space_at(packed_spaces, row_index, 1);
+            space3 = space_at(packed_spaces, row_index, 2);
+            space4 = space_at(packed_spaces, row_index, 3);
+        } else if (direction == RIGHT) {
+            space1 = space_at(packed_spaces, row_index, 3);
+            space2 = space_at(packed_spaces, row_index, 2);
+            space3 = space_at(packed_spaces, row_index, 1);
+            space4 = space_at(packed_spaces, row_index, 0);
+        } else if (direction == UP) {
+            space1 = space_at(packed_spaces, 0, column_index);
+            space2 = space_at(packed_spaces, 1, column_index);
+            space3 = space_at(packed_spaces, 2, column_index);
+            space4 = space_at(packed_spaces, 3, column_index);
+        } else {
+            space1 = space_at(packed_spaces, 3, column_index);
+            space2 = space_at(packed_spaces, 2, column_index);
+            space3 = space_at(packed_spaces, 1, column_index);
+            space4 = space_at(packed_spaces, 0, column_index);
+        };
+
+        (space1, space2, space3, space4)
+    }
+
+    fun save_spaces(packed_spaces: u64, row_index: u8, column_index: u8, space1: u64, space2: u64, space3: u64, space4: u64, direction: u64): u64 {
+        if (direction == LEFT) {
+            packed_spaces = replace_value_at(packed_spaces, row_index, 0, space1);
+            packed_spaces = replace_value_at(packed_spaces, row_index, 1, space2);
+            packed_spaces = replace_value_at(packed_spaces, row_index, 2, space3);
+            packed_spaces = replace_value_at(packed_spaces, row_index, 3, space4);
+        } else if (direction == RIGHT) {
+            packed_spaces = replace_value_at(packed_spaces, row_index, 3, space1);
+            packed_spaces = replace_value_at(packed_spaces, row_index, 2, space2);
+            packed_spaces = replace_value_at(packed_spaces, row_index, 1, space3);
+            packed_spaces = replace_value_at(packed_spaces, row_index, 0, space4);
+        } else if (direction == UP) {
+            packed_spaces = replace_value_at(packed_spaces, 0, column_index, space1);
+            packed_spaces = replace_value_at(packed_spaces, 1, column_index, space2);
+            packed_spaces = replace_value_at(packed_spaces, 2, column_index, space3);
+            packed_spaces = replace_value_at(packed_spaces, 3, column_index, space4);
+        } else if (direction == DOWN) {
+            packed_spaces = replace_value_at(packed_spaces, 3, column_index, space1);
+            packed_spaces = replace_value_at(packed_spaces, 2, column_index, space2);
+            packed_spaces = replace_value_at(packed_spaces, 1, column_index, space3);
+            packed_spaces = replace_value_at(packed_spaces, 0, column_index, space4);
+        };
+
+        packed_spaces
+    }
+
     fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64, u64) {
         let current_direction = direction;
         
         let top_tile: u64 = 1;
         let score_addition: u64 = 0;
 
-        let starter_row = 0;
+        let relevant_row = 0;
         if (current_direction == DOWN) {
-            starter_row = ROW_COUNT - 1;
+            relevant_row = ROW_COUNT - 1;
         };
 
-        let starter_column = 0;
+        let relevant_column = 0;
         if (current_direction == RIGHT) {
-            starter_column = COLUMN_COUNT  - 1;
+            relevant_column = COLUMN_COUNT  - 1;
         };
-        let relevant_row = starter_row;
-        let relevant_column = starter_column;
                 
-        let next_relevant_row = next_row(relevant_row, current_direction, false);
-        let next_relevant_column = next_column(relevant_column, current_direction, false);
+        let last_empty_index: u8 = 99;
 
-        let last_empty_row: u8 = 99;
-        let last_empty_column: u8 = 99;
+        let (space1, space2, space3, space4) = spaces_at(
+            packed_spaces, 
+            relevant_row, 
+            relevant_column, 
+            current_direction
+        );
+
+        let space_index = 0;
+        let next_space_index = 1;
 
         while (true) {
-            if (!valid_row(next_relevant_row)) {
-                relevant_row = starter_row;
-                relevant_column = next_column(relevant_column, current_direction, true);
+            if (next_space_index > ROW_COUNT) {
+                packed_spaces = save_spaces(
+                    packed_spaces, 
+                    relevant_row, 
+                    relevant_column, 
+                    space1, 
+                    space2, 
+                    space3, 
+                    space4, 
+                    current_direction
+                );
 
-                last_empty_row = 99;
-                last_empty_column = 99;
+                relevant_row = next_row(relevant_row, current_direction);
+                relevant_column = next_column(relevant_column, current_direction);
 
-                if (!valid_column(relevant_column)) {
+                last_empty_index = 99;
+
+                if (!valid_row(relevant_row) || !valid_column(relevant_column)) {
                     break
                 };
 
-                next_relevant_row = next_row(relevant_row, current_direction, false);
-                next_relevant_column = next_column(relevant_column, current_direction, false);
+                (space1, space2, space3, space4) = spaces_at(
+                    packed_spaces, 
+                    relevant_row, 
+                    relevant_column, 
+                    current_direction
+                );
+
+                next_space_index = 1;
             };
 
-            if (!valid_column(next_relevant_column)) {
-                relevant_row = next_row(relevant_row, current_direction, true);
-                relevant_column = starter_column;
+            let space;
+            if (space_index == 1) { space = space1 }
+            else if (space_index == 2) { space = space2 }
+            else if (space_index == 3) { space = space3 }
+            else { space = space4 };
 
-                last_empty_row = 99;
-                last_empty_column = 99;
-
-                if (!valid_row(relevant_row)) {
-                    break
-                };
-
-                next_relevant_row = next_row(relevant_row, current_direction, false);
-                next_relevant_column = next_column(relevant_column, current_direction, false);
-            };
-
-            let space = space_at(packed_spaces, relevant_row, relevant_column);
-            let next_space = space_at(packed_spaces, next_relevant_row, next_relevant_column);
+            let next_space;
+            if (next_space_index == 1) { next_space = space1 }
+            else if (next_space_index == 2) { next_space = space2 }
+            else if (next_space_index == 3) { next_space = space3 }
+            else { next_space = space4 };
 
             if (space == EMPTY) {
-                last_empty_row = relevant_row;
-                last_empty_column = relevant_column;
+                last_empty_index = space_index;
             } else if (space > top_tile) {
                 top_tile = space;
             };
 
             if (next_space == EMPTY) {
-                if (last_empty_row == 99 && last_empty_column == 99) {
-                    last_empty_row = next_relevant_row;
-                    last_empty_column = next_relevant_column;
+                if (last_empty_index == 99) {
+                    last_empty_index = next_space_index;
                 };
             } else {
                 if (next_space == space) {
@@ -368,63 +435,89 @@ module ethos::game_board_8192 {
                         top_tile = space + 1;
                     };
 
-                    packed_spaces = replace_value_at(packed_spaces, relevant_row, relevant_column, (space + 1));
-                    packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);
-
-                    if (last_empty_row != 99 && last_empty_column != 99) {
-                        relevant_row = last_empty_row;
-                        relevant_column = last_empty_column;
+                    if (space_index == 1) {
+                        space1 = space + 1;
+                    } else if (space_index == 2) {
+                        space2 = space + 1;
+                    } else if (space_index == 3) {
+                        space3 = space + 1;
                     } else {
-                        relevant_row = next_relevant_row;
-                        relevant_column = next_relevant_column;
+                        space4 = space + 1;
+                    };
+
+                    if (next_space_index == 1) {
+                        space1 = EMPTY;
+                    } else if (next_space_index == 2) {
+                        space2 = EMPTY;
+                    } else if (next_space_index == 3) {
+                        space3 = EMPTY;
+                    } else {
+                        space4 = EMPTY;
+                    };
+
+                    if (last_empty_index != 99) {
+                        space_index = last_empty_index;
+                    } else {
+                        space_index = next_space_index;
                     }
                 } else if (next_space != space) {
-                    if (last_empty_row != 99 && last_empty_column != 99) {
-                        packed_spaces = replace_value_at(packed_spaces, last_empty_row, last_empty_column, next_space);
-                        packed_spaces = replace_value_at(packed_spaces, next_relevant_row, next_relevant_column, EMPTY);      
+                    if (last_empty_index != 99) {
 
-                        relevant_row = last_empty_row;
-                        relevant_column = last_empty_column;
-                        next_relevant_row = relevant_row;
-                        next_relevant_column = relevant_column;
+                        if (last_empty_index == 1) {
+                            space1 = next_space;
+                        } else if (last_empty_index == 2) {
+                            space2 = next_space;
+                        } else if (last_empty_index == 3) {
+                            space3 = next_space;
+                        } else {
+                            space4 = next_space;
+                        };
+                        
+                        if (next_space_index == 1) {
+                            space1 = EMPTY;
+                        } else if (next_space_index == 2) {
+                            space2 = EMPTY;
+                        } else if (next_space_index == 3) {
+                            space3 = EMPTY;
+                        } else {
+                            space4 = EMPTY;
+                        };
+                        
 
-                        last_empty_row = 99;
-                        last_empty_column = 99;
+                        space_index = last_empty_index;
+                        next_space_index = space_index;
+                        last_empty_index = 99;
                     } else {
-                        relevant_row = next_relevant_row;
-                        relevant_column = next_relevant_column;
+                        space_index = next_space_index;
                     }               
                 };
             };
 
-            next_relevant_row = next_row(next_relevant_row, current_direction, false);
-            next_relevant_column = next_column(next_relevant_column, current_direction, false);
+            next_space_index = next_space_index + 1;
         }; 
 
         (packed_spaces, top_tile, score_addition)
     }
 
-    fun next_row(row: u8, direction: u64, orthogonal: bool): u8 {
+    fun next_row(row: u8, direction: u64): u8 {
         if (direction == DOWN) {
             if (row == 0) return 99;
             return row - 1
         } else if (direction == UP) {
             return row + 1
-        } else if (orthogonal) {
-            return row + 1
         };
+
         row
     }
 
-    fun next_column(column: u8, direction: u64, orthogonal: bool): u8 {
+    fun next_column(column: u8, direction: u64): u8 {
         if (direction == RIGHT) {
             if (column == 0) return 99;
             return column - 1
         } else if (direction == LEFT) {
             return column + 1
-        } else if (orthogonal) {
-            return column + 1
         };
+
         column
     }
 
