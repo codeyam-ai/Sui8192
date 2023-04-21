@@ -98,7 +98,7 @@ module ethos::leaderboard_8192_tests {
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            let scores = vector<u64>[20, 4];
+            let scores = vector<u64>[16, 4];
             let index = 0;
             while (index < 2) {
                 let top_game = leaderboard_8192::top_game_at(&leaderboard, index);
@@ -127,9 +127,10 @@ module ethos::leaderboard_8192_tests {
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
+            game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            let scores = vector<u64>[20, 8, 4];
+            let scores = vector<u64>[16, 8, 4];
             let index = 0;
             while (index < 3) {
                 let top_game = leaderboard_8192::top_game_at(&leaderboard, index);
@@ -162,7 +163,7 @@ module ethos::leaderboard_8192_tests {
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            let scores = vector<u64>[20, 12, 8, 4];
+            let scores = vector<u64>[16, 12, 8, 4];
             let index = 0;
             while (index < 4) {
                 let top_game = leaderboard_8192::top_game_at(&leaderboard, index);
@@ -414,7 +415,7 @@ module ethos::leaderboard_8192_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = leaderboard_8192::ELowScore)]
+    #[expected_failure(abort_code = leaderboard_8192::ENotALeader)]
     fun test_submit_game__aborts_if_not_a_leader() {
         let scenario = test_scenario::begin(PLAYER);
         leaderboard_8192::blank_leaderboard(&mut scenario, 2, 0, 0);
@@ -526,7 +527,7 @@ module ethos::leaderboard_8192_tests {
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
             
-            assert!(leaderboard_8192::min_tile(&leaderboard) == &1, (*leaderboard_8192::min_tile(&leaderboard) as u64));
+            assert!(leaderboard_8192::min_tile(&leaderboard) == &2, (*leaderboard_8192::min_tile(&leaderboard) as u64));
             assert!(leaderboard_8192::min_score(&leaderboard) == &4, *leaderboard_8192::min_score(&leaderboard));
             
             assert!(game_8192::score(&game) == &16, *game_8192::score(&game));

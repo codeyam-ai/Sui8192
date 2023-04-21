@@ -52,6 +52,7 @@ module ethos::leaderboard_8192 {
     public entry fun submit_game(game: &mut Game8192, leaderboard: &mut Leaderboard8192) {
         let top_tile = *game_8192::top_tile(game);
         let score = *game_8192::score(game);
+
         assert!(top_tile >= leaderboard.min_tile, ELowTile);
         assert!(score >= leaderboard.min_score, ELowScore);
 
