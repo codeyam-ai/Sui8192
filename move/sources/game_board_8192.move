@@ -313,27 +313,27 @@ module ethos::game_board_8192 {
         (space1, space2, space3, space4)
     }
 
-    fun save_spaces(packed_spaces: u64, row_index: u8, column_index: u8, space1: u64, space2: u64, space3: u64, space4: u64, direction: u64): u64 {
+    fun save_spaces(packed_spaces: u64, row_index: u8, column_index: u8, space1: u64, space2: u64, space3: u64, space4: u64, space1Changed: bool, space2Changed: bool, space3Changed: bool, space4Changed: bool, direction: u64): u64 {
         if (direction == LEFT) {
-            packed_spaces = replace_value_at(packed_spaces, row_index, 0, space1);
-            packed_spaces = replace_value_at(packed_spaces, row_index, 1, space2);
-            packed_spaces = replace_value_at(packed_spaces, row_index, 2, space3);
-            packed_spaces = replace_value_at(packed_spaces, row_index, 3, space4);
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 0, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 1, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 2, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 3, space4);
         } else if (direction == RIGHT) {
-            packed_spaces = replace_value_at(packed_spaces, row_index, 3, space1);
-            packed_spaces = replace_value_at(packed_spaces, row_index, 2, space2);
-            packed_spaces = replace_value_at(packed_spaces, row_index, 1, space3);
-            packed_spaces = replace_value_at(packed_spaces, row_index, 0, space4);
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 3, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 2, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 1, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, row_index, 0, space4);
         } else if (direction == UP) {
-            packed_spaces = replace_value_at(packed_spaces, 0, column_index, space1);
-            packed_spaces = replace_value_at(packed_spaces, 1, column_index, space2);
-            packed_spaces = replace_value_at(packed_spaces, 2, column_index, space3);
-            packed_spaces = replace_value_at(packed_spaces, 3, column_index, space4);
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, 0, column_index, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, 1, column_index, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, 2, column_index, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, 3, column_index, space4);
         } else if (direction == DOWN) {
-            packed_spaces = replace_value_at(packed_spaces, 3, column_index, space1);
-            packed_spaces = replace_value_at(packed_spaces, 2, column_index, space2);
-            packed_spaces = replace_value_at(packed_spaces, 1, column_index, space3);
-            packed_spaces = replace_value_at(packed_spaces, 0, column_index, space4);
+            if (space1Changed) packed_spaces = replace_value_at(packed_spaces, 3, column_index, space1);
+            if (space2Changed) packed_spaces = replace_value_at(packed_spaces, 2, column_index, space2);
+            if (space3Changed) packed_spaces = replace_value_at(packed_spaces, 1, column_index, space3);
+            if (space4Changed) packed_spaces = replace_value_at(packed_spaces, 0, column_index, space4);
         };
 
         packed_spaces
@@ -364,6 +364,11 @@ module ethos::game_board_8192 {
             current_direction
         );
 
+        let original_space1 = space1;
+        let original_space2 = space2;
+        let original_space3 = space3;
+        let original_space4 = space4;
+
         let space_index = 0;
         let next_space_index = 1;
 
@@ -376,7 +381,11 @@ module ethos::game_board_8192 {
                     space1, 
                     space2, 
                     space3, 
-                    space4, 
+                    space4,
+                    original_space1 != space1,
+                    original_space2 != space2,
+                    original_space3 != space3,
+                    original_space4 != space4, 
                     current_direction
                 );
 
@@ -395,6 +404,11 @@ module ethos::game_board_8192 {
                     relevant_column, 
                     current_direction
                 );
+
+                original_space1 = space1;
+                original_space2 = space2;
+                original_space3 = space3;
+                original_space4 = space4;
 
                 next_space_index = 1;
             };
