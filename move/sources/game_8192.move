@@ -24,9 +24,8 @@ module ethos::game_8192 {
         id: UID,
         player: address,
         active_board: GameBoard8192,
-        boards: Table<u64, GameBoard8192>,
-        moves: Table<u64, GameMove8192>,
         leaderboard_games: Table<u64, LeaderboardGame8192>,
+        move_count: u64,
         score: u64,
         top_tile: u64,      
         game_over: bool
@@ -114,16 +113,13 @@ module ethos::game_8192 {
         let game = Game8192 {
             id: uid,
             player,
+            move_count: 0,
             score,
             top_tile,
             active_board: initial_game_board,
-            boards: table::new<u64, GameBoard8192>(ctx),
-            moves: table::new<u64, GameMove8192>(ctx),
             game_over: false,
             leaderboard_games: table::new<u64, LeaderboardGame8192>(ctx),
         };
-
-        table::add(&mut game.boards, 0, initial_game_board);
 
         event::emit(NewGameEvent8192 {
             game_id: object::uid_to_inner(&game.id),
@@ -146,6 +142,7 @@ module ethos::game_8192 {
             game_board_8192::move_direction(&mut new_board, direction, random);
         };
 
+        let move_count = game.move_count + 1;
         let top_tile = *game_board_8192::top_tile(&new_board);
         let score = *game_board_8192::score(&new_board);
         let game_over = *game_board_8192::game_over(&new_board);
@@ -153,7 +150,7 @@ module ethos::game_8192 {
         event::emit(GameMoveEvent8192 {
             game_id: object::uid_to_inner(&game.id),
             direction: direction,
-            move_count: table::length(&game.moves),
+            move_count,
             packed_spaces: *game_board_8192::packed_spaces(&new_board),
             last_tile: *game_board_8192::last_tile(&new_board),
             top_tile,
@@ -169,17 +166,7 @@ module ethos::game_8192 {
             });
         };
 
-        let new_move = GameMove8192 {
-            direction: direction,
-            player: tx_context::sender(ctx)
-        };
-
-        let moveIndex = table::length(&game.moves);
-        table::add(&mut game.moves, moveIndex, new_move);
-
-        let boardIndex = table::length(&game.boards);
-        table::add(&mut game.boards, boardIndex, new_board);
-
+        game.move_count = move_count;
         game.active_board = new_board;
         game.score = score;
         game.top_tile = top_tile;
@@ -224,17 +211,8 @@ module ethos::game_8192 {
         game_board_8192::score(game_board)
     }
 
-    public fun move_count(game: &Game8192): u64 {
-        table::length(&game.moves)
-    }
-
-    public fun move_at(game: &Game8192, index: u64): (&u64, &address) {
-        let moveItem = table::borrow(&game.moves, index);
-        (&moveItem.direction, &moveItem.player)
-    }
-
-    public fun board_at(game: &Game8192, index: u64): &GameBoard8192 {
-        table::borrow(&game.boards, index)
+    public fun move_count(game: &Game8192): &u64 {
+        &game.move_count
     }
 
     public fun leaderboard_game_count(game: &Game8192): u64 {
