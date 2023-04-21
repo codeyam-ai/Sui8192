@@ -7,23 +7,25 @@ module.exports = {
   active: () => active,
 
   display: (board) => {
-    const spaces = board.spaces
+    const rows = 4;
+    const columns = 4;
+    const packedSpaces = BigInt(board.packedSpaces);
     const allColors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(i => `color${i}`);
     const tiles = eByClass('tile');
-    let topTile = 0;
-    for (let i=0; i<spaces.length; ++i) {
-      for (let j=0; j<spaces[i].length; ++j) {
-        const tile = spaces[i][j] ? parseInt(spaces[i][j]) : null;
-        if (tile !== null && tile + 1 > topTile) {
-          topTile = tile + 1;
+    let topTile = 1;
+    for (let i=0; i<rows; ++i) {
+      for (let j=0; j<columns; ++j) {
+        const tile = Number((packedSpaces >> BigInt((i * columns + j) * rows)) & BigInt(0xF));
+        if (tile > topTile) {
+          topTile = tile;
         }
-        const tileElement = tiles[(i * spaces[i].length) + j];
+        const tileElement = tiles[(i * rows) + j];
         removeClass(tileElement, allColors);
-        if (tile === null) {
+        if (tile === 0) {
           tileElement.innerHTML = ""
         } else {
-          tileElement.innerHTML = `<div><div class='value'>${Math.pow(2, tile + 1)}</div><div>${tileNames[tile + 1]}</div></div>`;
-          addClass(tileElement, `color${tile + 1}`)
+          tileElement.innerHTML = `<div><div class='value'>${Math.pow(2, tile)}</div><div>${tileNames[tile]}</div></div>`;
+          addClass(tileElement, `color${tile}`)
         }
       }
     }
@@ -112,15 +114,15 @@ module.exports = {
 
   convertInfo: (board) => {
     const { 
-      spaces: rawSpaces, 
-      board_spaces: rawBoardSpaces, 
+      packed_spaces: packedSpaces, 
+      // board_spaces: rawBoardSpaces, 
       last_tile: lastTile, 
       top_tile: topTile,
       score, 
       game_over: gameOver,
       url
     } = board.fields || board.parsedJson || board;
-    const spaces = (rawSpaces || rawBoardSpaces);
-    return { spaces, lastTile, topTile, score, gameOver, url }
+    // const packedSpaces = (packedSpaces || rawBoardSpaces);
+    return { packedSpaces, lastTile, topTile, score, gameOver, url }
   }
 }
