@@ -166,6 +166,7 @@ module ethos::game_board_8192 {
         space_at(game_board.packed_spaces, row_index, column_index)
     }
 
+    // No loop: 3268 -> loop no space: 3472 -> loop no save: 4115 -> loop w save: 4546
     public(friend) fun empty_space_positions(game_board: &GameBoard8192): vector<SpacePosition> {
         let empty_spaces = vector<SpacePosition>[];
 
