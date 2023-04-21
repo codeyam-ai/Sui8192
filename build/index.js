@@ -162,8 +162,8 @@ module.exports = {
 module.exports = {
   testnetContractAddress: "0x6aa21302ec6da1e665f6be7ac2243b5b27d72b52d74c87730fc1b825196ced79",
   testnetLeaderboardAddress: "0x17d38d6e2ed761142b827383624ebdad8b51dccbeb459f0264001f37817bb0ff",
-  devnetContractAddress: "0x9755ac0eb1cb30ea5c7078ba3c1b251eb8b97ebc1480e74f39950b7e870abcf7",
-  devnetLeaderboardAddress: "0xdca79cf54cd1089e6266faaa389ecf0ebfa0873eb74237e8e474c3cb494b6026",
+  devnetContractAddress: "0xeb0a4e32322eeaab7d62e45a6eaf3bd394a924c5e0c1075b3ac3d63a7db5288f",
+  devnetLeaderboardAddress: "0x584f304a7b8406e5df53d8740b4b6843b7a9791dc61f946bd90b997f95aa9562",
   tileNames: {
     1: "Air",
     2: "Mist",

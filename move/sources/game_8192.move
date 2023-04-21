@@ -65,7 +65,7 @@ module ethos::game_8192 {
     fun init(otw: GAME_8192, ctx: &mut TxContext) {
         let keys = vector[
             utf8(b"name"),
-            // utf8(b"image_url"),
+            utf8(b"image_url"),
             utf8(b"description"),
             utf8(b"project_url"),
             utf8(b"creator"),
@@ -73,7 +73,7 @@ module ethos::game_8192 {
 
         let values = vector[
             utf8(b"Sui 8192"),
-            // utf8(b"{url}"),
+            utf8(b"https://sui8192.s3.amazonaws.com/{top_tile}.png"),
             utf8(b"Sui 8192 is a fun, 100% on-chain game. Combine the tiles to get a high score!"),
             utf8(b"https://ethoswallet.github.io/Sui8192/"),
             utf8(b"Ethos")
