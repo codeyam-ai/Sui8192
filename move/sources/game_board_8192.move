@@ -457,8 +457,8 @@ module ethos::game_board_8192 {
                         relevant_row = last_empty_row;
                         relevant_column = last_empty_column;
                     } else {
-                        relevant_row = next_row(next_relevant_row, current_direction, false);
-                        relevant_column = next_column(next_relevant_column, current_direction, false);
+                        relevant_row = next_relevant_row;
+                        relevant_column = next_relevant_column;
                     }
                 } else if (next_space != space) {
                     if (last_empty_row != 99 && last_empty_column != 99) {
@@ -625,29 +625,29 @@ module ethos::game_board_8192 {
         ]), 1);
     }
 
-    // #[test]
-    // fun test_move_right__complex() {
-    //     let game_board = GameBoard8192 {
-    //         spaces: vector[
-    //             TILE16, EMPTY, TILE128, TILE128)],
-    //             EMPTY, TILE256, EMPTY, EMPTY)],
-    //             EMPTY, TILE8, TILE8, TILE8)],
-    //             TILE32, EMPTY, EMPTY, TILE32)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE128,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, RIGHT, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(1 as u64), (0 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         EMPTY, EMPTY, TILE16, TILE256, 
-    //         TILE2, EMPTY, EMPTY, TILE256,
-    //         EMPTY, EMPTY, TILE8, TILE16, 
-    //         EMPTY, EMPTY, EMPTY, TILE64
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_move_right__complex() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE16, EMPTY, TILE128, TILE128,
+                EMPTY, TILE256, EMPTY, EMPTY,
+                EMPTY, TILE8, TILE8, TILE8,
+                TILE32, EMPTY, EMPTY, TILE32
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE128,
+            game_over: false
+        };
+        move_direction(&mut game_board, RIGHT, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(1 as u64), (0 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+            EMPTY, EMPTY, TILE16, TILE256, 
+            TILE2, EMPTY, EMPTY, TILE256,
+            EMPTY, EMPTY, TILE8, TILE16, 
+            EMPTY, EMPTY, EMPTY, TILE64
+        ]), 1);
+    }
 
     // #[test]
     // fun test_move_up() {
