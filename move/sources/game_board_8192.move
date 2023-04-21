@@ -649,42 +649,42 @@ module ethos::game_board_8192 {
         ]), 1);
     }
 
-    // #[test]
-    // fun test_move_up() {
-    //     let game_board = default(vector[1,2,3,4,5,6]);
-    //     move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(1 as u64), (0 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         EMPTY, TILE2, EMPTY, TILE2,
-    //         TILE2, EMPTY, EMPTY, EMPTY,
-    //         EMPTY, EMPTY, EMPTY, EMPTY,
-    //         EMPTY, EMPTY, EMPTY, EMPTY
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_move_up() {
+        let game_board = default(vector[1,2,3,4,5,6]);
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(1 as u64), (0 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+            EMPTY, TILE2, EMPTY, TILE2,
+            TILE2, EMPTY, EMPTY, EMPTY,
+            EMPTY, EMPTY, EMPTY, EMPTY,
+            EMPTY, EMPTY, EMPTY, EMPTY
+        ]), 1);
+    }
 
-    // #[test]
-    // fun test_move_up__complex() {
-    //     let game_board = GameBoard8192 {
-    //         spaces: vector[
-    //             TILE16),  o(EMPTY),   o(EMPTY, TILE32)],
-    //             EMPTY),   o(EMPTY),   o(TILE8, EMPTY)],
-    //             TILE128, TILE256, TILE8, EMPTY)],
-    //             TILE128, EMPTY),   o(TILE8, TILE32)]
-    //         ],
-    //         score: 0,
-    //         last_tile: vector[],
-    //         top_tile: TILE256,
-    //         game_over: false
-    //     };
-    //     move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
-    //     assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (0 as u64)], 1);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         TILE16,  TILE256, TILE16, TILE64, 
-    //         TILE256, EMPTY,   TILE8,  EMPTY,
-    //         TILE2,   EMPTY,   EMPTY,  EMPTY, 
-    //         EMPTY,   EMPTY,   EMPTY,  EMPTY
-    //     ]), 1);
-    // }
+    #[test]
+    fun test_move_up__complex() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE16, EMPTY, EMPTY, TILE32,
+                EMPTY, EMPTY, TILE8, EMPTY,
+                TILE128, TILE256, TILE8, EMPTY,
+                TILE128, EMPTY, TILE8, TILE32
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE256,
+            game_over: false
+        };
+        move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (1 as u64)], 1);
+        assert!(game_board_matches(&game_board, vector[
+            TILE16,  TILE256, TILE16, TILE64, 
+            TILE256, EMPTY,   TILE8,  EMPTY,
+            TILE2,   EMPTY,   EMPTY,  EMPTY, 
+            EMPTY,   EMPTY,   EMPTY,  EMPTY
+        ]), 1);
+    }
 
     // #[test]
     // fun test_move_down() {
@@ -703,10 +703,10 @@ module ethos::game_board_8192 {
     // fun test_move_down__complex() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE16),  o(EMPTY),   o(EMPTY, TILE32)],
-    //             EMPTY),   o(EMPTY),   o(TILE8, EMPTY)],
+    //             TILE16, EMPTY, EMPTY, TILE32)],
+    //             EMPTY, EMPTY, TILE8, EMPTY)],
     //             TILE128, TILE256, TILE8, EMPTY)],
-    //             TILE128, EMPTY),   o(TILE8, TILE32)]
+    //             TILE128, EMPTY, TILE8, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -751,9 +751,9 @@ module ethos::game_board_8192 {
     // fun test_stop_scenario__left() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE4),  o(TILE2, TILE2, EMPTY)],
-    //             TILE2),  o(TILE2, TILE4, TILE8)],
-    //             TILE2),  o(TILE2, TILE4, TILE4)],
+    //             TILE4, TILE2, TILE2, EMPTY)],
+    //             TILE2, TILE2, TILE4, TILE8)],
+    //             TILE2, TILE2, TILE4, TILE4)],
     //             TILE16, TILE2, TILE2, TILE4)]
     //         ],
     //         score: 0,
@@ -800,10 +800,10 @@ module ethos::game_board_8192 {
     // fun test_can_not_move_if_game_over() {        
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(TILE64),   o(TILE128, TILE256)],
-    //             TILE512, TILE1024, EMPTY),   o(TILE512)],
-    //             TILE4),   o(TILE8),    o(TILE16),  o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, TILE64, TILE128, TILE256)],
+    //             TILE512, TILE1024, EMPTY, TILE512)],
+    //             TILE4, TILE8, TILE16, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -821,10 +821,10 @@ module ethos::game_board_8192 {
     // fun test_game_not_over_if_move_can_be_made() {        
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE2),   o(TILE64),   o(TILE128, TILE256)],
-    //             TILE512, TILE1024, EMPTY),   o(TILE2)],
-    //             TILE4),   o(TILE8),    o(TILE4),   o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE2, TILE64, TILE128, TILE256)],
+    //             TILE512, TILE1024, EMPTY, TILE2)],
+    //             TILE4, TILE8, TILE4, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -840,10 +840,10 @@ module ethos::game_board_8192 {
     // fun test_move_possible() {        
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(TILE64),   o(TILE128, TILE256)],
-    //             TILE512, TILE1024, EMPTY),   o(TILE512)],
-    //             TILE4),   o(TILE8),    o(TILE4),   o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, TILE64, TILE128, TILE256)],
+    //             TILE512, TILE1024, EMPTY, TILE512)],
+    //             TILE4, TILE8, TILE4, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -857,10 +857,10 @@ module ethos::game_board_8192 {
     // fun test_move_possible_no_move_possible() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(TILE64),   o(TILE128, TILE32)],
-    //             TILE512, TILE1024, TILE16),  o(TILE512)],
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, TILE64, TILE128, TILE32)],
+    //             TILE512, TILE1024, TILE16, TILE512)],
+    //             TILE2, TILE4, TILE8, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -874,10 +874,10 @@ module ethos::game_board_8192 {
     // fun test_move_possible_move_possible_down() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(TILE64),   o(TILE128, TILE256)],
-    //             TILE512, TILE1024, TILE16),   o(TILE512)],
-    //             TILE4),   o(TILE8),    o(TILE16),   o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, TILE64, TILE128, TILE256)],
+    //             TILE512, TILE1024, TILE16, TILE512)],
+    //             TILE4, TILE8, TILE16, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -891,10 +891,10 @@ module ethos::game_board_8192 {
     // fun test_move_possible_move_possible_right() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(TILE64),   o(TILE128, TILE256)],
-    //             TILE512, TILE1024, TILE16),  o(TILE16)],
-    //             TILE4),   o(TILE8),    o(TILE2),   o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, TILE64, TILE128, TILE256)],
+    //             TILE512, TILE1024, TILE16, TILE16)],
+    //             TILE4, TILE8, TILE2, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -908,10 +908,10 @@ module ethos::game_board_8192 {
     // fun test_move_possible_move_possible_left() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(TILE64),   o(TILE128, TILE256)],
-    //             TILE512, TILE16),   o(TILE16),   o(TILE512)],
-    //             TILE4),   o(TILE8),    o(TILE2),   o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, TILE64, TILE128, TILE256)],
+    //             TILE512, TILE16, TILE16, TILE512)],
+    //             TILE4, TILE8, TILE2, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -925,10 +925,10 @@ module ethos::game_board_8192 {
     // fun test_move_possible_move_possible_up() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(TILE64),   o(TILE16),   o(TILE256)],
-    //             TILE512, TILE1024, TILE16),   o(TILE512)],
-    //             TILE4),   o(TILE8),    o(TILE4),    o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, TILE64, TILE16, TILE256)],
+    //             TILE512, TILE1024, TILE16, TILE512)],
+    //             TILE4, TILE8, TILE4, TILE32)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -942,10 +942,10 @@ module ethos::game_board_8192 {
     // fun test_increments_score() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),  o(TILE4, TILE8, TILE16)],
+    //             TILE2, TILE4, TILE8, TILE16)],
     //             TILE32, EMPTY, TILE4, TILE256)],
     //             TILE32, EMPTY, EMPTY, TILE512)],
-    //             TILE4),  o(TILE8, TILE4, TILE32)]
+    //             TILE4, TILE8, TILE4, TILE32)]
     //         ],
     //         score: 500,
     //         last_tile: vector[],
@@ -963,10 +963,10 @@ module ethos::game_board_8192 {
     // fun test_increments_top_tile() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2),   o(TILE4),    o(TILE8),   o(TILE16)],
-    //             TILE32),  o(EMPTY),   o(EMPTY),   o(TILE256)],
-    //             EMPTY, EMPTY, TILE16),   o(TILE512)],
-    //             TILE4),   o(TILE8),    o(TILE4),    o(TILE32)]
+    //             TILE2, TILE4, TILE8, TILE16)],
+    //             TILE32, EMPTY, EMPTY, TILE256)],
+    //             EMPTY, EMPTY, TILE16, TILE512)],
+    //             TILE4, TILE8, TILE4, TILE32)]
     //         ],
     //         score: 500,
     //         last_tile: vector[],
@@ -1016,10 +1016,10 @@ module ethos::game_board_8192 {
     // fun test_move_high_gas() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE256),  o(TILE256, TILE64, TILE64)],
-    //             TILE4),    o(TILE4),   o(TILE8),  o(TILE8)],
-    //             TILE1024, TILE1024),   o(TILE8),  o(TILE8)],
-    //             TILE1024, TILE1024),   o(TILE8),  o(TILE8)]
+    //             TILE256, TILE256, TILE64, TILE64)],
+    //             TILE4, TILE4, TILE8, TILE8)],
+    //             TILE1024, TILE1024, TILE8, TILE8)],
+    //             TILE1024, TILE1024, TILE8, TILE8)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -1108,10 +1108,10 @@ module ethos::game_board_8192 {
     // fun test_move__MoveAbortError() {
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE2, TILE128, TILE4),  o(TILE8)],
-    //             TILE8, TILE2),   o(TILE16, TILE16)],
-    //             TILE4, TILE64),  o(TILE2),  o(TILE4)],
-    //             TILE2, TILE4),   o(TILE8),  o(TILE2)]
+    //             TILE2, TILE128, TILE4, TILE8)],
+    //             TILE8, TILE2, TILE16, TILE16)],
+    //             TILE4, TILE64, TILE2, TILE4)],
+    //             TILE2, TILE4, TILE8, TILE2)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -1202,10 +1202,10 @@ module ethos::game_board_8192 {
     // fun test_game_over_move_error() {        
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE1024, TILE8),    o(TILE4),   o(TILE2)],
-    //             TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
-    //             TILE256),  o(TILE32),   o(TILE8),   o(TILE2)],
-    //             TILE64),   o(TILE16),   o(TILE2),   o(TILE16)]
+    //             TILE1024, TILE8, TILE4, TILE2)],
+    //             TILE512, TILE4, TILE16, TILE4)],
+    //             TILE256, TILE32, TILE8, TILE2)],
+    //             TILE64, TILE16, TILE2, TILE16)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -1223,10 +1223,10 @@ module ethos::game_board_8192 {
     // fun test_game_over() {        
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE1024, TILE8),    o(EMPTY),   o(TILE2)],
-    //             TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
-    //             TILE256),  o(TILE32),   o(TILE8),   o(TILE128)],
-    //             TILE64),   o(TILE16),   o(TILE64),   o(TILE16)]
+    //             TILE1024, TILE8, EMPTY, TILE2)],
+    //             TILE512, TILE4, TILE16, TILE4)],
+    //             TILE256, TILE32, TILE8, TILE128)],
+    //             TILE64, TILE16, TILE64, TILE16)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
@@ -1242,10 +1242,10 @@ module ethos::game_board_8192 {
     // fun test_next_move_game_over_move_error() {        
     //     let game_board = GameBoard8192 {
     //         spaces: vector[
-    //             TILE1024, TILE8),    o(TILE4),   o(TILE2)],
-    //             TILE512),  o(TILE4),    o(TILE16),  o(TILE4)],
-    //             EMPTY),    o(TILE32),   o(TILE8),   o(TILE2)],
-    //             TILE64),   o(TILE16),   o(TILE2),   o(TILE16)]
+    //             TILE1024, TILE8, TILE4, TILE2)],
+    //             TILE512, TILE4, TILE16, TILE4)],
+    //             EMPTY, TILE32, TILE8, TILE2)],
+    //             TILE64, TILE16, TILE2, TILE16)]
     //         ],
     //         score: 0,
     //         last_tile: vector[],
