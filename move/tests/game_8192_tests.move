@@ -16,28 +16,28 @@ module ethos::game_8192_tests {
         game_8192::create(ctx);
     }
 
-    // fun test_game_create() {
-    //     let scenario = test_scenario::begin(PLAYER);
-    //     {
-    //         create_game(&mut scenario);
-    //     };
+    fun test_game_create() {
+        let scenario = test_scenario::begin(PLAYER);
+        {
+            create_game(&mut scenario);
+        };
 
-    //     test_scenario::next_tx(&mut scenario, PLAYER);
-    //     {
-    //         let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             
-    //         assert!(game_8192::player(&game) == &PLAYER, 0);
-    //         assert!(game_8192::move_count(&game) == 0, 1);
+            assert!(game_8192::player(&game) == &PLAYER, 0);
+            assert!(game_8192::move_count(&game) == &0, 1);
 
-    //         let game_board = game_8192::board_at(&game, 0);
-    //         let empty_space_count = game_board_8192::empty_space_count(game_board);
-    //         assert!(empty_space_count == 14, empty_space_count);
+            let game_board = game_8192::active_board(&game);
+            let empty_space_count = game_board_8192::empty_space_count(game_board);
+            assert!(empty_space_count == 14, empty_space_count);
 
-    //         test_scenario::return_to_sender(&mut scenario, game)
-    //     };
+            test_scenario::return_to_sender(&mut scenario, game)
+        };
 
-    //     test_scenario::end(scenario);
-    // }
+        test_scenario::end(scenario);
+    }
 
     #[test]
     fun test_raw_gas() {

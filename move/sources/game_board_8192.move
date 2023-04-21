@@ -1,7 +1,5 @@
 module ethos::game_board_8192 {
-    use std::option::{Self, Option};
     use std::vector;
-    use sui::vec_map::{Self, VecMap};
     
     friend ethos::game_8192;
     #[test_only]
@@ -106,7 +104,7 @@ module ethos::game_board_8192 {
         
         let existing_spaces = *&game_board.packed_spaces;
 
-        let (packed_spaces, top_tile, add) = move_spaces(game_board.packed_spaces, direction); // 3000
+        let (packed_spaces, top_tile, add) = move_spaces(game_board.packed_spaces, direction);
         game_board.packed_spaces = packed_spaces;
 
         if (existing_spaces == game_board.packed_spaces) {
@@ -119,7 +117,7 @@ module ethos::game_board_8192 {
 
         game_board.score = game_board.score + add;
 
-        let new_tile = add_new_tile(game_board, random); // 1600
+        let new_tile = add_new_tile(game_board, random);
  
         if (new_tile > top_tile) {
             top_tile = new_tile;
@@ -161,7 +159,6 @@ module ethos::game_board_8192 {
     }
 
     public(friend) fun space_at(packed_spaces: u64, row_index: u8, column_index: u8): u64 {
-        // (packed_spaces >> (ROW_COUNT * (row_index + column_index * COLUMN_COUNT))) & 0xF
         (packed_spaces >> (row_index * COLUMN_COUNT + column_index) * ROW_COUNT) & 0xF
     }
 
@@ -286,59 +283,8 @@ module ethos::game_board_8192 {
         tile
     }
 
-    fun spaces_at(spaces: &vector<vector<Option<u64>>>, row_index: u64, column_index: u64): &Option<u64> {
-        let row = vector::borrow(spaces, row_index);
-        vector::borrow(row, column_index)
-    }
-
-    fun spaces_at_mut(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64): &mut Option<u64> {
-        let row = vector::borrow_mut(spaces, row_index);
-        vector::borrow_mut(row, column_index)
-    }
-
     fun fill_in_space_at(packed_spaces: u64, row_index: u8, column_index: u8, value: u64): u64 {
         packed_spaces | value << (ROW_COUNT * (column_index + row_index * COLUMN_COUNT))
-    }
-
-    fun increment_space_at(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64): u64 {
-        let space = spaces_at_mut(spaces, row_index, column_index);
-        assert!(option::is_some(space), ESpaceEmpty);
-        let current = option::extract(space);
-        let new_value = current + 1;
-        option::fill(space, new_value);
-        new_value
-    }
-
-    fun clear_space_at(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64): u64 {
-        let space = spaces_at_mut(spaces, row_index, column_index);
-        assert!(option::is_some(space), ESpaceEmpty);
-        option::extract(space)
-    }
-
-    fun combine_spaces(spaces: &mut vector<vector<Option<u64>>>, row_index: u64, column_index: u64, combine_into_row_index: u64, combine_into_column_index: u64): u64 {
-        let space1value = option::borrow(spaces_at(spaces, row_index, column_index));
-        let space2 = spaces_at(spaces, combine_into_row_index, combine_into_column_index);
-        assert!(option::contains(space2, space1value), 1);
-        clear_space_at(spaces, row_index, column_index);
-        increment_space_at(spaces, combine_into_row_index, combine_into_column_index)
-    }
-
-    fun is_vertical(direction: u64): bool {
-        direction == UP || direction == DOWN
-    }
-
-    fun is_reverse(direction: u64): bool {
-        direction == RIGHT || direction == DOWN
-    }
-
-    fun check_combined(combined_map: &VecMap<SpacePosition, bool>, position: SpacePosition): bool {
-        vec_map::contains(combined_map, &position)
-    }
-
-    fun set_combined(combined_map: &mut VecMap<SpacePosition, bool>, position: SpacePosition) {
-        if (!vec_map::contains(combined_map, &position)) {
-            vec_map::insert(combined_map, position, true);
-        }   
     }
 
     fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64, u64) {
