@@ -1123,8 +1123,8 @@ module ethos::game_board_8192 {
         move_direction(&mut game_board, LEFT, vector[1,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
             TILE8, TILE4, EMPTY, EMPTY, 
-            TILE32, TILE16, TILE2, EMPTY,
-            TILE64, TILE32, TILE4, EMPTY, 
+            TILE32, TILE16, EMPTY, EMPTY,
+            TILE64, TILE32, TILE4, TILE2, 
             TILE128, TILE4, TILE2, EMPTY
         ]), 1);
     }
@@ -1169,9 +1169,9 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, LEFT, vector[4,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
-            TILE2048, EMPTY, EMPTY, TILE8, 
+            TILE2048, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
-            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE4, EMPTY, EMPTY, TILE8, 
             TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
@@ -1192,9 +1192,9 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, LEFT, vector[5,2,3,4,5,6]);
         assert!(game_board_matches(&game_board, vector[
-            TILE4096, EMPTY, EMPTY, TILE16, 
+            TILE4096, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
-            TILE4, EMPTY, EMPTY, EMPTY, 
+            TILE4, EMPTY, EMPTY, TILE16, 
             TILE2, EMPTY, EMPTY, EMPTY
         ]), 1);
     }
