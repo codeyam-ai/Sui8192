@@ -398,7 +398,7 @@ async function loadGames() {
       setActiveGame(game);
     });
 
-    const topTile = parseInt(game.topTile) + 1
+    const topTile = parseInt(game.topTile)
     gameElement.innerHTML = `
       <div class='leader-stats flex-1'> 
         <div class='leader-tile subsubtitle color${topTile}'>

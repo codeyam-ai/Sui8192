@@ -592,7 +592,7 @@ async function loadGames() {
       setActiveGame(game);
     });
 
-    const topTile = parseInt(game.topTile) + 1
+    const topTile = parseInt(game.topTile)
     gameElement.innerHTML = `
       <div class='leader-stats flex-1'> 
         <div class='leader-tile subsubtitle color${topTile}'>
@@ -1108,12 +1108,12 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
         for (const columnInfo of row) {
             const column = columnInfo.none ? null : parseInt(BigInt(columnInfo.some).toString());
             rowHTML.push(`
-            <div class='leaderboard-board-tile color${column === null ? "-none" : column + 1} '>
+            <div class='leaderboard-board-tile color${column === null ? "-none" : column} '>
               <div>
-                ${column === null ? "&nbsp;" : Math.pow(2, column + 1)}
+                ${column === null ? "&nbsp;" : Math.pow(2, column)}
               </div>
               <div class='leaderboard-board-tile-name'>
-                ${column === null ? "&nbsp;" : tileNames[column + 1]}
+                ${column === null ? "&nbsp;" : tileNames[column]}
               </div>
             </div>
           `);
@@ -1207,8 +1207,8 @@ const loadNextPage = async (network) => {
         listing.innerHTML = `
       <div class='leader-stats flex-1'> 
         <div>${i + 1}</div>
-        <div class='leader-tile subsubtitle color${topTile + 1}'>
-          ${Math.pow(2, topTile + 1)}
+        <div class='leader-tile subsubtitle color${topTile}'>
+          ${Math.pow(2, topTile)}
         </div>
         <div class='leader-score'>
           Score <span>${score}</span>
