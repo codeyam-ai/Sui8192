@@ -164,7 +164,7 @@ module ethos::game_board_8192 {
                 starter_row = 3;
                 starter_column = 0;
             } else if (direction == DOWN) {
-                columns = 1;
+                rows = 1;
             };
         };
         
@@ -715,11 +715,11 @@ module ethos::game_board_8192 {
     fun test_move_down() {
         let game_board = default(vector[1,2,3,4,5,6]);
         move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(2 as u64), (0 as u64), (1 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
+            EMPTY, EMPTY, TILE2, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY,
-            TILE2, EMPTY, EMPTY, EMPTY,
             EMPTY, TILE2, EMPTY, TILE2
         ]), 1);
     }
@@ -739,9 +739,9 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-        assert!(last_tile(&game_board) == &vector[(0 as u64), (0 as u64), (1 as u64)], 1);
+        assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (1 as u64)], 1);
         assert!(game_board_matches(&game_board, vector[
-            TILE2,   EMPTY,   EMPTY,  EMPTY, 
+            EMPTY,   EMPTY,   TILE2,  EMPTY, 
             EMPTY,   EMPTY,   EMPTY,  EMPTY,
             TILE16,  EMPTY,   TILE8,  EMPTY, 
             TILE256, TILE256, TILE16, TILE64
@@ -1282,5 +1282,28 @@ module ethos::game_board_8192 {
         assert!(*game_over(&game_board), 1);
 
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+    }  
+
+    #[test]
+    fun test__add_new_tile_error() {        
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                TILE32, TILE8, TILE8, TILE2,
+                TILE8,  TILE4, EMPTY, EMPTY,
+                TILE2, EMPTY, EMPTY, EMPTY,
+                TILE4, EMPTY, EMPTY, EMPTY
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE1024,
+            game_over: false
+        };
+        move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
+        assert!(game_board_matches(&game_board, vector[
+            TILE32, EMPTY, EMPTY, TILE2, 
+            TILE8, EMPTY, EMPTY, EMPTY,
+            TILE2, TILE8, EMPTY, EMPTY, 
+            TILE4, TILE4, TILE8, TILE2
+        ]), 1);
     }  
 }
