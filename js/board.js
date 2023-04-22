@@ -10,6 +10,9 @@ const spaceAt = (packedSpaces, row, column) =>
   Number((BigInt(packedSpaces) >> BigInt((row * COLUMNS + column) * ROWS)) & BigInt(0xF));
 
 module.exports = {
+  ROWS, 
+  COLUMNS,
+  
   active: () => active,
 
   spaceAt,
