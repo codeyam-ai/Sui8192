@@ -51,6 +51,13 @@ let root;
 
 const int = (intString = "-1") => parseInt(intString);
 
+const setActiveGameAddress = () => {
+  const queryParams = new URLSearchParams(window.location.search);
+  if (queryParams.get('objectId')) {
+    activeGameAddress = queryParams.get('objectId');
+  }
+}
+
 const setNetwork = (newNetworkName) => {
   if (newNetworkName === networkName) return;
 
@@ -147,6 +154,7 @@ const initializeKeyListener = () => {
 function init() {
   // test();
   initializeNetwork();
+  setActiveGameAddress();
 
   leaderboard.load(network, leaderboardAddress);
 
@@ -360,6 +368,14 @@ async function loadGames() {
       if (b.gameOver) return -1;
       return scoreDiff;
     });
+  
+  if (activeGameAddress) {
+    const activeGame = games.find((game) => game.address === activeGameAddress);
+    if (activeGame) {
+      setActiveGame(activeGame);
+      return;
+    }
+  }
 
   if (!games || games.length === 0) {
     const newGameArea = document.createElement("DIV");

@@ -248,6 +248,13 @@ let root;
 
 const int = (intString = "-1") => parseInt(intString);
 
+const setActiveGameAddress = () => {
+  const queryParams = new URLSearchParams(window.location.search);
+  if (queryParams.get('objectId')) {
+    activeGameAddress = queryParams.get('objectId');
+  }
+}
+
 const setNetwork = (newNetworkName) => {
   if (newNetworkName === networkName) return;
 
@@ -344,6 +351,7 @@ const initializeKeyListener = () => {
 function init() {
   // test();
   initializeNetwork();
+  setActiveGameAddress();
 
   leaderboard.load(network, leaderboardAddress);
 
@@ -557,6 +565,14 @@ async function loadGames() {
       if (b.gameOver) return -1;
       return scoreDiff;
     });
+  
+  if (activeGameAddress) {
+    const activeGame = games.find((game) => game.address === activeGameAddress);
+    if (activeGame) {
+      setActiveGame(activeGame);
+      return;
+    }
+  }
 
   if (!games || games.length === 0) {
     const newGameArea = document.createElement("DIV");
@@ -5482,7 +5498,6 @@ var JsonRpcClient = class {
     const req = { method, args };
     const response = await this.request(method, args);
     if ((0, import_superstruct11.is)(response, ErrorResponse)) {
-      console.log("ERROR", response)
       throw new RPCError({
         req,
         code: response.error.code,
