@@ -463,6 +463,7 @@ async function loadGames() {
 async function setActiveGame(game) {
   if (!game) {
     activeGameAddress = null;
+    return;
   }
   
   addClass(eByClass("error"), "hidden");
