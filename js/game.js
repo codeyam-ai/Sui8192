@@ -373,7 +373,7 @@ async function loadGames() {
     const activeGame = games.find((game) => game.address === activeGameAddress);
     if (activeGame) {
       setActiveGame(activeGame);
-      return;
+      return; 
     }
   }
 
@@ -461,6 +461,10 @@ async function loadGames() {
 }
 
 async function setActiveGame(game) {
+  if (!game) {
+    activeGameAddress = null;
+  }
+  
   addClass(eByClass("error"), "hidden");
   initializeKeyListener();
   activeGameAddress = game.address;
@@ -491,6 +495,7 @@ async function setActiveGame(game) {
 }
 
 function showLeaderboard() {
+  setActiveGame(null);
   leaderboard.load(network, leaderboardAddress);
   loadGames();
   addClass(eById("game"), "hidden");
