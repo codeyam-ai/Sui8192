@@ -338,10 +338,12 @@ const initializeKeyListener = () => {
       ({ error, gameOver }) => {
         if (gameOver) {
           showGameOver();
+        } else if (error === "Insufficient gas") {
+          showGasError();
         } else if (error) {
           showUnknownError(error);
         } else {
-          showGasError();
+          showUnknownError("Sorry an unknown error occurred. Please try again in a moment.");
         }
       }
     );
@@ -1545,7 +1547,7 @@ const checkPreapprovals = async (chain, contractAddress, activeGameAddress, wall
         objectId: activeGameAddress,
         description:
           "Pre-approve moves in the game so you can play without signing every transaction.",
-        totalGasLimit: 250000000,
+        totalGasLimit: 50000000,
         maxTransactionCount: 25,
       },
     });
@@ -1642,7 +1644,7 @@ const execute = async (
   queue.remove(directionOrQueuedMove);
   
   if (effects?.status?.error === "InsufficientGas") {
-    onError({});
+    onError({ error: "Insufficient gas" });
     return;
   }
 

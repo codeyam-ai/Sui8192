@@ -141,10 +141,12 @@ const initializeKeyListener = () => {
       ({ error, gameOver }) => {
         if (gameOver) {
           showGameOver();
+        } else if (error === "Insufficient gas") {
+          showGasError();
         } else if (error) {
           showUnknownError(error);
         } else {
-          showGasError();
+          showUnknownError("Sorry an unknown error occurred. Please try again in a moment.");
         }
       }
     );
