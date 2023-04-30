@@ -3,6 +3,7 @@
 module ethos::leaderboard_8192_tests {
     use sui::test_scenario::{Self, Scenario};
     use ethos::game_board_8192::{left, up, right, down};
+    use std::option;
     use std::vector;
     use sui::table;
 
@@ -33,6 +34,7 @@ module ethos::leaderboard_8192_tests {
                 game_8192::make_move(&mut game, right(), ctx);
                 game_8192::make_move(&mut game, down(), ctx);
             };
+
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
             test_scenario::return_to_sender(scenario, game);
@@ -44,16 +46,20 @@ module ethos::leaderboard_8192_tests {
         test_scenario::next_tx(scenario, PLAYER);
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(scenario);
-            let index = 0;
-            while (index < vector::length(&scores)) {
-                let top_game = leaderboard_8192::top_game_at(&leaderboard, index);
-                assert!(leaderboard_8192::top_game_score(top_game) == vector::borrow(&scores, index), index);
-                index = index + 1;
-            };
-            let top_games_length = table::length(leaderboard_8192::top_games(&leaderboard));
-            assert!(top_games_length == vector::length(&scores), top_games_length);
+            check_scores_for_leaderboard(&leaderboard, scores);
             test_scenario::return_shared(leaderboard);
         };
+    }
+
+    fun check_scores_for_leaderboard(leaderboard: &Leaderboard8192, scores: vector<u64>) {
+        let index = 0;
+        while (index < vector::length(&scores)) {
+            let top_game = leaderboard_8192::top_game_at(leaderboard, index);
+            assert!(leaderboard_8192::top_game_score(top_game) == vector::borrow(&scores, index), index);
+            index = index + 1;
+        };
+        let top_games_length = table::length(leaderboard_8192::top_games(leaderboard));
+        assert!(top_games_length == vector::length(&scores), top_games_length);
     }
 
     #[test]
@@ -829,6 +835,161 @@ module ethos::leaderboard_8192_tests {
 
         achieve_score(&mut scenario, 16);
         check_scores(&mut scenario, vector<u64>[616, 568, 432, 320, 200, 104, 88, 72, 16]);
+
+        test_scenario::end(scenario);
+    }
+
+    #[test]
+    fun test_move_one_game_around() {
+        let scenario = test_scenario::begin(PLAYER);
+        leaderboard_8192::blank_leaderboard(&mut scenario, 5, 0, 0);
+
+        achieve_score(&mut scenario, 88);
+        check_scores(&mut scenario, vector<u64>[88]);
+        let game_id = test_scenario::most_recent_id_for_address<Game8192>(PLAYER);
+
+        achieve_score(&mut scenario, 104);
+        check_scores(&mut scenario, vector<u64>[104, 88]);
+
+        achieve_score(&mut scenario, 320);
+        check_scores(&mut scenario, vector<u64>[320, 104, 88]);
+
+        achieve_score(&mut scenario, 228);
+        check_scores(&mut scenario, vector<u64>[320, 228, 104, 88]);
+
+        achieve_score(&mut scenario, 180);
+        check_scores(&mut scenario, vector<u64>[320, 228, 180, 104, 88]);
+        let game5_id = test_scenario::most_recent_id_for_address<Game8192>(PLAYER);
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            let game = test_scenario::take_from_address_by_id<Game8192>(&mut scenario, PLAYER, option::destroy_some(game_id));
+        
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[320, 228, 180, 112, 104]);
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            let game = test_scenario::take_from_address_by_id<Game8192>(&mut scenario, PLAYER, option::destroy_some(game_id));
+        
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[320, 228, 180, 116, 104]);
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            let game = test_scenario::take_from_address_by_id<Game8192>(&mut scenario, PLAYER, option::destroy_some(game_id));
+        
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, up(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[320, 228, 192, 180, 104]);
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
+
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            let game = test_scenario::take_from_address_by_id<Game8192>(&mut scenario, PLAYER, option::destroy_some(game5_id));
+        
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[320, 228, 192, 188, 104]);
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            let game = test_scenario::take_from_address_by_id<Game8192>(&mut scenario, PLAYER, option::destroy_some(game5_id));
+        
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, up(), ctx);
+            game_8192::make_move(&mut game, down(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, down(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, down(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, up(), ctx);
+
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[320, 248, 228, 192, 104]);
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            let game = test_scenario::take_from_address_by_id<Game8192>(&mut scenario, PLAYER, option::destroy_some(game5_id));
+        
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+            game_8192::make_move(&mut game, down(), ctx);
+            game_8192::make_move(&mut game, left(), ctx);
+
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[364, 320, 228, 192, 104]);
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            let game = test_scenario::take_from_address_by_id<Game8192>(&mut scenario, PLAYER, option::destroy_some(game5_id));
+        
+            let ctx = test_scenario::ctx(&mut scenario);
+            game_8192::make_move(&mut game, left(), ctx);
+
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[372, 320, 228, 192, 104]);
+
+            test_scenario::return_to_sender(&mut scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
 
         test_scenario::end(scenario);
     }
