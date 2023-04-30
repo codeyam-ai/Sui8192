@@ -9,6 +9,7 @@ const {
   testnetContractAddress,
   testnetLeaderboardAddress,
   testnetMaintainerAddress,
+  devnetMaintainerAddress,
 } = require("./constants");
 const {
   eById,
@@ -87,12 +88,15 @@ const setNetwork = (newNetworkName) => {
     chain = TESTNET_CHAIN;
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
+    leaderboardAddress = testnetLeaderboardAddress;
+    maintainerAddress = testnetMaintainerAddress;
   } else {
     networkName = DEVNET_NETWORK_NAME;
     network = DEVNET;
     chain = DEVNET_CHAIN;
     contractAddress = devnetContractAddress;
     leaderboardAddress = devnetLeaderboardAddress;
+    maintainerAddress = devnetMaintainerAddress;
   }
 
   removeClass(eByClass('network-button'), 'selected');
