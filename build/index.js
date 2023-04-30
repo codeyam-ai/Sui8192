@@ -692,8 +692,9 @@ async function setActiveGame(game) {
   addClass(eByClass("play-button"), "selected");
 
   setOnClick(eById("submit-game-to-leaderboard"), () => {
+    const gameAddress = activeGameAddress;
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -754,9 +755,10 @@ const initializeClicks = () => {
   });
 
   setOnClick(eById("modal-submit-to-leaderboard"), () => {
+    const gameAddress = activeGameAddress;
     modal.close();
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -800,15 +802,6 @@ const onWalletConnected = async ({ signer }) => {
           const transactionBlock = new TransactionBlock();
 
           const fee = new BigNumber(100000000);
-          // let totalBalance = new BigNumber(0);
-          // const coins = [];
-          // for (const coin of walletContents.tokens[SUI_TYPE_ARG].coins) {
-          //   totalBalance = totalBalance.plus(coin.balance);
-          //   coins.push(transactionBlock.object(coin.objectId));
-          //   if (totalBalance >= fee) break;
-          // }
-          // console.log(coins, totalBalance, fee)
-          // const coinVec = transactionBlock.makeMoveVec({ objects: coins });
           const payment = transactionBlock.splitCoins(
             transactionBlock.gas,
             [transactionBlock.pure(fee)]

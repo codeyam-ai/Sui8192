@@ -494,8 +494,9 @@ async function setActiveGame(game) {
   addClass(eByClass("play-button"), "selected");
 
   setOnClick(eById("submit-game-to-leaderboard"), () => {
+    const gameAddress = activeGameAddress;
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -556,9 +557,10 @@ const initializeClicks = () => {
   });
 
   setOnClick(eById("modal-submit-to-leaderboard"), () => {
+    const gameAddress = activeGameAddress;
     modal.close();
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
       loadGames();
     });
   });
