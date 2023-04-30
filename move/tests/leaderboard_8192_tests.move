@@ -2,8 +2,7 @@
 #[test_only]
 module ethos::leaderboard_8192_tests {
     use sui::test_scenario::{Self, Scenario};
-    use ethos::game_board_8192::{left, up};
-    use sui::object::{Self};
+    use ethos::game_board_8192::{left, up, right, down};
     use std::vector;
     use sui::table;
 
@@ -13,7 +12,36 @@ module ethos::leaderboard_8192_tests {
     const PLAYER: address = @0xCAFE;
 
     fun create_game(scenario: &mut Scenario) {
-      game_8192::create(test_scenario::ctx(scenario))
+        game_8192::create(test_scenario::ctx(scenario))
+    }
+
+    // Game 1: 8 20 32 64 88 136 180 216
+    // Game 2: 4 20 32 72 96 148 196 228
+    // Game 3: 8 24 36 68 76 96 140 192 212
+    // Game 4: 12 24 48 64 100 124 172 188 320
+    fun achieve_score(scenario: &mut Scenario, score: u64) {
+        test_scenario::next_tx(scenario, PLAYER);
+        {
+            create_game(scenario);
+        };
+
+        test_scenario::next_tx(scenario, PLAYER);
+        {
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(scenario);
+            let game = test_scenario::take_from_sender<Game8192>(scenario);
+        
+            let ctx = test_scenario::ctx(scenario);
+            while (*game_8192::score(&game) <= score) {
+                game_8192::make_move(&mut game, left(), ctx);
+                game_8192::make_move(&mut game, up(), ctx);
+                game_8192::make_move(&mut game, right(), ctx);
+                game_8192::make_move(&mut game, down(), ctx);
+            };
+            leaderboard_8192::submit_game(&mut game, &mut leaderboard);
+
+            test_scenario::return_to_sender(scenario, game);
+            test_scenario::return_shared(leaderboard);
+        };
     }
 
     #[test]
@@ -38,7 +66,7 @@ module ethos::leaderboard_8192_tests {
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
             let top_game = leaderboard_8192::top_game_at(&leaderboard, 0);
-            assert!(leaderboard_8192::top_game_game_id(top_game) == &object::uid_to_inner(game_8192::id(&game)), 1);
+            assert!(leaderboard_8192::top_game_game_id(top_game) == game_8192::id(&game), 1);
 
             test_scenario::return_shared(leaderboard);
             test_scenario::return_to_sender(&mut scenario, game)
@@ -107,7 +135,7 @@ module ethos::leaderboard_8192_tests {
             };
 
             let top_game = leaderboard_8192::top_game_at(&leaderboard, 0);
-            assert!(leaderboard_8192::top_game_game_id(top_game) == &object::uid_to_inner(game_8192::id(&game)), 0);
+            assert!(leaderboard_8192::top_game_game_id(top_game) == game_8192::id(&game), 0);
 
             test_scenario::return_shared(leaderboard);
             test_scenario::return_to_sender(&mut scenario, game)
@@ -139,7 +167,7 @@ module ethos::leaderboard_8192_tests {
             };
             
             let top_game = leaderboard_8192::top_game_at(&leaderboard, 1);
-            assert!(leaderboard_8192::top_game_game_id(top_game) == &object::uid_to_inner(game_8192::id(&game)), 1);
+            assert!(leaderboard_8192::top_game_game_id(top_game) == game_8192::id(&game), 1);
 
             test_scenario::return_shared(leaderboard);
             test_scenario::return_to_sender(&mut scenario, game)
@@ -172,7 +200,7 @@ module ethos::leaderboard_8192_tests {
             };
 
             let top_game = leaderboard_8192::top_game_at(&leaderboard, 1);
-            assert!(leaderboard_8192::top_game_game_id(top_game) == &object::uid_to_inner(game_8192::id(&game)), 0);
+            assert!(leaderboard_8192::top_game_game_id(top_game) == game_8192::id(&game), 0);
 
             test_scenario::return_shared(leaderboard);
             test_scenario::return_to_sender(&mut scenario, game)
@@ -284,7 +312,7 @@ module ethos::leaderboard_8192_tests {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
             
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
-            game1_id = *object::uid_as_inner(game_8192::id(&game));
+            game1_id = game_8192::id(&game);
             
             let ctx = test_scenario::ctx(&mut scenario);
             game_8192::make_move(&mut game, left(), ctx);
@@ -360,7 +388,7 @@ module ethos::leaderboard_8192_tests {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
             
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
-            game2_id = *object::uid_as_inner(game_8192::id(&game));
+            game2_id = game_8192::id(&game);
             
             let ctx = test_scenario::ctx(&mut scenario);
             game_8192::make_move(&mut game, left(), ctx);
@@ -629,7 +657,7 @@ module ethos::leaderboard_8192_tests {
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
-            game2_id = object::uid_to_inner(game_8192::id(&game));
+            game2_id = game_8192::id(&game);
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
@@ -649,7 +677,7 @@ module ethos::leaderboard_8192_tests {
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
-            game3_id = object::uid_to_inner(game_8192::id(&game));
+            game3_id = game_8192::id(&game);
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
@@ -673,10 +701,10 @@ module ethos::leaderboard_8192_tests {
             assert!(leaderboard_game_count == 2, leaderboard_game_count);
             
             let top_game0 = table::borrow(top_games, 0);
-            assert!(&game3_id == leaderboard_8192::top_game_game_id(top_game0), 0);
+            assert!(game3_id == leaderboard_8192::top_game_game_id(top_game0), 0);
 
             let top_game1 = table::borrow(top_games, 1);
-            assert!(&game2_id == leaderboard_8192::top_game_game_id(top_game1), 1);
+            assert!(game2_id == leaderboard_8192::top_game_game_id(top_game1), 1);
           
             test_scenario::return_shared(leaderboard)
         };
@@ -794,6 +822,132 @@ module ethos::leaderboard_8192_tests {
             test_scenario::return_to_sender(&mut scenario, game);
         };
 
+        test_scenario::end(scenario);
+    }
+
+    #[test]
+    fun test_submit_game__top_game_removes_bottom() {
+        let scenario = test_scenario::begin(PLAYER);
+        leaderboard_8192::blank_leaderboard(&mut scenario, 3, 0, 0);
+
+        achieve_score(&mut scenario, 5);
+        achieve_score(&mut scenario, 30);
+        achieve_score(&mut scenario, 60);
+        achieve_score(&mut scenario, 90);
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let game4 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game3 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game2 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game1 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let top_games = leaderboard_8192::top_games(&leaderboard);
+            let leaderboard_game_count = table::length(top_games);
+            assert!(leaderboard_game_count == 3, leaderboard_game_count);
+            
+            let top_game0 = table::borrow(top_games, 0);
+            assert!(game_8192::id(&game4) == leaderboard_8192::top_game_game_id(top_game0), 0);
+
+            let top_game1 = table::borrow(top_games, 1);
+            assert!(game_8192::id(&game3) == leaderboard_8192::top_game_game_id(top_game1), 1);
+          
+            let top_game2 = table::borrow(top_games, 2);
+            assert!(game_8192::id(&game2) == leaderboard_8192::top_game_game_id(top_game2), 2);
+
+            test_scenario::return_shared(leaderboard);
+            test_scenario::return_to_sender(&mut scenario, game1);
+            test_scenario::return_to_sender(&mut scenario, game2);
+            test_scenario::return_to_sender(&mut scenario, game3);
+            test_scenario::return_to_sender(&mut scenario, game4);
+        };
+        
+        test_scenario::end(scenario);
+    }
+
+    #[test]
+    fun test_submit_game__middle_game_removes_bottom() {
+        let scenario = test_scenario::begin(PLAYER);
+        leaderboard_8192::blank_leaderboard(&mut scenario, 3, 0, 0);
+
+        achieve_score(&mut scenario, 60);
+        achieve_score(&mut scenario, 5);
+        achieve_score(&mut scenario, 90);
+        achieve_score(&mut scenario, 30);
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let game4 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game3 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game2 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game1 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let top_games = leaderboard_8192::top_games(&leaderboard);
+            let leaderboard_game_count = table::length(top_games);
+            assert!(leaderboard_game_count == 3, leaderboard_game_count);
+            
+            let top_game0 = table::borrow(top_games, 0);
+            assert!(game_8192::id(&game3) == leaderboard_8192::top_game_game_id(top_game0), 0);
+
+            let top_game1 = table::borrow(top_games, 1);
+            assert!(game_8192::id(&game1) == leaderboard_8192::top_game_game_id(top_game1), 1);
+          
+            let top_game2 = table::borrow(top_games, 2);
+            assert!(game_8192::id(&game4) == leaderboard_8192::top_game_game_id(top_game2), 2);
+
+            test_scenario::return_shared(leaderboard);
+            test_scenario::return_to_sender(&mut scenario, game1);
+            test_scenario::return_to_sender(&mut scenario, game2);
+            test_scenario::return_to_sender(&mut scenario, game3);
+            test_scenario::return_to_sender(&mut scenario, game4);
+        };
+        
+        test_scenario::end(scenario);
+    }
+
+    #[test]
+    fun test_submit_game__bottom_game_removes_bottom() {
+        let scenario = test_scenario::begin(PLAYER);
+        leaderboard_8192::blank_leaderboard(&mut scenario, 3, 0, 0);
+
+        achieve_score(&mut scenario, 90);
+        achieve_score(&mut scenario, 30);
+        achieve_score(&mut scenario, 5);
+        achieve_score(&mut scenario, 60);
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let game4 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game3 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game2 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            let game1 = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            
+            let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
+            
+            let top_games = leaderboard_8192::top_games(&leaderboard);
+            let leaderboard_game_count = table::length(top_games);
+            assert!(leaderboard_game_count == 3, leaderboard_game_count);
+            
+            let top_game0 = table::borrow(top_games, 0);
+            assert!(game_8192::id(&game1) == leaderboard_8192::top_game_game_id(top_game0), 0);
+
+            let top_game1 = table::borrow(top_games, 1);
+            assert!(game_8192::id(&game4) == leaderboard_8192::top_game_game_id(top_game1), 1);
+          
+            let top_game2 = table::borrow(top_games, 2);
+            assert!(game_8192::id(&game2) == leaderboard_8192::top_game_game_id(top_game2), 2);
+
+            test_scenario::return_shared(leaderboard);
+            test_scenario::return_to_sender(&mut scenario, game1);
+            test_scenario::return_to_sender(&mut scenario, game2);
+            test_scenario::return_to_sender(&mut scenario, game3);
+            test_scenario::return_to_sender(&mut scenario, game4);
+        };
+        
         test_scenario::end(scenario);
     }
 }

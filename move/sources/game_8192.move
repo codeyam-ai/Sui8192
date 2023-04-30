@@ -189,8 +189,8 @@ module ethos::game_8192 {
  
     // PUBLIC ACCESSOR FUNCTIONS //
 
-    public fun id(game: &Game8192): &UID {
-        &game.id
+    public fun id(game: &Game8192): ID {
+        object::uid_to_inner(&game.id)
     }
 
     public fun player(game: &Game8192): &address {

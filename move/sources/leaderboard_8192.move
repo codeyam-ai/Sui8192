@@ -68,7 +68,7 @@ module ethos::leaderboard_8192 {
             table::add(&mut leaderboard.leaders, leader_address, option::none());
         };
 
-        let game_id = object::uid_to_inner(game_8192::id(game));
+        let game_id = game_8192::id(game);
         let leaderboard_id = object::uid_to_inner(&leaderboard.id);
         
         let new_top_game = TopGame8192 {
@@ -179,8 +179,8 @@ module ethos::leaderboard_8192 {
         top_game.game_id == game_id
     }
 
-    public fun top_game_game_id(top_game: &TopGame8192): &ID {
-        &top_game.game_id
+    public fun top_game_game_id(top_game: &TopGame8192): ID {
+        top_game.game_id
     }
 
     public fun top_game_top_tile(top_game: &TopGame8192): &u64 {
