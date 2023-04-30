@@ -81,7 +81,7 @@ module ethos::game_8192_tests {
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
             
             let board = game_8192::active_board(&game);
-            let space_value = game_board_8192::board_space_at(board, 0, 1);
+            let space_value = game_board_8192::board_space_at(board, 1, 1);
             assert!(space_value == 1, space_value);
             let space_value1 = game_board_8192::board_space_at(board, 0, 0);
             assert!(space_value1 == 0, 1);
