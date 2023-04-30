@@ -441,20 +441,28 @@ const submit = async (network, chain, contractAddress, gameAddress, walletSigner
       ]
     })
 
-    await ethos.transact({
+    const { signature, transactionBlockBytes } = await ethos.signTransactionBlock({
         signer: walletSigner,
         transactionInput: {
           transactionBlock,
           chain,
-          options: {
-            showEvents: true,
-            showEffects: true,
-            showBalanceChanges: true,
-            showObjectChanges: true
-          },
-          requestType: 'WaitForLocalExecution'
         },
     });
+
+    await ethos.executeTransactionBlock({
+      signer: walletSigner, 
+      transactionInput: {
+        transactionBlock: transactionBlockBytes,
+        signature,
+        options: {
+          showEvents: true,
+          showEffects: true,
+          showBalanceChanges: true,
+          showObjectChanges: true
+        },
+        requestType: 'WaitForLocalExecution'
+      }
+    })
 
     await load(network, cachedLeaderboardAddress, true);
     ethos.hideWallet(walletSigner);

@@ -354,14 +354,14 @@ async function loadGames() {
   addClass(loadGamesElement, "hidden");
 
   games = walletContents.nfts
-    .filter((nft) => nft.package === contractAddress)
+    .filter((nft) => nft.packageObjectId === contractAddress)
     .map((nft) => ({
       address: nft.address,
-      board: nft.extraFields.active_board,
-      topTile: nft.extraFields.top_tile,
-      score: nft.extraFields.score,
+      board: nft.fields.active_board,
+      topTile: nft.fields.top_tile,
+      score: nft.fields.score,
       imageUri: nft.imageUri,
-      gameOver: nft.extraFields.game_over,
+      gameOver: nft.fields.game_over,
     }))
     .sort((a, b) => {
       const scoreDiff = b.score - a.score;
@@ -603,7 +603,7 @@ const onWalletConnected = async ({ signer }) => {
           })
 
           try {
-            const data = await ethos.transact({
+            const data = await ethos.signTransaction({
               signer: walletSigner,
               transactionInput: {
                 transactionBlock,
