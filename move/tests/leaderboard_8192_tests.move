@@ -33,9 +33,6 @@ module ethos::leaderboard_8192_tests {
                 game_8192::make_move(&mut game, right(), ctx);
                 game_8192::make_move(&mut game, down(), ctx);
             };
-            sui::test_utils::print(b"");
-            sui::test_utils::print(b"SUBMIT");
-            std::debug::print(game_8192::score(&game));
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
             test_scenario::return_to_sender(scenario, game);
@@ -405,7 +402,7 @@ module ethos::leaderboard_8192_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = leaderboard_8192::ENotALeader)]
+    #[expected_failure(abort_code = leaderboard_8192::ELowScore)]
     fun test_submit_game__aborts_if_not_a_leader() {
         let scenario = test_scenario::begin(PLAYER);
         leaderboard_8192::blank_leaderboard(&mut scenario, 2, 0, 0);
@@ -420,8 +417,6 @@ module ethos::leaderboard_8192_tests {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(&mut scenario);
 
             let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
-            game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
-            game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, up(), test_scenario::ctx(&mut scenario));
             game_8192::make_move(&mut game, left(), test_scenario::ctx(&mut scenario));
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);

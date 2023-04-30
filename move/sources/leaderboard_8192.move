@@ -48,7 +48,7 @@ module ethos::leaderboard_8192 {
         let score = *game_8192::score(game);
 
         assert!(top_tile >= leaderboard.min_tile, ELowTile);
-        assert!(score >= leaderboard.min_score, ELowScore);
+        assert!(score > leaderboard.min_score, ELowScore);
 
         let leader_address = *game_8192::player(game);
         let game_id = game_8192::id(game);
