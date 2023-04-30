@@ -64,6 +64,8 @@ module ethos::game_8192 {
             utf8(b"image_url"),
             utf8(b"description"),
             utf8(b"project_url"),
+            utf8(b"project_name"),
+            utf8(b"project_image_url"),
             utf8(b"creator"),
         ];
 
@@ -72,6 +74,8 @@ module ethos::game_8192 {
             utf8(b"https://sui8192.s3.amazonaws.com/{top_tile}.png"),
             utf8(b"Sui 8192 is a fun, 100% on-chain game. Combine the tiles to get a high score!"),
             utf8(b"https://ethoswallet.github.io/Sui8192/"),
+            utf8(b"Sui 8192"),
+            utf8(b"https://sui8192.s3.amazonaws.com/sui-8192.png"),
             utf8(b"Ethos")
         ];
 

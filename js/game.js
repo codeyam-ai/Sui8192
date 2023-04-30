@@ -603,7 +603,7 @@ const onWalletConnected = async ({ signer }) => {
           })
 
           try {
-            const data = await ethos.signTransaction({
+            const data = await ethos.transact({
               signer: walletSigner,
               transactionInput: {
                 transactionBlock,
