@@ -4,7 +4,6 @@ module ethos::game_8192 {
     use std::string::{utf8};
     use sui::event;
     use sui::transfer::{transfer, public_transfer};
-    use sui::table::{Self, Table};
     use ethos::game_board_8192::{Self, GameBoard8192};
     
     use sui::package;
@@ -24,7 +23,6 @@ module ethos::game_8192 {
         id: UID,
         player: address,
         active_board: GameBoard8192,
-        leaderboard_games: Table<u64, LeaderboardGame8192>,
         move_count: u64,
         score: u64,
         top_tile: u64,      
@@ -34,13 +32,6 @@ module ethos::game_8192 {
     struct GameMove8192 has store {
         direction: u64,
         player: address
-    }
-
-    struct LeaderboardGame8192 has store, copy, drop {
-        leaderboard_id: ID,
-        top_tile: u64,
-        score: u64,
-        position: u64
     }
 
     struct NewGameEvent8192 has copy, drop {
@@ -118,7 +109,6 @@ module ethos::game_8192 {
             top_tile,
             active_board: initial_game_board,
             game_over: false,
-            leaderboard_games: table::new<u64, LeaderboardGame8192>(ctx),
         };
 
         event::emit(NewGameEvent8192 {
@@ -172,20 +162,6 @@ module ethos::game_8192 {
         game.top_tile = top_tile;
         game.game_over = game_over;
     }
-
-    // FRIEND FUNCTIONS //
-
-    public (friend) fun record_leaderboard_game(game: &mut Game8192, leaderboard_id: ID, position: u64) {
-        let leaderboard_game = LeaderboardGame8192 {
-            leaderboard_id,
-            score: game.score,
-            top_tile: game.top_tile,
-            position
-        };
-
-        let index = table::length(&game.leaderboard_games);
-        table::add(&mut game.leaderboard_games, index, leaderboard_game);
-    }
  
     // PUBLIC ACCESSOR FUNCTIONS //
 
@@ -213,25 +189,5 @@ module ethos::game_8192 {
 
     public fun move_count(game: &Game8192): &u64 {
         &game.move_count
-    }
-
-    public fun leaderboard_game_count(game: &Game8192): u64 {
-        table::length(&game.leaderboard_games)
-    }
-
-    public fun leaderboard_game_at(game: &Game8192, index: u64): &LeaderboardGame8192 {
-        table::borrow(&game.leaderboard_games, index)
-    }
-
-    public fun leaderboard_game_position(leaderboard_game: &LeaderboardGame8192): &u64 {
-        &leaderboard_game.position
-    }
-
-    public fun leaderboard_game_top_tile(leaderboard_game: &LeaderboardGame8192): &u64 {
-        &leaderboard_game.top_tile
-    }
-
-    public fun leaderboard_game_score(leaderboard_game: &LeaderboardGame8192): &u64 {
-        &leaderboard_game.score
     }
 }

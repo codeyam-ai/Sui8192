@@ -65,13 +65,36 @@ module ethos::leaderboard_8192 {
             return
         };
 
+        // Check to see if the game already exists. If so it can only go up the leaderboard
         let leader_index = table::length(&leaderboard.top_games) - 1;
+
+        let index = 0;
+        while (index < table::length(&leaderboard.top_games)) {
+            let existing_game = top_game_at(leaderboard, index);
+            if (existing_game.game_id == game_id) {
+                if (index == 0) {
+                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, 0);
+                    table::add<u64, TopGame8192>(&mut leaderboard.top_games, 0, top_game);
+                    return
+                } else {
+                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
+                };
+                
+                leader_index = index - 1;
+                
+                break
+            };
+
+            index = index + 1;
+        };
+
         let bottom_game = top_game_at(leaderboard, leader_index);
 
         let add_at = leader_index + 1;
         while (bottom_game.top_tile <= top_game.top_tile && bottom_game.score < top_game.score) {
             let move_game = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leader_index);
             table::add<u64, TopGame8192>(&mut leaderboard.top_games, leader_index + 1, move_game);
+
             add_at = leader_index;
 
             if (leader_index == 0) break;
@@ -83,12 +106,15 @@ module ethos::leaderboard_8192 {
         table::add<u64, TopGame8192>(&mut leaderboard.top_games, add_at, top_game);
 
         let max_game_count = leaderboard.max_leaderboard_game_count;
-        if (table::length(&leaderboard.top_games) > max_game_count) {
-            table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leaderboard.max_leaderboard_game_count);
+        if (table::length(&leaderboard.top_games) >= max_game_count) {
             let bottom_game = table::borrow<u64, TopGame8192>(&mut leaderboard.top_games, max_game_count - 1);
             leaderboard.min_tile = bottom_game.top_tile;
             leaderboard.min_score = bottom_game.score;
-        };
+
+            if (table::length(&leaderboard.top_games) > max_game_count) {
+                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leaderboard.max_leaderboard_game_count);
+            }
+        }
     }
 
     // PUBLIC ACCESSOR FUNCTIONS //
