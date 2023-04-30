@@ -8,6 +8,7 @@ const {
   devnetLeaderboardAddress,
   testnetContractAddress,
   testnetLeaderboardAddress,
+  testnetMaintainerAddress,
 } = require("./constants");
 const {
   eById,
@@ -23,6 +24,8 @@ const queue = require("./queue");
 const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
+const { SUI_TYPE_ARG } = require("@mysten/sui.js");
+const { default: BigNumber } = require("bignumber.js");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
@@ -37,6 +40,7 @@ const TESTNET_CHAIN = "sui:testnet";
 
 let contractAddress = testnetContractAddress;
 let leaderboardAddress = testnetLeaderboardAddress;
+let maintainerAddress = testnetMaintainerAddress;
 let networkName = TESTNET_NETWORK_NAME;
 let chain = TESTNET_CHAIN;
 let walletSigner;
@@ -490,8 +494,9 @@ async function setActiveGame(game) {
   addClass(eByClass("play-button"), "selected");
 
   setOnClick(eById("submit-game-to-leaderboard"), () => {
+    const gameAddress = activeGameAddress;
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -552,9 +557,10 @@ const initializeClicks = () => {
   });
 
   setOnClick(eById("modal-submit-to-leaderboard"), () => {
+    const gameAddress = activeGameAddress;
     modal.close();
     showLeaderboard();
-    leaderboard.submit(network, chain, contractAddress, activeGameAddress, walletSigner, () => {
+    leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
       loadGames();
     });
   });
@@ -596,14 +602,21 @@ const onWalletConnected = async ({ signer }) => {
           modal.open("loading", "container");
 
           const transactionBlock = new TransactionBlock();
+
+          const fee = new BigNumber(100000000);
+          const payment = transactionBlock.splitCoins(
+            transactionBlock.gas,
+            [transactionBlock.pure(fee)]
+          );
+          const coinVec = transactionBlock.makeMoveVec({ objects: [payment] });
           transactionBlock.moveCall({
             target: `${contractAddress}::game_8192::create`,
             typeArguments: [],
-            arguments: []
+            arguments: [transactionBlock.object(maintainerAddress), coinVec]
           })
 
           try {
-            const data = await ethos.signTransaction({
+            const data = await ethos.transact({
               signer: walletSigner,
               transactionInput: {
                 transactionBlock,

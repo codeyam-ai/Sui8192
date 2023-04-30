@@ -1,10 +1,8 @@
 module ethos::leaderboard_8192 {
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{TxContext};
-    use std::string::{String};
     use sui::table::{Self, Table};
     use sui::transfer;
-    use std::option::{Self, Option};
 
     use ethos::game_8192::{Self, Game8192};
 
@@ -14,10 +12,8 @@ module ethos::leaderboard_8192 {
 
     struct Leaderboard8192 has key, store {
         id: UID,
-        game_count: u64,
         max_leaderboard_game_count: u64,
         top_games: Table<u64, TopGame8192>,
-        leaders: Table<address, Option<String>>,
         min_tile: u64,
         min_score: u64
     }
@@ -38,10 +34,8 @@ module ethos::leaderboard_8192 {
     public entry fun create(ctx: &mut TxContext) {
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),
-            game_count: 0,
             max_leaderboard_game_count: 200,
             top_games: table::new<u64, TopGame8192>(ctx),
-            leaders: table::new<address, Option<String>>(ctx),
             min_tile: 0,
             min_score: 0
         };
@@ -54,116 +48,79 @@ module ethos::leaderboard_8192 {
         let score = *game_8192::score(game);
 
         assert!(top_tile >= leaderboard.min_tile, ELowTile);
-        assert!(score >= leaderboard.min_score, ELowScore);
-
-        let top_game_count = leaderboard.game_count;
-        
-        if (top_tile == leaderboard.min_tile && score == leaderboard.min_score) {
-            assert!(top_game_count < leaderboard.max_leaderboard_game_count, ENotALeader);
-        };
+        assert!(score > leaderboard.min_score, ELowScore);
 
         let leader_address = *game_8192::player(game);
-
-        if (!table::contains<address, Option<String>>(&leaderboard.leaders, leader_address)) {
-            table::add(&mut leaderboard.leaders, leader_address, option::none());
-        };
-
         let game_id = game_8192::id(game);
-        let leaderboard_id = object::uid_to_inner(&leaderboard.id);
-        
-        let new_top_game = TopGame8192 {
+
+        let top_game = TopGame8192 {
             game_id,
             leader_address,
             score: *game_8192::score(game),
             top_tile: *game_8192::top_tile(game)
         };
-        
-        let index = 0;
-        let top_game_found = false;
-        while (index < top_game_count) {
-            if (top_game_found) {
-                let swap = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
-                table::add<u64, TopGame8192>(&mut leaderboard.top_games, index - 1, swap);
-            } else {
-                top_game_found = top_game_at_has_id(leaderboard, index, game_id);
-                
-                if (top_game_found) {
-                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
-                };
-            };
 
-            index = index + 1;
-        };
-
-        if (top_game_found) {
-            top_game_count = top_game_count - 1;
-        };
-
-        table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, new_top_game);
-          
-        if (top_game_count == 0) {
-            leaderboard.game_count = 1;
-            game_8192::record_leaderboard_game(game, leaderboard_id, 0);
+        if (table::length(&leaderboard.top_games) == 0) {
+            table::add<u64, TopGame8192>(&mut leaderboard.top_games, 0, top_game);
             return
         };
 
-        index = 0;
-        let slot_found = false;
+        // Check to see if the game already exists. If so it can only go up the leaderboard
+        let leader_index = table::length(&leaderboard.top_games) - 1;
 
-        let top_top_game = top_game_at(leaderboard, 0);
-        let min_tile = top_top_game.top_tile;
-        let min_score = top_top_game.score;
-        while (index < top_game_count) {
-            let top_game = top_game_at(leaderboard, index);
-            
-            if (!slot_found && top_tile >= top_game.top_tile) {
-                if (top_tile > top_game.top_tile || score > top_game.score) {
-                    game_8192::record_leaderboard_game(game, leaderboard_id, index);
-                    slot_found = true;
-                }
-            };
-
-            if (top_game.top_tile < min_tile ) {
-                min_tile = top_game.top_tile;
-            };
-
-            if (top_game.score < min_score) {
-                min_score = top_game.score;
-            };
-
-            if (slot_found) {
-                let top_game_1 = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count);
-                let top_game_2 = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
-                table::add<u64, TopGame8192>(&mut leaderboard.top_games, index, top_game_1);
-                table::add<u64, TopGame8192>(&mut leaderboard.top_games, top_game_count, top_game_2);
+        let index = 0;
+        while (index < table::length(&leaderboard.top_games)) {
+            let existing_game = top_game_at(leaderboard, index);
+            if (existing_game.game_id == game_id) {
+                if (index == 0) {
+                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, 0);
+                    table::add<u64, TopGame8192>(&mut leaderboard.top_games, 0, top_game);
+                    return
+                } else {
+                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
+                };
+                
+                leader_index = index - 1;
+                
+                break
             };
 
             index = index + 1;
         };
 
-        if (!slot_found) {
-            let position = table::length(&leaderboard.top_games) - 1;
-            game_8192::record_leaderboard_game(game, leaderboard_id, position);
-        };
-        
-        let game_count = table::length(&leaderboard.top_games);
-        if (game_count >= leaderboard.max_leaderboard_game_count) {
-            leaderboard.min_tile = min_tile;
-            leaderboard.min_score = min_score;
+        let bottom_game = top_game_at(leaderboard, leader_index);
 
-            while (game_count > leaderboard.max_leaderboard_game_count) {
-                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, game_count - 1);
-                game_count = game_count - 1;
-            };
+        let add_at = leader_index + 1;
+        while (bottom_game.top_tile <= top_game.top_tile && bottom_game.score < top_game.score) {
+            let move_game = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leader_index);
+            table::add<u64, TopGame8192>(&mut leaderboard.top_games, leader_index + 1, move_game);
+
+            add_at = leader_index;
+
+            if (leader_index == 0) break;
+
+            leader_index = leader_index - 1;
+            bottom_game = top_game_at(leaderboard, leader_index);
         };
 
-        leaderboard.game_count = table::length(&leaderboard.top_games);
+        table::add<u64, TopGame8192>(&mut leaderboard.top_games, add_at, top_game);
+
+        let max_game_count = leaderboard.max_leaderboard_game_count;
+        if (table::length(&leaderboard.top_games) >= max_game_count) {
+            let bottom_game = table::borrow<u64, TopGame8192>(&mut leaderboard.top_games, max_game_count - 1);
+            leaderboard.min_tile = bottom_game.top_tile;
+            leaderboard.min_score = bottom_game.score;
+
+            if (table::length(&leaderboard.top_games) > max_game_count) {
+                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leaderboard.max_leaderboard_game_count);
+            }
+        }
     }
 
     // PUBLIC ACCESSOR FUNCTIONS //
 
-    public fun game_count(leaderboard: &Leaderboard8192): &u64 {
-        &leaderboard.game_count
+    public fun game_count(leaderboard: &Leaderboard8192): u64 {
+        table::length(&leaderboard.top_games)
     }
 
     public fun top_games(leaderboard: &Leaderboard8192): &Table<u64, TopGame8192> {
@@ -211,10 +168,8 @@ module ethos::leaderboard_8192 {
         let ctx = test_scenario::ctx(scenario);
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),
-            game_count: 0,
             max_leaderboard_game_count: max_leaderboard_game_count,
             top_games: table::new<u64, TopGame8192>(ctx),
-            leaders: table::new<address, Option<String>>(ctx),
             min_tile: min_tile,
             min_score: min_score
         };
