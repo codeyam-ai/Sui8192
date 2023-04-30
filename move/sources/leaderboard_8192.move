@@ -53,6 +53,15 @@ module ethos::leaderboard_8192 {
         let top_tile = *game_8192::top_tile(game);
         let score = *game_8192::score(game);
 
+        sui::test_utils::print(b"TOP TILE");
+        std::debug::print(&top_tile);
+        sui::test_utils::print(b"SCORE");
+        std::debug::print(&score);
+        sui::test_utils::print(b"MIN TILE");
+        std::debug::print(&leaderboard.min_tile);
+        sui::test_utils::print(b"MIN SCORE");
+        std::debug::print(&leaderboard.min_score);
+
         assert!(top_tile >= leaderboard.min_tile, ELowTile);
         assert!(score >= leaderboard.min_score, ELowScore);
 
