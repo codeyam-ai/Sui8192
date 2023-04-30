@@ -174,8 +174,9 @@ module.exports = {
 };
 },{"canvas-confetti":61}],3:[function(require,module,exports){
 module.exports = {
-  testnetContractAddress: "0x83b98861717a4fd30d2ec7a09cc7d37fa45fa30b4002f16fda711974e57df3a7",
-  testnetLeaderboardAddress: "0x5fe0d39113a476fe1d29dccaf61fa0f72da4fa147cba7b141b21b37e71efbbae",
+  testnetContractAddress: "0x5831474d96a315acc5424bb7144b282f20cf922eaf66ff0615dd53e5cc177687",
+  testnetLeaderboardAddress: "0x112aa8ec00029b67e0cacc5b8c8e8d8e6700e1320e48556d678d114ec05b00c6",
+  testnetMaintainerAddress: "0x365d76adad689ad3092792e73d13bc7d1c5fb1d8318a58fd6922e16afb9fcc37",
   devnetContractAddress: "0xf114f21609843f568b1926cb5f1358a06088f93bb73823ee1b4303f345be44a6",
   devnetLeaderboardAddress: "0x063ccd1f79f3cc84896ee2865b9cbb638f3b98e26f02680c8bb637c68123acca",
   tileNames: {
@@ -205,6 +206,7 @@ const {
   devnetLeaderboardAddress,
   testnetContractAddress,
   testnetLeaderboardAddress,
+  testnetMaintainerAddress,
 } = require("./constants");
 const {
   eById,
@@ -220,6 +222,8 @@ const queue = require("./queue");
 const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
+const { SUI_TYPE_ARG } = require("@mysten/sui.js");
+const { default: BigNumber } = require("bignumber.js");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
@@ -234,6 +238,7 @@ const TESTNET_CHAIN = "sui:testnet";
 
 let contractAddress = testnetContractAddress;
 let leaderboardAddress = testnetLeaderboardAddress;
+let maintainerAddress = testnetMaintainerAddress;
 let networkName = TESTNET_NETWORK_NAME;
 let chain = TESTNET_CHAIN;
 let walletSigner;
@@ -793,10 +798,26 @@ const onWalletConnected = async ({ signer }) => {
           modal.open("loading", "container");
 
           const transactionBlock = new TransactionBlock();
+
+          const fee = new BigNumber(100000000);
+          // let totalBalance = new BigNumber(0);
+          // const coins = [];
+          // for (const coin of walletContents.tokens[SUI_TYPE_ARG].coins) {
+          //   totalBalance = totalBalance.plus(coin.balance);
+          //   coins.push(transactionBlock.object(coin.objectId));
+          //   if (totalBalance >= fee) break;
+          // }
+          // console.log(coins, totalBalance, fee)
+          // const coinVec = transactionBlock.makeMoveVec({ objects: coins });
+          const payment = transactionBlock.splitCoins(
+            transactionBlock.gas,
+            [transactionBlock.pure(fee)]
+          );
+          const coinVec = transactionBlock.makeMoveVec({ objects: [payment] });
           transactionBlock.moveCall({
             target: `${contractAddress}::game_8192::create`,
             typeArguments: [],
-            arguments: []
+            arguments: [transactionBlock.object(maintainerAddress), coinVec]
           })
 
           try {
@@ -986,7 +1007,7 @@ window.requestAnimationFrame(init);
 //   }
 // }
 
-},{"./board":1,"./confetti":2,"./constants":3,"./leaderboard":5,"./modal":6,"./moves":7,"./queue":8,"./utils":9,"ethos-connect":64,"react":76,"react-dom/client":72}],5:[function(require,module,exports){
+},{"./board":1,"./confetti":2,"./constants":3,"./leaderboard":5,"./modal":6,"./moves":7,"./queue":8,"./utils":9,"@mysten/sui.js":23,"bignumber.js":57,"ethos-connect":64,"react":76,"react-dom/client":72}],5:[function(require,module,exports){
 const { BCS } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");
