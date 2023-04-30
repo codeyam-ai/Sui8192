@@ -1,19 +1,35 @@
 
 #[test_only]
 module ethos::leaderboard_8192_tests {
-    use sui::test_scenario::{Self, Scenario};
-    use ethos::game_board_8192::{left, up, right, down};
     use std::option;
     use std::vector;
+
     use sui::table;
+    use sui::sui::SUI;
+    use sui::coin::{Self};
+    use sui::test_scenario::{Self, Scenario};
+
+    use ethos::game_board_8192::{left, up, right, down};
 
     use ethos::leaderboard_8192::{Self, Leaderboard8192};
-    use ethos::game_8192::{Self, Game8192};
+    use ethos::game_8192::{Self, Game8192, Game8192Maintainer};
     
     const PLAYER: address = @0xCAFE;
 
     fun create_game(scenario: &mut Scenario) {
-        game_8192::create(test_scenario::ctx(scenario))
+        let ctx = test_scenario::ctx(scenario);
+
+        let maintainer = game_8192::create_maintainer(ctx);
+
+        let coins = vector[
+            coin::mint_for_testing<SUI>(50_000_000, ctx),
+            coin::mint_for_testing<SUI>(30_000_000, ctx),
+            coin::mint_for_testing<SUI>(40_000_000, ctx)
+        ];
+
+        game_8192::create(&mut maintainer, coins, ctx);
+
+        sui::test_utils::destroy<Game8192Maintainer>(maintainer);
     }
 
     fun achieve_score(scenario: &mut Scenario, score: u64) {

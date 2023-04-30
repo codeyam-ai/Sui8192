@@ -1,20 +1,34 @@
 module ethos::game_8192 {
+    use std::vector;
+    use std::string::{utf8};
+
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{Self, TxContext, sender};
-    use std::string::{utf8};
     use sui::event;
     use sui::transfer::{transfer, public_transfer};
-    use ethos::game_board_8192::{Self, GameBoard8192};
+
+    use sui::sui::SUI;
+    use sui::balance::{Self, Balance};
+    use sui::coin::{Self, Coin};
+    use sui::pay;
+    use sui::transfer;
     
     use sui::package;
     use sui::display;
+
+    use ethos::game_board_8192::{Self, GameBoard8192};
 
     friend ethos::leaderboard_8192;
 
     #[test_only]
     friend ethos::game_8192_tests;
 
+    #[test_only]
+    friend ethos::leaderboard_8192_tests;
+
     const EInvalidPlayer: u64 = 0;
+    const ENotMaintainer: u64 = 1;
+    const ENoBalance: u64 = 2;
 
     /// One-Time-Witness for the module.
     struct GAME_8192 has drop {}
@@ -32,6 +46,12 @@ module ethos::game_8192 {
     struct GameMove8192 has store {
         direction: u64,
         player: address
+    }
+
+    struct Game8192Maintainer has key {
+        id: UID,
+        maintainer_address: address,
+        balance: Balance<SUI>
     }
 
     struct NewGameEvent8192 has copy, drop {
@@ -90,13 +110,21 @@ module ethos::game_8192 {
         // Commit first version of `Display` to apply changes.
         display::update_version(&mut display);
 
+        let maintainer = create_maintainer(ctx);
+
         public_transfer(publisher, sender(ctx));
         public_transfer(display, sender(ctx));
+        transfer::share_object(maintainer);
     }
 
     // PUBLIC ENTRY FUNCTIONS //
     
-    public entry fun create(ctx: &mut TxContext) {
+    public entry fun create(maintainer: &mut Game8192Maintainer, fee: vector<Coin<SUI>>, ctx: &mut TxContext) {
+        let (paid, remainder) = merge_and_split(fee, fee_in_mist(), ctx);
+
+        coin::put(&mut maintainer.balance, paid);
+        transfer::public_transfer(remainder, tx_context::sender(ctx));
+
         let player = tx_context::sender(ctx);
         let uid = object::new(ctx);
         let random = object::uid_to_bytes(&uid);
@@ -166,6 +194,19 @@ module ethos::game_8192 {
         game.top_tile = top_tile;
         game.game_over = game_over;
     }
+
+    public entry fun pay_maintainer(maintainer: &mut Game8192Maintainer, ctx: &mut TxContext) {
+        assert!(tx_context::sender(ctx) == maintainer.maintainer_address, ENotMaintainer);
+        let amount = balance::value<SUI>(&maintainer.balance);
+        assert!(amount > 0, ENoBalance);
+        let payment = coin::take(&mut maintainer.balance, amount, ctx);
+        transfer::public_transfer(payment, tx_context::sender(ctx));
+    }
+
+    public entry fun change_maintainer(maintainer: &mut Game8192Maintainer, new_maintainer: address, ctx: &mut TxContext) {
+        assert!(tx_context::sender(ctx) == maintainer.maintainer_address, ENotMaintainer);
+        maintainer.maintainer_address = new_maintainer;
+    }
  
     // PUBLIC ACCESSOR FUNCTIONS //
 
@@ -193,5 +234,29 @@ module ethos::game_8192 {
 
     public fun move_count(game: &Game8192): &u64 {
         &game.move_count
+    }
+
+    // Friend functions
+
+    public(friend) fun create_maintainer(ctx: &mut TxContext): Game8192Maintainer {
+        Game8192Maintainer {
+            id: object::new(ctx),
+            maintainer_address: sender(ctx),
+            balance: balance::zero<SUI>()
+        }
+    }
+
+    fun merge_and_split(
+        coins: vector<Coin<SUI>>, amount: u64, ctx: &mut TxContext
+    ): (Coin<SUI>, Coin<SUI>) {
+        let base = vector::pop_back(&mut coins);
+        pay::join_vec(&mut base, coins);
+        let coin_value = coin::value(&base);
+        assert!(coin_value >= amount, coin_value);
+        (coin::split(&mut base, amount, ctx), base)
+    }
+
+    fun fee_in_mist(): u64 {
+        100_000_000
     }
 }

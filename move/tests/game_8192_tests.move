@@ -1,11 +1,11 @@
 
 #[test_only]
 module ethos::game_8192_tests {
-    // use ethos::game_board_8192::{Self};
     use sui::test_scenario::{Self, Scenario};
-    // use std::option;
+    use sui::sui::SUI;
+    use sui::coin::{Self};
 
-    use ethos::game_8192::{Self, Game8192};
+    use ethos::game_8192::{Self, Game8192, Game8192Maintainer};
     use ethos::game_board_8192::{Self, left, up};
 
     const PLAYER: address = @0xCAFE;
@@ -13,7 +13,18 @@ module ethos::game_8192_tests {
 
     fun create_game(scenario: &mut Scenario) {
         let ctx = test_scenario::ctx(scenario);
-        game_8192::create(ctx);
+
+        let maintainer = game_8192::create_maintainer(ctx);
+
+        let coins = vector[
+            coin::mint_for_testing<SUI>(50_000_000, ctx),
+            coin::mint_for_testing<SUI>(30_000_000, ctx),
+            coin::mint_for_testing<SUI>(40_000_000, ctx)
+        ];
+
+        game_8192::create(&mut maintainer, coins, ctx);
+
+        sui::test_utils::destroy<Game8192Maintainer>(maintainer);
     }
 
     fun test_game_create() {
