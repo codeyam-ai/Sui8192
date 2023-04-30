@@ -26,6 +26,8 @@ module ethos::game_8192 {
     #[test_only]
     friend ethos::leaderboard_8192_tests;
 
+    const DEFAULT_FEE: u64 = 100_000_000;
+
     const EInvalidPlayer: u64 = 0;
     const ENotMaintainer: u64 = 1;
     const ENoBalance: u64 = 2;
@@ -51,6 +53,7 @@ module ethos::game_8192 {
     struct Game8192Maintainer has key {
         id: UID,
         maintainer_address: address,
+        fee: u64,
         balance: Balance<SUI>
     }
 
@@ -120,7 +123,7 @@ module ethos::game_8192 {
     // PUBLIC ENTRY FUNCTIONS //
     
     public entry fun create(maintainer: &mut Game8192Maintainer, fee: vector<Coin<SUI>>, ctx: &mut TxContext) {
-        let (paid, remainder) = merge_and_split(fee, fee_in_mist(), ctx);
+        let (paid, remainder) = merge_and_split(fee, maintainer.fee, ctx);
 
         coin::put(&mut maintainer.balance, paid);
         transfer::public_transfer(remainder, tx_context::sender(ctx));
@@ -207,6 +210,11 @@ module ethos::game_8192 {
         assert!(tx_context::sender(ctx) == maintainer.maintainer_address, ENotMaintainer);
         maintainer.maintainer_address = new_maintainer;
     }
+
+    public entry fun change_fee(maintainer: &mut Game8192Maintainer, new_fee: u64, ctx: &mut TxContext) {
+        assert!(tx_context::sender(ctx) == maintainer.maintainer_address, ENotMaintainer);
+        maintainer.fee = new_fee;
+    }
  
     // PUBLIC ACCESSOR FUNCTIONS //
 
@@ -242,6 +250,7 @@ module ethos::game_8192 {
         Game8192Maintainer {
             id: object::new(ctx),
             maintainer_address: sender(ctx),
+            fee: DEFAULT_FEE,
             balance: balance::zero<SUI>()
         }
     }
@@ -254,9 +263,5 @@ module ethos::game_8192 {
         let coin_value = coin::value(&base);
         assert!(coin_value >= amount, coin_value);
         (coin::split(&mut base, amount, ctx), base)
-    }
-
-    fun fee_in_mist(): u64 {
-        100_000_000
     }
 }
