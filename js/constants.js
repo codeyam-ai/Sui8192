@@ -1,10 +1,10 @@
 module.exports = {
-  testnetContractAddress: "0x5831474d96a315acc5424bb7144b282f20cf922eaf66ff0615dd53e5cc177687",
-  testnetLeaderboardAddress: "0x112aa8ec00029b67e0cacc5b8c8e8d8e6700e1320e48556d678d114ec05b00c6",
-  testnetMaintainerAddress: "0x365d76adad689ad3092792e73d13bc7d1c5fb1d8318a58fd6922e16afb9fcc37",
-  devnetContractAddress: "0xe8d8bd771dbbcafc1ef4a86c187caebf8158a7f8d4d246898784ed62ce733e8c",
-  devnetLeaderboardAddress: "0xcd38c9a5e2bbb53b21221dfb86828d9b49f0621f59453d6f96581d3985cad32a",
-  devnetMaintainerAddress: "0x8eb2f972f1618c7e6f5eca2a17a11544794c3d5aa70ff1dbb2d376fd5fed3649",
+  testnetContractAddress: "0x32ccb952525a8b7319234a80febff3dc02dae0f95891dcd7f9f4e702874be9fe",
+  testnetLeaderboardAddress: "0xd441367566fa0c0f337a2f5ec6c6ddd90213806a809c08ad7691bcf78dcfc37d",
+  testnetMaintainerAddress: "0xf59b65b08b2cafa158b33ae90a4a8d0c1b729ba5e0526b4c6c8c0e6f02100584",
+  devnetContractAddress: "0x7c26976bdee5fc471f6ec8f48fdd89fec76cd4b9ca0bccce7d5181d89774baa5",
+  devnetLeaderboardAddress: "0x4faf77c565de249ec96050d9c46cc2c3ae71c34a8dd48463db7b852049cc5283",
+  devnetMaintainerAddress: "0xbb367e30649d58e6602120f034c0ae0f55c28f77fa4e2680eedd75dda7004f84",
   tileNames: {
     1: "Air",
     2: "Mist",

@@ -70,7 +70,7 @@ module ethos::leaderboard_8192 {
 
         let top_games = vector<TopGame8192>[];
         let remove_index = 0;
-        while (remove_index < leaderboard_length * 2) {
+        while (remove_index < leaderboard_length * 5) {
             if (table::contains(&leaderboard.top_games, remove_index)) {
                 let top_game = table::remove(&mut leaderboard.top_games, remove_index);
                 vector::push_back(&mut top_games, top_game);

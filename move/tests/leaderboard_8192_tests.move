@@ -1105,6 +1105,9 @@ module ethos::leaderboard_8192_tests {
             let top_game2 = table::borrow(top_games, 2);
             assert!(option::destroy_some(game_3_id) == leaderboard_8192::top_game_game_id(top_game2), 2);
 
+            leaderboard_8192::reset_leaderboard(&mut leaderboard);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[372, 356, 240]);
+
             test_scenario::return_shared(leaderboard);
         };
 
