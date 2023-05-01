@@ -197,26 +197,6 @@ module ethos::game_board_8192 {
         (packed_spaces & mask) | (value << shift_bits)
     }
 
-    fun remove_value_or_combined(tiles: &mut vector<u64>, value: u64, start: bool): u64 {
-        let score_value = 0;
-        let (contains, index) = vector::index_of(tiles, &value);
-        if (contains) {
-            vector::remove(tiles, index);
-        } else {
-            remove_value_or_combined(tiles, value - 1, false);
-            remove_value_or_combined(tiles, value - 1, false);
-
-            if (start) {
-                score_value = 2;
-                while (value > 0) {
-                    score_value = score_value * 2;
-                    value = value - 1;
-                };       
-            }
-        };
-        score_value
-    }
-
     fun move_possible(game_board: &GameBoard8192): bool {
         let rows = ROW_COUNT;
         let columns = COLUMN_COUNT;

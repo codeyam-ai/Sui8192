@@ -1,4 +1,6 @@
 module ethos::leaderboard_8192 {
+    use std::vector;
+
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{TxContext};
     use sui::table::{Self, Table};
@@ -60,6 +62,71 @@ module ethos::leaderboard_8192 {
             top_tile: *game_8192::top_tile(game)
         };
 
+        add_top_game_sorted(leaderboard, top_game);
+    }
+
+    public entry fun reset_leaderboard(leaderboard: &mut Leaderboard8192) {
+        let leaderboard_length = table::length(&leaderboard.top_games);
+
+        let top_games = vector<TopGame8192>[];
+        let remove_index = 0;
+        while (remove_index < leaderboard_length * 2) {
+            if (table::contains(&leaderboard.top_games, remove_index)) {
+                let top_game = table::remove(&mut leaderboard.top_games, remove_index);
+                vector::push_back(&mut top_games, top_game);
+            };
+            remove_index = remove_index + 1;
+        };
+
+        let top_games_length = vector::length(&top_games);
+        let add_index = 0;
+        while (add_index < top_games_length) {
+            let top_game = vector::pop_back(&mut top_games);
+            add_top_game_sorted(leaderboard, top_game);
+            add_index = add_index + 1;
+        };
+    }
+
+    // PUBLIC ACCESSOR FUNCTIONS //
+
+    public fun game_count(leaderboard: &Leaderboard8192): u64 {
+        table::length(&leaderboard.top_games)
+    }
+
+    public fun top_games(leaderboard: &Leaderboard8192): &Table<u64, TopGame8192> {
+        &leaderboard.top_games
+    }
+
+    public fun top_game_at(leaderboard: &Leaderboard8192, index: u64): &TopGame8192 {
+        table::borrow(&leaderboard.top_games, index)
+    }
+
+    public fun top_game_at_has_id(leaderboard: &Leaderboard8192, index: u64, game_id: ID): bool {
+        let top_game = top_game_at(leaderboard, index);
+        top_game.game_id == game_id
+    }
+
+    public fun top_game_game_id(top_game: &TopGame8192): ID {
+        top_game.game_id
+    }
+
+    public fun top_game_top_tile(top_game: &TopGame8192): &u64 {
+        &top_game.top_tile
+    }
+
+    public fun top_game_score(top_game: &TopGame8192): &u64 {
+        &top_game.score
+    }
+
+    public fun min_tile(leaderboard: &Leaderboard8192): &u64 {
+        &leaderboard.min_tile
+    }
+
+    public fun min_score(leaderboard: &Leaderboard8192): &u64 {
+        &leaderboard.min_score
+    }
+
+    fun add_top_game_sorted(leaderboard: &mut Leaderboard8192, top_game: TopGame8192) {
         if (table::length(&leaderboard.top_games) == 0) {
             table::add<u64, TopGame8192>(&mut leaderboard.top_games, 0, top_game);
             return
@@ -71,7 +138,7 @@ module ethos::leaderboard_8192 {
         let index = 0;
         while (index < table::length(&leaderboard.top_games)) {
             let existing_game = top_game_at(leaderboard, index);
-            if (existing_game.game_id == game_id) {
+            if (existing_game.game_id == top_game.game_id) {
                 if (index == 0) {
                     table::remove<u64, TopGame8192>(&mut leaderboard.top_games, 0);
                     table::add<u64, TopGame8192>(&mut leaderboard.top_games, 0, top_game);
@@ -115,45 +182,6 @@ module ethos::leaderboard_8192 {
                 table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leaderboard.max_leaderboard_game_count);
             }
         }
-    }
-
-    // PUBLIC ACCESSOR FUNCTIONS //
-
-    public fun game_count(leaderboard: &Leaderboard8192): u64 {
-        table::length(&leaderboard.top_games)
-    }
-
-    public fun top_games(leaderboard: &Leaderboard8192): &Table<u64, TopGame8192> {
-        &leaderboard.top_games
-    }
-
-    public fun top_game_at(leaderboard: &Leaderboard8192, index: u64): &TopGame8192 {
-        table::borrow(&leaderboard.top_games, index)
-    }
-
-    public fun top_game_at_has_id(leaderboard: &Leaderboard8192, index: u64, game_id: ID): bool {
-        let top_game = top_game_at(leaderboard, index);
-        top_game.game_id == game_id
-    }
-
-    public fun top_game_game_id(top_game: &TopGame8192): ID {
-        top_game.game_id
-    }
-
-    public fun top_game_top_tile(top_game: &TopGame8192): &u64 {
-        &top_game.top_tile
-    }
-
-    public fun top_game_score(top_game: &TopGame8192): &u64 {
-        &top_game.score
-    }
-
-    public fun min_tile(leaderboard: &Leaderboard8192): &u64 {
-        &leaderboard.min_tile
-    }
-
-    public fun min_score(leaderboard: &Leaderboard8192): &u64 {
-        &leaderboard.min_score
     }
 
     
