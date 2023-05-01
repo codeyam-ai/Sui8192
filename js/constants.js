@@ -1,7 +1,7 @@
 module.exports = {
-  testnetContractAddress: "0x9d63e932c625a6ffcf91b1f211e8b20c70f1b14f899ee3cd715db5f4ef8cca0e",
-  testnetLeaderboardAddress: "0x62b0f2d9d2f8ca6f712f8366d1b443061955f06b816190c719bacbd48a505fa1",
-  testnetMaintainerAddress: "0x175efc21e5440e66e097c0d491b747bec96aa916617ded80c29b7797369d33f4",
+  testnetContractAddress: "0x5831474d96a315acc5424bb7144b282f20cf922eaf66ff0615dd53e5cc177687",
+  testnetLeaderboardAddress: "0x112aa8ec00029b67e0cacc5b8c8e8d8e6700e1320e48556d678d114ec05b00c6",
+  testnetMaintainerAddress: "0x365d76adad689ad3092792e73d13bc7d1c5fb1d8318a58fd6922e16afb9fcc37",
   mainnetContractAddress: "0xe8d8bd771dbbcafc1ef4a86c187caebf8158a7f8d4d246898784ed62ce733e8c",
   mainnetLeaderboardAddress: "0xcd38c9a5e2bbb53b21221dfb86828d9b49f0621f59453d6f96581d3985cad32a",
   mainnetMaintainerAddress: "0x8eb2f972f1618c7e6f5eca2a17a11544794c3d5aa70ff1dbb2d376fd5fed3649",
