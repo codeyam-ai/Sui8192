@@ -177,9 +177,9 @@ module.exports = {
   testnetContractAddress: "0x9d63e932c625a6ffcf91b1f211e8b20c70f1b14f899ee3cd715db5f4ef8cca0e",
   testnetLeaderboardAddress: "0x62b0f2d9d2f8ca6f712f8366d1b443061955f06b816190c719bacbd48a505fa1",
   testnetMaintainerAddress: "0x175efc21e5440e66e097c0d491b747bec96aa916617ded80c29b7797369d33f4",
-  devnetContractAddress: "0xe8d8bd771dbbcafc1ef4a86c187caebf8158a7f8d4d246898784ed62ce733e8c",
-  devnetLeaderboardAddress: "0xcd38c9a5e2bbb53b21221dfb86828d9b49f0621f59453d6f96581d3985cad32a",
-  devnetMaintainerAddress: "0x8eb2f972f1618c7e6f5eca2a17a11544794c3d5aa70ff1dbb2d376fd5fed3649",
+  mainnetContractAddress: "0xe8d8bd771dbbcafc1ef4a86c187caebf8158a7f8d4d246898784ed62ce733e8c",
+  mainnetLeaderboardAddress: "0xcd38c9a5e2bbb53b21221dfb86828d9b49f0621f59453d6f96581d3985cad32a",
+  mainnetMaintainerAddress: "0x8eb2f972f1618c7e6f5eca2a17a11544794c3d5aa70ff1dbb2d376fd5fed3649",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -202,13 +202,13 @@ const ReactDOM = require("react-dom/client");
 const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require("ethos-connect");
 
 const leaderboard = require("./leaderboard");
-const { 
-  devnetContractAddress,
-  devnetLeaderboardAddress,
+const {
+  mainnetContractAddress,
+  mainnetLeaderboardAddress,
+  mainnetMaintainerAddress,
   testnetContractAddress,
   testnetLeaderboardAddress,
-  testnetMaintainerAddress,
-  devnetMaintainerAddress,
+  testnetMaintainerAddress
 } = require("./constants");
 const {
   eById,
@@ -224,25 +224,24 @@ const queue = require("./queue");
 const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
-const { SUI_TYPE_ARG } = require("@mysten/sui.js");
 const { default: BigNumber } = require("bignumber.js");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
-const DEVNET = "https://fullnode.devnet.sui.io/"
 const TESTNET = "https://fullnode.testnet.sui.io/"
+const MAINNET = "https://fullnode.devnet.sui.io/"
 const LOCALNET_NETWORK_NAME = 'local';
-const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
+const MAINNET_NETWORK_NAME = 'mainNet';
 const LOCALNET_CHAIN = "sui:local";
-const DEVNET_CHAIN = "sui:devnet";
 const TESTNET_CHAIN = "sui:testnet";
+const MAINNET_CHAIN = "sui:mainnet";
 
-let contractAddress = testnetContractAddress;
-let leaderboardAddress = testnetLeaderboardAddress;
-let maintainerAddress = testnetMaintainerAddress;
-let networkName = TESTNET_NETWORK_NAME;
-let chain = TESTNET_CHAIN;
+let contractAddress = mainnetContractAddress;
+let leaderboardAddress = mainnetLeaderboardAddress;
+let maintainerAddress = mainnetMaintainerAddress;
+let networkName = MAINNET_NETWORK_NAME;
+let chain = MAINNET_CHAIN;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -250,7 +249,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = TESTNET;
+let network = MAINNET;
 let root;
 
 const int = (intString = "-1") => parseInt(intString);
@@ -279,23 +278,23 @@ const setNetwork = (newNetworkName) => {
     networkName = LOCALNET_NETWORK_NAME;
     network = LOCALNET;
     chain = LOCALNET_CHAIN;
-    contrcontractAddressact = devnetContractAddress;
-    leaderboardAddress = devnetLeaderboardAddress;
+    contractAddress = testnetContractAddress;
+    leaderboardAddress = testnetLeaderboardAddress;
+    maintainerAddress = testnetMaintainerAddress;
   } else if (newNetworkName === TESTNET_NETWORK_NAME) {
     networkName = TESTNET_NETWORK_NAME;
     network = TESTNET;
     chain = TESTNET_CHAIN;
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
-    leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
   } else {
-    networkName = DEVNET_NETWORK_NAME;
-    network = DEVNET;
-    chain = DEVNET_CHAIN;
-    contractAddress = devnetContractAddress;
-    leaderboardAddress = devnetLeaderboardAddress;
-    maintainerAddress = devnetMaintainerAddress;
+    networkName = MAINNET_NETWORK_NAME;
+    network = MAINNET;
+    chain = MAINNET_CHAIN;
+    contractAddress = mainnetContractAddress;
+    leaderboardAddress = mainnetLeaderboardAddress;
+    maintainerAddress = mainnetMaintainerAddress;
   }
 
   removeClass(eByClass('network-button'), 'selected');
@@ -306,11 +305,11 @@ const setNetwork = (newNetworkName) => {
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
+  const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
   
   setNetwork(initialNetwork, true);
 
-  setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
+  setOnClick(eByClass(MAINNET_NETWORK_NAME), () => setNetwork(MAINNET_NETWORK_NAME));
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
 }
 
@@ -380,6 +379,8 @@ function init() {
     className: "start-button",
     children: "Sign In",
   });
+
+  console.log("NETWORK", network)
 
   const wrapper = React.createElement(EthosConnectProvider, {
     ethosConfiguration,
@@ -1005,7 +1006,7 @@ window.requestAnimationFrame(init);
 //   }
 // }
 
-},{"./board":1,"./confetti":2,"./constants":3,"./leaderboard":5,"./modal":6,"./moves":7,"./queue":8,"./utils":9,"@mysten/sui.js":23,"bignumber.js":57,"ethos-connect":64,"react":76,"react-dom/client":72}],5:[function(require,module,exports){
+},{"./board":1,"./confetti":2,"./constants":3,"./leaderboard":5,"./modal":6,"./moves":7,"./queue":8,"./utils":9,"bignumber.js":57,"ethos-connect":64,"react":76,"react-dom/client":72}],5:[function(require,module,exports){
 const { BCS } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");

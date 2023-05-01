@@ -3,13 +3,13 @@ const ReactDOM = require("react-dom/client");
 const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require("ethos-connect");
 
 const leaderboard = require("./leaderboard");
-const { 
-  devnetContractAddress,
-  devnetLeaderboardAddress,
+const {
+  mainnetContractAddress,
+  mainnetLeaderboardAddress,
+  mainnetMaintainerAddress,
   testnetContractAddress,
   testnetLeaderboardAddress,
-  testnetMaintainerAddress,
-  devnetMaintainerAddress,
+  testnetMaintainerAddress
 } = require("./constants");
 const {
   eById,
@@ -25,25 +25,24 @@ const queue = require("./queue");
 const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
-const { SUI_TYPE_ARG } = require("@mysten/sui.js");
 const { default: BigNumber } = require("bignumber.js");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
-const DEVNET = "https://fullnode.devnet.sui.io/"
 const TESTNET = "https://fullnode.testnet.sui.io/"
+const MAINNET = "https://fullnode.devnet.sui.io/"
 const LOCALNET_NETWORK_NAME = 'local';
-const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
+const MAINNET_NETWORK_NAME = 'mainNet';
 const LOCALNET_CHAIN = "sui:local";
-const DEVNET_CHAIN = "sui:devnet";
 const TESTNET_CHAIN = "sui:testnet";
+const MAINNET_CHAIN = "sui:mainnet";
 
-let contractAddress = testnetContractAddress;
-let leaderboardAddress = testnetLeaderboardAddress;
-let maintainerAddress = testnetMaintainerAddress;
-let networkName = TESTNET_NETWORK_NAME;
-let chain = TESTNET_CHAIN;
+let contractAddress = mainnetContractAddress;
+let leaderboardAddress = mainnetLeaderboardAddress;
+let maintainerAddress = mainnetMaintainerAddress;
+let networkName = MAINNET_NETWORK_NAME;
+let chain = MAINNET_CHAIN;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -51,7 +50,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = TESTNET;
+let network = MAINNET;
 let root;
 
 const int = (intString = "-1") => parseInt(intString);
@@ -80,23 +79,23 @@ const setNetwork = (newNetworkName) => {
     networkName = LOCALNET_NETWORK_NAME;
     network = LOCALNET;
     chain = LOCALNET_CHAIN;
-    contrcontractAddressact = devnetContractAddress;
-    leaderboardAddress = devnetLeaderboardAddress;
+    contractAddress = testnetContractAddress;
+    leaderboardAddress = testnetLeaderboardAddress;
+    maintainerAddress = testnetMaintainerAddress;
   } else if (newNetworkName === TESTNET_NETWORK_NAME) {
     networkName = TESTNET_NETWORK_NAME;
     network = TESTNET;
     chain = TESTNET_CHAIN;
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
-    leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
   } else {
-    networkName = DEVNET_NETWORK_NAME;
-    network = DEVNET;
-    chain = DEVNET_CHAIN;
-    contractAddress = devnetContractAddress;
-    leaderboardAddress = devnetLeaderboardAddress;
-    maintainerAddress = devnetMaintainerAddress;
+    networkName = MAINNET_NETWORK_NAME;
+    network = MAINNET;
+    chain = MAINNET_CHAIN;
+    contractAddress = mainnetContractAddress;
+    leaderboardAddress = mainnetLeaderboardAddress;
+    maintainerAddress = mainnetMaintainerAddress;
   }
 
   removeClass(eByClass('network-button'), 'selected');
@@ -107,11 +106,11 @@ const setNetwork = (newNetworkName) => {
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
+  const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
   
   setNetwork(initialNetwork, true);
 
-  setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
+  setOnClick(eByClass(MAINNET_NETWORK_NAME), () => setNetwork(MAINNET_NETWORK_NAME));
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
 }
 
@@ -181,6 +180,8 @@ function init() {
     className: "start-button",
     children: "Sign In",
   });
+
+  console.log("NETWORK", network)
 
   const wrapper = React.createElement(EthosConnectProvider, {
     ethosConfiguration,
