@@ -781,6 +781,12 @@ const initializeClicks = () => {
   setOnClick(eById("close-hosted"), () => {
     addClass(eById("hosted"), "hidden");
   });
+
+  setOnClick(eByClass("fix-leaderboard"), () => {
+    leaderboard.reset(network, chain, contractAddress, walletSigner, () => {
+      loadGames();
+    });
+  });
 };
 
 const onWalletConnected = async ({ signer }) => {
@@ -1477,6 +1483,43 @@ const submit = async (network, chain, contractAddress, gameAddress, walletSigner
     onComplete();
 };
 
+const reset = async (network, chain, contractAddress, walletSigner, onComplete) => {
+  const transactionBlock = new TransactionBlock();
+  transactionBlock.moveCall({
+    target: `${contractAddress}::leaderboard_8192::reset_leaderboard`,
+    arguments: [
+      transactionBlock.object(cachedLeaderboardAddress)
+    ]
+  })
+
+  const { signature, transactionBlockBytes } = await ethos.signTransactionBlock({
+      signer: walletSigner,
+      transactionInput: {
+        transactionBlock,
+        chain,
+      },
+  });
+
+  await ethos.executeTransactionBlock({
+    signer: walletSigner, 
+    transactionInput: {
+      transactionBlock: transactionBlockBytes,
+      signature,
+      options: {
+        showEvents: true,
+        showEffects: true,
+        showBalanceChanges: true,
+        showObjectChanges: true
+      },
+      requestType: 'WaitForLocalExecution'
+    }
+  })
+
+  await load(network, cachedLeaderboardAddress, true);
+  ethos.hideWallet(walletSigner);
+  onComplete();
+};
+
 module.exports = {
     topGames,
     minTile,
@@ -1484,6 +1527,7 @@ module.exports = {
     get,
     load,
     submit,
+    reset
 };
 
 },{"./board":1,"./constants":3,"./utils":9,"@mysten/bcs":22,"@mysten/sui.js":23,"ethos-connect":64}],6:[function(require,module,exports){
