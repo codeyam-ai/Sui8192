@@ -662,7 +662,7 @@ const onWalletConnected = async ({ signer }) => {
 
           const transactionBlock = new TransactionBlock();
 
-          const fee = new BigNumber(100000000);
+          const fee = new BigNumber(200000000);
           const payment = transactionBlock.splitCoins(
             transactionBlock.gas,
             [transactionBlock.pure(fee)]

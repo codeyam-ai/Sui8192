@@ -26,7 +26,7 @@ module ethos::game_8192 {
     #[test_only]
     friend ethos::leaderboard_8192_tests;
 
-    const DEFAULT_FEE: u64 = 100_000_000;
+    const DEFAULT_FEE: u64 = 200_000_000;
 
     const EInvalidPlayer: u64 = 0;
     const ENotMaintainer: u64 = 1;
