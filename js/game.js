@@ -114,51 +114,99 @@ const initializeNetwork = () => {
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
 }
 
+let xDown = null;                                                        
+let yDown = null;
+
+const getTouches = (evt) => {
+  return evt.touches
+}                                                     
+                                                                         
+const handleTouchStart = (evt) => {
+  const firstTouch = getTouches(evt)[0];                                      
+  xDown = firstTouch.clientX;                                      
+  yDown = firstTouch.clientY;                                      
+};                                                
+                                                                         
+const handleTouchMove = (evt) => {
+    if ( ! xDown || ! yDown ) {
+        return;
+    }
+
+    var xUp = evt.touches[0].clientX;                                    
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = xDown - xUp;
+    var yDiff = yDown - yUp;
+                                                                         
+    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+        if ( xDiff > 0 ) {
+          executeMove("left");
+        } else {
+          executeMove("right");
+        }                       
+    } else {
+        if ( yDiff > 0 ) {
+          executeMove("up");
+        } else { 
+          executeMove("down");
+        }                                                                 
+    }
+    /* reset values */
+    xDown = null;
+    yDown = null;                                             
+};
+
 const initializeKeyListener = () => {
+  const board = eById("board");
+  board.addEventListener('touchstart', handleTouchStart, false);        
+  board.addEventListener('touchmove', handleTouchMove, false);
+
   window.onkeydown = (e) => {
-    let direction;
     switch (e.keyCode) {
       case 37:
-        direction = "left";
+        e.preventDefault();    
+        executeMove("left");
         break;
       case 38:
-        direction = "up";
+        e.preventDefault();    
+        executeMove("up");
         break;
       case 39:
-        direction = "right";
+        e.preventDefault();    
+        executeMove("right");
         break;
       case 40:
-        direction = "down";
+        e.preventDefault();    
+        executeMove("down");
         break;
     }
-    if (!direction) return;
-
-    e.preventDefault();
-
-    moves.execute(
-      chain,
-      contractAddress,
-      direction,
-      activeGameAddress,
-      walletSigner,
-      (newBoard, direction) => {
-        handleResult(newBoard, direction);
-        loadWalletContents();
-      },
-      ({ error, gameOver }) => {
-        if (gameOver) {
-          showGameOver();
-        } else if (error === "Insufficient gas") {
-          showGasError();
-        } else if (error) {
-          showUnknownError(error);
-        } else {
-          showUnknownError("Sorry an unknown error occurred. Please try again in a moment.");
-        }
-      }
-    );
   };
-};
+}
+
+const executeMove = (direction) => {
+  moves.execute(
+    chain,
+    contractAddress,
+    direction,
+    activeGameAddress,
+    walletSigner,
+    (newBoard, direction) => {
+      handleResult(newBoard, direction);
+      loadWalletContents();
+    },
+    ({ error, gameOver }) => {
+      if (gameOver) {
+        showGameOver();
+      } else if (error === "Insufficient gas") {
+        showGasError();
+      } else if (error) {
+        showUnknownError(error);
+      } else {
+        showUnknownError("Sorry an unknown error occurred. Please try again in a moment.");
+      }
+    }
+  );
+}
 
 function init() {
   // test();

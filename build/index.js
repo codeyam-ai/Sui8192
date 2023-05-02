@@ -174,12 +174,12 @@ module.exports = {
 };
 },{"canvas-confetti":61}],3:[function(require,module,exports){
 module.exports = {
-  testnetContractAddress: "0x5831474d96a315acc5424bb7144b282f20cf922eaf66ff0615dd53e5cc177687",
-  testnetLeaderboardAddress: "0x112aa8ec00029b67e0cacc5b8c8e8d8e6700e1320e48556d678d114ec05b00c6",
-  testnetMaintainerAddress: "0x365d76adad689ad3092792e73d13bc7d1c5fb1d8318a58fd6922e16afb9fcc37",
-  mainnetContractAddress: "0xe8d8bd771dbbcafc1ef4a86c187caebf8158a7f8d4d246898784ed62ce733e8c",
-  mainnetLeaderboardAddress: "0xcd38c9a5e2bbb53b21221dfb86828d9b49f0621f59453d6f96581d3985cad32a",
-  mainnetMaintainerAddress: "0x8eb2f972f1618c7e6f5eca2a17a11544794c3d5aa70ff1dbb2d376fd5fed3649",
+  testnetContractAddress: "0x4abf9d88b5898b5af5b37fd2945cad953fe819de5720eb432911938eaa5a1ae1",
+  testnetLeaderboardAddress: "0x4825603c24bb0394dfcd6b217bc88b6685387897598cb740043ee6ada14098af",
+  testnetMaintainerAddress: "0x28edc0bf3661264dfbeeb5458a94a179f904c3a0ecf5bf49d552fb280a3318b1",
+  mainnetContractAddress: "0x9c2f505d50f081de8fb18664a4443b1f876abc53b37fe8745fb9188492734522",
+  mainnetLeaderboardAddress: "0xbb87dba4e03cc16f74858220ce9d691d20316bdcb841d8d2d5b775e40b04a693",
+  mainnetMaintainerAddress: "0x9c10594e6214e95f43ddaaab2c54b9226d4b8243e25bf68f73a76ffb3d640425",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -313,51 +313,99 @@ const initializeNetwork = () => {
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
 }
 
+let xDown = null;                                                        
+let yDown = null;
+
+const getTouches = (evt) => {
+  return evt.touches
+}                                                     
+                                                                         
+const handleTouchStart = (evt) => {
+  const firstTouch = getTouches(evt)[0];                                      
+  xDown = firstTouch.clientX;                                      
+  yDown = firstTouch.clientY;                                      
+};                                                
+                                                                         
+const handleTouchMove = (evt) => {
+    if ( ! xDown || ! yDown ) {
+        return;
+    }
+
+    var xUp = evt.touches[0].clientX;                                    
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = xDown - xUp;
+    var yDiff = yDown - yUp;
+                                                                         
+    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+        if ( xDiff > 0 ) {
+          executeMove("left");
+        } else {
+          executeMove("right");
+        }                       
+    } else {
+        if ( yDiff > 0 ) {
+          executeMove("up");
+        } else { 
+          executeMove("down");
+        }                                                                 
+    }
+    /* reset values */
+    xDown = null;
+    yDown = null;                                             
+};
+
 const initializeKeyListener = () => {
+  const board = eById("board");
+  board.addEventListener('touchstart', handleTouchStart, false);        
+  board.addEventListener('touchmove', handleTouchMove, false);
+
   window.onkeydown = (e) => {
-    let direction;
     switch (e.keyCode) {
       case 37:
-        direction = "left";
+        e.preventDefault();    
+        executeMove("left");
         break;
       case 38:
-        direction = "up";
+        e.preventDefault();    
+        executeMove("up");
         break;
       case 39:
-        direction = "right";
+        e.preventDefault();    
+        executeMove("right");
         break;
       case 40:
-        direction = "down";
+        e.preventDefault();    
+        executeMove("down");
         break;
     }
-    if (!direction) return;
-
-    e.preventDefault();
-
-    moves.execute(
-      chain,
-      contractAddress,
-      direction,
-      activeGameAddress,
-      walletSigner,
-      (newBoard, direction) => {
-        handleResult(newBoard, direction);
-        loadWalletContents();
-      },
-      ({ error, gameOver }) => {
-        if (gameOver) {
-          showGameOver();
-        } else if (error === "Insufficient gas") {
-          showGasError();
-        } else if (error) {
-          showUnknownError(error);
-        } else {
-          showUnknownError("Sorry an unknown error occurred. Please try again in a moment.");
-        }
-      }
-    );
   };
-};
+}
+
+const executeMove = (direction) => {
+  moves.execute(
+    chain,
+    contractAddress,
+    direction,
+    activeGameAddress,
+    walletSigner,
+    (newBoard, direction) => {
+      handleResult(newBoard, direction);
+      loadWalletContents();
+    },
+    ({ error, gameOver }) => {
+      if (gameOver) {
+        showGameOver();
+      } else if (error === "Insufficient gas") {
+        showGasError();
+      } else if (error) {
+        showUnknownError(error);
+      } else {
+        showUnknownError("Sorry an unknown error occurred. Please try again in a moment.");
+      }
+    }
+  );
+}
 
 function init() {
   // test();
