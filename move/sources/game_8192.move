@@ -37,6 +37,7 @@ module ethos::game_8192 {
 
     struct Game8192 has key, store {
         id: UID,
+        game: u64,
         player: address,
         active_board: GameBoard8192,
         move_count: u64,
@@ -53,6 +54,7 @@ module ethos::game_8192 {
     struct Game8192Maintainer has key {
         id: UID,
         maintainer_address: address,
+        game_count: u64,
         fee: u64,
         balance: Balance<SUI>
     }
@@ -138,6 +140,7 @@ module ethos::game_8192 {
 
         let game = Game8192 {
             id: uid,
+            game: maintainer.game_count + 1,
             player,
             move_count: 0,
             score,
@@ -153,6 +156,8 @@ module ethos::game_8192 {
             packed_spaces: *game_board_8192::packed_spaces(&initial_game_board)
         });
         
+        maintainer.game_count = maintainer.game_count + 1;
+
         transfer(game, player);
     }
 
@@ -250,6 +255,7 @@ module ethos::game_8192 {
         Game8192Maintainer {
             id: object::new(ctx),
             maintainer_address: sender(ctx),
+            game_count: 0,
             fee: DEFAULT_FEE,
             balance: balance::zero<SUI>()
         }
