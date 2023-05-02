@@ -144,23 +144,29 @@ module ethos::leaderboard_8192 {
         };
 
         top_games = merge_sort_top_games(top_games);    
+        vector::reverse(&mut top_games);
 
         let top_games_length = vector::length(&top_games);
+
         if (top_games_length > leaderboard.max_leaderboard_game_count) {
             top_games_length = top_games_length - 1;
-
-            let bottom_game = vector::borrow(&top_games, 0);
-            leaderboard.min_tile = bottom_game.top_tile;
-            leaderboard.min_score = bottom_game.score;
         };
 
-        vector::reverse(&mut top_games);
+        let store_min = false;
+        if (top_games_length >= leaderboard.max_leaderboard_game_count) {
+            store_min = true;
+        };
 
         let add_index = 0;
         while (add_index < top_games_length) {
             let top_game = vector::pop_back(&mut top_games);
             table::add<u64, TopGame8192>(&mut leaderboard.top_games, add_index, top_game);
             
+            if (store_min && add_index == top_games_length - 1) {
+                leaderboard.min_tile = top_game.top_tile;
+                leaderboard.min_score = top_game.score;
+            };
+
             add_index = add_index + 1;
         };
     }
