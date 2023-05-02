@@ -1163,31 +1163,31 @@ module ethos::leaderboard_8192_tests {
             vector[2, 200], 
         ]);
 
-        // let top_games = vector<leaderboard_8192::TopGame8192>[
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 300),
-        // ];
-        // assert_sort(top_games, vector[
-        //     vector[2, 500], 
-        //     vector[2, 400], 
-        //     vector[2, 300], 
-        //     vector[2, 200], 
-        // ]);
+        let top_games = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 300),
+        ];
+        assert_sort(top_games, vector[
+            vector[2, 500], 
+            vector[2, 400], 
+            vector[2, 300], 
+            vector[2, 200], 
+        ]);
 
-        // let top_games = vector<leaderboard_8192::TopGame8192>[
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 1, 200),
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 4, 300),
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
-        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 3, 500),
-        // ];
-        // assert_sort(top_games, vector[
-        //     vector[4, 300], 
-        //     vector[3, 500], 
-        //     vector[2, 400], 
-        //     vector[1, 200], 
-        // ]);
+        let top_games = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 1, 200),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 4, 300),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 3, 500),
+        ];
+        assert_sort(top_games, vector[
+            vector[4, 300], 
+            vector[3, 500], 
+            vector[2, 400], 
+            vector[1, 200], 
+        ]);
 
         test_scenario::end(scenario);
     }
@@ -1208,8 +1208,8 @@ module ethos::leaderboard_8192_tests {
         ]);
 
         let left = vector<leaderboard_8192::TopGame8192>[
-            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
             leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
         ];
         let right = vector<leaderboard_8192::TopGame8192>[
             leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
@@ -1217,6 +1217,21 @@ module ethos::leaderboard_8192_tests {
         assert_merge(left, right, vector[
             vector[2, 500], 
             vector[2, 400], 
+            vector[2, 200], 
+        ]);
+
+        let left = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
+        ];
+        let right = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 300),
+        ];
+        assert_merge(left, right, vector[
+            vector[2, 500], 
+            vector[2, 400], 
+            vector[2, 300], 
             vector[2, 200], 
         ]);
 

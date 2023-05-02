@@ -136,8 +136,9 @@ module ethos::leaderboard_8192 {
         let remove_index = 0;
         while (remove_index < leaderboard_length * 5) {
             if (table::contains(&leaderboard.top_games, remove_index)) {
-                let top_game = table::remove(&mut leaderboard.top_games, remove_index);
-                vector::push_back(&mut top_games, top_game);
+                let table_top_game = table::remove(&mut leaderboard.top_games, remove_index);
+                if (table_top_game.game_id == top_game.game_id) continue;
+                vector::push_back(&mut top_games, table_top_game);
             };
             remove_index = remove_index + 1;
         };
@@ -155,13 +156,8 @@ module ethos::leaderboard_8192 {
         };
 
         let add_index = 0;
-        sui::test_utils::print(b"SAVE");
-        std::debug::print(&top_games);
         while (add_index < top_games_length) {
             let top_game = vector::pop_back(&mut top_games);
-            sui::test_utils::print(b"ADD");
-            std::debug::print(&add_index);
-            std::debug::print(&top_game.score);
             table::add<u64, TopGame8192>(&mut leaderboard.top_games, add_index, top_game);
             
             add_index = add_index + 1;
@@ -194,8 +190,8 @@ module ethos::leaderboard_8192 {
 
         let result = vector<TopGame8192>[];
         while (!vector::is_empty(&left) && !vector::is_empty(&right)) {
-            let left_item = vector::borrow(&left, 0);
-            let right_item = vector::borrow(&right, 0);
+            let left_item = vector::borrow(&left, vector::length(&left) - 1);
+            let right_item = vector::borrow(&right, vector::length(&right) - 1);
 
             if (left_item.top_tile > right_item.top_tile) {
                 vector::push_back(&mut result, vector::pop_back(&mut left));
