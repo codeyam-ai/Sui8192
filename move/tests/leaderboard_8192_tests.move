@@ -23,7 +23,7 @@ module ethos::leaderboard_8192_tests {
         let maintainer = game_8192::create_maintainer(ctx);
 
         let coins = vector[
-            coin::mint_for_testing<SUI>(50_000_000, ctx),
+            coin::mint_for_testing<SUI>(150_000_000, ctx),
             coin::mint_for_testing<SUI>(30_000_000, ctx),
             coin::mint_for_testing<SUI>(40_000_000, ctx)
         ];
