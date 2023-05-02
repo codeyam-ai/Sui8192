@@ -39,7 +39,7 @@ module ethos::leaderboard_8192 {
     public entry fun create(ctx: &mut TxContext) {
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),
-            max_leaderboard_game_count: 200,
+            max_leaderboard_game_count: 50,
             top_games: table::new<u64, TopGame8192>(ctx),
             min_tile: 0,
             min_score: 0
@@ -144,7 +144,6 @@ module ethos::leaderboard_8192 {
         };
 
         top_games = merge_sort_top_games(top_games);    
-        vector::reverse(&mut top_games);
 
         let top_games_length = vector::length(&top_games);
         if (top_games_length > leaderboard.max_leaderboard_game_count) {
@@ -154,6 +153,8 @@ module ethos::leaderboard_8192 {
             leaderboard.min_tile = bottom_game.top_tile;
             leaderboard.min_score = bottom_game.score;
         };
+
+        vector::reverse(&mut top_games);
 
         let add_index = 0;
         while (add_index < top_games_length) {
