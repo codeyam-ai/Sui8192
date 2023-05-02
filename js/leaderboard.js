@@ -37,22 +37,8 @@ const topGames = async (network, force) => {
   if (!leaderboardObject) {
     await get(network);
   }
-  const topGamesId = leaderboardObject.top_games.fields.id.id;
-  const gameInfos = await provider.getDynamicFields({ parentId: topGamesId })
-  const gameDetails = await provider.multiGetObjects({
-    ids: gameInfos.data.map((info) => info.objectId),
-    options: {
-      showContent: true
-    }
-  })
-  _topGames = gameDetails.sort(
-    (a,b) => a.data.content.fields.name - b.data.content.fields.name
-  ).map(
-    (details) => details.data.content.fields.value
-  ).filter(
-    (game) => !!game
-  )
-  return _topGames;
+  
+  return leaderboardObject.top_games;
 }
 
 const getObject = async (network, id) => {

@@ -3,7 +3,6 @@ module ethos::leaderboard_8192 {
 
     use sui::object::{Self, ID, UID};
     use sui::tx_context::{TxContext};
-    use sui::table::{Self, Table};
     use sui::transfer;
 
     use ethos::game_8192::{Self, Game8192};
@@ -18,7 +17,7 @@ module ethos::leaderboard_8192 {
     struct Leaderboard8192 has key, store {
         id: UID,
         max_leaderboard_game_count: u64,
-        top_games: Table<u64, TopGame8192>,
+        top_games: vector<TopGame8192>,
         min_tile: u64,
         min_score: u64
     }
@@ -40,7 +39,7 @@ module ethos::leaderboard_8192 {
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),
             max_leaderboard_game_count: 50,
-            top_games: table::new<u64, TopGame8192>(ctx),
+            top_games: vector<TopGame8192>[],
             min_tile: 0,
             min_score: 0
         };
@@ -68,40 +67,18 @@ module ethos::leaderboard_8192 {
         add_top_game_sorted(leaderboard, top_game);
     }
 
-    public entry fun reset_leaderboard(leaderboard: &mut Leaderboard8192) {
-        let leaderboard_length = table::length(&leaderboard.top_games);
-
-        let top_games = vector<TopGame8192>[];
-        let remove_index = 0;
-        while (remove_index < leaderboard_length * 5) {
-            if (table::contains(&leaderboard.top_games, remove_index)) {
-                let top_game = table::remove(&mut leaderboard.top_games, remove_index);
-                vector::push_back(&mut top_games, top_game);
-            };
-            remove_index = remove_index + 1;
-        };
-
-        let top_games_length = vector::length(&top_games);
-        let add_index = 0;
-        while (add_index < top_games_length) {
-            let top_game = vector::pop_back(&mut top_games);
-            add_top_game_sorted(leaderboard, top_game);
-            add_index = add_index + 1;
-        };
-    }
-
     // PUBLIC ACCESSOR FUNCTIONS //
 
     public fun game_count(leaderboard: &Leaderboard8192): u64 {
-        table::length(&leaderboard.top_games)
+        vector::length(&leaderboard.top_games)
     }
 
-    public fun top_games(leaderboard: &Leaderboard8192): &Table<u64, TopGame8192> {
+    public fun top_games(leaderboard: &Leaderboard8192): &vector<TopGame8192> {
         &leaderboard.top_games
     }
 
     public fun top_game_at(leaderboard: &Leaderboard8192, index: u64): &TopGame8192 {
-        table::borrow(&leaderboard.top_games, index)
+        vector::borrow(&leaderboard.top_games, index)
     }
 
     public fun top_game_at_has_id(leaderboard: &Leaderboard8192, index: u64, game_id: ID): bool {
@@ -130,45 +107,36 @@ module ethos::leaderboard_8192 {
     }
 
     fun add_top_game_sorted(leaderboard: &mut Leaderboard8192, top_game: TopGame8192) {
-        let leaderboard_length = table::length(&leaderboard.top_games);
-
-        let top_games = vector<TopGame8192>[top_game];
-        let remove_index = 0;
-        while (remove_index < leaderboard_length * 5) {
-            if (table::contains(&leaderboard.top_games, remove_index)) {
-                let table_top_game = table::remove(&mut leaderboard.top_games, remove_index);
-                if (table_top_game.game_id == top_game.game_id) continue;
-                vector::push_back(&mut top_games, table_top_game);
-            };
-            remove_index = remove_index + 1;
-        };
-
-        top_games = merge_sort_top_games(top_games);    
-        vector::reverse(&mut top_games);
-
+        let top_games = leaderboard.top_games;
         let top_games_length = vector::length(&top_games);
 
-        if (top_games_length > leaderboard.max_leaderboard_game_count) {
-            top_games_length = top_games_length - 1;
-        };
-
-        let store_min = false;
-        if (top_games_length >= leaderboard.max_leaderboard_game_count) {
-            store_min = true;
-        };
-
-        let add_index = 0;
-        while (add_index < top_games_length) {
-            let top_game = vector::pop_back(&mut top_games);
-            table::add<u64, TopGame8192>(&mut leaderboard.top_games, add_index, top_game);
-            
-            if (store_min && add_index == top_games_length - 1) {
-                leaderboard.min_tile = top_game.top_tile;
-                leaderboard.min_score = top_game.score;
+        let index = 0;
+        while (index < top_games_length) {
+            let current_top_game = vector::borrow(&top_games, index);
+            if (top_game.game_id == current_top_game.game_id) {
+                vector::swap_remove(&mut top_games, index);
+                break
             };
-
-            add_index = add_index + 1;
+            index = index + 1;
         };
+
+        vector::push_back(&mut top_games, top_game);
+
+        top_games = merge_sort_top_games(top_games); 
+        top_games_length = vector::length(&top_games);
+
+        if (top_games_length > leaderboard.max_leaderboard_game_count) {
+            vector::pop_back(&mut top_games);
+            top_games_length  = top_games_length - 1;
+        };
+
+        if (top_games_length >= leaderboard.max_leaderboard_game_count) {
+            let bottom_game = vector::borrow(&top_games, top_games_length - 1);
+            leaderboard.min_tile = bottom_game.top_tile;
+            leaderboard.min_score = bottom_game.score;
+        };
+
+        leaderboard.top_games = top_games;
     }
 
     public(friend) fun merge_sort_top_games(top_games: vector<TopGame8192>): vector<TopGame8192> {
@@ -233,7 +201,7 @@ module ethos::leaderboard_8192 {
         let leaderboard = Leaderboard8192 {
             id: object::new(ctx),
             max_leaderboard_game_count: max_leaderboard_game_count,
-            top_games: table::new<u64, TopGame8192>(ctx),
+            top_games: vector<TopGame8192>[],
             min_tile: min_tile,
             min_score: min_score
         };
