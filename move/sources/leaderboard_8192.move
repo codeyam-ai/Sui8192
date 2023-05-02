@@ -12,6 +12,9 @@ module ethos::leaderboard_8192 {
     const ELowTile: u64 = 1;
     const ELowScore: u64 = 2;
 
+    #[test_only]
+    friend ethos::leaderboard_8192_tests;
+
     struct Leaderboard8192 has key, store {
         id: UID,
         max_leaderboard_game_count: u64,
@@ -127,63 +130,93 @@ module ethos::leaderboard_8192 {
     }
 
     fun add_top_game_sorted(leaderboard: &mut Leaderboard8192, top_game: TopGame8192) {
-        if (table::length(&leaderboard.top_games) == 0) {
-            table::add<u64, TopGame8192>(&mut leaderboard.top_games, 0, top_game);
-            return
+        let leaderboard_length = table::length(&leaderboard.top_games);
+
+        let top_games = vector<TopGame8192>[top_game];
+        let remove_index = 0;
+        while (remove_index < leaderboard_length * 5) {
+            if (table::contains(&leaderboard.top_games, remove_index)) {
+                let top_game = table::remove(&mut leaderboard.top_games, remove_index);
+                vector::push_back(&mut top_games, top_game);
+            };
+            remove_index = remove_index + 1;
         };
 
-        // Check to see if the game already exists. If so it can only go up the leaderboard
-        let leader_index = table::length(&leaderboard.top_games) - 1;
+        top_games = merge_sort_top_games(top_games);    
+        vector::reverse(&mut top_games);
 
+        let top_games_length = vector::length(&top_games);
+        if (top_games_length > leaderboard.max_leaderboard_game_count) {
+            top_games_length = top_games_length - 1;
+
+            let bottom_game = vector::borrow(&top_games, 0);
+            leaderboard.min_tile = bottom_game.top_tile;
+            leaderboard.min_score = bottom_game.score;
+        };
+
+        let add_index = 0;
+        sui::test_utils::print(b"SAVE");
+        std::debug::print(&top_games);
+        while (add_index < top_games_length) {
+            let top_game = vector::pop_back(&mut top_games);
+            sui::test_utils::print(b"ADD");
+            std::debug::print(&add_index);
+            std::debug::print(&top_game.score);
+            table::add<u64, TopGame8192>(&mut leaderboard.top_games, add_index, top_game);
+            
+            add_index = add_index + 1;
+        };
+    }
+
+    public(friend) fun merge_sort_top_games(top_games: vector<TopGame8192>): vector<TopGame8192> {
+        let top_games_length = vector::length(&top_games);
+        if (top_games_length == 1) {
+            return top_games
+        };
+
+        let mid = top_games_length / 2;
+
+        let right = vector<TopGame8192>[];
         let index = 0;
-        while (index < table::length(&leaderboard.top_games)) {
-            let existing_game = top_game_at(leaderboard, index);
-            if (existing_game.game_id == top_game.game_id) {
-                if (index == 0) {
-                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, 0);
-                    table::add<u64, TopGame8192>(&mut leaderboard.top_games, 0, top_game);
-                    return
-                } else {
-                    table::remove<u64, TopGame8192>(&mut leaderboard.top_games, index);
-                };
-                
-                leader_index = index - 1;
-                
-                break
-            };
-
+        while (index < mid) {
+            vector::push_back(&mut right, vector::pop_back(&mut top_games));
             index = index + 1;
         };
 
-        let bottom_game = top_game_at(leaderboard, leader_index);
-
-        let add_at = leader_index + 1;
-        while (bottom_game.top_tile <= top_game.top_tile && bottom_game.score < top_game.score) {
-            let move_game = table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leader_index);
-            table::add<u64, TopGame8192>(&mut leaderboard.top_games, leader_index + 1, move_game);
-
-            add_at = leader_index;
-
-            if (leader_index == 0) break;
-
-            leader_index = leader_index - 1;
-            bottom_game = top_game_at(leaderboard, leader_index);
-        };
-
-        table::add<u64, TopGame8192>(&mut leaderboard.top_games, add_at, top_game);
-
-        let max_game_count = leaderboard.max_leaderboard_game_count;
-        if (table::length(&leaderboard.top_games) >= max_game_count) {
-            let bottom_game = table::borrow<u64, TopGame8192>(&mut leaderboard.top_games, max_game_count - 1);
-            leaderboard.min_tile = bottom_game.top_tile;
-            leaderboard.min_score = bottom_game.score;
-
-            if (table::length(&leaderboard.top_games) > max_game_count) {
-                table::remove<u64, TopGame8192>(&mut leaderboard.top_games, leaderboard.max_leaderboard_game_count);
-            }
-        }
+        let sorted_left = merge_sort_top_games(top_games);
+        let sorted_right = merge_sort_top_games(right);
+        merge(sorted_left, sorted_right)
     }
 
+    public(friend) fun merge(left: vector<TopGame8192>, right: vector<TopGame8192>): vector<TopGame8192> {
+        vector::reverse(&mut left);
+        vector::reverse(&mut right);
+
+        let result = vector<TopGame8192>[];
+        while (!vector::is_empty(&left) && !vector::is_empty(&right)) {
+            let left_item = vector::borrow(&left, 0);
+            let right_item = vector::borrow(&right, 0);
+
+            if (left_item.top_tile > right_item.top_tile) {
+                vector::push_back(&mut result, vector::pop_back(&mut left));
+            } else if (left_item.top_tile < right_item.top_tile) {
+                vector::push_back(&mut result, vector::pop_back(&mut right));
+            } else {
+                if (left_item.score > right_item.score) {
+                    vector::push_back(&mut result, vector::pop_back(&mut left));
+                } else {
+                    vector::push_back(&mut result, vector::pop_back(&mut right));
+                }
+            };
+        };
+
+        vector::reverse(&mut left);
+        vector::reverse(&mut right);
+        
+        vector::append(&mut result, left);
+        vector::append(&mut result, right);
+        result
+    }
     
 
     // TEST FUNCTIONS //
@@ -203,5 +236,19 @@ module ethos::leaderboard_8192 {
         };
 
         transfer::share_object(leaderboard)
+    }
+
+    #[test_only]
+    public fun top_game(scenario: &mut Scenario, leader_address: address, top_tile: u64, score: u64): TopGame8192 {
+        let ctx = test_scenario::ctx(scenario);
+        let object = object::new(ctx);
+        let game_id = object::uid_to_inner(&object);
+        sui::test_utils::destroy<sui::object::UID>(object);
+        TopGame8192 {
+            game_id,
+            leader_address,
+            top_tile,
+            score
+        }
     }
 }

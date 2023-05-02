@@ -1113,4 +1113,114 @@ module ethos::leaderboard_8192_tests {
 
         test_scenario::end(scenario);
     }
+
+    fun assert_sort(top_games: vector<leaderboard_8192::TopGame8192>, expected: vector<vector<u64>>) {
+        let sorted = leaderboard_8192::merge_sort_top_games(top_games);
+        assert_sorted(sorted, expected);
+    }
+
+    fun assert_merge(left: vector<leaderboard_8192::TopGame8192>, right: vector<leaderboard_8192::TopGame8192>, expected: vector<vector<u64>>) {
+        let merged = leaderboard_8192::merge(left, right);
+        assert_sorted(merged, expected);
+    }
+
+    fun assert_sorted(sorted: vector<leaderboard_8192::TopGame8192>, expected: vector<vector<u64>>) {
+        let sorted_length = vector::length(&sorted);
+        let expected_length = vector::length(&expected);
+        assert!(sorted_length == expected_length, sorted_length);
+
+        while (!vector::is_empty(&sorted)) {
+            let top_game = vector::pop_back(&mut sorted);
+            let expected_values = vector::pop_back(&mut expected);
+            let score = vector::pop_back(&mut expected_values);
+            let tile = vector::pop_back(&mut expected_values);
+            assert!(score == *leaderboard_8192::top_game_score(&top_game), score);
+            assert!(tile == *leaderboard_8192::top_game_top_tile(&top_game), tile);
+        }
+    }
+
+    #[test]
+    fun test_sort() {
+        let scenario = test_scenario::begin(PLAYER);
+
+        let top_games = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+        ];
+        assert_sort(top_games, vector[
+            vector[2, 500], 
+            vector[2, 200], 
+        ]);
+
+        let top_games = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
+        ];
+        assert_sort(top_games, vector[
+            vector[2, 500], 
+            vector[2, 400], 
+            vector[2, 200], 
+        ]);
+
+        // let top_games = vector<leaderboard_8192::TopGame8192>[
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 300),
+        // ];
+        // assert_sort(top_games, vector[
+        //     vector[2, 500], 
+        //     vector[2, 400], 
+        //     vector[2, 300], 
+        //     vector[2, 200], 
+        // ]);
+
+        // let top_games = vector<leaderboard_8192::TopGame8192>[
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 1, 200),
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 4, 300),
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
+        //     leaderboard_8192::top_game(&mut scenario, PLAYER, 3, 500),
+        // ];
+        // assert_sort(top_games, vector[
+        //     vector[4, 300], 
+        //     vector[3, 500], 
+        //     vector[2, 400], 
+        //     vector[1, 200], 
+        // ]);
+
+        test_scenario::end(scenario);
+    }
+
+    #[test]
+    fun test_merge() {
+        let scenario = test_scenario::begin(PLAYER);
+
+        let left = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
+        ];
+        let right = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+        ];
+        assert_merge(left, right, vector[
+            vector[2, 500], 
+            vector[2, 200], 
+        ]);
+
+        let left = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 200),
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 500),
+        ];
+        let right = vector<leaderboard_8192::TopGame8192>[
+            leaderboard_8192::top_game(&mut scenario, PLAYER, 2, 400),
+        ];
+        assert_merge(left, right, vector[
+            vector[2, 500], 
+            vector[2, 400], 
+            vector[2, 200], 
+        ]);
+
+        test_scenario::end(scenario);
+    }
+
 }
