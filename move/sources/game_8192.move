@@ -26,7 +26,7 @@ module ethos::game_8192 {
     #[test_only]
     friend ethos::leaderboard_8192_tests;
 
-    const DEFAULT_FEE: u64 = 100_000_000;
+    const DEFAULT_FEE: u64 = 200_000_000;
 
     const EInvalidPlayer: u64 = 0;
     const ENotMaintainer: u64 = 1;
@@ -104,15 +104,12 @@ module ethos::game_8192 {
             utf8(b"Ethos")
         ];
 
-        // Claim the `Publisher` for the package!
         let publisher = package::claim(otw, ctx);
 
-        // Get a new `Display` object for the `Hero` type.
         let display = display::new_with_fields<Game8192>(
             &publisher, keys, values, ctx
         );
 
-        // Commit first version of `Display` to apply changes.
         display::update_version(&mut display);
 
         let maintainer = create_maintainer(ctx);

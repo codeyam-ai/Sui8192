@@ -177,9 +177,9 @@ module.exports = {
   testnetContractAddress: "0xed9ebe0bba5ac978eeb6808c2d71a789dd97a760e43a33402761c27bd69a9284",
   testnetLeaderboardAddress: "0x4ff7969fd02ac43d414a794476aa7c6701952a1b6b0ff8b8a17451e10af81f2d",
   testnetMaintainerAddress: "0x1dff9c3642858921118c4f2d0581f17a8440b199aab7bf683e2556254151fc61",
-  devnetContractAddress: "0xe3043f6c76fba5b41d8b65bd8cb3af419ea2458e958ef407816a4b037a31a63c",
-  devnetLeaderboardAddress: "0x910f987bf823368e3af0cf01859586838811ccad663971f5d6740f6f55a45175",
-  devnetMaintainerAddress: "0xdf9ae28f9ab9240092bb1f0f7833809f40ecb2f691f28aabe141fc1ca6222bd0",
+  mainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
+  mainnetLeaderboardAddress: "0xa834ebce466a79a3e2136c05fadce0322318051e0609f208a5d42cc04e0a67a3",
+  mainnetMaintainerAddress: "0x1d6d6770b9929e9d8233b31348f035a2a552d8427ae07d6413d1f88939f3807f",
   tileNames: {
     1: "Air",
     2: "Mist",
@@ -202,13 +202,13 @@ const ReactDOM = require("react-dom/client");
 const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require("ethos-connect");
 
 const leaderboard = require("./leaderboard");
-const { 
-  devnetContractAddress,
-  devnetLeaderboardAddress,
+const {
+  mainnetContractAddress,
+  mainnetLeaderboardAddress,
+  mainnetMaintainerAddress,
   testnetContractAddress,
   testnetLeaderboardAddress,
-  testnetMaintainerAddress,
-  devnetMaintainerAddress,
+  testnetMaintainerAddress
 } = require("./constants");
 const {
   eById,
@@ -224,25 +224,24 @@ const queue = require("./queue");
 const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
-const { SUI_TYPE_ARG } = require("@mysten/sui.js");
 const { default: BigNumber } = require("bignumber.js");
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
-const DEVNET = "https://fullnode.devnet.sui.io/"
 const TESTNET = "https://fullnode.testnet.sui.io/"
+const MAINNET = "https://fullnode.mainnet.sui.io/"
 const LOCALNET_NETWORK_NAME = 'local';
-const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
+const MAINNET_NETWORK_NAME = 'mainNet';
 const LOCALNET_CHAIN = "sui:local";
-const DEVNET_CHAIN = "sui:devnet";
 const TESTNET_CHAIN = "sui:testnet";
+const MAINNET_CHAIN = "sui:mainnet";
 
-let contractAddress = testnetContractAddress;
-let leaderboardAddress = testnetLeaderboardAddress;
-let maintainerAddress = testnetMaintainerAddress;
-let networkName = TESTNET_NETWORK_NAME;
-let chain = TESTNET_CHAIN;
+let contractAddress = mainnetContractAddress;
+let leaderboardAddress = mainnetLeaderboardAddress;
+let maintainerAddress = mainnetMaintainerAddress;
+let networkName = MAINNET_NETWORK_NAME;
+let chain = MAINNET_CHAIN;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -250,7 +249,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = TESTNET;
+let network = MAINNET;
 let root;
 
 const int = (intString = "-1") => parseInt(intString);
@@ -279,23 +278,23 @@ const setNetwork = (newNetworkName) => {
     networkName = LOCALNET_NETWORK_NAME;
     network = LOCALNET;
     chain = LOCALNET_CHAIN;
-    contrcontractAddressact = devnetContractAddress;
-    leaderboardAddress = devnetLeaderboardAddress;
+    contractAddress = testnetContractAddress;
+    leaderboardAddress = testnetLeaderboardAddress;
+    maintainerAddress = testnetMaintainerAddress;
   } else if (newNetworkName === TESTNET_NETWORK_NAME) {
     networkName = TESTNET_NETWORK_NAME;
     network = TESTNET;
     chain = TESTNET_CHAIN;
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
-    leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
   } else {
-    networkName = DEVNET_NETWORK_NAME;
-    network = DEVNET;
-    chain = DEVNET_CHAIN;
-    contractAddress = devnetContractAddress;
-    leaderboardAddress = devnetLeaderboardAddress;
-    maintainerAddress = devnetMaintainerAddress;
+    networkName = MAINNET_NETWORK_NAME;
+    network = MAINNET;
+    chain = MAINNET_CHAIN;
+    contractAddress = mainnetContractAddress;
+    leaderboardAddress = mainnetLeaderboardAddress;
+    maintainerAddress = mainnetMaintainerAddress;
   }
 
   removeClass(eByClass('network-button'), 'selected');
@@ -306,11 +305,11 @@ const setNetwork = (newNetworkName) => {
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
+  const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
   
   setNetwork(initialNetwork, true);
 
-  setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
+  setOnClick(eByClass(MAINNET_NETWORK_NAME), () => setNetwork(MAINNET_NETWORK_NAME));
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
 }
 
@@ -429,6 +428,8 @@ function init() {
     children: "Sign In",
   });
 
+  console.log("NETWORK", network)
+
   const wrapper = React.createElement(EthosConnectProvider, {
     ethosConfiguration,
     onWalletConnected,
@@ -528,14 +529,16 @@ function showUnknownError(error) {
 }
 
 async function tryDrip(address, suiBalance) {
-  if (!walletSigner || faucetUsed) return;
-  const dripNetwork = LOCALNET
+  console.log("TRYDRip1")
+  if (!walletSigner || faucetUsed && network === TESTNET) return;
+  const dripNetwork = TESTNET
   faucetUsed = true;
 
   let success;
   
   try {
     success = await ethos.dripSui({ address, network: dripNetwork });
+    console.log("TRYDRip2")
   } catch (e) {
     console.log("Error with drip", e);
     faucetUsed = false;
@@ -860,7 +863,7 @@ const onWalletConnected = async ({ signer }) => {
 
           const transactionBlock = new TransactionBlock();
 
-          const fee = new BigNumber(100000000);
+          const fee = new BigNumber(200000000);
           const payment = transactionBlock.splitCoins(
             transactionBlock.gas,
             [transactionBlock.pure(fee)]
@@ -1059,7 +1062,7 @@ window.requestAnimationFrame(init);
 //   }
 // }
 
-},{"./board":1,"./confetti":2,"./constants":3,"./leaderboard":5,"./modal":6,"./moves":7,"./queue":8,"./utils":9,"@mysten/sui.js":23,"bignumber.js":57,"ethos-connect":64,"react":76,"react-dom/client":72}],5:[function(require,module,exports){
+},{"./board":1,"./confetti":2,"./constants":3,"./leaderboard":5,"./modal":6,"./moves":7,"./queue":8,"./utils":9,"bignumber.js":57,"ethos-connect":64,"react":76,"react-dom/client":72}],5:[function(require,module,exports){
 const { BCS } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");

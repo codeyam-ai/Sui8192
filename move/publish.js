@@ -8,8 +8,8 @@ if (!process.env.MNEMONIC) {
   process.exit(1);
 }
 
-const keypair = sdk.Ed25519Keypair.deriveKeypair(process.env.MNEMONIC);
-const provider = new sdk.JsonRpcProvider(new sdk.Connection({ fullnode: 'https://fullnode.testnet.sui.io/' }));
+const keypair = sdk.Ed25519Keypair.deriveKeypair(process.env.MNEMONIC, "m/44'/784'/1'/0'/0'");
+const provider = new sdk.JsonRpcProvider(new sdk.Connection({ fullnode: 'https://fullnode.mainnet.sui.io/' }));
 const signer = new sdk.RawSigner(keypair, provider);
 
 const { modules, dependencies } = JSON.parse(
