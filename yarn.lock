@@ -103,10 +103,10 @@
   dependencies:
     bs58 "^5.0.0"
 
-"@mysten/sui.js@0.0.0-experimental-20230426215038":
-  version "0.0.0-experimental-20230426215038"
-  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.0.0-experimental-20230426215038.tgz#43b1c74dcc9a488ead62ef842e5b3f8771a07d04"
-  integrity sha512-g3wqPGltOKaLh80ocjEhYGPpUThDCStKtE9HXAxaJYWO2dZFPB14nEZ/iYh1S7VQe2XcA1xjIiT3DEINCcBSsg==
+"@mysten/sui.js@0.33.0":
+  version "0.33.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.33.0.tgz#3ed0831d733fffb65430c3949fd00eaa7510e462"
+  integrity sha512-vPswzowPoxYmexN+jKrSQ5uKWv8AoX30c11t8VAODCCXeCziq7Y27TEcYFsQmWJBIMU/hYw75kGj9oorJyXyKw==
   dependencies:
     "@mysten/bcs" "0.7.1"
     "@noble/curves" "^1.0.0"
@@ -136,56 +136,56 @@
     superstruct "^1.0.3"
     tweetnacl "^1.0.3"
 
-"@mysten/wallet-adapter-all-wallets@0.0.0-experimental-20230426215038":
-  version "0.0.0-experimental-20230426215038"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-all-wallets/-/wallet-adapter-all-wallets-0.0.0-experimental-20230426215038.tgz#64ce22424717c79cca3e551668e029a14788ab60"
-  integrity sha512-mmVmWbgRGxtFcf4rPwZYHQR1HCUCgjMUHHow6cf+ly6L21SIpGbCDjJDs7xf4uCTXy36K6iW1OkIYYBd7DTdfw==
+"@mysten/wallet-adapter-all-wallets@0.5.5":
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-all-wallets/-/wallet-adapter-all-wallets-0.5.5.tgz#e697a0853cc1510bd930b28f9bd7f3e73f9478d2"
+  integrity sha512-vp0BgVE97qIwexLDPWs/E8kJaPcyeq/9YCXcp16xA7KLXePB+wmaUU+UNEBLUjw1CZMygg3ZipzBARVEENONuQ==
   dependencies:
-    "@mysten/wallet-adapter-unsafe-burner" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-adapter-wallet-standard" "0.0.0-experimental-20230426215038"
+    "@mysten/wallet-adapter-unsafe-burner" "0.8.5"
+    "@mysten/wallet-adapter-wallet-standard" "0.7.5"
 
-"@mysten/wallet-adapter-base@0.0.0-experimental-20230426215038":
-  version "0.0.0-experimental-20230426215038"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-base/-/wallet-adapter-base-0.0.0-experimental-20230426215038.tgz#67766de29dbdea3587de1014648245b6310f420e"
-  integrity sha512-etH28Prd/IETaduY43HnWMklWebHExJELijN0omjZzz2MVACjQVLrmG90a9hL3nvWwv5S+qdkWRNttFqXeedBg==
+"@mysten/wallet-adapter-base@0.7.5":
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-base/-/wallet-adapter-base-0.7.5.tgz#72bd2effd30b30a11122896beca562d2e3ae41e7"
+  integrity sha512-tgpxntWxj8gqQPKrehTqO0h8/BfIeHgPBDlYkzpn/JS8KJfwuK52bR4A4xQxPk9HGRivDNnHyF++HUN5FA3dRQ==
   dependencies:
-    "@mysten/sui.js" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-standard" "0.0.0-experimental-20230426215038"
+    "@mysten/sui.js" "0.33.0"
+    "@mysten/wallet-standard" "0.5.5"
 
-"@mysten/wallet-adapter-unsafe-burner@0.0.0-experimental-20230426215038":
-  version "0.0.0-experimental-20230426215038"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-unsafe-burner/-/wallet-adapter-unsafe-burner-0.0.0-experimental-20230426215038.tgz#a151a0a9344d4ff9f8b2f7a36ec68ceb7ea00abb"
-  integrity sha512-8DpxEoWHZSnSYcMRZqjWAhwwJ1CENA36qe7wrkK9p4Ds3Q6Ksk8QGHgWOIUuhdvdbnfTM7lFk4xiwzs8QUU27Q==
+"@mysten/wallet-adapter-unsafe-burner@0.8.5":
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-unsafe-burner/-/wallet-adapter-unsafe-burner-0.8.5.tgz#5014e2ee4fdcc1d7c8faf9a0a148b16d76f4df93"
+  integrity sha512-ONNel4qtp7swZgSv0PZ16GxVe7NQEPhMJjC74/2BeTRQQAWaaGSN71va1hUTUdS83Gp4zojwG1YgtC2ljUD+2Q==
   dependencies:
-    "@mysten/sui.js" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-adapter-base" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-standard" "0.0.0-experimental-20230426215038"
+    "@mysten/sui.js" "0.33.0"
+    "@mysten/wallet-adapter-base" "0.7.5"
+    "@mysten/wallet-standard" "0.5.5"
 
-"@mysten/wallet-adapter-wallet-standard@0.0.0-experimental-20230426215038":
-  version "0.0.0-experimental-20230426215038"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-wallet-standard/-/wallet-adapter-wallet-standard-0.0.0-experimental-20230426215038.tgz#635c64c6b3629e68580f62bcb8f4a1e467568372"
-  integrity sha512-XF9bdTgVHKbHeVPZr58Mk0LI1urQHA7RigZ/KLwDBnkqkpx9u6nNyzeE3aCu+FLhdv/wq6Wq6BVvZVrJznO4Pw==
+"@mysten/wallet-adapter-wallet-standard@0.7.5":
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-adapter-wallet-standard/-/wallet-adapter-wallet-standard-0.7.5.tgz#dc875cdf7c8822e15952bc190cd55e9e8ccb0835"
+  integrity sha512-mW8nf8xOVDP5iUAjQiXjihWbLeDc8tyZbkreblIWPpcuJeGD5v14IHrk1jw/2Je9h/GOVEFyi4bRJnw0snbQ4w==
   dependencies:
-    "@mysten/sui.js" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-adapter-base" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-standard" "0.0.0-experimental-20230426215038"
+    "@mysten/sui.js" "0.33.0"
+    "@mysten/wallet-adapter-base" "0.7.5"
+    "@mysten/wallet-standard" "0.5.5"
     mitt "^3.0.0"
 
-"@mysten/wallet-kit-core@0.0.0-experimental-20230426215038":
-  version "0.0.0-experimental-20230426215038"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-kit-core/-/wallet-kit-core-0.0.0-experimental-20230426215038.tgz#7f3d31982133516a5baf99ba72dda06ebc1e9ebe"
-  integrity sha512-Ojy9ndk8udl3xIEe60qPmMW2adxS0K2RcTMDuVWXXiJSV3V4jvT7D3dEdLi3O36vEtBpX7RBuapt2D1jrxtcVQ==
+"@mysten/wallet-kit-core@0.4.5":
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-kit-core/-/wallet-kit-core-0.4.5.tgz#b24952cfc8cfe4082507da12be61afe1596b6725"
+  integrity sha512-JDPOlZV9Mz1Q/q5fptOmyF27FKCzzsZyJlbIeFuHiMXJDy+pKbxPsEUnrlmjs/syTcuXfkR8RzQUOf9JCN8YiQ==
   dependencies:
-    "@mysten/sui.js" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-adapter-base" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-standard" "0.0.0-experimental-20230426215038"
+    "@mysten/sui.js" "0.33.0"
+    "@mysten/wallet-adapter-base" "0.7.5"
+    "@mysten/wallet-standard" "0.5.5"
 
-"@mysten/wallet-standard@0.0.0-experimental-20230426215038":
-  version "0.0.0-experimental-20230426215038"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.0.0-experimental-20230426215038.tgz#cb9908ce4f79807137bb31f886bb036b9a0067cd"
-  integrity sha512-9P/kRaWlShIIBt7sSi9OiF9klOZ/JCLqMtQzfcyjhMNigvc4hc9gcCnb/klsK6e0D6ht/8z42rvAN4TJWdU+7g==
+"@mysten/wallet-standard@0.5.5":
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.5.5.tgz#8788f92d4ffade95af1dad4ae77adbb1612a5ab9"
+  integrity sha512-Tt34zmvAWz37lOqwj0eneekcXRQSLWkd7FVKTta08H9bD5P5kAXNInpl7KBoobtdMSQdHJyJJvHirfM6hwiPDw==
   dependencies:
-    "@mysten/sui.js" "0.0.0-experimental-20230426215038"
+    "@mysten/sui.js" "0.33.0"
     "@wallet-standard/core" "1.0.3"
 
 "@noble/curves@^0.9.0":
@@ -1298,15 +1298,15 @@ esutils@^2.0.2:
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.3.tgz#74d2eb4de0b8da1293711910d50775b9b710ef64"
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
 
-ethos-connect@^0.0.149:
-  version "0.0.149"
-  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.149.tgz#c3b39743ef65b0ed8acb4c9374dcaa26024f086e"
-  integrity sha512-HRTPZTR8i+lk7QA/KPHmqIOX0Z7LnixfZ97FDX9JQBB1Fgo6EQDqMyY4Z52ktsWwckzS7Gw+JaS40pXacz7GZw==
+ethos-connect@^0.0.152:
+  version "0.0.152"
+  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.152.tgz#6d7e05db0896cafe83637d8e8f222b47b92a243a"
+  integrity sha512-A+ms6WoJqGj+BhMuvgdGEUxJpj16VWfHcOAH/5mDacVg4X4aXDJ4ixPBMBLiPqzG17/cfk5tTBIFf+3Hf2sKiw==
   dependencies:
-    "@mysten/sui.js" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-adapter-all-wallets" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-adapter-base" "0.0.0-experimental-20230426215038"
-    "@mysten/wallet-kit-core" "0.0.0-experimental-20230426215038"
+    "@mysten/sui.js" "0.33.0"
+    "@mysten/wallet-adapter-all-wallets" "0.5.5"
+    "@mysten/wallet-adapter-base" "0.7.5"
+    "@mysten/wallet-kit-core" "0.4.5"
     "@superstate/react" "^0.1.0"
     bignumber.js "^9.1.1"
     cross-fetch "^3.1.5"
