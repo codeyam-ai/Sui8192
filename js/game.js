@@ -30,7 +30,7 @@ const { default: BigNumber } = require("bignumber.js");
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
 const TESTNET = "https://fullnode.testnet.sui.io/"
-const MAINNET = "https://fullnode.devnet.sui.io/"
+const MAINNET = "https://fullnode.mainnet.sui.io/"
 const LOCALNET_NETWORK_NAME = 'local';
 const TESTNET_NETWORK_NAME = 'testNet';
 const MAINNET_NETWORK_NAME = 'mainNet';
@@ -330,8 +330,8 @@ function showUnknownError(error) {
 }
 
 async function tryDrip(address, suiBalance) {
-  if (!walletSigner || faucetUsed) return;
-  const dripNetwork = LOCALNET
+  if (!walletSigner || faucetUsed && network === TESTNET) return;
+  const dripNetwork = TESTNET
   faucetUsed = true;
 
   let success;
