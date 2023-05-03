@@ -229,8 +229,6 @@ function init() {
     children: "Sign In",
   });
 
-  console.log("NETWORK", network)
-
   const wrapper = React.createElement(EthosConnectProvider, {
     ethosConfiguration,
     onWalletConnected,
@@ -330,7 +328,7 @@ function showUnknownError(error) {
 }
 
 async function tryDrip(address, suiBalance) {
-  if (!walletSigner || faucetUsed && network === TESTNET) return;
+  if (!walletSigner || faucetUsed && network !== MAINNET) return;
   const dripNetwork = TESTNET
   faucetUsed = true;
 
