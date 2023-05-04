@@ -828,12 +828,6 @@ const initializeClicks = () => {
   setOnClick(eById("close-hosted"), () => {
     addClass(eById("hosted"), "hidden");
   });
-
-  setOnClick(eByClass("fix-leaderboard"), () => {
-    leaderboard.reset(network, chain, contractAddress, walletSigner, () => {
-      loadGames();
-    });
-  });
 };
 
 const onWalletConnected = async ({ signer }) => {
