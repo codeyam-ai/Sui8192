@@ -1,4 +1,3 @@
-const { BCS } = require('@mysten/bcs');
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");
 const {
@@ -18,8 +17,6 @@ const {
   spaceAt
 } = require('./board');
 
-const PAGE_COUNT = 25;
-
 let cachedLeaderboardAddress;
 let leaderboardObject;
 let _topGames;
@@ -29,43 +26,86 @@ let page = 1;
 let perPage = 25;
 
 const topGames = async (network, force) => {
-  const connection = new Connection({ fullnode: network })
-  const provider = new JsonRpcProvider(connection);
-
   if (_topGames && !force) return _topGames;
 
   if (!leaderboardObject) {
     await get(network);
   }
+
+  const gameIds = leaderboardObject.top_games.map((topGame) => topGame.fields.game_id)
+  _topGames = (await getObjects(network, gameIds)).map(
+    (gameObject, index) => {
+      if (!gameObject.data) {
+        return {
+          gameId: leaderboardObject.top_games[index].fields.game_id,
+          topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
+          score: parseInt(leaderboardObject.top_games[index].fields.score),
+          leaderAddress: leaderboardObject.top_games[index].fields.leader_address
+        }
+      } else {
+        const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
+        let topTile = 0;
+        for (let i=0; i<ROWS; ++i) {
+          for (let j=0; j<COLUMNS; ++j) {
+            const tile = spaceAt(packedSpaces, i, j);
+            if (topTile < tile) {
+              topTile = tile;
+            }
+          }
+        }
+
+        return {
+          gameId: gameObject.data.objectId,
+          topTile,
+          score: parseInt(gameObject.data.content.fields.score),
+          leaderAddress: gameObject.data.content.fields.player
+        }
+      }
+    }
+  ).sort(
+    (a, b) => {
+      if (a.top_tile === b.top_tile) {
+        return parseInt(b.score) - parseInt(a.score)
+      } else {
+        return parseInt(b.top_tile) - parseInt(a.top_tile)
+      }
+    }
+  )
   
-  return leaderboardObject.top_games;
+  return _topGames;
 }
 
-const getObject = async (network, id) => {
+const getObjects = async (network, ids) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
-    return provider.getObject({ id: id ?? cachedLeaderboardAddress, options: { showContent: true } });
+    if (!Array.isArray(ids)) ids = [ids ?? cachedLeaderboardAddress];
+    const objects = await provider.multiGetObjects({ 
+      ids, 
+      options: { showContent: true } 
+    });
+    return objects;
 };
 
 const get = async (network) => {
+    const objects = await getObjects(network);
     const {
         data: {
             content: { fields: leaderboard },
         },
-    } = await getObject(network);
+    } = objects[0];
     leaderboardObject = leaderboard;
     return leaderboard;
 };
 
 const getLeaderboardGame = async (network, gameObjectId) => {
-    const gameObject = await getObject(network, gameObjectId);
+    const gameObjects = await getObjects(network, gameObjectId);
     let {
         data: {
             content: {
                 fields: { active_board: activeBoard, move_count: moveCount, game_over: gameOver },
             },
         },
-    } = gameObject;
+    } = gameObjects[0];
 
     // const connection = new Connection({ fullnode: network })
     // const provider = new JsonRpcProvider(connection);
@@ -218,16 +258,8 @@ const loadNextPage = async (network) => {
     const games = await topGames(network);
     const pageMax = Math.min(games.length, currentMax);
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
-        const {
-            fields: {
-                score,
-                top_tile: topTileString,
-                leader_address: leaderAddress,
-                game_id: gameId,
-            },
-        } = games[i];
+        const { gameId, topTile, score, leaderAddress } = games[i];  
     
-        const topTile = parseInt(topTileString);
         const name = leaderAddress
         // const name = await ethos.getSuiName(leaderAddress);
 

@@ -456,11 +456,11 @@ async function loadGames() {
     let topGames = await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
-      (top_game) => top_game.fields.game_id === game.address
+      (top_game) => top_game.gameId === game.address
     );
     const leaderboardItem = topGames[leaderboardItemIndex];
     const leaderboardItemUpToDate =
-      int(leaderboardItem?.fields.score) === int(game.score) || (
+      int(leaderboardItem?.score) === int(game.score) || (
         int(game.topTile) <= int(leaderboard.minTile()) && 
         int(game.score) <= int(leaderboard.minScore())
       );
