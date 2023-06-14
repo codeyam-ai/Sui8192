@@ -252,9 +252,11 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     } else {
       games = await topGames(network, true);
     }
+
+    console.log("BEST", games)
     const best = eById("best");
     if (best) {
-      best.innerHTML = games[0]?.fields?.score || 0;
+      best.innerHTML = games[0]?.score || 0;
     }
     setOnClick(eById("more-leaderboard"), () => loadNextPage(network));
 

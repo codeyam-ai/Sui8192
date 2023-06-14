@@ -7,6 +7,7 @@ const {
   } = require('./board');
 
 const {
+    testnetContractAddress,
     mainnetContractAddress,
   } = require("./constants");
   
@@ -18,7 +19,7 @@ const contest = {
 
             const gameMoveEvents = await provider.queryEvents({
                 query: {
-                    MoveEventType: `${mainnetContractAddress}::game_8192::NewGameEvent8192`
+                    MoveEventType: `${testnetContractAddress}::game_8192::NewGameEvent8192`
                 },
                 order: "descending"
             })

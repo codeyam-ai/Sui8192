@@ -703,6 +703,10 @@ a:visited {
   overflow: hidden;
 }
 
+.message {
+  padding: 24px;
+}
+
 #container > #modal-overlay {
   position: fixed;
   top: 0;
@@ -773,7 +777,6 @@ a:visited {
 #signed-out,
 #mint-message {
   text-align: center;
-  padding: 12px 0;
 }
 
 .primary-button,

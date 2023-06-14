@@ -38,11 +38,11 @@ const LOCALNET_CHAIN = "sui:local";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
-let contractAddress = mainnetContractAddress;
-let leaderboardAddress = mainnetLeaderboardAddress;
-let maintainerAddress = mainnetMaintainerAddress;
-let networkName = MAINNET_NETWORK_NAME;
-let chain = MAINNET_CHAIN;
+let contractAddress = testnetContractAddress;
+let leaderboardAddress = testnetLeaderboardAddress;
+let maintainerAddress = testnetMaintainerAddress;
+let networkName = TESTNET_NETWORK_NAME;
+let chain = TESTNET_CHAIN;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -50,7 +50,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = MAINNET;
+let network = TESTNET;
 let root;
 
 const int = (intString = "-1") => parseInt(intString);
@@ -106,7 +106,7 @@ const setNetwork = (newNetworkName) => {
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
+  const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
   
   setNetwork(initialNetwork, true);
 
