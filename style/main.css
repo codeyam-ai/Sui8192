@@ -128,9 +128,9 @@ a:visited {
 }
 
 .header-title {
-  flex: 1;
   font-variant: small-caps;
   font-weight: 300;
+  width: 200px;
 }
 
 .header-title span {
@@ -138,7 +138,7 @@ a:visited {
 }
 
 .header-buttons {
-  flex: 1;
+  flex-grow: 1;
   display: flex;
   justify-content: center;
   gap: 30px;
@@ -154,8 +154,8 @@ a:visited {
 }
 
 .header-button.selected {
-  background-color: #f2f1f0;
-  color: #323541;
+  background-color: #4D8CF3;
+  color: white;
 }
 
 .network-buttons {
@@ -182,10 +182,10 @@ a:visited {
 }
 
 .header-address {
-  flex: 1;
   display: flex;
   justify-content: end;
   position: relative;
+  width: 270px;
 }
 
 #sui-address {
@@ -1321,13 +1321,34 @@ a:visited.link-button {
   margin: auto;
 }
 
-.contest .contest-buttons .contest-button {
-  border-radius: 24px;
-  background-color: #f2f1f0;
-  padding: 9px 12px;
+.contest-button {
+  display: flex; 
+  flex-direction: row; 
+  gap: 12px;
+  align-items: center;
+  height: 24px;
 }
- 
-.contest .contest-buttons .contest-button.selected {
-  background-color: #D6F1F6;
-  color: #323541;
+
+.contest-button div {
+  background-color: #D6E3F6;
+  color: #4D8CF3; 
+  border-radius:50%; 
+  padding: 3px 9px;
+}
+
+.contest-button.selected div {
+  background-color: white;
+  color: #4D8CF3;
+}
+
+.show-contest {
+  display: none;
+}
+
+.contest .hide-contest {
+  display: none;
+}
+
+.contest .show-contest {
+  display: block;
 }

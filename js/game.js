@@ -541,6 +541,7 @@ async function setActiveGame(game) {
   modal.close();
   addClass(eById("leaderboard"), "hidden");
   removeClass(eByClass("leaderboard-button"), "selected");
+  removeClass(eByClass("contest-button"), "selected");
   removeClass(eById("game"), "hidden");
   addClass(eByClass("play-button"), "selected");
 
@@ -559,8 +560,22 @@ function showLeaderboard() {
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
+  removeClass(eByClass("contest-button"), "selected");
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("leaderboard-button"), "selected");
+  removeClass(eById("leaderboard"), 'contest')
+}
+
+function showContest() {
+  setActiveGame(null);
+  leaderboard.load(network, leaderboardAddress);
+  loadGames();
+  addClass(eById("game"), "hidden");
+  removeClass(eByClass("play-button"), "selected");
+  removeClass(eByClass("leaderboard-button"), "selected");
+  removeClass(eById("leaderboard"), "hidden");
+  addClass(eByClass("contest-button"), "selected");
+  addClass(eById("leaderboard"), 'contest')
 }
 
 const initializeClicks = () => {
@@ -569,6 +584,7 @@ const initializeClicks = () => {
   });
   setOnClick(eById("sign-in"), ethos.showSignInModal);
   setOnClick(eByClass("leaderboard-button"), showLeaderboard);
+  setOnClick(eByClass("contest-button"), showContest);
   setOnClick(eByClass("title"), () => ethos.showWallet(walletSigner));
 
   setOnClick(eById("balance"), () => window.open(DASHBOARD_LINK));
@@ -729,7 +745,7 @@ const onWalletConnected = async ({ signer }) => {
       if (games.length === 1) {
         setActiveGame(games[0]);
       } else {
-        showLeaderboard();
+        showContest();
       }
     }
 

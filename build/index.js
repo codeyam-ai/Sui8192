@@ -812,6 +812,7 @@ async function setActiveGame(game) {
   modal.close();
   addClass(eById("leaderboard"), "hidden");
   removeClass(eByClass("leaderboard-button"), "selected");
+  removeClass(eByClass("contest-button"), "selected");
   removeClass(eById("game"), "hidden");
   addClass(eByClass("play-button"), "selected");
 
@@ -830,8 +831,22 @@ function showLeaderboard() {
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
+  removeClass(eByClass("contest-button"), "selected");
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("leaderboard-button"), "selected");
+  removeClass(eById("leaderboard"), 'contest')
+}
+
+function showContest() {
+  setActiveGame(null);
+  leaderboard.load(network, leaderboardAddress);
+  loadGames();
+  addClass(eById("game"), "hidden");
+  removeClass(eByClass("play-button"), "selected");
+  removeClass(eByClass("leaderboard-button"), "selected");
+  removeClass(eById("leaderboard"), "hidden");
+  addClass(eByClass("contest-button"), "selected");
+  addClass(eById("leaderboard"), 'contest')
 }
 
 const initializeClicks = () => {
@@ -840,6 +855,7 @@ const initializeClicks = () => {
   });
   setOnClick(eById("sign-in"), ethos.showSignInModal);
   setOnClick(eByClass("leaderboard-button"), showLeaderboard);
+  setOnClick(eByClass("contest-button"), showContest);
   setOnClick(eByClass("title"), () => ethos.showWallet(walletSigner));
 
   setOnClick(eById("balance"), () => window.open(DASHBOARD_LINK));
@@ -1000,7 +1016,7 @@ const onWalletConnected = async ({ signer }) => {
       if (games.length === 1) {
         setActiveGame(games[0]);
       } else {
-        showLeaderboard();
+        showContest();
       }
     }
 
@@ -1154,7 +1170,6 @@ let page = 1;
 let perPage = 25;
 
 const topGames = async (network, force) => {
-  console.log("TOP GAMES")
   if (_topGames && !force) return _topGames;
 
   if (!leaderboardObject) {
@@ -1396,7 +1411,7 @@ const loadNextPage = async (network, contestLeaderboard) => {
 
     const leaderboardList = eById("leaderboard-list");
     const currentMax = page * perPage;
-    
+
     let games;
     if (contestLeaderboard) {
       games = await contest.getLeaders(network);

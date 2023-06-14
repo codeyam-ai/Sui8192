@@ -27,7 +27,6 @@ let page = 1;
 let perPage = 25;
 
 const topGames = async (network, force) => {
-  console.log("TOP GAMES")
   if (_topGames && !force) return _topGames;
 
   if (!leaderboardObject) {
@@ -269,7 +268,7 @@ const loadNextPage = async (network, contestLeaderboard) => {
 
     const leaderboardList = eById("leaderboard-list");
     const currentMax = page * perPage;
-    
+
     let games;
     if (contestLeaderboard) {
       games = await contest.getLeaders(network);
