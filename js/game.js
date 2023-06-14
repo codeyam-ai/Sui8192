@@ -213,8 +213,7 @@ function init() {
   initializeNetwork();
   setActiveGameAddress();
 
-  leaderboard.load(network, leaderboardAddress);
-  leaderboard.loadContest(network);
+  leaderboard.load(network, leaderboardAddress, false, true);
 
   const ethosConfiguration = {
     chain,

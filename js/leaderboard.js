@@ -27,6 +27,7 @@ let page = 1;
 let perPage = 25;
 
 const topGames = async (network, force) => {
+  console.log("TOP GAMES")
   if (_topGames && !force) return _topGames;
 
   if (!leaderboardObject) {
@@ -224,7 +225,7 @@ const loadContest = async (network) => {
     console.log("LEADERS", leaders)
 }
 
-const load = async (network, leaderboardAddress, force = false) => {
+const load = async (network, leaderboardAddress, force = false, contestLeaderboard = true) => {
     cachedLeaderboardAddress = leaderboardAddress
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
@@ -246,24 +247,36 @@ const load = async (network, leaderboardAddress, force = false) => {
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
-    const games = await topGames(network, true);
+    let games;
+    if (contestLeaderboard) {
+      games = await contest.getLeaders(network);
+    } else {
+      games = await topGames(network, true);
+    }
     const best = eById("best");
     if (best) {
       best.innerHTML = games[0]?.fields?.score || 0;
     }
     setOnClick(eById("more-leaderboard"), () => loadNextPage(network));
 
-    await loadNextPage(network);
+    await loadNextPage(network, contestLeaderboard);
 };
 
-const loadNextPage = async (network) => {
+const loadNextPage = async (network, contestLeaderboard) => {
     if (loadingNextPage) return;
 
     loadingNextPage = true;
 
     const leaderboardList = eById("leaderboard-list");
     const currentMax = page * perPage;
-    const games = await topGames(network);
+    
+    let games;
+    if (contestLeaderboard) {
+      games = await contest.getLeaders(network);
+    } else {
+      games = await topGames(network, true);
+    }
+
     const pageMax = Math.min(games.length, currentMax);
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
         const { gameId, topTile, score, leaderAddress } = games[i];  
