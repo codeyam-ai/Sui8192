@@ -257,9 +257,10 @@ function handleResult(newBoard, direction) {
         topTile >= leaderboard.minTile() &&
         newBoard.score > leaderboard.minScore()
       ) {
-        modal.open("high-score", "container");
-      } else {
-        modal.open("top-tile", "container");
+        modal.open("climbing-leaderboard", "container");
+        // modal.open("high-score", "container");
+      // } else {
+      //   modal.open("top-tile", "container");
       }
     }, 1000);
   }
@@ -630,6 +631,11 @@ const initializeClicks = () => {
     leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
       loadGames();
     });
+  });
+
+  setOnClick(eById("modal-view-leaderboard"), () => {
+    modal.close();
+    showLeaderboard();
   });
 
   setOnClick(eByClass("keep-playing"), modal.close);
