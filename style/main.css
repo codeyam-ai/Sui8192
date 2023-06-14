@@ -694,12 +694,13 @@ a:visited {
   left: 0;
   right: 0;
 
-  width: 300px;
-  padding: 24px;
   background-color: white;
   color: black;
   border-radius: 30px;
   z-index: 2;
+
+  width: 390px;
+  overflow: hidden;
 }
 
 #container > #modal-overlay {
@@ -1378,4 +1379,43 @@ a:visited.link-button {
 
 .contest .show-contest {
   display: block;
+}
+
+#get-started-message {
+  background-color: #4D8CF2;
+  color: white;
+  padding: 0 12px 12px 12px;
+}
+
+#get-started-message .header {
+  padding-top: 12px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+#get-started-message .header div:first-child {
+  width: 24px;
+}
+
+#get-started-message .header .subtitle {
+  margin-bottom: 0;
+}
+
+
+#get-started-message .header .close {
+  border-radius: 100%;
+  height: 24px;
+  width: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  color: black;
+}
+
+#get-started-message .start-content {
+  padding: 12px;
 }
