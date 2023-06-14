@@ -16,6 +16,7 @@ const {
   COLUMNS,
   spaceAt
 } = require('./board');
+const contest = require('./contest');
 
 let cachedLeaderboardAddress;
 let leaderboardObject;
@@ -215,6 +216,13 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
     `;
     return completeHTML;
 };
+
+const loadContest = async (network) => {
+    const connection = new Connection({ fullnode: network })
+    const provider = new JsonRpcProvider(connection);
+    const leaders = await contest.getLeaders(provider);
+    console.log("LEADERS", leaders)
+}
 
 const load = async (network, leaderboardAddress, force = false) => {
     cachedLeaderboardAddress = leaderboardAddress
@@ -531,5 +539,6 @@ module.exports = {
     get,
     load,
     submit,
-    reset
+    reset,
+    loadContest
 };

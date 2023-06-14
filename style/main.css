@@ -176,7 +176,6 @@ a:visited {
   padding: 9px 12px;
 }
  
-
 .network-buttons .network-button.selected {
   background-color: #D6F1F6;
   color: #323541;
@@ -1298,4 +1297,37 @@ a:visited.link-button {
   .narrow {
     display: none !important;
   }
+}
+
+.contest {
+  padding-top: 24px;
+}
+
+.contest .contest-title {
+  font-weight: 300;
+}
+
+.contest .contest-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  border-radius: 24px;
+  text-align: center;
+  cursor: pointer;
+  color: #83808e;
+  background-color: #f2f1f0;
+  padding: 0;
+  width: 27em;
+  margin: auto;
+}
+
+.contest .contest-buttons .contest-button {
+  border-radius: 24px;
+  background-color: #f2f1f0;
+  padding: 9px 12px;
+}
+ 
+.contest .contest-buttons .contest-button.selected {
+  background-color: #D6F1F6;
+  color: #323541;
 }
