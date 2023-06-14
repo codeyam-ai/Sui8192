@@ -174,9 +174,9 @@ module.exports = {
 };
 },{"canvas-confetti":53}],3:[function(require,module,exports){
 module.exports = {
-  testnetContractAddress: "0x990570514ac706f0f33d87db6d0f12d3a98be00373836851363dee5fd70119f2",
-  testnetLeaderboardAddress: "0xe7b3d2b862cf5935526d8d39c04d5f5803f70070704ba7ddaddd6cb4ab61ef28",
-  testnetMaintainerAddress: "0x86942ec75d27f7caeabb94178a560c2819cd73a284405243b0aab13a15feb9b6",
+  testnetContractAddress: "0x8aa912921c2d1a856874057dd72c6a3d4e89d4b3c1db70be1420c82a36eaf787",
+  testnetLeaderboardAddress: "0xca2011390d3940b5325b0ca0536db824a9edb0be243e6541ddcd6fd275d9809e",
+  testnetMaintainerAddress: "0x49067c64a24b2bcd542df72c8075c26c5d1d60b5b20f79bab7b046be771c8ae8",
   mainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
   mainnetLeaderboardAddress: "0xa834ebce466a79a3e2136c05fadce0322318051e0609f208a5d42cc04e0a67a3",
   mainnetMaintainerAddress: "0x1d6d6770b9929e9d8233b31348f035a2a552d8427ae07d6413d1f88939f3807f",
