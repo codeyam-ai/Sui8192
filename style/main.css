@@ -117,6 +117,7 @@ a:visited {
 }
 
 .header {
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1291,7 +1292,7 @@ a:visited.link-button {
   }
 
   .modal {
-    width: 180px;
+    width: 100%;
   }
 
   .split-panel {
@@ -1305,6 +1306,22 @@ a:visited.link-button {
 
   .for-developers {
     width: 360px;
+  }
+
+  .leader-title {
+    display: block;
+  }
+
+  .games-title {
+    flex-direction: column;
+    justify-content: space-around;
+    height: 75px;
+  }
+
+  .leaderboard-board-tile {
+    width: 51px;
+    height: 51px;
+    font-size: 15px;
   }
 
   @keyframes merge {
