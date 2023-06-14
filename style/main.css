@@ -130,7 +130,12 @@ a:visited {
 .header-title {
   font-variant: small-caps;
   font-weight: 300;
-  width: 200px;
+  width: 270px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  gap: 6px;
 }
 
 .header-title span {
@@ -816,6 +821,28 @@ a:visited.link-button {
   border-bottom: 1px solid #e5e5e7;
   font-size: large;
   font-weight: 500;
+}
+
+.leader-title .title {
+  display: flex;
+  justify-content: start;
+  gap: 6px;
+  align-items: center;
+}
+
+.games-title .title {
+  display: flex;
+  justify-content: start;
+  gap: 6px;
+  align-items: center;
+}
+
+.games-title .new-game {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 6px;
+  align-items: center;
 }
 
 .potential-leaderboard-game {

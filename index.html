@@ -104,7 +104,8 @@
 
       <div class="header">
         <div class="header-title">
-          SUI <span>8192</span>
+          <img src="logo.png" style="width: 30px; height: 30px;" />
+          <div>SUI <span>8192</span></div>
         </div>
         <div class="header-buttons wide">
           <div class="play-button header-button selected">
@@ -117,7 +118,7 @@
           <div class="leaderboard-button header-button">
             Leaderboard
           </div>
-          <div class="network-buttons header-button">
+          <div class="network-buttons header-button" style="display: none;">
             <div class="mainNet network-button selected">
               Mainnet
             </div>
@@ -249,7 +250,7 @@
         <div class="leaderboard-button header-button">
           Leaderboard
         </div>
-        <div class="network-buttons header-button">
+        <div class="network-buttons header-button" style="display: none">
           <div class="mainNet network-button selected">
             Mainnet
           </div>
@@ -278,11 +279,12 @@
                 </p>
               </div>
               <div class="show-contest">
-                <h2 class="contest-title">The Contest</h2>
+                <h2 class="contest-title">Sui Summer: Sui 8192 Contest</h2>
                 <p>
+                  We (Ethos Wallet) are hosting a Sui8192 contest, sponsored by the Sui Foundation.
                   The contest is running from 
                   <b>July 1st, 2021</b> to <b>July 31st, 2021</b>.
-                  There will be 50 winners with a max prize of over 4,000 SUI!
+                  There will be <b>50 winners</b> with a max prize of over <b>4,000 SUI</b>!
                 </p>
                 <p>
                   See below for more details on prizes and rules.
@@ -293,7 +295,7 @@
           <div class="split-panel">
             <div class="panel">
               <div class="leader-title">
-                Leaderboard
+                <div class="title"><span class="show-contest">Contest</span> Leaderboard</div>
                 <span class="small">(click an item for details)</span>
               </div>
               <div id="loading-leaderboard" class="hidden">
@@ -320,8 +322,8 @@
             </div>
             <div class="panel">
               <div class="games-title">
-                Your Games
-                <button class="new-game">+ New Game</button>
+                <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
+                <button class="new-game">+ New <span class='show-contest'>Contest</span> Game</button>
               </div>
               <div id="signed-in" class="signed-in">
                 <div id="games-list"></div>
@@ -341,7 +343,7 @@
                   </svg>
                 </div>
               </div>
-              <div class="hide-contest">
+              <div class="show-contest">
                 <div class="games-title" style="margin-top: 48px;">
                   Contest Prizes
                 </div>
