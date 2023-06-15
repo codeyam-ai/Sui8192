@@ -1101,12 +1101,11 @@ const initializeEmailVerification = async (signer) => {
       removeClass(eById('verify-email-form'), 'hidden')
       setOnClick(eById('verify-email-button'), async () => {
         const email = eById('verify-email-input').value;
-        console.log("email", email)
         const { data, error } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: "http://localhost:3000",
-            // emailRedirectTo: 'https://sui8192.ethoswallet.xyz',
+            // emailRedirectTo: "http://localhost:3000",
+            emailRedirectTo: 'https://sui8192.ethoswallet.xyz',
           }
         });
         removeClass(eById('verify-email-response'), 'hidden')

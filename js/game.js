@@ -830,8 +830,8 @@ const initializeEmailVerification = async (signer) => {
         const { data, error } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: "http://localhost:3000",
-            // emailRedirectTo: 'https://sui8192.ethoswallet.xyz',
+            // emailRedirectTo: "http://localhost:3000",
+            emailRedirectTo: 'https://sui8192.ethoswallet.xyz',
           }
         });
         removeClass(eById('verify-email-response'), 'hidden')
