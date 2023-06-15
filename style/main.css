@@ -1492,3 +1492,14 @@ li:nth-child(even) {
   border-radius: 12px;
   padding: 12px;
 }
+
+.contest-banner {
+  padding: 30px;
+  background-color: #4D8CF3;
+  color: white;
+  text-align: center;
+  background-image: url("../8192_background_image.png");
+  background-position: bottom; 
+  background-repeat: no-repeat; 
+  background-size: cover; 
+}
