@@ -923,7 +923,7 @@ a:visited.link-button {
 .panel-section {
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
   padding: 12px;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
   border-radius: 6px;
 }
 
@@ -1389,7 +1389,7 @@ a:visited.link-button {
 .contest-button div {
   background-color: #D6E3F6;
   color: #4D8CF3; 
-  border-radius:50%; 
+  border-radius: 6px; 
   padding: 3px 9px;
 }
 
@@ -1449,7 +1449,7 @@ a:visited.link-button {
 }
 
 ul {
-  padding: 6px 24px;
+  padding: 6px 12px;
 }
 
 .prizes li {
@@ -1460,7 +1460,7 @@ ul {
 }
 
 li {
-  padding: 6px 0;
+  padding: 6px;
 }
 
 li:nth-child(even) {
