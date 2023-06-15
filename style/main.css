@@ -917,8 +917,14 @@ a:visited.link-button {
 }
 
 .panel {
-  width: 42%;
-  padding: 2%;
+  width: 46%;
+}
+
+.panel-section {
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  margin-bottom: 48px;
+  border-radius: 6px;
 }
 
 #leaderboard-list {
@@ -1297,6 +1303,7 @@ a:visited.link-button {
 
   .split-panel {
     flex-direction: column-reverse;
+    width: 90vw;
   }
 
   .panel {
@@ -1441,12 +1448,23 @@ a:visited.link-button {
   padding: 30px 12px 45px 12px;
 }
 
+ul {
+  padding: 6px 24px;
+}
+
 .prizes li {
-  width: 210px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+li {
+  padding: 6px 0;
+}
+
+li:nth-child(even) {
+  background-color: #F2F1F0;
 }
 
 #verify-section {

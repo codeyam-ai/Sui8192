@@ -314,7 +314,7 @@
             </div>
           </div>
           <div class="split-panel">
-            <div class="panel">
+            <div class="panel panel-section">
               <div class="leader-title">
                 <div class="title"><span class="show-contest">Contest</span> Leaderboard</div>
                 <span class="small">(click an item for details)</span>
@@ -342,58 +342,61 @@
               </div>
             </div>
             <div class="panel">
-              <div class="games-title">
-                <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
-                <button class="new-game">+ New <span class='show-contest'>Contest</span> Game</button>
-              </div>
-              
-              <div id="verify-section" class="signed-in show-contest hidden">
-                <div id="verify-email-message" class="hidden">
-                  You must verify your email to receive prizes:
-                  <span id="verify-email">Verify Email</span>
-                  <div style="font-size: small;">If you have already verified you can ignore this.</div>
+              <div class="panel-section">
+                <div class="games-title">
+                  <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
+                  <button class="new-game">+ New <span class='show-contest'>Contest</span> Game</button>
                 </div>
-                <div id="verify-email-form" class="hidden">
-                  <div>
-                    <input type="email" id="verify-email-input" placeholder="Email" />
-                    <button id="verify-email-button" class="primary-button">Send</button>
+                
+                <div id="verify-section" class="signed-in show-contest hidden">
+                  <div id="verify-email-message" class="hidden">
+                    You must verify your email to receive prizes:
+                    <span id="verify-email">Verify Email</span>
+                    <div style="font-size: small;">If you have already verified you can ignore this.</div>
                   </div>
-                  <div id="verify-email-response" class="hidden"></div>
+                  <div id="verify-email-form" class="hidden">
+                    <div>
+                      <input type="email" id="verify-email-input" placeholder="Email" />
+                      <button id="verify-email-button" class="primary-button">Send</button>
+                    </div>
+                    <div id="verify-email-response" class="hidden"></div>
+                  </div>
+                  <div id="verify-address-message" class="hidden">
+                    Hi <span id="verify-address-email"></span>, you must now verify your address:
+                    <span id="verify-address">Verify Address</span>
+                  </div>
+                  <div id="verified-message" class="hidden">
+                    Thank you! Your email and address have been verified.
+                    <span id="view-verification">View</span>
+                  </div>
+                  <div id="verification-review" class="hidden">
+                    <div id="verification-review-address"></div>
+                    <div id="verification-review-email"></div>
+                  </div>
                 </div>
-                <div id="verify-address-message" class="hidden">
-                  Hi <span id="verify-address-email"></span>, you must now verify your address:
-                  <span id="verify-address">Verify Address</span>
+
+                <div id="signed-in" class="signed-in">
+                  <div id="games-list"></div>
                 </div>
-                <div id="verified-message" class="hidden">
-                  Thank you! Your email and address have been verified.
-                  <span id="view-verification">View</span>
-                </div>
-                <div id="verification-review" class="hidden">
-                  <div id="verification-review-address"></div>
-                  <div id="verification-review-email"></div>
+                <div id="loading-games">  
+                  <div class="spinner">
+                    <div>
+                      Loading, Please Wait...
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
+                      <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
+                      <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
 
-              <div id="signed-in" class="signed-in">
-                <div id="games-list"></div>
-              </div>
-              <div id="loading-games">  
-                <div class="spinner">
-                  <div>
-                    Loading, Please Wait...
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
-                    <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
-                    <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
-                  </svg>
-                </div>
-              </div>
-              <div class="show-contest">
-                <div class="games-title" style="margin-top: 48px;">
+              <div class="panel-section show-contest">
+                <div class="games-title">
                   Contest Prizes
                 </div>
                 <div>
@@ -414,7 +417,9 @@
                     <li><b>50th - 100th Place:</b> 8 Sui</li>
                   </ul>
                 </div>
-                <div class="games-title" style="margin-top:48px;">
+              </div>
+              <div class="panel-section show-contest">
+                <div class="games-title">
                   Contest Rules
                 </div>
                 <div>
