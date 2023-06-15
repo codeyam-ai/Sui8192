@@ -1448,3 +1448,30 @@ a:visited.link-button {
   justify-content: space-between;
   align-items: center;
 }
+
+#verify-section {
+  padding: 12px;
+  background-color: #D6E3F6;
+  border-radius: 12px;
+  margin: 6px;
+}
+
+#verify-email, #verify-address, #view-verification {
+  text-decoration: underline;
+  color: #4D8CF3;
+  cursor: pointer;
+}
+
+#verify-email-form div {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+
+#verify-email-form input {
+  flex-grow: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+}

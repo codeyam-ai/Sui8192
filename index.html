@@ -346,10 +346,37 @@
                 <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
                 <button class="new-game">+ New <span class='show-contest'>Contest</span> Game</button>
               </div>
+              
+              <div id="verify-section" class="signed-in show-contest hidden">
+                <div id="verify-email-message" class="hidden">
+                  You must verify your email to receive prizes:
+                  <span id="verify-email">Verify Email</span>
+                </div>
+                <div id="verify-email-form" class="hidden">
+                  <div>
+                    <input type="email" id="verify-email-input" placeholder="Email" />
+                    <button id="verify-email-button" class="primary-button">Send</button>
+                  </div>
+                  <div id="verify-email-response" class="hidden"></div>
+                </div>
+                <div id="verify-address-message" class="hidden">
+                  Hi <span id="verify-address-email"></span>, you must now verify your address:
+                  <span id="verify-address">Verify Address</span>
+                </div>
+                <div id="verified-message" class="hidden">
+                  Thank you! Your email and address have been verified.
+                  <span id="view-verification">View</span>
+                </div>
+                <div id="verification-review" class="hidden">
+                  <div id="verification-review-address"></div>
+                  <div id="verification-review-email"></div>
+                </div>
+              </div>
+
               <div id="signed-in" class="signed-in">
                 <div id="games-list"></div>
               </div>
-              <div id="loading-games">
+              <div id="loading-games">  
                 <div class="spinner">
                   <div>
                     Loading, Please Wait...

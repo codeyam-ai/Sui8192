@@ -1,4 +1,5 @@
 const React = require("react");
+const { createClient } = require('@supabase/supabase-js');
 const ReactDOM = require("react-dom/client");
 const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require("ethos-connect");
 
@@ -9,7 +10,9 @@ const {
   mainnetMaintainerAddress,
   testnetContractAddress,
   testnetLeaderboardAddress,
-  testnetMaintainerAddress
+  testnetMaintainerAddress,
+  supabaseProject,
+  supabaseAnonKey
 } = require("./constants");
 const {
   eById,
@@ -611,6 +614,7 @@ const initializeClicks = () => {
   });
 
   setOnClick(eById("close-modal"), () => modal.close(true));
+  setOnClick(eByClass("close"), () => modal.close(true));
 
   setOnClick(eByClass("play-button"), () => {
     if (games && games.length > 0) {
@@ -656,6 +660,7 @@ const initializeClicks = () => {
 const onWalletConnected = async ({ signer }) => {
   walletSigner = signer;
   if (signer) {
+    initializeEmailVerification(signer);
     modal.close();
 
     addClass(document.body, "signed-in");
@@ -775,6 +780,70 @@ const onWalletConnected = async ({ signer }) => {
     addClass(eById("loading-games"), "hidden");
   }
 };
+
+const initializeEmailVerification = async (signer) => {
+  const supabase = createClient(`https://${supabaseProject}.supabase.co`, supabaseAnonKey)
+  const user = await supabase.auth.getUser()
+  
+  removeClass(eById('verify-section'), 'hidden')  
+
+  if (user?.data?.user) {
+    const { email } = user.data.user;
+
+    const verified = () => {
+      removeClass(eById('verified-message'), 'hidden') 
+      addClass(eById('verify-address-message'), 'hidden')
+      setOnClick(eById('view-verification'), () => {
+        if (eById('verification-review').classList.contains('hidden')) {
+          eById('verification-review-address').innerHTML = signer.currentAccount.address;
+          eById('verification-review-email').innerHTML = email;
+          removeClass(eById('verification-review'), 'hidden')
+        } else {
+          addClass(eById('verification-review'), 'hidden')
+        }
+      })
+    }
+    const { data, error }= await supabase.from('contest').select('*').eq('email', email).maybeSingle();
+    if (!error && !!data) {
+      verified()
+    } else {
+      eById('verify-address-email').innerHTML = email;
+      removeClass(eById('verify-address-message'), 'hidden') 
+      setOnClick(eById('verify-address'), async () => {
+        const address = signer.currentAccount.address;
+        const signature = await ethos.signMessage({
+          signer, 
+          message: `I verify that this address is associated with the email ${email}`
+        });
+        await supabase.from('contest').insert(
+          { email, address, signature }
+        )
+        verified()
+      });
+    }
+  } else {  
+    removeClass(eById('verify-email-message'), 'hidden')
+    setOnClick(eById('verify-email'), () => {
+      removeClass(eById('verify-email-form'), 'hidden')
+      setOnClick(eById('verify-email-button'), async () => {
+        const email = eById('verify-email-input').value;
+        const { data, error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: "http://localhost:3000",
+            // emailRedirectTo: 'https://sui8192.ethoswallet.xyz',
+          }
+        });
+        removeClass(eById('verify-email-response'), 'hidden')
+        if (error) {
+          eById('verify-email-response').innerHTML = error.message
+        } else {
+          eById('verify-email-response').innerHTML = "Email verification sent!"
+        }
+      });
+    });  
+  }
+}
 
 window.requestAnimationFrame(init);
 

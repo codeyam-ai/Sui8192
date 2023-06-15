@@ -8,10 +8,11 @@
   "dependencies": {
     "@mysten/bcs": "^0.6.1",
     "@mysten/sui.js": "^0.33.0",
+    "@supabase/supabase-js": "^2.25.0",
     "bignumber.js": "^9.1.0",
     "browserify": "^17.0.0",
     "canvas-confetti": "^1.5.1",
-    "ethos-connect": "^0.0.156",
+    "ethos-connect": "^0.0.175",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "static-server": "^2.2.1"

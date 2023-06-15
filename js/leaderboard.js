@@ -221,7 +221,6 @@ const loadContest = async (network) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
     const leaders = await contest.getLeaders(provider);
-    console.log("LEADERS", leaders)
 }
 
 const load = async (network, leaderboardAddress, force = false, contestLeaderboard = true) => {
@@ -253,7 +252,6 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
       games = await topGames(network, true);
     }
 
-    console.log("BEST", games)
     const best = eById("best");
     if (best) {
       best.innerHTML = games[0]?.score || 0;
