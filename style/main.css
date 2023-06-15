@@ -1017,6 +1017,13 @@ a:visited.link-button {
   display: flex;
   justify-content: end;
   align-items: center;
+  gap: 6px;
+}
+
+.leaderboard-name .chevron {
+  font-size: x-large;
+  font-weight: 100;
+  margin-top: -15px;
 }
 
 .leader-score {

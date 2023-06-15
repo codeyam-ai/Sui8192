@@ -1579,6 +1579,7 @@ const loadNextPage = async (network, contestLeaderboard) => {
         <div title='${leaderAddress}'>
           ${name === leaderAddress ? truncateMiddle(leaderAddress) : name}
         </div>
+        <div class='chevron'>⌄</div>
       </div>     
     `;
 
