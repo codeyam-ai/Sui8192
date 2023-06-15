@@ -14,10 +14,59 @@ const {
   
 const contest = {
     getLeaders: async (network) => {
-        const leaderboard = await fetch(
+        const connection = new Connection({ fullnode: network })
+        const provider = new JsonRpcProvider(connection);
+        
+        const response = await fetch(
             `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/${contestLeaderboardId}/leaderboard`
         )
-        console.log("leaderboard",  leaderboard)
+        
+        const leaderboard = await response.json();
+        const ids = leaderboard.games.map(g => g.gameId).slice(0, 50);
+        const suiObjects = await provider.multiGetObjects({ 
+          ids, 
+          options: { showContent: true } 
+        })
+        const leaderboardItems = suiObjects.map(
+          (gameObject, index) => {
+            if (!gameObject.data) {
+              return {
+                gameId: leaderboardObject.top_games[index].fields.game_id,
+                topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
+                score: parseInt(leaderboardObject.top_games[index].fields.score),
+                leaderAddress: leaderboardObject.top_games[index].fields.leader_address
+              }
+            } else {
+              const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
+              let topTile = 0;
+              for (let i=0; i<ROWS; ++i) {
+                for (let j=0; j<COLUMNS; ++j) {
+                  const tile = spaceAt(packedSpaces, i, j);
+                  if (topTile < tile) {
+                    topTile = tile;
+                  }
+                }
+              }
+      
+              return {
+                gameId: gameObject.data.objectId,
+                topTile,
+                score: parseInt(gameObject.data.content.fields.score),
+                leaderAddress: gameObject.data.content.fields.player
+              }
+            }
+          }
+        ).sort(
+          (a, b) => {
+            if (a.top_tile === b.top_tile) {
+              return parseInt(b.score) - parseInt(a.score)
+            } else {
+              return parseInt(b.top_tile) - parseInt(a.top_tile)
+            }
+          }
+        )
+
+        return leaderboardItems;
     }
 }
 

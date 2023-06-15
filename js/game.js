@@ -55,6 +55,7 @@ let contentsInterval;
 let faucetUsed = false;
 let network = TESTNET;
 let root;
+let leaderboardType = "contest"
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -216,7 +217,7 @@ function init() {
   initializeNetwork();
   setActiveGameAddress();
 
-  leaderboard.load(network, leaderboardAddress, false, true);
+  leaderboard.load(network, leaderboardAddress, false, leaderboardType == "contest");
 
   const ethosConfiguration = {
     chain,
@@ -560,7 +561,7 @@ async function setActiveGame(game) {
 
 function showLeaderboard() {
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress);
+  leaderboard.load(network, leaderboardAddress, true);
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -568,11 +569,12 @@ function showLeaderboard() {
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("leaderboard-button"), "selected");
   removeClass(eById("leaderboard"), 'contest')
+  leaderboardType = "normal"
 }
 
 function showContest() {
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress);
+  leaderboard.load(network, leaderboardAddress, true, true);
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -580,6 +582,7 @@ function showContest() {
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("contest-button"), "selected");
   addClass(eById("leaderboard"), 'contest')
+  leaderboardType = "contest"
 }
 
 const initializeClicks = () => {

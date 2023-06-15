@@ -197,6 +197,7 @@ module.exports = {
   },
   supabaseProject: "cqqcogxdhircwzdfcqet",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
+  contestLeaderboardId: 'f0ac2abd-e359-428c-8bba-732f94f43fc6'
 }
 },{}],4:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
@@ -210,67 +211,123 @@ const {
 const {
     testnetContractAddress,
     mainnetContractAddress,
+    contestLeaderboardId
   } = require("./constants");
   
 const contest = {
     getLeaders: async (network) => {
-        try {      
-            const connection = new Connection({ fullnode: network })
-            const provider = new JsonRpcProvider(connection);
-
-            const gameMoveEvents = await provider.queryEvents({
-                query: {
-                    MoveEventType: `${testnetContractAddress}::game_8192::NewGameEvent8192`
-                },
-                order: "descending"
-            })
-           
-            const ids = [];
-            for (const event of gameMoveEvents.data) {
-                ids.push(event.parsedJson.game_id);
-            }
-
-            const objects = await provider.multiGetObjects({ 
-                ids, 
-                options: { showContent: true } 
-            });
-
-            const leaderboardGames = objects.filter(o => !!o.data).map(
-                (gameObject) => {
-                    if (!gameObject.data) return {};
-
-                    const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
-                    let topTile = 0;
-                    for (let i=0; i<ROWS; ++i) {
-                        for (let j=0; j<COLUMNS; ++j) {
-                            const tile = spaceAt(packedSpaces, i, j);
-                            if (topTile < tile) {
-                            topTile = tile;
-                            }
-                        }
-                    }
+        const connection = new Connection({ fullnode: network })
+        const provider = new JsonRpcProvider(connection);
         
-                    return {
-                        gameId: gameObject.data.objectId,
-                        topTile,
-                        score: parseInt(gameObject.data.content.fields.score),
-                        leaderAddress: gameObject.data.content.fields.player
-                    }
+        const response = await fetch(
+            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/${contestLeaderboardId}/leaderboard`
+        )
+        
+        const leaderboard = await response.json();
+        const ids = leaderboard.games.map(g => g.gameId).slice(0, 50);
+        const suiObjects = await provider.multiGetObjects({ 
+          ids, 
+          options: { showContent: true } 
+        })
+        const leaderboardItems = suiObjects.map(
+          (gameObject, index) => {
+            if (!gameObject.data) {
+              return {
+                gameId: leaderboardObject.top_games[index].fields.game_id,
+                topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
+                score: parseInt(leaderboardObject.top_games[index].fields.score),
+                leaderAddress: leaderboardObject.top_games[index].fields.leader_address
+              }
+            } else {
+              const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
+              let topTile = 0;
+              for (let i=0; i<ROWS; ++i) {
+                for (let j=0; j<COLUMNS; ++j) {
+                  const tile = spaceAt(packedSpaces, i, j);
+                  if (topTile < tile) {
+                    topTile = tile;
+                  }
                 }
-            )
-             
-            return leaderboardGames.sort((a, b) => {
-                if (b.topTile > a.topTile) return 1;
-                if (b.topTile < a.topTile) return -1;
-                return b.score - a.score
-            });
-        } catch (e) {
-            console.error(e);
-        }
+              }
+      
+              return {
+                gameId: gameObject.data.objectId,
+                topTile,
+                score: parseInt(gameObject.data.content.fields.score),
+                leaderAddress: gameObject.data.content.fields.player
+              }
+            }
+          }
+        ).sort(
+          (a, b) => {
+            if (a.top_tile === b.top_tile) {
+              return parseInt(b.score) - parseInt(a.score)
+            } else {
+              return parseInt(b.top_tile) - parseInt(a.top_tile)
+            }
+          }
+        )
+
+        return leaderboardItems;
     }
 }
 
 module.exports = contest;
+
+
+// try {      
+//     const connection = new Connection({ fullnode: network })
+//     const provider = new JsonRpcProvider(connection);
+
+//     const gameMoveEvents = await provider.queryEvents({
+//         query: {
+//             MoveEventType: `${testnetContractAddress}::game_8192::NewGameEvent8192`
+//         },
+//         order: "descending"
+//     })
+   
+//     const ids = [];
+//     for (const event of gameMoveEvents.data) {
+//         ids.push(event.parsedJson.game_id);
+//     }
+
+//     const objects = await provider.multiGetObjects({ 
+//         ids, 
+//         options: { showContent: true } 
+//     });
+
+//     const leaderboardGames = objects.filter(o => !!o.data).map(
+//         (gameObject) => {
+//             if (!gameObject.data) return {};
+
+//             const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
+//             let topTile = 0;
+//             for (let i=0; i<ROWS; ++i) {
+//                 for (let j=0; j<COLUMNS; ++j) {
+//                     const tile = spaceAt(packedSpaces, i, j);
+//                     if (topTile < tile) {
+//                     topTile = tile;
+//                     }
+//                 }
+//             }
+
+//             return {
+//                 gameId: gameObject.data.objectId,
+//                 topTile,
+//                 score: parseInt(gameObject.data.content.fields.score),
+//                 leaderAddress: gameObject.data.content.fields.player
+//             }
+//         }
+//     )
+     
+//     return leaderboardGames.sort((a, b) => {
+//         if (b.topTile > a.topTile) return 1;
+//         if (b.topTile < a.topTile) return -1;
+//         return b.score - a.score
+//     });
+// } catch (e) {
+//     console.error(e);
+// }
 },{"./board":1,"./constants":3,"@mysten/sui.js":23}],5:[function(require,module,exports){
 const React = require("react");
 const { createClient } = require('@supabase/supabase-js');
@@ -329,6 +386,7 @@ let contentsInterval;
 let faucetUsed = false;
 let network = TESTNET;
 let root;
+let leaderboardType = "contest"
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -490,7 +548,7 @@ function init() {
   initializeNetwork();
   setActiveGameAddress();
 
-  leaderboard.load(network, leaderboardAddress, false, true);
+  leaderboard.load(network, leaderboardAddress, false, leaderboardType == "contest");
 
   const ethosConfiguration = {
     chain,
@@ -834,7 +892,7 @@ async function setActiveGame(game) {
 
 function showLeaderboard() {
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress);
+  leaderboard.load(network, leaderboardAddress, true);
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -842,11 +900,12 @@ function showLeaderboard() {
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("leaderboard-button"), "selected");
   removeClass(eById("leaderboard"), 'contest')
+  leaderboardType = "normal"
 }
 
 function showContest() {
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress);
+  leaderboard.load(network, leaderboardAddress, true, true);
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -854,6 +913,7 @@ function showContest() {
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("contest-button"), "selected");
   addClass(eById("leaderboard"), 'contest')
+  leaderboardType = "contest"
 }
 
 const initializeClicks = () => {
@@ -1439,13 +1499,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
     return completeHTML;
 };
 
-const loadContest = async (network) => {
-    const connection = new Connection({ fullnode: network })
-    const provider = new JsonRpcProvider(connection);
-    const leaders = await contest.getLeaders(provider);
-}
-
-const load = async (network, leaderboardAddress, force = false, contestLeaderboard = true) => {
+const load = async (network, leaderboardAddress, force = false, contestLeaderboard = false) => {
     cachedLeaderboardAddress = leaderboardAddress
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
@@ -1773,8 +1827,7 @@ module.exports = {
     get,
     load,
     submit,
-    reset,
-    loadContest
+    reset
 };
 
 },{"./board":1,"./constants":3,"./contest":4,"./utils":10,"@mysten/sui.js":23,"ethos-connect":109}],7:[function(require,module,exports){
