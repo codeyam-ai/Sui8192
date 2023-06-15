@@ -51,22 +51,21 @@
           <div id="get-started-message" class="message text-center hidden">
             <div class="header">
               <div></div>
-              <img src="contest-logo.png" alt="Sui8192 Logo" style="height: 30px;" />
+              <div style="font-size: small;">From June 20th - 27th, 2023</div>
               <div class="close">×</div>
             </div>
             <div class="start-content">
-              <h1>Sui Summer Contest</h1>
-              <p>
-                Ethos Wallet and the Sui Foundation are hosting the Sui Summer: Sui8192 Contest.
-                Every game you play between now and July 10th will be added to the leaderboard 
-                and could win prize money.
+              <img src="contest-logo.png" alt="Sui8192 Logo" style="height: 30px;" />
+              <h1 style="margin-top: 24px;">Sui Summer Contest</h1>
+              <p style="font-size: x-large; font-weight: 300; margin-bottom: 30px;">
+                100 winners & over 9,000 SUI in total prizes!
               </p>
-              <p>
-                Click on "Summer Contest" above for more details!
-              </p>
-              <button id='sign-in'>
+              <button id='sign-in' style="font-size: large; padding: 12px 24px;">
                 Get Started
               </button>
+              <div id="contest-learn-more" style="cursor: pointer; font-size: small; text-decoration: underline; margin-top: 30px;">
+                Learn More
+              </div>
             </div>
           </div>
           <div id="create-error-message" class="message text-center hidden">
@@ -125,8 +124,9 @@
 
       <div class="header">
         <div class="header-title">
-          <img src="logo.png" style="width: 30px; height: 30px;" />
-          <div>SUI <span>8192</span></div>
+          <!-- <img src="logo.png" style="width: 30px; height: 30px;" />
+          <div>SUI <span>8192</span></div> -->
+          <img src="logo-group.png" alt="Sui8192" style="height: 36px;" />
         </div>
         <div class="header-buttons wide">
           <div class="play-button header-button selected">
@@ -283,38 +283,41 @@
 
       <div id="leaderboard" class="hidden contest">
         <div class="vertical-container">
+          <div class="show-contest" style="text-align: center; width: 100%;">
+            <div class="contest-banner">
+              <img src="contest-logo.png" alt="Sui8192 Contest" style="height: 30px;" />
+              <div>
+                <h2 style="font-size: xx-large; font-weight: 500;">SUI8192 Summer Contest</h2>
+                <p style="font-size: large;">100 winners and over 9,000 SUI in prizes!</p>
+                <p style="font-size: small;">From June 20th - June 27th, 2023</p>
+              </div>
+            </div>
+            <p style="width: 450px; margin: auto; padding: 30px 0;">
+              Ethos Wallet and the Sui Foundation are hosting a Sui8192 summer contest.
+              See below for more details on prizes and rules.
+            </p>
+            
+            <h2 class="contest-title" style="font-size: x-large; margin-bottom: 0;">Competition Leaderboard</h2>
+          </div>
+
           <div class="content">
-            <div class="instructions">
-              <div class="hide-contest">
-                <p>
-                  SUI 8192 is a completely on-chain and extra challenging version of 
-                  the popular 2048 game built on 
-                  the <a href='https://sui.io' target="_blank">Sui</a> blockchain 
-                  by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a>.
-                </p>
-                <p class="highlight">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.4032 12.6523C17.353 12.1487 18 11.1499 18 10C18 8.85007 17.353 7.85126 16.4032 7.34771C16.7188 6.32002 16.47 5.15625 15.6569 4.34312C14.8437 3.53 13.68 3.28122 12.6523 3.59679C12.1487 2.64698 11.1499 2 10 2C8.85007 2 7.85125 2.64699 7.3477 3.59681C6.32002 3.28126 5.15627 3.53004 4.34315 4.34316C3.53003 5.15628 3.28125 6.32003 3.5968 7.34771C2.64699 7.85126 2 8.85007 2 10C2 11.1499 2.64699 12.1487 3.59681 12.6523C3.28124 13.68 3.53001 14.8437 4.34314 15.6569C5.15627 16.47 6.32003 16.7188 7.34771 16.4032C7.85126 17.353 8.85007 18 10 18C11.1499 18 12.1488 17.353 12.6523 16.4032C13.68 16.7187 14.8437 16.47 15.6569 15.6568C16.47 14.8437 16.7188 13.68 16.4032 12.6523ZM13.8566 8.19113C14.1002 7.85614 14.0261 7.38708 13.6911 7.14345C13.3561 6.89982 12.8871 6.97388 12.6434 7.30887L9.15969 12.099L7.28033 10.2197C6.98744 9.92678 6.51256 9.92678 6.21967 10.2197C5.92678 10.5126 5.92678 10.9874 6.21967 11.2803L8.71967 13.7803C8.87477 13.9354 9.08999 14.0149 9.30867 13.9977C9.52734 13.9805 9.72754 13.8685 9.85655 13.6911L13.8566 8.19113Z" fill="#45B7C8"/>
-                  </svg>
-                  Your achievements are<br class="narrow"> completely verifiable on-chain!
-                </p>
-              </div>
-              <div class="show-contest">
-                <h2 class="contest-title">Sui Summer: SUI 8192 Contest</h2>
-                <p>
-                  Ethos Wallet and the Sui Foundation are hosting a Sui8192 contest.
-                  The contest is running from 
-                  <b>July 1st, 2021</b> to <b>July 31st, 2021</b>.
-                  There will be <b>50 winners</b> with a max prize of over <b>4,000 SUI</b>!
-                </p>
-                <p>
-                  See below for more details on prizes and rules.
-                </p>
-              </div>
+            <div class="instructions hide-contest">
+              <p>
+                SUI 8192 is a completely on-chain and extra challenging version of 
+                the popular 2048 game built on 
+                the <a href='https://sui.io' target="_blank">Sui</a> blockchain 
+                by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a>.
+              </p>
+              <p class="highlight">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M16.4032 12.6523C17.353 12.1487 18 11.1499 18 10C18 8.85007 17.353 7.85126 16.4032 7.34771C16.7188 6.32002 16.47 5.15625 15.6569 4.34312C14.8437 3.53 13.68 3.28122 12.6523 3.59679C12.1487 2.64698 11.1499 2 10 2C8.85007 2 7.85125 2.64699 7.3477 3.59681C6.32002 3.28126 5.15627 3.53004 4.34315 4.34316C3.53003 5.15628 3.28125 6.32003 3.5968 7.34771C2.64699 7.85126 2 8.85007 2 10C2 11.1499 2.64699 12.1487 3.59681 12.6523C3.28124 13.68 3.53001 14.8437 4.34314 15.6569C5.15627 16.47 6.32003 16.7188 7.34771 16.4032C7.85126 17.353 8.85007 18 10 18C11.1499 18 12.1488 17.353 12.6523 16.4032C13.68 16.7187 14.8437 16.47 15.6569 15.6568C16.47 14.8437 16.7188 13.68 16.4032 12.6523ZM13.8566 8.19113C14.1002 7.85614 14.0261 7.38708 13.6911 7.14345C13.3561 6.89982 12.8871 6.97388 12.6434 7.30887L9.15969 12.099L7.28033 10.2197C6.98744 9.92678 6.51256 9.92678 6.21967 10.2197C5.92678 10.5126 5.92678 10.9874 6.21967 11.2803L8.71967 13.7803C8.87477 13.9354 9.08999 14.0149 9.30867 13.9977C9.52734 13.9805 9.72754 13.8685 9.85655 13.6911L13.8566 8.19113Z" fill="#45B7C8"/>
+                </svg>
+                Your achievements are<br class="narrow"> completely verifiable on-chain!
+              </p>
             </div>
           </div>
           <div class="split-panel">
-            <div class="panel">
+            <div class="panel panel-section">
               <div class="leader-title">
                 <div class="title"><span class="show-contest">Contest</span> Leaderboard</div>
                 <span class="small">(click an item for details)</span>
@@ -342,58 +345,64 @@
               </div>
             </div>
             <div class="panel">
-              <div class="games-title">
-                <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
-                <button class="new-game">+ New <span class='show-contest'>Contest</span> Game</button>
-              </div>
-              
-              <div id="verify-section" class="signed-in show-contest hidden">
-                <div id="verify-email-message" class="hidden">
-                  You must verify your email to receive prizes:
-                  <span id="verify-email">Verify Email</span>
-                  <div style="font-size: small;">If you have already verified you can ignore this.</div>
+              <div class="panel-section">
+                <div class="games-title">
+                  <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
+                  <button class="new-game signed-in">+ New Game</button>
                 </div>
-                <div id="verify-email-form" class="hidden">
-                  <div>
-                    <input type="email" id="verify-email-input" placeholder="Email" />
-                    <button id="verify-email-button" class="primary-button">Send</button>
+                <div class="signed-out" style="text-align: center; padding: 12px;">
+                  <button class="new-game">+ New Game</button>
+                </div>
+                
+                <div id="verify-section" class="signed-in show-contest hidden">
+                  <div id="verify-email-message" class="hidden">
+                    You must verify your email to receive prizes:
+                    <div id="verify-email">Verify Email</div>
+                    <div style="font-size: small;">If you have already verified you can ignore this.</div>
                   </div>
-                  <div id="verify-email-response" class="hidden"></div>
+                  <div id="verify-email-form" class="hidden">
+                    <div>
+                      <input type="email" id="verify-email-input" placeholder="Email" />
+                      <button id="verify-email-button" class="primary-button">Send</button>
+                    </div>
+                    <div id="verify-email-response" class="hidden"></div>
+                  </div>
+                  <div id="verify-address-message" class="hidden">
+                    Hi <span id="verify-address-email"></span>, you must now verify your address:
+                    <span id="verify-address">Verify Address</span>
+                  </div>
+                  <div id="verified-message" class="hidden">
+                    Thank you! Your email and address have been verified.
+                    <span id="view-verification">View</span>
+                  </div>
+                  <div id="verification-review" class="hidden">
+                    <div id="verification-review-address"></div>
+                    <div id="verification-review-email"></div>
+                  </div>
                 </div>
-                <div id="verify-address-message" class="hidden">
-                  Hi <span id="verify-address-email"></span>, you must now verify your address:
-                  <span id="verify-address">Verify Address</span>
+
+                <div id="signed-in" class="signed-in">
+                  <div id="games-list"></div>
                 </div>
-                <div id="verified-message" class="hidden">
-                  Thank you! Your email and address have been verified.
-                  <span id="view-verification">View</span>
-                </div>
-                <div id="verification-review" class="hidden">
-                  <div id="verification-review-address"></div>
-                  <div id="verification-review-email"></div>
+                <div id="loading-games">  
+                  <div class="spinner">
+                    <div>
+                      Loading, Please Wait...
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
+                      <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
+                      <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
 
-              <div id="signed-in" class="signed-in">
-                <div id="games-list"></div>
-              </div>
-              <div id="loading-games">  
-                <div class="spinner">
-                  <div>
-                    Loading, Please Wait...
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
-                    <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
-                    <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
-                  </svg>
-                </div>
-              </div>
-              <div class="show-contest">
-                <div class="games-title" style="margin-top: 48px;">
+              <div class="panel-section show-contest">
+                <div class="games-title">
                   Contest Prizes
                 </div>
                 <div>
@@ -408,21 +417,23 @@
                     <li><b>4th Place:</b> 512 Sui</li>
                     <li><b>5th Place:</b> 256 Sui</li>
                     <li><b>6th Place:</b> 128 Sui</li>
-                    <li><b>7th - 10th Place:</b> 64 Sui</li>
-                    <li><b>10th -25th Place:</b> 32 Sui</li>
-                    <li><b>25th - 50th Place:</b> 16 Sui</li>
+                    <li><b>7th - 9th Place:</b> 64 Sui</li>
+                    <li><b>10th -24th Place:</b> 32 Sui</li>
+                    <li><b>25th - 49th Place:</b> 16 Sui</li>
                     <li><b>50th - 100th Place:</b> 8 Sui</li>
                   </ul>
                 </div>
-                <div class="games-title" style="margin-top:48px;">
+              </div>
+              <div class="panel-section show-contest">
+                <div class="games-title">
                   Contest Rules
                 </div>
                 <div>
                   <p>The following are the rules of the Sui8192 contest, sponsored by the Sui Foundation:</p>
                   <ul>
                     <li>US residents are <b><i>not</i></b> eligible</li>
-                    <li>All games must be created after <b>July 1st, 2023</b> at <b>9am PST</b></li>
-                    <li>Leaderboard will be locked and contest will end at <b>9am PST</b> on <b>July 1st, 2023</b></li>
+                    <li>All games must be created after <b>June 20th, 2023</b> at <b>9am PST</b></li>
+                    <li>Leaderboard will be locked and contest will end at <b>9am PST</b> on <b>June 27th, 2023</b></li>
                     <li>Valid games will be displayed in your "Your Contest Games" section</li>
                     <li>All winners must provide a valid email and go through a KYC "Know Your Customer" process to receive winnings.</li>
                   </ul>

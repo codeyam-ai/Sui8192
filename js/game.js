@@ -589,6 +589,7 @@ const initializeClicks = () => {
   setOnClick(eById("sign-in"), ethos.showSignInModal);
   setOnClick(eByClass("leaderboard-button"), showLeaderboard);
   setOnClick(eByClass("contest-button"), showContest);
+  setOnClick(eById("contest-learn-more"), showContest);
   setOnClick(eByClass("title"), () => ethos.showWallet(walletSigner));
 
   setOnClick(eById("balance"), () => window.open(DASHBOARD_LINK));
