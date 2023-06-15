@@ -269,6 +269,22 @@ const contest = {
         )
 
         return leaderboardItems;
+    },
+
+    validIds: async (address) => {
+        const response = await fetch(
+            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/games?address=${address}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+
+        const validGames = await response.json();
+
+        return validGames.map((game) => game.gameId);
     }
 }
 
@@ -360,6 +376,7 @@ const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
 const { default: BigNumber } = require("bignumber.js");
+const contest = require('./contest');
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
@@ -744,8 +761,24 @@ async function loadGames() {
 
   addClass(loadGamesElement, "hidden");
 
+  let validIds;
+  if (leaderboardType === "contest") {
+    const { address } = walletSigner.currentAccount
+     validIds = await contest.validIds(address);
+  }
+
   games = walletContents.nfts
-    .filter((nft) => nft.packageObjectId === contractAddress)
+    .filter((nft) => {
+      if (nft.packageObjectId !== contractAddress) {
+        return false;
+      }
+
+      if (validIds && !validIds.includes(nft.objectId)) {
+        return false;
+      }
+
+      return true;
+    })
     .map((nft) => ({
       address: nft.address,
       board: nft.fields.active_board,
@@ -789,7 +822,9 @@ async function loadGames() {
     }
 
     const gameElement = document.createElement("DIV");
-    let topGames = await leaderboard.topGames(network, leaderboardAddress);
+    let topGames = leaderboardType === "contest" ? 
+      await contest.getLeaders(network) :
+      await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.gameId === game.address
@@ -826,7 +861,7 @@ async function loadGames() {
             leaderboardItemIndex + 1
           }</span>
         </div>
-        <button class='potential-leaderboard-game ${
+        <button class='hide-contest potential-leaderboard-game ${
           leaderboardItemUpToDate ? "hidden" : ""
         }' data-address='${game.address}'>
           ${leaderboardItem ? "Update" : "Add To"} Leaderboard
@@ -1279,7 +1314,7 @@ window.requestAnimationFrame(init);
 //   }
 // }
 
-},{"./board":1,"./confetti":2,"./constants":3,"./leaderboard":6,"./modal":7,"./moves":8,"./queue":9,"./utils":10,"@supabase/supabase-js":92,"bignumber.js":100,"ethos-connect":109,"react":121,"react-dom/client":117}],6:[function(require,module,exports){
+},{"./board":1,"./confetti":2,"./constants":3,"./contest":4,"./leaderboard":6,"./modal":7,"./moves":8,"./queue":9,"./utils":10,"@supabase/supabase-js":92,"bignumber.js":100,"ethos-connect":109,"react":121,"react-dom/client":117}],6:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");
 const {

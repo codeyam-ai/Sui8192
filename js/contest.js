@@ -67,6 +67,22 @@ const contest = {
         )
 
         return leaderboardItems;
+    },
+
+    validIds: async (address) => {
+        const response = await fetch(
+            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/games?address=${address}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+
+        const validGames = await response.json();
+
+        return validGames.map((game) => game.gameId);
     }
 }
 

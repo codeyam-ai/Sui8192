@@ -29,6 +29,7 @@ const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
 const { default: BigNumber } = require("bignumber.js");
+const contest = require('./contest');
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
@@ -413,8 +414,24 @@ async function loadGames() {
 
   addClass(loadGamesElement, "hidden");
 
+  let validIds;
+  if (leaderboardType === "contest") {
+    const { address } = walletSigner.currentAccount
+     validIds = await contest.validIds(address);
+  }
+
   games = walletContents.nfts
-    .filter((nft) => nft.packageObjectId === contractAddress)
+    .filter((nft) => {
+      if (nft.packageObjectId !== contractAddress) {
+        return false;
+      }
+
+      if (validIds && !validIds.includes(nft.objectId)) {
+        return false;
+      }
+
+      return true;
+    })
     .map((nft) => ({
       address: nft.address,
       board: nft.fields.active_board,
@@ -458,7 +475,9 @@ async function loadGames() {
     }
 
     const gameElement = document.createElement("DIV");
-    let topGames = await leaderboard.topGames(network, leaderboardAddress);
+    let topGames = leaderboardType === "contest" ? 
+      await contest.getLeaders(network) :
+      await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.gameId === game.address
@@ -495,7 +514,7 @@ async function loadGames() {
             leaderboardItemIndex + 1
           }</span>
         </div>
-        <button class='potential-leaderboard-game ${
+        <button class='hide-contest potential-leaderboard-game ${
           leaderboardItemUpToDate ? "hidden" : ""
         }' data-address='${game.address}'>
           ${leaderboardItem ? "Update" : "Add To"} Leaderboard
