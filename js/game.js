@@ -592,6 +592,17 @@ function showLeaderboard() {
 }
 
 function showContest() {
+  const countdown = contest.timeUntilStart();
+  if (countdown.seconds < 0) {
+    addClass(eById("countdown"), "hidden");
+    removeClass(eById("leaderboard-panel"), "hidden");
+  } else {
+    eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
+    eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
+    eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
+    eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
+  }
+  
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true, true);
   loadGames();

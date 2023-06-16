@@ -214,6 +214,9 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
+const startDate = new Date("2023-06-16T01:48:00.000Z");
+const endDate = new Date("2023-06-27T23:59:59.000Z");
+
 const contest = {
     getLeaders: async (network) => {
         const connection = new Connection({ fullnode: network })
@@ -285,6 +288,23 @@ const contest = {
         const validGames = await response.json();
 
         return validGames.map((game) => game.gameId);
+    },
+
+    timeUntilStart: () => {  
+        const _second = 1000;
+        const _minute = _second * 60;
+        const _hour = _minute * 60;
+        const _day = _hour * 24;
+
+        const now = new Date();
+        const distance = startDate - now;
+        
+        return {
+            days: Math.floor(distance / _day),
+            hours: Math.floor((distance % _day) / _hour),
+            minutes: Math.floor((distance % _hour) / _minute),
+            seconds: Math.floor((distance % _minute) / _second)
+        }
     }
 }
 
@@ -939,6 +959,17 @@ function showLeaderboard() {
 }
 
 function showContest() {
+  const countdown = contest.timeUntilStart();
+  if (countdown.seconds < 0) {
+    addClass(eById("countdown"), "hidden");
+    removeClass(eById("leaderboard-panel"), "hidden");
+  } else {
+    eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
+    eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
+    eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
+    eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
+  }
+  
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true, true);
   loadGames();

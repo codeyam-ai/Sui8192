@@ -1514,3 +1514,37 @@ li:nth-child(even) {
   background-position: left bottom, right bottom;
   background-repeat: no-repeat, no-repeat;
 }
+
+#countdown {
+  padding: 60px;
+  background-color: #2F41E2;
+  color: white;
+  height: 450px;
+}
+
+.countdown-values {
+  display: flex; 
+  flex-direction: row; 
+  justify-content: center;
+}
+
+.countdown-values div {
+  width: 102px;
+  text-align: center;
+}
+
+.countdown-values .colon div {
+  width: 30px;
+  text-align: center;
+  font-size: 60px;
+}
+
+.countdown-values .value {
+  font-size: 60px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.countdown-values .value:last-child {
+  padding-right: 30px;
+}
