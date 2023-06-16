@@ -57,7 +57,7 @@ let contentsInterval;
 let faucetUsed = false;
 let network = MAINNET;
 let root;
-let leaderboardType = "contest"
+let leaderboardType = "normal"
 let countdownTimeout;
 
 const int = (intString = "-1") => parseInt(intString);
@@ -809,7 +809,7 @@ const onWalletConnected = async ({ signer }) => {
 
     if (games.length === 0) {
       modal.close();
-      showLeaderboard();
+      showContest();
     } else {
       modal.close();
 
