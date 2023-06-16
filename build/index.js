@@ -214,7 +214,7 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
-const startDate = new Date("2023-06-16T10:52:30.000Z");
+const startDate = new Date("2023-06-20T16:00:00.000Z");
 const endDate = new Date("2023-06-27T15:59:59.000Z");
 
 const contest = {
@@ -815,6 +815,12 @@ async function loadGames() {
       if (b.gameOver) return -1;
       return scoreDiff;
     });
+
+  if (games.length > 0) {
+    addClass(eByClass('no-games'), 'hidden')
+  } else {
+    removeClass(eByClass('no-games'), 'hidden')
+  }
   
   if (activeGameAddress) {
     const activeGame = games.find((game) => game.address === activeGameAddress);
@@ -967,7 +973,7 @@ function showLeaderboard() {
 function trackCountdown() {
   clearTimeout(countdownTimeout);
   const countdown = contest.timeUntilStart();
-  if (countdown.seconds <= 0) {
+  if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
     addClass(eById("countdown"), "hidden");
     removeClass(eById("leaderboard-panel"), "hidden");
     removeClass(eByClass("contest-game"), "hidden")
