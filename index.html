@@ -57,7 +57,7 @@
             <div class="start-content">
               <img src="contest-logo.png" alt="Sui8192 Logo" style="height: 30px;" />
               <h1 style="margin-top: 24px; font-weight: 800;">Sui Summer Contest</h1>
-              <p style="font-size: x-large; font-weight: 400;">
+              <p style="font-size: x-large; font-weight: 400; line-height: normal;">
                 100 winners & over 9,000 SUI in total prizes!
               </p>
               <p style="font-size: small; margin-bottom: 30px;">* US residents are not eligible *</p>
@@ -391,10 +391,15 @@
               <div class="panel-section">
                 <div class="games-title">
                   <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
-                  <button class="new-game signed-in">+ New Game</button>
+                  <button class="new-game contest-game signed-in">+ New Game</button>
                 </div>
                 <div class="signed-out" style="text-align: center; padding: 12px;">
-                  <button class="new-game">+ New Game</button>
+                  <button class="new-game contest-game">+ New Game</button>
+                  <div class="show-contest">
+                    <div class="contest-pending">
+                      The contest has not yet started. Check back soon!
+                    </div>  
+                  </div>
                 </div>
                 
                 <div id="verify-section" class="signed-in show-contest hidden">

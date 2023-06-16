@@ -584,6 +584,8 @@ function showLeaderboard() {
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true);
   loadGames();
+  removeClass(eByClass("contest-game"), "hidden")
+  addClass(eByClass("contest-pending"), "hidden")
   addClass(eById("countdown"), "hidden");
   removeClass(eById("leaderboard-panel"), "hidden");
   addClass(eById("game"), "hidden");
@@ -598,10 +600,14 @@ function showLeaderboard() {
 function trackCountdown() {
   clearTimeout(countdownTimeout);
   const countdown = contest.timeUntilStart();
-  if (countdown.seconds < 0) {
+  if (countdown.seconds <= 0) {
     addClass(eById("countdown"), "hidden");
     removeClass(eById("leaderboard-panel"), "hidden");
+    removeClass(eByClass("contest-game"), "hidden")
+    addClass(eByClass("contest-pending"), "hidden")
   } else {
+    addClass(eByClass("contest-game"), "hidden")
+    removeClass(eByClass("contest-pending"), "hidden")
     removeClass(eById("countdown"), "hidden");
     addClass(eById("leaderboard-panel"), "hidden");
     eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;

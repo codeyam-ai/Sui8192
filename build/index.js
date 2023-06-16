@@ -214,8 +214,8 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
-const startDate = new Date("2023-06-16T01:58:00.000Z");
-const endDate = new Date("2023-06-27T23:59:59.000Z");
+const startDate = new Date("2023-06-16T10:52:30.000Z");
+const endDate = new Date("2023-06-27T15:59:59.000Z");
 
 const contest = {
     getLeaders: async (network) => {
@@ -951,6 +951,8 @@ function showLeaderboard() {
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true);
   loadGames();
+  removeClass(eByClass("contest-game"), "hidden")
+  addClass(eByClass("contest-pending"), "hidden")
   addClass(eById("countdown"), "hidden");
   removeClass(eById("leaderboard-panel"), "hidden");
   addClass(eById("game"), "hidden");
@@ -965,10 +967,14 @@ function showLeaderboard() {
 function trackCountdown() {
   clearTimeout(countdownTimeout);
   const countdown = contest.timeUntilStart();
-  if (countdown.seconds < 0) {
+  if (countdown.seconds <= 0) {
     addClass(eById("countdown"), "hidden");
     removeClass(eById("leaderboard-panel"), "hidden");
+    removeClass(eByClass("contest-game"), "hidden")
+    addClass(eByClass("contest-pending"), "hidden")
   } else {
+    addClass(eByClass("contest-game"), "hidden")
+    removeClass(eByClass("contest-pending"), "hidden")
     removeClass(eById("countdown"), "hidden");
     addClass(eById("leaderboard-panel"), "hidden");
     eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
