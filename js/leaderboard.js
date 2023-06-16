@@ -217,13 +217,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
     return completeHTML;
 };
 
-const loadContest = async (network) => {
-    const connection = new Connection({ fullnode: network })
-    const provider = new JsonRpcProvider(connection);
-    const leaders = await contest.getLeaders(provider);
-}
-
-const load = async (network, leaderboardAddress, force = false, contestLeaderboard = true) => {
+const load = async (network, leaderboardAddress, force = false, contestLeaderboard = false) => {
     cachedLeaderboardAddress = leaderboardAddress
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
@@ -303,6 +297,7 @@ const loadNextPage = async (network, contestLeaderboard) => {
         <div title='${leaderAddress}'>
           ${name === leaderAddress ? truncateMiddle(leaderAddress) : name}
         </div>
+        <div class='chevron'>⌄</div>
       </div>     
     `;
 
@@ -551,6 +546,5 @@ module.exports = {
     get,
     load,
     submit,
-    reset,
-    loadContest
+    reset
 };

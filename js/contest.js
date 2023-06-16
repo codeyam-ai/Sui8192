@@ -9,64 +9,156 @@ const {
 const {
     testnetContractAddress,
     mainnetContractAddress,
+    contestLeaderboardId
   } = require("./constants");
   
+const startDate = new Date("2023-06-20T16:00:00.000Z");
+const endDate = new Date("2023-06-27T15:59:59.000Z");
+
 const contest = {
     getLeaders: async (network) => {
-        try {      
-            const connection = new Connection({ fullnode: network })
-            const provider = new JsonRpcProvider(connection);
-
-            const gameMoveEvents = await provider.queryEvents({
-                query: {
-                    MoveEventType: `${testnetContractAddress}::game_8192::NewGameEvent8192`
-                },
-                order: "descending"
-            })
-           
-            const ids = [];
-            for (const event of gameMoveEvents.data) {
-                ids.push(event.parsedJson.game_id);
-            }
-
-            const objects = await provider.multiGetObjects({ 
-                ids, 
-                options: { showContent: true } 
-            });
-
-            const leaderboardGames = objects.filter(o => !!o.data).map(
-                (gameObject) => {
-                    if (!gameObject.data) return {};
-
-                    const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
-                    let topTile = 0;
-                    for (let i=0; i<ROWS; ++i) {
-                        for (let j=0; j<COLUMNS; ++j) {
-                            const tile = spaceAt(packedSpaces, i, j);
-                            if (topTile < tile) {
-                            topTile = tile;
-                            }
-                        }
-                    }
+        const connection = new Connection({ fullnode: network })
+        const provider = new JsonRpcProvider(connection);
         
-                    return {
-                        gameId: gameObject.data.objectId,
-                        topTile,
-                        score: parseInt(gameObject.data.content.fields.score),
-                        leaderAddress: gameObject.data.content.fields.player
-                    }
+        const response = await fetch(
+            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/${contestLeaderboardId}/leaderboard`
+        )
+        
+        const leaderboard = await response.json();
+        const ids = leaderboard.games.map(g => g.gameId).slice(0, 50);
+        const suiObjects = await provider.multiGetObjects({ 
+          ids, 
+          options: { showContent: true } 
+        })
+        const leaderboardItems = suiObjects.map(
+          (gameObject, index) => {
+            if (!gameObject.data) {
+              return {
+                gameId: leaderboardObject.top_games[index].fields.game_id,
+                topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
+                score: parseInt(leaderboardObject.top_games[index].fields.score),
+                leaderAddress: leaderboardObject.top_games[index].fields.leader_address
+              }
+            } else {
+              const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
+              let topTile = 0;
+              for (let i=0; i<ROWS; ++i) {
+                for (let j=0; j<COLUMNS; ++j) {
+                  const tile = spaceAt(packedSpaces, i, j);
+                  if (topTile < tile) {
+                    topTile = tile;
+                  }
                 }
-            )
-             
-            return leaderboardGames.sort((a, b) => {
-                if (b.topTile > a.topTile) return 1;
-                if (b.topTile < a.topTile) return -1;
-                return b.score - a.score
-            });
-        } catch (e) {
-            console.error(e);
+              }
+      
+              return {
+                gameId: gameObject.data.objectId,
+                topTile,
+                score: parseInt(gameObject.data.content.fields.score),
+                leaderAddress: gameObject.data.content.fields.player
+              }
+            }
+          }
+        ).sort(
+          (a, b) => {
+            if (a.top_tile === b.top_tile) {
+              return parseInt(b.score) - parseInt(a.score)
+            } else {
+              return parseInt(b.top_tile) - parseInt(a.top_tile)
+            }
+          }
+        )
+
+        return leaderboardItems;
+    },
+
+    validIds: async (address) => {
+        const response = await fetch(
+            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/games?address=${address}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+
+        const validGames = await response.json();
+
+        return validGames.map((game) => game.gameId);
+    },
+
+    timeUntilStart: () => {  
+        const _second = 1000;
+        const _minute = _second * 60;
+        const _hour = _minute * 60;
+        const _day = _hour * 24;
+
+        const now = new Date();
+        const distance = startDate - now;
+        
+        return {
+            days: Math.floor(distance / _day),
+            hours: Math.floor((distance % _day) / _hour),
+            minutes: Math.floor((distance % _hour) / _minute),
+            seconds: Math.floor((distance % _minute) / _second)
         }
     }
 }
 
 module.exports = contest;
+
+
+// try {      
+//     const connection = new Connection({ fullnode: network })
+//     const provider = new JsonRpcProvider(connection);
+
+//     const gameMoveEvents = await provider.queryEvents({
+//         query: {
+//             MoveEventType: `${testnetContractAddress}::game_8192::NewGameEvent8192`
+//         },
+//         order: "descending"
+//     })
+   
+//     const ids = [];
+//     for (const event of gameMoveEvents.data) {
+//         ids.push(event.parsedJson.game_id);
+//     }
+
+//     const objects = await provider.multiGetObjects({ 
+//         ids, 
+//         options: { showContent: true } 
+//     });
+
+//     const leaderboardGames = objects.filter(o => !!o.data).map(
+//         (gameObject) => {
+//             if (!gameObject.data) return {};
+
+//             const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
+//             let topTile = 0;
+//             for (let i=0; i<ROWS; ++i) {
+//                 for (let j=0; j<COLUMNS; ++j) {
+//                     const tile = spaceAt(packedSpaces, i, j);
+//                     if (topTile < tile) {
+//                     topTile = tile;
+//                     }
+//                 }
+//             }
+
+//             return {
+//                 gameId: gameObject.data.objectId,
+//                 topTile,
+//                 score: parseInt(gameObject.data.content.fields.score),
+//                 leaderAddress: gameObject.data.content.fields.player
+//             }
+//         }
+//     )
+     
+//     return leaderboardGames.sort((a, b) => {
+//         if (b.topTile > a.topTile) return 1;
+//         if (b.topTile < a.topTile) return -1;
+//         return b.score - a.score
+//     });
+// } catch (e) {
+//     console.error(e);
+// }

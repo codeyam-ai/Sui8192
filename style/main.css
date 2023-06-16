@@ -1017,6 +1017,13 @@ a:visited.link-button {
   display: flex;
   justify-content: end;
   align-items: center;
+  gap: 6px;
+}
+
+.leaderboard-name .chevron {
+  font-size: x-large;
+  font-weight: 100;
+  margin-top: -15px;
 }
 
 .leader-score {
@@ -1270,96 +1277,6 @@ a:visited.link-button {
   line-height: 16px;
 }
 
-@media only screen and (max-width: 600px) {
-  .wide {
-    display: none !important;
-  }
-  
-  .header {
-    padding: 0;
-  }
-
-  .header-buttons {
-    padding-top: 24px;
-    gap: 12px;
-  }
-
-  .content {
-    width: 96%;
-    margin: auto;
-  }
-
-  .tile,
-  .tile-result,
-  .tile-wrapper {
-    width: 60px;
-    height: 60px;
-    font-size: small;
-  }
-
-  .value {
-    font-size: medium;
-  }
-
-  .modal {
-    width: 100%;
-  }
-
-  .split-panel {
-    flex-direction: column-reverse;
-    width: 90vw;
-  }
-
-  .panel {
-    width: 100%;
-    margin-bottom: 30px;
-  }
-
-  .for-developers {
-    width: 360px;
-  }
-
-  .leader-title {
-    display: block;
-  }
-
-  .games-title {
-    flex-direction: column;
-    justify-content: space-around;
-    height: 75px;
-  }
-
-  .leaderboard-board-tile {
-    width: 51px;
-    height: 51px;
-    font-size: 15px;
-  }
-
-  @keyframes merge {
-    40% {
-      width: 70px;
-      height: 70px;
-      margin: -2px;
-    }
-    75% {
-      width: 50px;
-      height: 50px;
-      margin: 5px;
-    }
-    100% {
-      width: 60px;
-      height: 60px;
-      margin: 0;
-    }
-  }
-}
-
-@media only screen and (min-width: 600px) {
-  .narrow {
-    display: none !important;
-  }
-}
-
 .contest {
   padding-top: 12px;
 }
@@ -1506,4 +1423,168 @@ li:nth-child(even) {
   background-image: url("../8192_background_image_left.png"), url("../8192_background_image_right.png");
   background-position: left bottom, right bottom;
   background-repeat: no-repeat, no-repeat;
+}
+
+.contest-text {
+  width: 450px; 
+  margin: auto; 
+  padding: 30px 0;
+}
+
+#countdown {
+  padding: 60px;
+  background-color: #2F41E2;
+  color: white;
+  height: 450px;
+}
+
+.countdown-values {
+  display: flex; 
+  flex-direction: row; 
+  justify-content: center;
+}
+
+.countdown-values div {
+  width: 102px;
+  text-align: center;
+}
+
+.countdown-values .colon div {
+  width: 30px;
+  text-align: center;
+  font-size: 60px;
+}
+
+.countdown-values .value {
+  font-size: 60px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.countdown-values .value:last-child {
+  padding-right: 30px;
+}
+
+@media only screen and (max-width: 1300px) {
+  .split-panel {
+    width: 90vw;
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .split-panel {
+    width: 96vw;
+  }
+}
+
+@media only screen and (max-width: 950px) {
+  .wide {
+    display: none !important;
+  }
+  
+  .header {
+    padding: 0;
+  }
+
+  .header-buttons {
+    padding-top: 24px;
+    gap: 12px;
+  }
+
+  .content {
+    width: 96%;
+    margin: auto;
+  }
+
+  .tile,
+  .tile-result,
+  .tile-wrapper {
+    width: 60px;
+    height: 60px;
+    font-size: small;
+  }
+
+  .value {
+    font-size: medium;
+  }
+
+  .modal {
+    width: 100%;
+  }
+
+  .split-panel {
+    flex-direction: column-reverse;
+    width: 90vw;
+  }
+
+  .panel {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+
+  .for-developers {
+    width: 360px;
+  }
+
+  .leader-title {
+    display: block;
+  }
+
+  .games-title {
+    flex-direction: column;
+    justify-content: space-around;
+    height: 75px;
+  }
+
+  .leaderboard-board-tile {
+    width: 51px;
+    height: 51px;
+    font-size: 15px;
+  }
+
+  .contest-text {
+    width: auto;
+  }
+
+  #countdown {
+    padding: 0;
+    height: 510px;
+  }
+
+  #countdown h1 {
+    line-height: normal;
+  }
+    
+  .countdown-values div {
+    width: 66px;
+    text-align: center;
+  }
+
+  .countdown-values .value {
+    font-size: 45px;
+  }
+
+  @keyframes merge {
+    40% {
+      width: 70px;
+      height: 70px;
+      margin: -2px;
+    }
+    75% {
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+    }
+    100% {
+      width: 60px;
+      height: 60px;
+      margin: 0;
+    }
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .narrow {
+    display: none !important;
+  }
 }

@@ -29,11 +29,13 @@ const board = require("./board");
 const moves = require("./moves");
 const confetti = require("./confetti");
 const { default: BigNumber } = require("bignumber.js");
+const contest = require('./contest');
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
 const TESTNET = "https://fullnode.testnet.sui.io/"
 const MAINNET = "https://fullnode.mainnet.sui.io/"
+// const MAINNET = "https://sui.ethoswallet.xyz/sui"
 const LOCALNET_NETWORK_NAME = 'local';
 const TESTNET_NETWORK_NAME = 'testNet';
 const MAINNET_NETWORK_NAME = 'mainNet';
@@ -41,11 +43,11 @@ const LOCALNET_CHAIN = "sui:local";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
-let contractAddress = testnetContractAddress;
-let leaderboardAddress = testnetLeaderboardAddress;
-let maintainerAddress = testnetMaintainerAddress;
-let networkName = TESTNET_NETWORK_NAME;
-let chain = TESTNET_CHAIN;
+let contractAddress = mainnetContractAddress;
+let leaderboardAddress = mainnetLeaderboardAddress;
+let maintainerAddress = mainnetMaintainerAddress;
+let networkName = MAINNET_NETWORK_NAME;
+let chain = MAINNET_CHAIN;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -53,8 +55,10 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = TESTNET;
+let network = MAINNET;
 let root;
+let leaderboardType = "contest"
+let countdownTimeout;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -109,7 +113,7 @@ const setNetwork = (newNetworkName) => {
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
+  const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
   
   setNetwork(initialNetwork, true);
 
@@ -216,7 +220,7 @@ function init() {
   initializeNetwork();
   setActiveGameAddress();
 
-  leaderboard.load(network, leaderboardAddress, false, true);
+  leaderboard.load(network, leaderboardAddress, false, leaderboardType === "contest");
 
   const ethosConfiguration = {
     chain,
@@ -412,8 +416,24 @@ async function loadGames() {
 
   addClass(loadGamesElement, "hidden");
 
+  let validIds;
+  if (leaderboardType === "contest") {
+    const { address } = walletSigner.currentAccount
+     validIds = await contest.validIds(address);
+  }
+
   games = walletContents.nfts
-    .filter((nft) => nft.packageObjectId === contractAddress)
+    .filter((nft) => {
+      if (nft.packageObjectId !== contractAddress) {
+        return false;
+      }
+
+      if (validIds && !validIds.includes(nft.objectId)) {
+        return false;
+      }
+
+      return true;
+    })
     .map((nft) => ({
       address: nft.address,
       board: nft.fields.active_board,
@@ -429,6 +449,12 @@ async function loadGames() {
       if (b.gameOver) return -1;
       return scoreDiff;
     });
+
+  if (games.length > 0) {
+    addClass(eByClass('no-games'), 'hidden')
+  } else {
+    removeClass(eByClass('no-games'), 'hidden')
+  }
   
   if (activeGameAddress) {
     const activeGame = games.find((game) => game.address === activeGameAddress);
@@ -457,7 +483,9 @@ async function loadGames() {
     }
 
     const gameElement = document.createElement("DIV");
-    let topGames = await leaderboard.topGames(network, leaderboardAddress);
+    let topGames = leaderboardType === "contest" ? 
+      await contest.getLeaders(network) :
+      await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.gameId === game.address
@@ -494,7 +522,7 @@ async function loadGames() {
             leaderboardItemIndex + 1
           }</span>
         </div>
-        <button class='potential-leaderboard-game ${
+        <button class='hide-contest potential-leaderboard-game ${
           leaderboardItemUpToDate ? "hidden" : ""
         }' data-address='${game.address}'>
           ${leaderboardItem ? "Update" : "Add To"} Leaderboard
@@ -559,20 +587,49 @@ async function setActiveGame(game) {
 }
 
 function showLeaderboard() {
+  clearTimeout(countdownTimeout);
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress);
+  leaderboard.load(network, leaderboardAddress, true);
   loadGames();
+  removeClass(eByClass("contest-game"), "hidden")
+  addClass(eByClass("contest-pending"), "hidden")
+  addClass(eById("countdown"), "hidden");
+  removeClass(eById("leaderboard-panel"), "hidden");
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
   removeClass(eByClass("contest-button"), "selected");
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("leaderboard-button"), "selected");
   removeClass(eById("leaderboard"), 'contest')
+  leaderboardType = "normal"
+}
+
+function trackCountdown() {
+  clearTimeout(countdownTimeout);
+  const countdown = contest.timeUntilStart();
+  if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
+    addClass(eById("countdown"), "hidden");
+    removeClass(eById("leaderboard-panel"), "hidden");
+    removeClass(eByClass("contest-game"), "hidden")
+    addClass(eByClass("contest-pending"), "hidden")
+  } else {
+    addClass(eByClass("contest-game"), "hidden")
+    removeClass(eByClass("contest-pending"), "hidden")
+    removeClass(eById("countdown"), "hidden");
+    addClass(eById("leaderboard-panel"), "hidden");
+    eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
+    eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
+    eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
+    eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
+  }
+
+  countdownTimeout = setTimeout(trackCountdown, 1000);
 }
 
 function showContest() {
+  trackCountdown();
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress);
+  leaderboard.load(network, leaderboardAddress, true, true);
   loadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -580,6 +637,7 @@ function showContest() {
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("contest-button"), "selected");
   addClass(eById("leaderboard"), 'contest')
+  leaderboardType = "contest"
 }
 
 const initializeClicks = () => {

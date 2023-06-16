@@ -51,19 +51,20 @@
           <div id="get-started-message" class="message text-center hidden">
             <div class="header">
               <div></div>
-              <div style="font-size: small;">From June 20th - 27th, 2023</div>
+              <div style="font-size: small; font-weight: 500;">From June 20th - 27th, 2023</div>
               <div class="close">×</div>
             </div>
             <div class="start-content">
               <img src="contest-logo.png" alt="Sui8192 Logo" style="height: 30px;" />
-              <h1 style="margin-top: 24px;">Sui Summer Contest</h1>
-              <p style="font-size: x-large; font-weight: 300; margin-bottom: 30px;">
+              <h1 style="margin-top: 24px; font-weight: 800;">Sui Summer Contest</h1>
+              <p style="font-size: x-large; font-weight: 400; line-height: normal;">
                 100 winners & over 9,000 SUI in total prizes!
               </p>
-              <button id='sign-in' style="font-size: large; padding: 12px 24px;">
+              <p style="font-size: small; margin-bottom: 30px;">* US residents are not eligible *</p>
+              <button id='sign-in' style="font-size: large; font-weight: 500; padding: 12px 24px;">
                 Get Started
               </button>
-              <div id="contest-learn-more" style="cursor: pointer; font-size: small; text-decoration: underline; margin-top: 30px;">
+              <div id="contest-learn-more" style="cursor: pointer; font-size: small; font-weight: 500; text-decoration: underline; margin-top: 30px;">
                 Learn More
               </div>
             </div>
@@ -287,13 +288,14 @@
             <div class="contest-banner">
               <img src="contest-logo.png" alt="Sui8192 Contest" style="height: 30px;" />
               <div>
-                <h2 style="font-size: xx-large; font-weight: 500;">SUI8192 Summer Contest</h2>
+                <h2 style="font-size: xx-large; font-weight: 500;">SUI 8192 Summer Contest</h2>
                 <p style="font-size: large;">100 winners and over 9,000 SUI in prizes!</p>
                 <p style="font-size: small;">From June 20th - June 27th, 2023</p>
+                <p style="font-size: small;">* US residents are not eligible *</p>
               </div>
             </div>
-            <p style="width: 450px; margin: auto; padding: 30px 0;">
-              Ethos Wallet and the Sui Foundation are hosting a Sui8192 summer contest.
+            <p class="contest-text">
+              Ethos Wallet and the Sui Foundation are hosting a SUI 8192 summer contest.
               See below for more details on prizes and rules.
             </p>
             
@@ -315,12 +317,53 @@
                 Your achievements are<br class="narrow"> completely verifiable on-chain!
               </p>
             </div>
+
+            <div class="hide-contest text-center">
+              <h2 style="font-size: x-large; font-weight: 300; margin-bottom: 0;">All-Time Leaderboard</h2>
+              <p style="font-size: smaller">This leaderboard is on-chain so you must submit your game for it to display here.</p>
+            </div>
           </div>
           <div class="split-panel">
-            <div class="panel panel-section">
+            <div id="countdown" class="panel panel-section">
+              <h1 style="margin-bottom: 120px; font-size: xx-large; text-align: center;">Time Until Contest Begins</h1>
+              <div class='countdown-values'>
+                <div>
+                  <div id="countdown-time-days" class="value"></div>
+                  <div>Days</div>
+                </div>
+                <div class="colon">
+                  <div>:</div>
+                  <div></div>
+                </div>
+                <div>
+                  <div id="countdown-time-hours" class="value"></div>
+                  <div>Hours</div>
+                </div>
+                <div class="colon">
+                  <div>:</div>
+                  <div></div>
+                </div>
+                <div>
+                  <div id="countdown-time-minutes" class="value"></div>
+                  <div>Minutes</div>
+                </div>
+                <div class="colon">
+                  <div>:</div>
+                  <div></div>
+                </div>
+                <div>
+                  <div id="countdown-time-seconds" class="value"></div>
+                  <div>Seconds</div>
+                </div>  
+              </div>
+              <div style="padding-top: 90px; text-align: center;">
+                <h2 style="font-size: large;">In the meantime practice your game!</h2>
+                <button class="primary-button leaderboard-button">Play A Game</button>
+              </div>
+            </div>
+            <div id="leaderboard-panel" class="panel panel-section hidden">
               <div class="leader-title">
                 <div class="title"><span class="show-contest">Contest</span> Leaderboard</div>
-                <span class="small">(click an item for details)</span>
               </div>
               <div id="loading-leaderboard" class="hidden">
                 <div class="spinner">
@@ -347,41 +390,52 @@
             <div class="panel">
               <div class="panel-section">
                 <div class="games-title">
-                  <div class="title">Your <span class='show-contest'>Contest</span> Games</div>
-                  <button class="new-game signed-in">+ New Game</button>
+                  <div class="title">Your <span class='show-contest wide'>Contest</span> Games</div>
+                  <div class="contest-game">
+                    <button class="new-game signed-in">+ New Game</button>
+                  </div>
                 </div>
-                <div class="signed-out" style="text-align: center; padding: 12px;">
-                  <button class="new-game">+ New Game</button>
+                <div style="text-align: center; padding: 12px;">
+                  <div class="no-games">
+                    <button class="new-game contest-game">Play First Game</button>
+                  </div>
+                  <div class="show-contest">
+                    <div class="contest-pending">
+                      The contest has not yet started. Check back soon!
+                    </div>  
+                  </div>
                 </div>
                 
-                <div id="verify-section" class="signed-in show-contest hidden">
-                  <div id="verify-email-message" class="hidden">
-                    You must verify your email to receive prizes:
-                    <div id="verify-email">Verify Email</div>
-                    <div style="font-size: small;">If you have already verified you can ignore this.</div>
-                  </div>
-                  <div id="verify-email-form" class="hidden">
-                    <div>
-                      <input type="email" id="verify-email-input" placeholder="Email" />
-                      <button id="verify-email-button" class="primary-button">Send</button>
+                <div class="contest-game hidden">
+                  <div id="verify-section" class="signed-in show-contest">
+                    <div id="verify-email-message" class="hidden">
+                      You must verify your email to receive prizes:
+                      <div id="verify-email">Verify Email</div>
+                      <div style="font-size: small;">If you have already verified you can ignore this.</div>
                     </div>
-                    <div id="verify-email-response" class="hidden"></div>
-                  </div>
-                  <div id="verify-address-message" class="hidden">
-                    Hi <span id="verify-address-email"></span>, you must now verify your address:
-                    <span id="verify-address">Verify Address</span>
-                  </div>
-                  <div id="verified-message" class="hidden">
-                    Thank you! Your email and address have been verified.
-                    <span id="view-verification">View</span>
-                  </div>
-                  <div id="verification-review" class="hidden">
-                    <div id="verification-review-address"></div>
-                    <div id="verification-review-email"></div>
+                    <div id="verify-email-form" class="hidden">
+                      <div>
+                        <input type="email" id="verify-email-input" placeholder="Email" />
+                        <button id="verify-email-button" class="primary-button">Send</button>
+                      </div>
+                      <div id="verify-email-response" class="hidden"></div>
+                    </div>
+                    <div id="verify-address-message" class="hidden">
+                      Hi <span id="verify-address-email"></span>, you must now verify your address:
+                      <span id="verify-address">Verify Address</span>
+                    </div>
+                    <div id="verified-message" class="hidden">
+                      Thank you! Your email and address have been verified.
+                      <span id="view-verification">View</span>
+                    </div>
+                    <div id="verification-review" class="hidden">
+                      <div id="verification-review-address"></div>
+                      <div id="verification-review-email"></div>
+                    </div>
                   </div>
                 </div>
 
-                <div id="signed-in" class="signed-in">
+                <div id="signed-in" class="signed-in contest-game">
                   <div id="games-list"></div>
                 </div>
                 <div id="loading-games">  
@@ -429,13 +483,14 @@
                   Contest Rules
                 </div>
                 <div>
-                  <p>The following are the rules of the Sui8192 contest, sponsored by the Sui Foundation:</p>
+                  <p>The following are the rules of the SUI 8192 contest, sponsored by the Sui Foundation:</p>
                   <ul>
                     <li>US residents are <b><i>not</i></b> eligible</li>
-                    <li>All games must be created after <b>June 20th, 2023</b> at <b>9am PST</b></li>
-                    <li>Leaderboard will be locked and contest will end at <b>9am PST</b> on <b>June 27th, 2023</b></li>
+                    <li>All games must be created after <b>June 20th, 2023</b> at <b>4pm UTC</b></li>
+                    <li>Leaderboard will be locked and contest will end at <b>UTC UTC</b> on <b>June 27th, 2023</b></li>
                     <li>Valid games will be displayed in your "Your Contest Games" section</li>
                     <li>All winners must provide a valid email and go through a KYC "Know Your Customer" process to receive winnings.</li>
+                    <li>Each individual can only win a prize for one game, their highest scoring game of the competition</li>
                   </ul>
                 </div>
               </div>
