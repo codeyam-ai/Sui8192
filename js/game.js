@@ -57,7 +57,7 @@ let contentsInterval;
 let faucetUsed = false;
 let network = MAINNET;
 let root;
-let leaderboardType = "normal"
+let leaderboardType = (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) ? "contest" : "normal"
 let countdownTimeout;
 
 const int = (intString = "-1") => parseInt(intString);
