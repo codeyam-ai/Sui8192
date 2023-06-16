@@ -220,7 +220,6 @@ a:visited {
   justify-content: center;
   align-items: center;
   gap: 6px;
-  width: 210px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

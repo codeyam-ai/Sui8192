@@ -95,13 +95,7 @@ const utils = {
         postfix = ' K';
     }
 
-    if (bn.gte(1)) {
-        bn = bn.decimalPlaces(3, BigNumber.ROUND_DOWN);
-    } else {
-        bn = bn.decimalPlaces(6, BigNumber.ROUND_DOWN);
-    }
-
-    return bn.toFormat() + postfix;
+    return bn.decimalPlaces(3, BigNumber.ROUND_DOWN).toFormat() + postfix;
   }
 }
 
