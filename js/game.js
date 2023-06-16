@@ -35,6 +35,7 @@ const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
 const TESTNET = "https://fullnode.testnet.sui.io/"
 const MAINNET = "https://fullnode.mainnet.sui.io/"
+// const MAINNET = "https://sui.ethoswallet.xyz/sui"
 const LOCALNET_NETWORK_NAME = 'local';
 const TESTNET_NETWORK_NAME = 'testNet';
 const MAINNET_NETWORK_NAME = 'mainNet';
@@ -42,11 +43,11 @@ const LOCALNET_CHAIN = "sui:local";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
-let contractAddress = testnetContractAddress;
-let leaderboardAddress = testnetLeaderboardAddress;
-let maintainerAddress = testnetMaintainerAddress;
-let networkName = TESTNET_NETWORK_NAME;
-let chain = TESTNET_CHAIN;
+let contractAddress = mainnetContractAddress;
+let leaderboardAddress = mainnetLeaderboardAddress;
+let maintainerAddress = mainnetMaintainerAddress;
+let networkName = MAINNET_NETWORK_NAME;
+let chain = MAINNET_CHAIN;
 let walletSigner;
 let games;
 let activeGameAddress;
@@ -54,7 +55,7 @@ let walletContents = null;
 let topTile = 2;
 let contentsInterval;
 let faucetUsed = false;
-let network = TESTNET;
+let network = MAINNET;
 let root;
 let leaderboardType = "contest"
 let countdownTimeout;
@@ -112,7 +113,7 @@ const setNetwork = (newNetworkName) => {
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  const initialNetwork = queryParams.get('network') ?? TESTNET_NETWORK_NAME;
+  const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
   
   setNetwork(initialNetwork, true);
 
@@ -219,7 +220,7 @@ function init() {
   initializeNetwork();
   setActiveGameAddress();
 
-  leaderboard.load(network, leaderboardAddress, false, leaderboardType == "contest");
+  leaderboard.load(network, leaderboardAddress, false, leaderboardType === "contest");
 
   const ethosConfiguration = {
     chain,
