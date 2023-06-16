@@ -12,7 +12,7 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
-const startDate = new Date("2023-06-16T01:48:00.000Z");
+const startDate = new Date("2023-06-16T01:58:00.000Z");
 const endDate = new Date("2023-06-27T23:59:59.000Z");
 
 const contest = {

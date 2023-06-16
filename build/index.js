@@ -214,7 +214,7 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
-const startDate = new Date("2023-06-16T01:48:00.000Z");
+const startDate = new Date("2023-06-16T01:58:00.000Z");
 const endDate = new Date("2023-06-27T23:59:59.000Z");
 
 const contest = {
@@ -424,6 +424,7 @@ let faucetUsed = false;
 let network = TESTNET;
 let root;
 let leaderboardType = "contest"
+let countdownTimeout;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -946,9 +947,12 @@ async function setActiveGame(game) {
 }
 
 function showLeaderboard() {
+  clearTimeout(countdownTimeout);
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true);
   loadGames();
+  addClass(eById("countdown"), "hidden");
+  removeClass(eById("leaderboard-panel"), "hidden");
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
   removeClass(eByClass("contest-button"), "selected");
@@ -958,18 +962,26 @@ function showLeaderboard() {
   leaderboardType = "normal"
 }
 
-function showContest() {
+function trackCountdown() {
+  clearTimeout(countdownTimeout);
   const countdown = contest.timeUntilStart();
   if (countdown.seconds < 0) {
     addClass(eById("countdown"), "hidden");
     removeClass(eById("leaderboard-panel"), "hidden");
   } else {
+    removeClass(eById("countdown"), "hidden");
+    addClass(eById("leaderboard-panel"), "hidden");
     eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
     eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
     eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
     eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
   }
-  
+
+  countdownTimeout = setTimeout(trackCountdown, 1000);
+}
+
+function showContest() {
+  trackCountdown();
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true, true);
   loadGames();
