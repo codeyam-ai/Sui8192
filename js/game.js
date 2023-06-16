@@ -808,7 +808,8 @@ const onWalletConnected = async ({ signer }) => {
     }
 
     if (games.length === 0) {
-      modal.open("mint", "board", true);
+      modal.close();
+      showLeaderboard();
     } else {
       modal.close();
 
