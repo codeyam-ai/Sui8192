@@ -1477,6 +1477,12 @@ li:nth-child(even) {
   }
 }
 
+@media only screen and (max-width: 1100px) {
+  .split-panel {
+    width: 98vw;
+  }
+}
+
 @media only screen and (max-width: 950px) {
   .wide {
     display: none !important;
