@@ -452,8 +452,10 @@ async function loadGames() {
 
   if (games.length > 0) {
     addClass(eByClass('no-games'), 'hidden')
+    removeClass(eByClass('has-games'), "hidden");
   } else {
     removeClass(eByClass('no-games'), 'hidden')
+    addClass(eByClass('has-games'), "hidden");
   }
   
   if (activeGameAddress) {
@@ -462,18 +464,6 @@ async function loadGames() {
       setActiveGame(activeGame);
       return; 
     }
-  }
-
-  if (!games || games.length === 0) {
-    const newGameArea = document.createElement("DIV");
-    newGameArea.classList.add("text-center");
-    newGameArea.classList.add("padded");
-    newGameArea.innerHTML = `
-      <p>
-        You don't have any games yet.
-      </p>
-    `;
-    gamesElement.append(newGameArea);
   }
 
   let highScore = 0;

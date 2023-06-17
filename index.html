@@ -394,46 +394,46 @@
               <div class="panel-section">
                 <div class="games-title">
                   <div class="title">Your <span class='show-contest wide'>Contest</span> Games</div>
-                  <div class="contest-game">
+                  <div class="has-games">
                     <button class="new-game signed-in">+ New Game</button>
                   </div>
                 </div>
-                <div style="text-align: center; padding: 12px;">
-                  <div class="no-games">
-                    <button class="new-game contest-game">Play First Game</button>
-                  </div>
-                  <div class="show-contest">
-                    <div class="contest-pending">
-                      The contest has not yet started. Check back soon!
-                    </div>  
-                  </div>
+                <div class="no-games" style="text-align: center; padding: 24px;">
+                  <button class="new-game contest-game">Play First Game</button>
+                </div>
+                <div class="show-contest">
+                  <div class="contest-pending" style="text-align: center; padding: 24px;">
+                    The contest has not yet started. Check back soon!
+                  </div>  
                 </div>
                 
                 <div class="contest-game hidden">
-                  <div id="verify-section" class="signed-in show-contest">
-                    <div id="verify-email-message" class="hidden">
-                      You must verify your email to receive prizes:
-                      <div id="verify-email">Verify Email</div>
-                      <div style="font-size: small;">If you have already verified you can ignore this.</div>
-                    </div>
-                    <div id="verify-email-form" class="hidden">
-                      <div>
-                        <input type="email" id="verify-email-input" placeholder="Email" />
-                        <button id="verify-email-button" class="primary-button">Send</button>
+                  <div class="has-games">
+                    <div id="verify-section" class="signed-in show-contest hidden">
+                      <div id="verify-email-message" class="hidden">
+                        You must verify your email to receive prizes:
+                        <div id="verify-email">Verify Email</div>
+                        <div style="font-size: small;">If you have already verified you can ignore this.</div>
                       </div>
-                      <div id="verify-email-response" class="hidden"></div>
-                    </div>
-                    <div id="verify-address-message" class="hidden">
-                      Hi <span id="verify-address-email"></span>, you must now verify your address:
-                      <span id="verify-address">Verify Address</span>
-                    </div>
-                    <div id="verified-message" class="hidden">
-                      Thank you! Your email and address have been verified.
-                      <span id="view-verification">View</span>
-                    </div>
-                    <div id="verification-review" class="hidden">
-                      <div id="verification-review-address"></div>
-                      <div id="verification-review-email"></div>
+                      <div id="verify-email-form" class="hidden">
+                        <div>
+                          <input type="email" id="verify-email-input" placeholder="Email" />
+                          <button id="verify-email-button" class="primary-button">Send</button>
+                        </div>
+                        <div id="verify-email-response" class="hidden"></div>
+                      </div>
+                      <div id="verify-address-message" class="hidden">
+                        Hi <span id="verify-address-email"></span>, you must now verify your address:
+                        <span id="verify-address">Verify Address</span>
+                      </div>
+                      <div id="verified-message" class="hidden">
+                        Thank you! Your email and address have been verified.
+                        <span id="view-verification">View</span>
+                      </div>
+                      <div id="verification-review" class="hidden">
+                        <div id="verification-review-address"></div>
+                        <div id="verification-review-email"></div>
+                      </div>
                     </div>
                   </div>
                 </div>

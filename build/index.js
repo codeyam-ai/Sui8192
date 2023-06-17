@@ -197,7 +197,7 @@ module.exports = {
   },
   supabaseProject: "cqqcogxdhircwzdfcqet",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
-  contestLeaderboardId: 'f8f51a89-c74e-423d-a231-c9c761465a0d'
+  contestLeaderboardId: '8da9780c-9715-4441-bb3f-2a870aa445d7'
 }
 },{}],4:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
@@ -214,8 +214,8 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
-const startDate = new Date("2023-06-20T16:00:00.000Z");
-const endDate = new Date("2023-06-27T15:59:59.000Z");
+const startDate = new Date("2023-06-17T12:00:00.000Z");
+const endDate = new Date("2023-06-19T15:59:59.000Z");
 
 const contest = {
     getLeaders: async (network) => {
@@ -819,8 +819,10 @@ async function loadGames() {
 
   if (games.length > 0) {
     addClass(eByClass('no-games'), 'hidden')
+    removeClass(eByClass('has-games'), "hidden");
   } else {
     removeClass(eByClass('no-games'), 'hidden')
+    addClass(eByClass('has-games'), "hidden");
   }
   
   if (activeGameAddress) {
@@ -829,18 +831,6 @@ async function loadGames() {
       setActiveGame(activeGame);
       return; 
     }
-  }
-
-  if (!games || games.length === 0) {
-    const newGameArea = document.createElement("DIV");
-    newGameArea.classList.add("text-center");
-    newGameArea.classList.add("padded");
-    newGameArea.innerHTML = `
-      <p>
-        You don't have any games yet.
-      </p>
-    `;
-    gamesElement.append(newGameArea);
   }
 
   let highScore = 0;
