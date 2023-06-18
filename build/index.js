@@ -197,7 +197,7 @@ module.exports = {
   },
   supabaseProject: "cqqcogxdhircwzdfcqet",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
-  contestLeaderboardId: '8da9780c-9715-4441-bb3f-2a870aa445d7'
+  contestLeaderboardId: 'c01dd965-77b3-4633-9c76-29190e374a7b'
 }
 },{}],4:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
@@ -214,8 +214,9 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
+const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
 const startDate = new Date("2023-06-17T12:00:00.000Z");
-const endDate = new Date("2023-06-19T15:59:59.000Z");
+const endDate = new Date("2023-06-17T15:59:59.000Z");
 
 const contest = {
     getLeaders: async (network) => {
@@ -223,7 +224,7 @@ const contest = {
         const provider = new JsonRpcProvider(connection);
         
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/${contestLeaderboardId}/leaderboard`
+            `${contestApi}/${contestLeaderboardId}/leaderboard`
         )
         
         const leaderboard = await response.json();
@@ -276,7 +277,7 @@ const contest = {
 
     validIds: async (address) => {
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/games?address=${address}`,
+            `${contestApi}/games?address=${address}`,
             {
                 method: 'POST',
                 headers: {

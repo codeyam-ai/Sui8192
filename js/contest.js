@@ -12,6 +12,7 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
+const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
 const startDate = new Date("2023-06-17T12:00:00.000Z");
 const endDate = new Date("2023-06-19T15:59:59.000Z");
 
@@ -21,7 +22,7 @@ const contest = {
         const provider = new JsonRpcProvider(connection);
         
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/${contestLeaderboardId}/leaderboard`
+            `${contestApi}/${contestLeaderboardId}/leaderboard`
         )
         
         const leaderboard = await response.json();
@@ -74,7 +75,7 @@ const contest = {
 
     validIds: async (address) => {
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/games?address=${address}`,
+            `${contestApi}/games?address=${address}`,
             {
                 method: 'POST',
                 headers: {
