@@ -216,10 +216,19 @@ const {
   
 const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
 const startDate = new Date("2023-06-17T12:00:00.000Z");
-const endDate = new Date("2023-06-17T15:59:59.000Z");
+const endDate = new Date("2023-06-19T15:59:59.000Z");
+const cachedLeaders = {
+    timestamp: 0,
+    leaders: []
+}
 
 const contest = {
     getLeaders: async (network) => {
+        if (cachedLeaders.timestamp > Date.now() - 1000 * 30) {
+            return cachedLeaders.leaders;
+        }
+
+        console.log("PAST CACHE")
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
@@ -228,11 +237,18 @@ const contest = {
         )
         
         const leaderboard = await response.json();
-        const ids = leaderboard.games.map(g => g.gameId).slice(0, 50);
-        const suiObjects = await provider.multiGetObjects({ 
-          ids, 
-          options: { showContent: true } 
-        })
+        const ids = leaderboard.games.map(g => g.gameId);
+        const suiObjects = [];
+        
+        while(ids.length) {
+          const batch = ids.splice(0, 50);
+          const batchObjects = await provider.multiGetObjects({ 
+            ids: batch, 
+            options: { showContent: true } 
+          });
+          suiObjects.push(...batchObjects);
+        }
+        
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
             if (!gameObject.data) {
@@ -271,6 +287,9 @@ const contest = {
             }
           }
         )
+
+        cachedLeaders.timestamp = Date.now();
+        cachedLeaders.leaders = leaderboardItems;
 
         return leaderboardItems;
     },
