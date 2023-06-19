@@ -21,9 +21,9 @@ const cachedLeaders = {
 }
 
 const contest = {
-    getLeaders: async (network) => {
-        if (cachedLeaders.timestamp > Date.now() - 1000 * 30) {
-            return cachedLeaders.leaders;
+    getLeaders: async (network, timestamp) => {
+        if (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30) {
+            return cachedLeaders;
         }
 
         console.log("PAST CACHE")
@@ -89,7 +89,7 @@ const contest = {
         cachedLeaders.timestamp = Date.now();
         cachedLeaders.leaders = leaderboardItems;
 
-        return leaderboardItems;
+        return cachedLeaders;
     },
 
     validIds: async (address) => {

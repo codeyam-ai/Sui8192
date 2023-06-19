@@ -239,9 +239,11 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
-    let games;
+    let games, timestamp;
     if (contestLeaderboard) {
-      games = await contest.getLeaders(network);
+      const leaderboard = await contest.getLeaders(network);
+      games = leaderboard.leaders;
+      timestamp = leaderboard.timestamp;
     } else {
       games = await topGames(network, true);
     }
@@ -250,12 +252,12 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     if (best) {
       best.innerHTML = games[0]?.score || 0;
     }
-    setOnClick(eById("more-leaderboard"), () => loadNextPage(network));
+    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, contestLeaderboard, timestamp));
 
-    await loadNextPage(network, contestLeaderboard);
+    await loadNextPage(network, contestLeaderboard, timestamp);
 };
 
-const loadNextPage = async (network, contestLeaderboard) => {
+const loadNextPage = async (network, contestLeaderboard, timestamp) => {
     if (loadingNextPage) return;
 
     loadingNextPage = true;
@@ -265,7 +267,8 @@ const loadNextPage = async (network, contestLeaderboard) => {
 
     let games;
     if (contestLeaderboard) {
-      games = await contest.getLeaders(network);
+      const leaderboard = await contest.getLeaders(network, timestamp);
+      games = leaderboard.leaders;
     } else {
       games = await topGames(network, true);
     }

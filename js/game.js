@@ -474,7 +474,7 @@ async function loadGames() {
 
     const gameElement = document.createElement("DIV");
     let topGames = leaderboardType === "contest" ? 
-      await contest.getLeaders(network) :
+      (await contest.getLeaders(network)).leaders :
       await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
