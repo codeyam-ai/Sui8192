@@ -122,6 +122,10 @@ const contest = {
             minutes: Math.floor((distance % _hour) / _minute),
             seconds: Math.floor((distance % _minute) / _second)
         }
+    },
+
+    ended: () => {
+        return Date.now() > endDate;
     }
 }
 

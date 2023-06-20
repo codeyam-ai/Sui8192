@@ -137,7 +137,7 @@
           </div>
           <div class="contest-button header-button">
             Summer Contest
-            <div>New</div>
+            <div class="during-contest">New</div>
           </div>
           <div class="leaderboard-button header-button">
             Leaderboard
@@ -292,8 +292,14 @@
               <div>
                 <h2 style="font-size: xx-large; font-weight: 500;">SUI 8192 Summer Contest</h2>
                 <p style="font-size: large;">100 winners and over 9,000 SUI in prizes!</p>
-                <p style="font-size: small;">From June 20th - June 27th, 2023</p>
-                <p style="font-size: small;">* US residents are not eligible *</p>
+                <div class="during-contest">
+                  <p style="font-size: small;">From June 20th - June 27th, 2023</p>
+                  <p style="font-size: small;">* US residents are not eligible *</p>
+                </div>
+                <div class="after-contest">
+                  <p>The contest has ended!</p>
+                  <p>Congrats to all the winners!</p>
+                </div>
               </div>
             </div>
             <p class="contest-text">
@@ -402,11 +408,14 @@
                   <div class="contest-game" style="text-align: center; padding: 24px;">
                     <button class="new-game">Play First Game</button>
                   </div>
-              </div>
+                </div>
                 <div class="show-contest">
                   <div class="contest-pending" style="text-align: center; padding: 24px;">
                     The contest has not yet started. Check back soon!
                   </div>  
+                </div>
+                <div class="after-contest" style="text-align: center; padding: 24px;">
+                  The contest has ended.<br/>Congrats to all the winners!
                 </div>
                 
                 <div class="contest-game hidden">
@@ -563,9 +572,14 @@
               </div>
             </div>
             <br/>
-            <button class="leaderboard-button secondary-button">
-              View Leaderboard
-            </button>
+            <div style="text-align: center;">
+            <button class="secondary-button contest-leaderboard-button during-contest">
+                View Leaderboard
+              </button>
+              <button class="secondary-button leaderboard-button after-contest">
+                View Leaderboard
+              </button>
+            </div>
           </div>
           <div id="error-unknown" class="error hidden">
             <div class="close-error">

@@ -324,6 +324,10 @@ const contest = {
             minutes: Math.floor((distance % _hour) / _minute),
             seconds: Math.floor((distance % _minute) / _second)
         }
+    },
+
+    ended: () => {
+        return Date.now() > endDate;
     }
 }
 
@@ -605,6 +609,7 @@ function init() {
   // test();
   initializeNetwork();
   setActiveGameAddress();
+  initializeContest();
 
   leaderboard.load(network, leaderboardAddress, false, leaderboardType === "contest");
 
@@ -634,6 +639,16 @@ function init() {
   root.render(wrapper);
 
   initializeClicks();
+}
+
+function initializeContest() { 
+  if (contest.ended()) {
+    addClass(eByClass("during-contest"), "hidden");
+    removeClass(eByClass("after-contest"), "hidden");
+  } else {
+    addClass(eByClass("after-contest"), "hidden");
+    removeClass(eByClass("during-contest"), "hidden");
+  }
 }
 
 function handleResult(newBoard, direction) {
@@ -1023,6 +1038,7 @@ const initializeClicks = () => {
   setOnClick(eById("sign-in"), ethos.showSignInModal);
   setOnClick(eByClass("leaderboard-button"), showLeaderboard);
   setOnClick(eByClass("contest-button"), showContest);
+  setOnClick(eByClass("contest-leaderboard-button"), showContest);
   setOnClick(eById("contest-learn-more"), showContest);
   setOnClick(eByClass("title"), () => ethos.showWallet(walletSigner));
 
