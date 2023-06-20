@@ -215,7 +215,7 @@ const {
   } = require("./constants");
   
 const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
-const startDate = new Date("2023-06-20T16:00:00.000Z");
+const startDate = new Date("2023-06-20T10:48:00.000Z");
 const endDate = new Date("2023-06-27T15:59:59.000Z");
 const cachedLeaders = {
     timestamp: 0,
