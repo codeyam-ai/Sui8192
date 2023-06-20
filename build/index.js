@@ -197,7 +197,7 @@ module.exports = {
   },
   supabaseProject: "cqqcogxdhircwzdfcqet",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
-  contestLeaderboardId: 'c01dd965-77b3-4633-9c76-29190e374a7b'
+  contestLeaderboardId: 'f8f51a89-c74e-423d-a231-c9c761465a0d'
 }
 },{}],4:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
@@ -215,8 +215,8 @@ const {
   } = require("./constants");
   
 const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
-const startDate = new Date("2023-06-17T12:00:00.000Z");
-const endDate = new Date("2023-06-19T15:59:59.000Z");
+const startDate = new Date("2023-06-20T16:00:00.000Z");
+const endDate = new Date("2023-06-27T15:59:59.000Z");
 const cachedLeaders = {
     timestamp: 0,
     leaders: []
@@ -228,7 +228,6 @@ const contest = {
             return cachedLeaders;
         }
 
-        console.log("PAST CACHE")
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
@@ -238,8 +237,8 @@ const contest = {
         
         const leaderboard = await response.json();
         const ids = leaderboard.games.map(g => g.gameId);
+
         const suiObjects = [];
-        
         while(ids.length) {
           const batch = ids.splice(0, 50);
           const batchObjects = await provider.multiGetObjects({ 
