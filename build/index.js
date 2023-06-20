@@ -306,7 +306,7 @@ const contest = {
 
         const validGames = await response.json();
 
-        return validGames.map((game) => game.gameId);
+        return validGames.filter((game) => new Date(game.start) >= startDate).map((game) => game.gameId);
     },
 
     timeUntilStart: () => {  
