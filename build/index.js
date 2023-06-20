@@ -214,24 +214,40 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
+const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
 const startDate = new Date("2023-06-20T16:00:00.000Z");
 const endDate = new Date("2023-06-27T15:59:59.000Z");
+const cachedLeaders = {
+    timestamp: 0,
+    leaders: []
+}
 
 const contest = {
-    getLeaders: async (network) => {
+    getLeaders: async (network, timestamp) => {
+        if (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30) {
+            return cachedLeaders;
+        }
+
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/${contestLeaderboardId}/leaderboard`
+            `${contestApi}/${contestLeaderboardId}/leaderboard`
         )
         
         const leaderboard = await response.json();
-        const ids = leaderboard.games.map(g => g.gameId).slice(0, 50);
-        const suiObjects = await provider.multiGetObjects({ 
-          ids, 
-          options: { showContent: true } 
-        })
+        const ids = leaderboard.games.map(g => g.gameId);
+
+        const suiObjects = [];
+        while(ids.length) {
+          const batch = ids.splice(0, 50);
+          const batchObjects = await provider.multiGetObjects({ 
+            ids: batch, 
+            options: { showContent: true } 
+          });
+          suiObjects.push(...batchObjects);
+        }
+        
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
             if (!gameObject.data) {
@@ -271,12 +287,15 @@ const contest = {
           }
         )
 
-        return leaderboardItems;
+        cachedLeaders.timestamp = Date.now();
+        cachedLeaders.leaders = leaderboardItems;
+
+        return cachedLeaders;
     },
 
     validIds: async (address) => {
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/games?address=${address}`,
+            `${contestApi}/games?address=${address}`,
             {
                 method: 'POST',
                 headers: {
@@ -819,8 +838,10 @@ async function loadGames() {
 
   if (games.length > 0) {
     addClass(eByClass('no-games'), 'hidden')
+    removeClass(eByClass('has-games'), "hidden");
   } else {
     removeClass(eByClass('no-games'), 'hidden')
+    addClass(eByClass('has-games'), "hidden");
   }
   
   if (activeGameAddress) {
@@ -831,18 +852,6 @@ async function loadGames() {
     }
   }
 
-  if (!games || games.length === 0) {
-    const newGameArea = document.createElement("DIV");
-    newGameArea.classList.add("text-center");
-    newGameArea.classList.add("padded");
-    newGameArea.innerHTML = `
-      <p>
-        You don't have any games yet.
-      </p>
-    `;
-    gamesElement.append(newGameArea);
-  }
-
   let highScore = 0;
   for (const game of games) {
     if (highScore < parseInt(game.score)) {
@@ -851,7 +860,7 @@ async function loadGames() {
 
     const gameElement = document.createElement("DIV");
     let topGames = leaderboardType === "contest" ? 
-      await contest.getLeaders(network) :
+      (await contest.getLeaders(network)).leaders :
       await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
@@ -1613,9 +1622,11 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
-    let games;
+    let games, timestamp;
     if (contestLeaderboard) {
-      games = await contest.getLeaders(network);
+      const leaderboard = await contest.getLeaders(network);
+      games = leaderboard.leaders;
+      timestamp = leaderboard.timestamp;
     } else {
       games = await topGames(network, true);
     }
@@ -1624,12 +1635,12 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     if (best) {
       best.innerHTML = games[0]?.score || 0;
     }
-    setOnClick(eById("more-leaderboard"), () => loadNextPage(network));
+    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, contestLeaderboard, timestamp));
 
-    await loadNextPage(network, contestLeaderboard);
+    await loadNextPage(network, contestLeaderboard, timestamp);
 };
 
-const loadNextPage = async (network, contestLeaderboard) => {
+const loadNextPage = async (network, contestLeaderboard, timestamp) => {
     if (loadingNextPage) return;
 
     loadingNextPage = true;
@@ -1639,7 +1650,8 @@ const loadNextPage = async (network, contestLeaderboard) => {
 
     let games;
     if (contestLeaderboard) {
-      games = await contest.getLeaders(network);
+      const leaderboard = await contest.getLeaders(network, timestamp);
+      games = leaderboard.leaders;
     } else {
       games = await topGames(network, true);
     }

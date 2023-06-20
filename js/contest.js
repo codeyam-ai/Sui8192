@@ -12,24 +12,40 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
+const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
 const startDate = new Date("2023-06-20T16:00:00.000Z");
 const endDate = new Date("2023-06-27T15:59:59.000Z");
+const cachedLeaders = {
+    timestamp: 0,
+    leaders: []
+}
 
 const contest = {
-    getLeaders: async (network) => {
+    getLeaders: async (network, timestamp) => {
+        if (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30) {
+            return cachedLeaders;
+        }
+
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/${contestLeaderboardId}/leaderboard`
+            `${contestApi}/${contestLeaderboardId}/leaderboard`
         )
         
         const leaderboard = await response.json();
-        const ids = leaderboard.games.map(g => g.gameId).slice(0, 50);
-        const suiObjects = await provider.multiGetObjects({ 
-          ids, 
-          options: { showContent: true } 
-        })
+        const ids = leaderboard.games.map(g => g.gameId);
+
+        const suiObjects = [];
+        while(ids.length) {
+          const batch = ids.splice(0, 50);
+          const batchObjects = await provider.multiGetObjects({ 
+            ids: batch, 
+            options: { showContent: true } 
+          });
+          suiObjects.push(...batchObjects);
+        }
+        
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
             if (!gameObject.data) {
@@ -69,12 +85,15 @@ const contest = {
           }
         )
 
-        return leaderboardItems;
+        cachedLeaders.timestamp = Date.now();
+        cachedLeaders.leaders = leaderboardItems;
+
+        return cachedLeaders;
     },
 
     validIds: async (address) => {
         const response = await fetch(
-            `https://dev-collection.ethoswallet.xyz/api/v1/sui8192/games?address=${address}`,
+            `${contestApi}/games?address=${address}`,
             {
                 method: 'POST',
                 headers: {

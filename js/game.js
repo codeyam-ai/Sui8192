@@ -452,8 +452,10 @@ async function loadGames() {
 
   if (games.length > 0) {
     addClass(eByClass('no-games'), 'hidden')
+    removeClass(eByClass('has-games'), "hidden");
   } else {
     removeClass(eByClass('no-games'), 'hidden')
+    addClass(eByClass('has-games'), "hidden");
   }
   
   if (activeGameAddress) {
@@ -464,18 +466,6 @@ async function loadGames() {
     }
   }
 
-  if (!games || games.length === 0) {
-    const newGameArea = document.createElement("DIV");
-    newGameArea.classList.add("text-center");
-    newGameArea.classList.add("padded");
-    newGameArea.innerHTML = `
-      <p>
-        You don't have any games yet.
-      </p>
-    `;
-    gamesElement.append(newGameArea);
-  }
-
   let highScore = 0;
   for (const game of games) {
     if (highScore < parseInt(game.score)) {
@@ -484,7 +474,7 @@ async function loadGames() {
 
     const gameElement = document.createElement("DIV");
     let topGames = leaderboardType === "contest" ? 
-      await contest.getLeaders(network) :
+      (await contest.getLeaders(network)).leaders :
       await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
