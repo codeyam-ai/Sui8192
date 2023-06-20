@@ -279,14 +279,14 @@ const contest = {
           }
         ).sort(
           (a, b) => {
-            if (a.top_tile === b.top_tile) {
+            if (a.topTile === b.topTile) {
               return parseInt(b.score) - parseInt(a.score)
             } else {
-              return parseInt(b.top_tile) - parseInt(a.top_tile)
+              return parseInt(b.topTile) - parseInt(a.topTile)
             }
           }
         )
-
+ 
         cachedLeaders.timestamp = Date.now();
         cachedLeaders.leaders = leaderboardItems;
 
