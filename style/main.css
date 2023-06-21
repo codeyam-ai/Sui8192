@@ -1322,6 +1322,10 @@ a:visited.link-button {
   display: none;
 }
 
+.hide-contest {
+  display: none;
+}
+
 .contest .hide-contest {
   display: none;
 }
