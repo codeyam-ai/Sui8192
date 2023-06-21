@@ -405,7 +405,14 @@
                   </div>
                 </div>
                 <div class="no-games">
-                  <div class="contest-game" style="text-align: center; padding: 24px;">
+                  <div classs="show-contest">
+                    <div class="during-contest">
+                      <div class="contest-game" style="text-align: center; padding: 24px;">
+                        <button class="new-game">Play First Game</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hide-contest contest-game" style="text-align: center; padding: 24px;">
                     <button class="new-game">Play First Game</button>
                   </div>
                 </div>
@@ -414,10 +421,12 @@
                     The contest has not yet started. Check back soon!
                   </div>  
                 </div>
-                <div class="after-contest" style="text-align: center; padding: 24px;">
-                  The contest has ended.<br/>Congrats to all the winners!
+                <div class="show-contest">
+                  <div class="after-contest" style="text-align: center; padding: 12px;">
+                    The contest has ended.<br/>Congrats to all the winners!
+                  </div>
                 </div>
-                
+              
                 <div class="contest-game hidden">
                   <div class="has-games">
                     <div id="verify-section" class="signed-in show-contest hidden">
@@ -446,6 +455,12 @@
                         <div id="verification-review-email"></div>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div class="show-contest">
+                  <div class="after-contest" style="text-align: center; padding: 12px;">
+                    You can still play, but no additional moves will count towards the contest as the leaderboard is frozen.
                   </div>
                 </div>
 

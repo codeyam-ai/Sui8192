@@ -609,7 +609,6 @@ function init() {
   // test();
   initializeNetwork();
   setActiveGameAddress();
-  initializeContest();
 
   leaderboard.load(network, leaderboardAddress, false, leaderboardType === "contest");
 
@@ -639,16 +638,6 @@ function init() {
   root.render(wrapper);
 
   initializeClicks();
-}
-
-function initializeContest() { 
-  if (contest.ended()) {
-    addClass(eByClass("during-contest"), "hidden");
-    removeClass(eByClass("after-contest"), "hidden");
-  } else {
-    addClass(eByClass("after-contest"), "hidden");
-    removeClass(eByClass("during-contest"), "hidden");
-  }
 }
 
 function handleResult(newBoard, direction) {
@@ -998,12 +987,19 @@ function showLeaderboard() {
 function trackCountdown() {
   clearTimeout(countdownTimeout);
   const countdown = contest.timeUntilStart();
-  if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
+  if (contest.ended()) {
+    addClass(eByClass("during-contest"), "hidden");
+    removeClass(eByClass("after-contest"), "hidden");
+  } else if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
+    removeClass(eByClass("during-contest"), "hidden");
+    addClass(eByClass("after-contest"), "hidden");
     addClass(eById("countdown"), "hidden");
     removeClass(eById("leaderboard-panel"), "hidden");
     removeClass(eByClass("contest-game"), "hidden")
     addClass(eByClass("contest-pending"), "hidden")
   } else {
+    removeClass(eByClass("during-contest"), "hidden");
+    addClass(eByClass("after-contest"), "hidden");
     addClass(eByClass("contest-game"), "hidden")
     removeClass(eByClass("contest-pending"), "hidden")
     removeClass(eById("countdown"), "hidden");
