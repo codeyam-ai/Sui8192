@@ -1032,7 +1032,7 @@ const initializeClicks = () => {
   setOnClick(eByClass("close-error"), () => {
     addClass(eByClass("error"), "hidden");
   });
-  setOnClick(eById("sign-in"), ethos.showSignInModal);
+  setOnClick(eByClass("sign-in"), ethos.showSignInModal);
   setOnClick(eByClass("leaderboard-button"), showLeaderboard);
   setOnClick(eByClass("contest-button"), showContest);
   setOnClick(eByClass("contest-leaderboard-button"), showContest);
