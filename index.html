@@ -360,7 +360,7 @@
             </div>
           </div>
           <div class="split-panel">
-            <div id="countdown" class="panel panel-section">
+            <div id="countdown" class="panel panel-section hidden">
               <h1 style="margin-bottom: 120px; font-size: xx-large; text-align: center;">Time Until Contest Begins</h1>
               <div class='countdown-values'>
                 <div>
@@ -450,7 +450,13 @@
                 </div>
                 <div class="show-contest">
                   <div class="after-contest" style="text-align: center; padding: 12px;">
-                    The contest has ended.<br/>Congrats to all the winners!
+                    The contest has ended.
+                    <br/>
+                    Congrats to all the winners!
+                    <div class="signed-in">
+                      <br/>
+                      If you are a winner be sure to provide your email below so the Sui Foundation can contact your about your prize.
+                    </div>
                   </div>
                 </div>
               
@@ -665,6 +671,7 @@
               Then refresh this page.
             </p>
           </div>
+          <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 12px;">
           <div id="board" style="touch-action: none;">
             <div id="queue"></div>
             <div class="row-1 row">
@@ -696,6 +703,7 @@
             <div class="transactions-header">Transactions</div>
             <div id="transactions-list"></div>
           </div>
+        </div>
           <div class="footer instructions">
             <p>
               SUI 8192 is a completely on-chain and extra challenging version of 

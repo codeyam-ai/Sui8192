@@ -602,6 +602,9 @@ function trackCountdown() {
     removeClass(eByClass("after-contest"), "hidden");
     addClass(eByClass("during-contest"), "hidden");
     addClass(eByClass("contest-pending"), "hidden")
+    addClass(eById("countdown"), "hidden");
+    removeClass(eById("leaderboard-panel"), "hidden");
+    removeClass(eByClass("contest-game"), "hidden")
   } else if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
     removeClass(eByClass("during-contest"), "hidden");
     addClass(eByClass("after-contest"), "hidden");
@@ -794,6 +797,7 @@ const onWalletConnected = async ({ signer }) => {
     };
 
     prepMint();
+    addClass(eByClass('get-started-message'), 'hidden')
     modal.open("loading", "container");
 
     setOnClick(eByClass("new-game"), async () => {
