@@ -812,14 +812,14 @@ const onWalletConnected = async ({ signer }) => {
 
     if (games.length === 0) {
       modal.close();
-      showContest();
+      showLeaderboard();
     } else {
       modal.close();
 
       if (games.length === 1) {
         setActiveGame(games[0]);
       } else {
-        showContest();
+        showLeaderboard();
       }
     }
 
