@@ -639,6 +639,7 @@ function showContest() {
   addClass(eByClass("contest-button"), "selected");
   addClass(eById("leaderboard"), 'contest')
   leaderboardType = "contest"
+  window.scrollTo(0, 0);
 }
 
 const initializeClicks = () => {

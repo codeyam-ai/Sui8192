@@ -1304,6 +1304,8 @@ a:visited.link-button {
   gap: 12px;
   align-items: center;
   height: 24px;
+  cursor: pointer;
+  color: #83808e;
 }
 
 .contest-button div {
