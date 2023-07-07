@@ -227,7 +227,8 @@ function init() {
     chain,
     network,
     preferredWallets: ['Ethos Wallet'],
-    hideEmailSignIn: true
+    hideEmailSignIn: true,
+    pollingInterval: 30000
   };
 
   const start = eById("ethos-start");
@@ -380,6 +381,7 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
+  console.log("Loading wallet contents")
   const contents = await ethos.getWalletContents({ 
     address, 
     network,
@@ -807,9 +809,9 @@ const onWalletConnected = async ({ signer }) => {
 
     await loadGames();
 
-    if (!contentsInterval) {
-      contentsInterval = setInterval(loadWalletContents, 3000);
-    }
+    // if (!contentsInterval) {
+    //   contentsInterval = setInterval(loadWalletContents, 30000);
+    // }
 
     if (games.length === 0) {
       modal.close();
