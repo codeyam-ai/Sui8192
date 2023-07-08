@@ -5,6 +5,7 @@ const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require(
 
 const leaderboard = require("./leaderboard");
 const {
+  originalMainnetContractAddress,
   mainnetContractAddress,
   mainnetLeaderboardAddress,
   mainnetMaintainerAddress,
@@ -43,6 +44,7 @@ const LOCALNET_CHAIN = "sui:local";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
+let originalContractAddress = originalMainnetContractAddress;
 let contractAddress = mainnetContractAddress;
 let leaderboardAddress = mainnetLeaderboardAddress;
 let maintainerAddress = mainnetMaintainerAddress;
@@ -86,6 +88,7 @@ const setNetwork = (newNetworkName) => {
     networkName = LOCALNET_NETWORK_NAME;
     network = LOCALNET;
     chain = LOCALNET_CHAIN;
+    originalContractAddress = testnetContractAddress;
     contractAddress = testnetContractAddress;
     leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
@@ -93,6 +96,7 @@ const setNetwork = (newNetworkName) => {
     networkName = TESTNET_NETWORK_NAME;
     network = TESTNET;
     chain = TESTNET_CHAIN;
+    originalContractAddress = testnetContractAddress;
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
@@ -100,6 +104,7 @@ const setNetwork = (newNetworkName) => {
     networkName = MAINNET_NETWORK_NAME;
     network = MAINNET;
     chain = MAINNET_CHAIN;
+    originalContractAddress = originalMainnetContractAddress;
     contractAddress = mainnetContractAddress;
     leaderboardAddress = mainnetLeaderboardAddress;
     maintainerAddress = mainnetMaintainerAddress;
@@ -193,6 +198,7 @@ const initializeKeyListener = () => {
 const executeMove = (direction) => {
   moves.execute(
     chain,
+    originalContractAddress,
     contractAddress,
     direction,
     activeGameAddress,
@@ -204,6 +210,8 @@ const executeMove = (direction) => {
     ({ error, gameOver }) => {
       if (gameOver) {
         showGameOver();
+      } else if (error.indexOf('Identifier("game_board_8192") }, function: 5, instruction: 43, function_name: Some("move_direction") }, 4') > -1) {
+        return;
       } else if (error === "Insufficient gas") {
         showGasError();
       } else if (error) {
@@ -266,10 +274,10 @@ function handleResult(newBoard, direction) {
         topTile >= leaderboard.minTile() &&
         newBoard.score > leaderboard.minScore()
       ) {
-        modal.open("climbing-leaderboard", "container");
-        // modal.open("high-score", "container");
-      // } else {
-      //   modal.open("top-tile", "container");
+        // modal.open("climbing-leaderboard", "container");
+        modal.open("high-score", "container");
+      } else {
+        modal.open("top-tile", "container");
       }
     }, 1000);
   }
@@ -381,7 +389,6 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
-  console.log("Loading wallet contents")
   const contents = await ethos.getWalletContents({ 
     address, 
     network,
@@ -427,7 +434,7 @@ async function loadGames() {
 
   games = walletContents.nfts
     .filter((nft) => {
-      if (nft.packageObjectId !== contractAddress) {
+      if (nft.packageObjectId !== originalContractAddress) {
         return false;
       }
 
@@ -776,7 +783,7 @@ const onWalletConnected = async ({ signer }) => {
             }
 
             const { events } = data;
-            const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
+            const gameData = events.find((e) => e.type === `${originalContractAddress}::game_8192::NewGameEvent8192`)
             const { game_id, packed_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,

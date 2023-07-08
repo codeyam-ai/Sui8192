@@ -64,8 +64,38 @@ const checkPreapprovals = async (chain, contractAddress, activeGameAddress, wall
   return preapproval;
 };
 
+const checkValidMove = (packedSpaces, directionNumber) => {
+  // console.log("checkValidMove", packedSpaces, directionNumber)
+  const direction = parseInt(directionNumber)
+  let validMove = false;
+  for (let i=0; i<board.ROWS; ++i) {
+    for (let j=0; j<board.COLUMNS; ++j) { 
+      const tile = board.spaceAt(packedSpaces, i, j);
+      const nextI = direction > 1 ? i + (direction === 2 ? -1 : 1) : i;
+      const nextJ = direction < 2 ? j + (direction === 0 ? -1 : 1) : j;
+      const nextTile = board.spaceAt(packedSpaces, nextI, nextJ);
+      // console.log(i, j, nextI, nextJ, tile, nextTile)
+
+      if (parseInt(tile) === 0) continue;
+      if (nextI === -1 || nextI >= board.ROWS) continue;
+      if (nextJ === -1 || nextJ >= board.COLUMNS) continue;
+      if (parseInt(nextTile) !== 0 && parseInt(tile) !== parseInt(nextTile)) {
+        continue
+      }
+
+      validMove = true;
+      break;
+    }
+  }
+
+  // console.log("valid move", validMove);
+  return validMove
+}
+window.checkValidMove = checkValidMove;
+
 const execute = async (
   chain,
+  originalContractAddress,
   contractAddress,
   directionOrQueuedMove,
   activeGameAddress,
@@ -89,6 +119,14 @@ const execute = async (
     : directionOrQueuedMove;
 
   const directionNumber = directionToDirectionNumber(direction);
+  
+  const { packedSpaces } = board.active();
+  const validMove = checkValidMove(packedSpaces, directionNumber);
+  if (!validMove) {
+    moves = {};
+    executingMove = false;
+    return;
+  }
   
   if (responseTimes.count > 0 && (responseTimes.total / responseTimes.count) > 1000) {
     if (!directionOrQueuedMove.id) {
@@ -165,7 +203,7 @@ const execute = async (
 
   const { gasUsed } = effects;
   const { computationCost, storageCost, storageRebate } = gasUsed;
-  const event = events.find((e) => e.type === `${contractAddress}::game_8192::GameMoveEvent8192`)
+  const event = events.find((e) => e.type === `${originalContractAddress}::game_8192::GameMoveEvent8192`)
 
   const newBoard = board.convertInfo(event);
 
