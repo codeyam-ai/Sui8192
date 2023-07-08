@@ -177,7 +177,8 @@ module.exports = {
   testnetContractAddress: "0x990570514ac706f0f33d87db6d0f12d3a98be00373836851363dee5fd70119f2",
   testnetLeaderboardAddress: "0xe7b3d2b862cf5935526d8d39c04d5f5803f70070704ba7ddaddd6cb4ab61ef28",
   testnetMaintainerAddress: "0x86942ec75d27f7caeabb94178a560c2819cd73a284405243b0aab13a15feb9b6",
-  mainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
+  originalMainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
+  mainnetContractAddress: "0x225a5eb5c580cb6b6c44ffd60c4d79021e79c5a6cea7eb3e60962ee5f9bc6cb2",
   mainnetLeaderboardAddress: "0xa834ebce466a79a3e2136c05fadce0322318051e0609f208a5d42cc04e0a67a3",
   mainnetMaintainerAddress: "0x1d6d6770b9929e9d8233b31348f035a2a552d8427ae07d6413d1f88939f3807f",
   tileNames: {
@@ -395,6 +396,7 @@ const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require(
 
 const leaderboard = require("./leaderboard");
 const {
+  originalMainnetContractAddress,
   mainnetContractAddress,
   mainnetLeaderboardAddress,
   mainnetMaintainerAddress,
@@ -433,6 +435,7 @@ const LOCALNET_CHAIN = "sui:local";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
+let originalContractAddress = originalMainnetContractAddress;
 let contractAddress = mainnetContractAddress;
 let leaderboardAddress = mainnetLeaderboardAddress;
 let maintainerAddress = mainnetMaintainerAddress;
@@ -476,6 +479,7 @@ const setNetwork = (newNetworkName) => {
     networkName = LOCALNET_NETWORK_NAME;
     network = LOCALNET;
     chain = LOCALNET_CHAIN;
+    originalContractAddress = testnetContractAddress;
     contractAddress = testnetContractAddress;
     leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
@@ -483,6 +487,7 @@ const setNetwork = (newNetworkName) => {
     networkName = TESTNET_NETWORK_NAME;
     network = TESTNET;
     chain = TESTNET_CHAIN;
+    originalContractAddress = testnetContractAddress;
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
@@ -490,6 +495,7 @@ const setNetwork = (newNetworkName) => {
     networkName = MAINNET_NETWORK_NAME;
     network = MAINNET;
     chain = MAINNET_CHAIN;
+    originalContractAddress = originalMainnetContractAddress;
     contractAddress = mainnetContractAddress;
     leaderboardAddress = mainnetLeaderboardAddress;
     maintainerAddress = mainnetMaintainerAddress;
@@ -594,6 +600,8 @@ const executeMove = (direction) => {
     ({ error, gameOver }) => {
       if (gameOver) {
         showGameOver();
+      } else if (error.indexOf('Identifier("game_board_8192") }, function: 5, instruction: 43, function_name: Some("move_direction") }, 4') > -1) {
+        return;
       } else if (error === "Insufficient gas") {
         showGasError();
       } else if (error) {
@@ -817,7 +825,7 @@ async function loadGames() {
 
   games = walletContents.nfts
     .filter((nft) => {
-      if (nft.packageObjectId !== contractAddress) {
+      if (nft.packageObjectId !== originalContractAddress) {
         return false;
       }
 
@@ -1166,7 +1174,7 @@ const onWalletConnected = async ({ signer }) => {
             }
 
             const { events } = data;
-            const gameData = events.find((e) => e.type === `${contractAddress}::game_8192::NewGameEvent8192`)
+            const gameData = events.find((e) => e.type === `${originalContractAddress}::game_8192::NewGameEvent8192`)
             const { game_id, packed_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
