@@ -198,6 +198,7 @@ const initializeKeyListener = () => {
 const executeMove = (direction) => {
   moves.execute(
     chain,
+    originalContractAddress,
     contractAddress,
     direction,
     activeGameAddress,
