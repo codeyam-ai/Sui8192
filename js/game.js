@@ -274,10 +274,10 @@ function handleResult(newBoard, direction) {
         topTile >= leaderboard.minTile() &&
         newBoard.score > leaderboard.minScore()
       ) {
-        modal.open("climbing-leaderboard", "container");
-        // modal.open("high-score", "container");
-      // } else {
-      //   modal.open("top-tile", "container");
+        // modal.open("climbing-leaderboard", "container");
+        modal.open("high-score", "container");
+      } else {
+        modal.open("top-tile", "container");
       }
     }, 1000);
   }
