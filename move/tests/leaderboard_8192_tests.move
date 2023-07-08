@@ -7,9 +7,10 @@ module ethos::leaderboard_8192_tests {
     use sui::object::ID;
     use sui::sui::SUI;
     use sui::coin::{Self};
+    use sui::tx_context::{TxContext};
     use sui::test_scenario::{Self, Scenario};
 
-    use ethos::game_board_8192::{left, up, right, down};
+    use ethos::game_board_8192::{packed_spaces, move_spaces, left, up, right, down};
 
     use ethos::leaderboard_8192::{Self, Leaderboard8192};
     use ethos::game_8192::{Self, Game8192, Game8192Maintainer};
@@ -32,6 +33,16 @@ module ethos::leaderboard_8192_tests {
         sui::test_utils::destroy<Game8192Maintainer>(maintainer);
     }
 
+    fun make_move_if_valid(game: &mut Game8192, direction: u64, ctx: &mut TxContext) {
+        let board = game_8192::active_board(game);
+        let spaces = *packed_spaces(board);
+        let (new_spaces, _, _) = move_spaces(spaces, direction);
+
+        if (spaces != new_spaces) {
+            game_8192::make_move(game, direction, ctx);
+        };
+    }
+
     fun achieve_score(scenario: &mut Scenario, score: u64) {
         test_scenario::next_tx(scenario, PLAYER);
         {
@@ -41,14 +52,14 @@ module ethos::leaderboard_8192_tests {
         test_scenario::next_tx(scenario, PLAYER);
         {
             let leaderboard = test_scenario::take_shared<Leaderboard8192>(scenario);
-            let game = test_scenario::take_from_sender<Game8192>(scenario);
+            let game = test_scenario::take_from_sender<Game8192>(scenario);            
         
             let ctx = test_scenario::ctx(scenario);
             while (*game_8192::score(&game) < score) {
-                game_8192::make_move(&mut game, left(), ctx);
-                game_8192::make_move(&mut game, up(), ctx);
-                game_8192::make_move(&mut game, right(), ctx);
-                game_8192::make_move(&mut game, down(), ctx);
+                make_move_if_valid(&mut game, left(), ctx);
+                make_move_if_valid(&mut game, up(), ctx);
+                make_move_if_valid(&mut game, right(), ctx);
+                make_move_if_valid(&mut game, down(), ctx);
             };
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
@@ -852,26 +863,14 @@ module ethos::leaderboard_8192_tests {
         achieve_score(&mut scenario, 588);
         check_scores(&mut scenario, vector<u64>[588, 104, 88]);
 
-        achieve_score(&mut scenario, 432);
-        check_scores(&mut scenario, vector<u64>[588, 432, 104, 88]);
+        achieve_score(&mut scenario, 452);
+        check_scores(&mut scenario, vector<u64>[588, 452, 104, 88]);
 
         achieve_score(&mut scenario, 72);
-        check_scores(&mut scenario, vector<u64>[588, 432, 104, 88, 72]);
+        check_scores(&mut scenario, vector<u64>[588, 452, 104, 88, 72]);
 
-        achieve_score(&mut scenario, 568);
-        check_scores(&mut scenario, vector<u64>[588, 568, 432, 104, 88, 72]);
-
-        achieve_score(&mut scenario, 320);
-        check_scores(&mut scenario, vector<u64>[588, 568, 432, 320, 104, 88, 72]);
-
-        achieve_score(&mut scenario, 200);
-        check_scores(&mut scenario, vector<u64>[588, 568, 432, 320, 200, 104, 88, 72]);
-
-        achieve_score(&mut scenario, 8);
-        check_scores(&mut scenario, vector<u64>[588, 568, 432, 320, 200, 104, 88, 72, 8]);
-
-        achieve_score(&mut scenario, 16);
-        check_scores(&mut scenario, vector<u64>[588, 568, 432, 320, 200, 104, 88, 72, 16]);
+        achieve_score(&mut scenario, 136);
+        check_scores(&mut scenario, vector<u64>[588, 452, 136, 104, 88, 72]);
 
         test_scenario::end(scenario);
     }
@@ -891,11 +890,11 @@ module ethos::leaderboard_8192_tests {
         achieve_score(&mut scenario, 252);
         check_scores(&mut scenario, vector<u64>[252, 104, 88]);
 
-        achieve_score(&mut scenario, 228);
-        check_scores(&mut scenario, vector<u64>[252, 228, 104, 88]);
+        achieve_score(&mut scenario, 196);
+        check_scores(&mut scenario, vector<u64>[252, 196, 104, 88]);
 
         achieve_score(&mut scenario, 180);
-        check_scores(&mut scenario, vector<u64>[252, 228, 180, 104, 88]);
+        check_scores(&mut scenario, vector<u64>[252, 196, 180, 104, 88]);
         let game5_id = test_scenario::most_recent_id_for_address<Game8192>(PLAYER);
 
         test_scenario::next_tx(&mut scenario, PLAYER);
@@ -910,7 +909,7 @@ module ethos::leaderboard_8192_tests {
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 228, 180, 112, 104]);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 196, 180, 112, 104]);
 
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
@@ -925,7 +924,7 @@ module ethos::leaderboard_8192_tests {
             game_8192::make_move(&mut game, left(), ctx);
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 228, 180, 116, 104]);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 196, 180, 116, 104]);
 
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
@@ -945,7 +944,7 @@ module ethos::leaderboard_8192_tests {
             game_8192::make_move(&mut game, up(), ctx);
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 228, 192, 180, 104]);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 196, 192, 180, 104]);
 
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
@@ -962,7 +961,7 @@ module ethos::leaderboard_8192_tests {
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 228, 192, 188, 104]);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 196, 192, 188, 104]);
 
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
@@ -988,7 +987,7 @@ module ethos::leaderboard_8192_tests {
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 248, 228, 192, 104]);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[252, 248, 196, 192, 104]);
 
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
@@ -1006,7 +1005,7 @@ module ethos::leaderboard_8192_tests {
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            check_scores_for_leaderboard(&leaderboard, vector<u64>[364, 252, 228, 192, 104]);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[364, 252, 196, 192, 104]);
 
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
@@ -1022,7 +1021,7 @@ module ethos::leaderboard_8192_tests {
 
             leaderboard_8192::submit_game(&mut game, &mut leaderboard);
 
-            check_scores_for_leaderboard(&leaderboard, vector<u64>[372, 252, 228, 192, 104]);
+            check_scores_for_leaderboard(&leaderboard, vector<u64>[372, 252, 196, 192, 104]);
 
             test_scenario::return_to_sender(&mut scenario, game);
             test_scenario::return_shared(leaderboard);
@@ -1049,43 +1048,25 @@ module ethos::leaderboard_8192_tests {
         achieve_score_game(&mut scenario, option::destroy_some(game_1_id), 104);
         check_scores(&mut scenario, vector<u64>[132, 112, 104]);
 
-        achieve_score(&mut scenario, 108);
-        check_scores(&mut scenario, vector<u64>[132, 112, 108]);
+        achieve_score(&mut scenario, 136);
+        check_scores(&mut scenario, vector<u64>[136, 132, 112]);
         let game_2_id = test_scenario::most_recent_id_for_address<Game8192>(PLAYER);
 
-        achieve_score(&mut scenario, 168);
-        check_scores(&mut scenario, vector<u64>[168, 132, 112]);
-
-        achieve_score(&mut scenario, 148);
-        check_scores(&mut scenario, vector<u64>[168, 148, 132]);
-
-        achieve_score_game(&mut scenario, option::destroy_some(game_2_id), 172);
-        check_scores(&mut scenario, vector<u64>[172, 168, 148]);
-
-        achieve_score(&mut scenario, 184);
-        check_scores(&mut scenario, vector<u64>[184, 172, 168]);
-
-        achieve_score_game(&mut scenario, option::destroy_some(game_2_id), 248);
-        check_scores(&mut scenario, vector<u64>[248, 184, 168]);
-   
-        achieve_score(&mut scenario, 184);
-        check_scores(&mut scenario, vector<u64>[248, 184, 184]);
-
         achieve_score_game(&mut scenario, option::destroy_some(game_1_id), 188);
-        check_scores(&mut scenario, vector<u64>[248, 188, 184]);
+        check_scores(&mut scenario, vector<u64>[188, 136, 132]);
 
-        achieve_score(&mut scenario, 204);
-        check_scores(&mut scenario, vector<u64>[248, 204, 188]);
+        achieve_score(&mut scenario, 168);
+        check_scores(&mut scenario, vector<u64>[188, 168, 136]);
 
-        achieve_score(&mut scenario, 240);
-        check_scores(&mut scenario, vector<u64>[248, 240, 204]);
+        achieve_score_game(&mut scenario, option::destroy_some(game_2_id), 196);
+        check_scores(&mut scenario, vector<u64>[196, 188, 168]);
+
+        achieve_score(&mut scenario, 220);
+        check_scores(&mut scenario, vector<u64>[220, 196, 188]);
         let game_3_id = test_scenario::most_recent_id_for_address<Game8192>(PLAYER);
 
-        achieve_score_game(&mut scenario, option::destroy_some(game_1_id), 356);
-        check_scores(&mut scenario, vector<u64>[356, 248, 240]);
-
-        achieve_score_game(&mut scenario, option::destroy_some(game_2_id), 372);
-        check_scores(&mut scenario, vector<u64>[372, 356, 240]);
+        achieve_score_game(&mut scenario, option::destroy_some(game_2_id), 236);
+        check_scores(&mut scenario, vector<u64>[236, 220, 188]);
 
         test_scenario::next_tx(&mut scenario, PLAYER);
         {
@@ -1099,13 +1080,10 @@ module ethos::leaderboard_8192_tests {
             assert!(option::destroy_some(game_2_id) == leaderboard_8192::top_game_game_id(top_game0), 0);
 
             let top_game1 = vector::borrow(top_games, 1);
-            assert!(option::destroy_some(game_1_id) == leaderboard_8192::top_game_game_id(top_game1), 1);
+            assert!(option::destroy_some(game_3_id) == leaderboard_8192::top_game_game_id(top_game1), 1);
           
             let top_game2 = vector::borrow(top_games, 2);
-            assert!(option::destroy_some(game_3_id) == leaderboard_8192::top_game_game_id(top_game2), 2);
-
-            // leaderboard_8192::reset_leaderboard(&mut leaderboard);
-            // check_scores_for_leaderboard(&leaderboard, vector<u64>[372, 356, 240]);
+            assert!(option::destroy_some(game_1_id) == leaderboard_8192::top_game_game_id(top_game2), 2);
 
             test_scenario::return_shared(leaderboard);
         };

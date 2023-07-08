@@ -33,6 +33,7 @@ module ethos::game_board_8192 {
     const ESpaceNotEmpty: u64 = 1;
     const ENoEmptySpaces: u64 = 2;
     const EGameOver: u64 = 3;
+    const EInvalidMove: u64 = 4;
 
     const ROW_COUNT: u8 = 4;
     const COLUMN_COUNT: u8 = 4;
@@ -90,8 +91,10 @@ module ethos::game_board_8192 {
         if (existing_spaces == game_board.packed_spaces) {
             if (!move_possible(game_board)) {
                 game_board.game_over = true;
+                return
             };
             
+            assert!(false, 4);
             return
         };
 
@@ -319,7 +322,7 @@ module ethos::game_board_8192 {
         packed_spaces
     }
 
-    fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64, u64) {
+    public(friend) fun move_spaces(packed_spaces: u64, direction: u64): (u64, u64, u64) {
         let current_direction = direction;
         
         let top_tile: u64 = 1;
@@ -1000,6 +1003,7 @@ module ethos::game_board_8192 {
     } 
 
     #[test]
+    #[expected_failure(abort_code = EInvalidMove)]
     fun test_no_tile_added_if_no_move_made() {
         let game_board = GameBoard8192 {
             packed_spaces: pack_spaces(vector[
