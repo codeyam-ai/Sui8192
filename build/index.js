@@ -780,7 +780,6 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
-  console.log("Loading wallet contents")
   const contents = await ethos.getWalletContents({ 
     address, 
     network,
