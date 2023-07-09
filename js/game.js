@@ -788,6 +788,11 @@ const onWalletConnected = async ({ signer }) => {
 
             const { events } = data;
             const gameData = events.find((e) => e.type === `${originalContractAddress}::game_8192::NewGameEvent8192`)
+            if (!gameData) {
+              eById("create-error-error-message").innerHTML = `Unable to find create event in ${JSON.stringify(data, null, 2)}`;
+              modal.open("create-error", "container");
+              return;
+            }
             const { game_id, packed_spaces, score } = gameData.parsedJson;
             const game = {
               address: game_id,
