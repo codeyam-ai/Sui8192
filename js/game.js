@@ -176,18 +176,22 @@ const initializeKeyListener = () => {
   window.onkeydown = (e) => {
     switch (e.keyCode) {
       case 37:
+      case 65:
         e.preventDefault();    
         executeMove("left");
         break;
       case 38:
+      case 87:
         e.preventDefault();    
         executeMove("up");
         break;
       case 39:
+      case 68:
         e.preventDefault();    
         executeMove("right");
         break;
       case 40:
+      case 83:
         e.preventDefault();    
         executeMove("down");
         break;
