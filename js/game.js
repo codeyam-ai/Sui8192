@@ -399,7 +399,12 @@ async function loadWalletContents() {
     existingContents: walletContents 
   });
 
-  if (contents) walletContents = contents;
+  if (!contents) {
+    setTimeout(loadWalletContents, 3000)
+    return;
+  }
+
+  walletContents = contents;
   
   const { suiBalance } = walletContents;
 
