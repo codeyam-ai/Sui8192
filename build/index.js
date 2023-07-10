@@ -20,6 +20,7 @@ module.exports = {
 
   display: (board) => {
     const { packedSpaces } = board;
+    // const packedSpaces = "7066750781832232977"
     const allColors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(i => `color${i}`);
     const tiles = eByClass('tile');
     let topTile = 1;
@@ -665,7 +666,8 @@ function handleResult(newBoard, direction) {
     confetti.run();
 
     setTimeout(() => {
-      if (
+      if (topTile < 9) return;
+      if (        
         topTile >= leaderboard.minTile() &&
         newBoard.score > leaderboard.minScore()
       ) {

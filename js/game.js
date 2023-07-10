@@ -274,7 +274,8 @@ function handleResult(newBoard, direction) {
     confetti.run();
 
     setTimeout(() => {
-      if (
+      if (topTile < 9) return;
+      if (        
         topTile >= leaderboard.minTile() &&
         newBoard.score > leaderboard.minScore()
       ) {
