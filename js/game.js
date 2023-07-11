@@ -487,25 +487,9 @@ async function loadGames() {
   }
 
   let highScore = 0;
-  for (const game of games) {
-    if (highScore < parseInt(game.score)) {
-      highScore = parseInt(game.score);
-    }
 
+  for (const game of games) {    
     const gameElement = document.createElement("DIV");
-    let topGames = leaderboardType === "contest" ? 
-      (await contest.getLeaders(network)).leaders :
-      await leaderboard.topGames(network, leaderboardAddress);
-    if (topGames.length === 0) topGames = [];
-    const leaderboardItemIndex = topGames.findIndex(
-      (top_game) => top_game.gameId === game.address
-    );
-    const leaderboardItem = topGames[leaderboardItemIndex];
-    const leaderboardItemUpToDate =
-      int(leaderboardItem?.score) === int(game.score) || (
-        int(game.topTile) <= int(leaderboard.minTile()) && 
-        int(game.score) <= int(leaderboard.minScore())
-      );
     addClass(gameElement, "game-preview");
     setOnClick(gameElement, () => {
       addClass(eById("leaderboard"), "hidden");
@@ -524,23 +508,48 @@ async function loadGames() {
         </div>
         <div class='game-over'>${game.gameOver ? "Ended" : ""}</div>
       </div>
-      <div class='game-preview-right'> 
-        <div class="${
-          leaderboardItem && leaderboardItemUpToDate ? "" : "hidden"
-        }">
-          <span class="light">Leaderboard:</span> <span class='bold'>${
-            leaderboardItemIndex + 1
-          }</span>
-        </div>
-        <button class='hide-contest potential-leaderboard-game ${
-          leaderboardItemUpToDate ? "hidden" : ""
-        }' data-address='${game.address}'>
-          ${leaderboardItem ? "Update" : "Add To"} Leaderboard
-        </button>
+      <div class='game-preview-right' id='game-${game.address}'>         
       </div>
     `;
 
     gamesElement.append(gameElement);
+  }
+
+  for (const game of games) {
+    if (highScore < parseInt(game.score)) {
+      highScore = parseInt(game.score);
+    }
+
+    const gameElementArea = document.getElementById(`game-${game.address}`);
+    let topGames = leaderboardType === "contest" ? 
+      (await contest.getLeaders(network)).leaders :
+      await leaderboard.topGames(network, leaderboardAddress);
+    if (topGames.length === 0) topGames = [];
+    const leaderboardItemIndex = topGames.findIndex(
+      (top_game) => top_game.gameId === game.address
+    );
+    const leaderboardItem = topGames[leaderboardItemIndex];
+    const leaderboardItemUpToDate =
+      int(leaderboardItem?.score) === int(game.score) || (
+        int(game.topTile) <= int(leaderboard.minTile()) && 
+        int(game.score) <= int(leaderboard.minScore())
+      );
+    
+    const topTile = parseInt(game.topTile)
+    gameElementArea.innerHTML = `
+      <div class="${
+        leaderboardItem && leaderboardItemUpToDate ? "" : "hidden"
+      }">
+        <span class="light">Leaderboard:</span> <span class='bold'>${
+          leaderboardItemIndex + 1
+        }</span>
+      </div>
+      <button class='hide-contest potential-leaderboard-game ${
+        leaderboardItemUpToDate ? "hidden" : ""
+      }' data-address='${game.address}'>
+        ${leaderboardItem ? "Update" : "Add To"} Leaderboard
+      </button>
+    `;
   }
 
   setOnClick(eByClass("potential-leaderboard-game"), (e) => {
