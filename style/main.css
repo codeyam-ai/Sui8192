@@ -1432,6 +1432,11 @@ li:nth-child(even) {
   padding: 12px;
 }
 
+#pause-message {
+  text-align: center;
+  color: white;
+}
+
 .contest-banner {
   padding: 30px;
   background-color: #4D8CF3;
