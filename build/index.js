@@ -766,41 +766,41 @@ function showUnknownError(error) {
   removeClass(eById("error-unknown"), "hidden");
 }
 
-async function tryDrip(address, suiBalance) {
-  if (!walletSigner || faucetUsed && network !== MAINNET) return;
-  const dripNetwork = TESTNET
-  faucetUsed = true;
+// async function tryDrip(address, suiBalance) {
+//   if (!walletSigner || faucetUsed && network !== MAINNET) return;
+//   const dripNetwork = TESTNET
+//   faucetUsed = true;
 
-  let success;
+//   let success;
   
-  try {
-    success = await ethos.dripSui({ address, network: dripNetwork });
-  } catch (e) {
-    console.log("Error with drip", e);
-    faucetUsed = false;
-    return;
-  }
+//   try {
+//     success = await ethos.dripSui({ address, network: dripNetwork });
+//   } catch (e) {
+//     console.log("Error with drip", e);
+//     faucetUsed = false;
+//     return;
+//   }
 
-  if (!success) {
-    const contents = await ethos.getWalletContents({ 
-      address,
-      network,
-      existingContents: walletContents
-    });
+//   if (!success) {
+//     const contents = await ethos.getWalletContents({ 
+//       address,
+//       network,
+//       existingContents: walletContents
+//     });
 
-    const { suiBalance: balanceCheck } = contents || walletContents;
+//     const { suiBalance: balanceCheck } = contents || walletContents;
 
-    if (suiBalance !== balanceCheck) {
-      success = true;
-    }
-  }
+//     if (suiBalance !== balanceCheck) {
+//       success = true;
+//     }
+//   }
 
-  if (success) {
-    removeClass(eById("faucet"), "hidden");
-    faucetUsed = true;
-    loadWalletContents();
-  }
-}
+//   if (success) {
+//     removeClass(eById("faucet"), "hidden");
+//     faucetUsed = true;
+//     loadWalletContents();
+//   }
+// }
 
 async function loadWalletContents() {
   if (!walletSigner?.currentAccount) return;
@@ -810,12 +810,11 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
-  const contents = await ethos.getWalletContents({ 
-    address, 
-    network,
-    existingContents: walletContents 
+  const contents = await ethos.checkForAssetType({ 
+    signer: walletSigner,
+    type: `${originalContractAddress}::game_8192::Game8192`
   });
-
+  
   if (!contents) {
     setTimeout(loadWalletContents, 3000)
     return;
@@ -823,16 +822,16 @@ async function loadWalletContents() {
 
   walletContents = contents;
   
-  const { suiBalance } = walletContents;
+  // const { suiBalance } = walletContents;
 
-  if (suiBalance < 5000000) {
-    tryDrip(address, suiBalance);
-  }
+  // if (suiBalance < 5000000) {
+  //   tryDrip(address, suiBalance);
+  // }
 
-  const balance = eById("balance")
-  if (balance) {
-    balance.innerHTML = formatBalance(suiBalance, 9) + " SUI";
-  }
+  // const balance = eById("balance")
+  // if (balance) {
+    balance.innerHTML = ""//formatBalance(suiBalance, 9) + " SUI";
+  // }
 }
 
 async function loadGames() {
@@ -852,31 +851,31 @@ async function loadGames() {
 
   addClass(loadGamesElement, "hidden");
 
-  let validIds;
-  if (leaderboardType === "contest") {
-    const { address } = walletSigner.currentAccount
-     validIds = await contest.validIds(address);
-  }
+  // let validIds;
+  // if (leaderboardType === "contest") {
+  //   const { address } = walletSigner.currentAccount
+  //    validIds = await contest.validIds(address);
+  // }
 
-  games = walletContents.nfts
-    .filter((nft) => {
-      if (nft.packageObjectId !== originalContractAddress) {
-        return false;
-      }
+  games = walletContents
+    // .filter((nft) => {
+    //   if (nft.packageObjectId !== originalContractAddress) {
+    //     return false;
+    //   }
 
-      if (validIds && !validIds.includes(nft.objectId)) {
-        return false;
-      }
+    //   if (validIds && !validIds.includes(nft.objectId)) {
+    //     return false;
+    //   }
 
-      return true;
-    })
+    //   return true;
+    // })
     .map((nft) => ({
-      address: nft.address,
-      board: nft.fields.active_board,
-      topTile: nft.fields.top_tile,
-      score: nft.fields.score,
-      imageUri: nft.imageUri,
-      gameOver: nft.fields.game_over,
+      address: nft.objectId,
+      board: nft.content.fields.active_board,
+      topTile: nft.content.fields.top_tile,
+      score: nft.content.fields.score,
+      imageUri: nft.display.data.image_url,
+      gameOver: nft.content.fields.game_over,
     }))
     .sort((a, b) => {
       const scoreDiff = b.score - a.score;
