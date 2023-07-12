@@ -698,7 +698,7 @@ a:visited {
   background-color: white;
   color: black;
   border-radius: 12px;
-  z-index: 2;
+  z-index: 99;
 
   width: 390px;
   overflow: hidden;
@@ -783,6 +783,7 @@ a:visited {
 .primary-button,
 .secondary-button,
 .sign-in,
+#unpause,
 #signed-out button,
 #mint-message button,
 .new-game,
@@ -1479,6 +1480,10 @@ li:nth-child(even) {
 
 .countdown-values .value:last-child {
   padding-right: 30px;
+}
+
+#pause-message {
+  background-color: #4D8CF3;
 }
 
 @media only screen and (max-width: 1300px) {

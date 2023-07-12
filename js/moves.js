@@ -52,7 +52,7 @@ const checkPreapprovals = async (chain, contractAddress, activeGameAddress, wall
 
     preapproval = result.approved;
   } catch (e) {
-    console.log("Error requesting preapproval", e);
+    alert(`Error requesting preapproval: ${e.message}`);
     preapproval = false;
   }
 
@@ -207,12 +207,12 @@ const execute = async (
 
   const newBoard = board.convertInfo(event);
 
+  onComplete(newBoard, direction);
+
   if (newBoard.gameOver) {
     onError({ gameOver: true });
     return;
   }
-
-  onComplete(newBoard, direction);
 
   const { direction: lastDirection, last_tile: lastTile, move_count: moveCount } = event.parsedJson;
   const transaction = {

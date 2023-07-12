@@ -1294,18 +1294,12 @@ module ethos::game_board_8192 {
     // #[test]
     // fun test__valid_move() {        
     //     let game_board = GameBoard8192 {
-    //         packed_spaces: 7066750781832232977,
+    //         packed_spaces: 12215772466657632514,
     //         score: 0,
     //         last_tile: vector[],
     //         top_tile: TILE1024,
     //         game_over: false
     //     };
-    //     move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
-    //     assert!(game_board_matches(&game_board, vector[
-    //         TILE32, EMPTY, EMPTY, TILE2, 
-    //         TILE8, EMPTY, EMPTY, EMPTY,
-    //         TILE2, TILE8, EMPTY, EMPTY, 
-    //         TILE4, TILE4, TILE8, TILE2
-    //     ]), 1);
+    //     move_direction(&mut game_board, RIGHT, vector[1,2,3,4,5,6]);
     // }  
 }

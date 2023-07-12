@@ -44,6 +44,8 @@ const LOCALNET_CHAIN = "sui:local";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
+const PAUSE_AT = 1000 * 60 * 60 * 2; // 2 hours
+
 let originalContractAddress = originalMainnetContractAddress;
 let contractAddress = mainnetContractAddress;
 let leaderboardAddress = mainnetLeaderboardAddress;
@@ -61,6 +63,7 @@ let network = MAINNET;
 let root;
 let leaderboardType = (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) ? "contest" : "normal"
 let countdownTimeout;
+let lastPauseAt = new Date().getTime();
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -200,6 +203,15 @@ const initializeKeyListener = () => {
 }
 
 const executeMove = (direction) => {
+  if (!lastPauseAt) {
+    return;
+  }
+
+  if (new Date().getTime() - lastPauseAt > PAUSE_AT) {
+    lastPauseAt = null;
+    showPauseModal();
+  }
+
   moves.execute(
     chain,
     originalContractAddress,
@@ -225,6 +237,18 @@ const executeMove = (direction) => {
       }
     }
   );
+}
+
+const showPauseModal = () => {
+  modal.open("pause", "container");
+  eByClass('modal')[0].style.top = (100 + (Math.random() * 150)) + "px"
+  eByClass('modal')[0].style.left = Math.random() * 50 + "px"
+  setOnClick(eById("unpause"), () => {
+    modal.close()
+    eByClass('modal')[0].style.top = null;
+    eByClass('modal')[0].style.left = null;
+    lastPauseAt = new Date().getTime();
+  });
 }
 
 function init() {
