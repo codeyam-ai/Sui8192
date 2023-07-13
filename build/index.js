@@ -810,10 +810,16 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
-  const contents = await ethos.checkForAssetType({ 
-    signer: walletSigner,
-    type: `${originalContractAddress}::game_8192::Game8192`
+  const contents = await ethos.getWalletContents({ 
+    address, 
+    network,
+    existingContents: walletContents 
   });
+
+  // const contents = await ethos.checkForAssetType({ 
+  //   signer: walletSigner,
+  //   type: `${originalContractAddress}::game_8192::Game8192`
+  // });
   
   if (!contents) {
     setTimeout(loadWalletContents, 3000)
@@ -822,16 +828,16 @@ async function loadWalletContents() {
 
   walletContents = contents;
   
-  // const { suiBalance } = walletContents;
+  const { suiBalance } = walletContents;
 
   // if (suiBalance < 5000000) {
   //   tryDrip(address, suiBalance);
   // }
 
-  // const balance = eById("balance")
-  // if (balance) {
-    balance.innerHTML = ""//formatBalance(suiBalance, 9) + " SUI";
-  // }
+  const balance = eById("balance")
+  if (balance) {
+    balance.innerHTML = formatBalance(suiBalance, 9) + " SUI";
+  }
 }
 
 async function loadGames() {
@@ -851,31 +857,39 @@ async function loadGames() {
 
   addClass(loadGamesElement, "hidden");
 
-  // let validIds;
-  // if (leaderboardType === "contest") {
-  //   const { address } = walletSigner.currentAccount
-  //    validIds = await contest.validIds(address);
-  // }
+  let validIds;
+  if (leaderboardType === "contest") {
+    const { address } = walletSigner.currentAccount
+     validIds = await contest.validIds(address);
+  }
 
-  games = walletContents
-    // .filter((nft) => {
-    //   if (nft.packageObjectId !== originalContractAddress) {
-    //     return false;
-    //   }
+  games = walletContents.nfts
+    .filter((nft) => {
+      if (nft.packageObjectId !== originalContractAddress) {
+        return false;
+      }
 
-    //   if (validIds && !validIds.includes(nft.objectId)) {
-    //     return false;
-    //   }
+      if (validIds && !validIds.includes(nft.objectId)) {
+        return false;
+      }
 
-    //   return true;
-    // })
+      return true;
+    })
+    // .map((nft) => ({
+    //   address: nft.objectId,
+    //   board: nft.content.fields.active_board,
+    //   topTile: nft.content.fields.top_tile,
+    //   score: nft.content.fields.score,
+    //   imageUri: nft.display.data.image_url,
+    //   gameOver: nft.content.fields.game_over,
+    // }))
     .map((nft) => ({
-      address: nft.objectId,
-      board: nft.content.fields.active_board,
-      topTile: nft.content.fields.top_tile,
-      score: nft.content.fields.score,
-      imageUri: nft.display.data.image_url,
-      gameOver: nft.content.fields.game_over,
+      address: nft.address,
+      board: nft.fields.active_board,
+      topTile: nft.fields.top_tile,
+      score: nft.fields.score,
+      imageUri: nft.imageUrl,
+      gameOver: nft.fields.game_over,
     }))
     .sort((a, b) => {
       const scoreDiff = b.score - a.score;
