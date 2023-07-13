@@ -418,16 +418,28 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
-  const contents = await ethos.getWalletContents({ 
-    address, 
-    network,
-    existingContents: walletContents 
-  });
-
-  // const contents = await ethos.checkForAssetType({ 
-  //   signer: walletSigner,
-  //   type: `${originalContractAddress}::game_8192::Game8192`
+  // const contents = await ethos.getWalletContents({ 
+  //   address, 
+  //   network,
+  //   existingContents: walletContents 
   // });
+
+  const t = new Date().getTime();
+  console.log("START")
+  let contents, cursor;
+  while (cursor !== null) {
+    const { assets, nextCursor } = await ethos.checkForAssetType({ 
+      signer: walletSigner,
+      type: `${originalContractAddress}::game_8192::Game8192`,
+      cursor
+    });
+
+    contents = [...(contents || []), ...assets]
+
+    if (nextCursor === cursor) break;
+    cursor = nextCursor;
+  }
+  console.log("END", new Date().getTime() - t)
   
   if (!contents) {
     setTimeout(loadWalletContents, 3000)
@@ -446,6 +458,12 @@ async function loadWalletContents() {
   if (balance) {
     balance.innerHTML = formatBalance(suiBalance, 9) + " SUI";
   }
+}
+
+async function fullyLoadGames() {
+  await loadGames();
+  await displayGames();
+  await associateGames();
 }
 
 async function loadGames() {
@@ -471,34 +489,34 @@ async function loadGames() {
      validIds = await contest.validIds(address);
   }
 
-  games = walletContents.nfts
-    .filter((nft) => {
-      if (nft.packageObjectId !== originalContractAddress) {
-        return false;
-      }
+  games = walletContents//.nfts
+    // .filter((nft) => {
+    //   if (nft.packageObjectId !== originalContractAddress) {
+    //     return false;
+    //   }
 
-      if (validIds && !validIds.includes(nft.objectId)) {
-        return false;
-      }
+    //   if (validIds && !validIds.includes(nft.objectId)) {
+    //     return false;
+    //   }
 
-      return true;
-    })
-    // .map((nft) => ({
-    //   address: nft.objectId,
-    //   board: nft.content.fields.active_board,
-    //   topTile: nft.content.fields.top_tile,
-    //   score: nft.content.fields.score,
-    //   imageUri: nft.display.data.image_url,
-    //   gameOver: nft.content.fields.game_over,
-    // }))
+    //   return true;
+    // })
     .map((nft) => ({
-      address: nft.address,
-      board: nft.fields.active_board,
-      topTile: nft.fields.top_tile,
-      score: nft.fields.score,
-      imageUri: nft.imageUrl,
-      gameOver: nft.fields.game_over,
+      address: nft.objectId,
+      board: nft.content.fields.active_board,
+      topTile: nft.content.fields.top_tile,
+      score: nft.content.fields.score,
+      imageUri: nft.display.data.image_url,
+      gameOver: nft.content.fields.game_over,
     }))
+    // .map((nft) => ({
+    //   address: nft.address,
+    //   board: nft.fields.active_board,
+    //   topTile: nft.fields.top_tile,
+    //   score: nft.fields.score,
+    //   imageUri: nft.imageUrl,
+    //   gameOver: nft.fields.game_over,
+    // }))
     .sort((a, b) => {
       const scoreDiff = b.score - a.score;
       if (b.gameOver && a.gameOver) return scoreDiff;
@@ -522,8 +540,10 @@ async function loadGames() {
       return; 
     }
   }
+}
 
-  let highScore = 0;
+async function displayGames() {
+  const gamesElement = eById("games-list");
 
   for (const game of games) {    
     const gameElement = document.createElement("DIV");
@@ -551,7 +571,10 @@ async function loadGames() {
 
     gamesElement.append(gameElement);
   }
+}
 
+async function associateGames() {
+  let highScore = 0;
   for (const game of games) {
     if (highScore < parseInt(game.score)) {
       highScore = parseInt(game.score);
@@ -595,7 +618,7 @@ async function loadGames() {
     } = e.target;
     e.stopPropagation();
     leaderboard.submit(network, chain, contractAddress, address, walletSigner, () => {
-      loadGames();
+      fullyLoadGames();
     });
   });
 
@@ -637,7 +660,7 @@ async function setActiveGame(game) {
     const gameAddress = activeGameAddress;
     showLeaderboard();
     leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
-      loadGames();
+      fullyLoadGames();
     });
   });
 }
@@ -646,7 +669,7 @@ function showLeaderboard() {
   clearTimeout(countdownTimeout);
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true);
-  loadGames();
+  fullyLoadGames();
   removeClass(eByClass("contest-game"), "hidden")
   addClass(eByClass("contest-pending"), "hidden")
   addClass(eById("countdown"), "hidden");
@@ -696,7 +719,7 @@ function trackCountdown() {
 function showContest() {
   setActiveGame(null);
   leaderboard.load(network, leaderboardAddress, true, true);
-  loadGames();
+  fullyLoadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
   removeClass(eByClass("leaderboard-button"), "selected");
@@ -760,7 +783,7 @@ const initializeClicks = () => {
     modal.close();
     showLeaderboard();
     leaderboard.submit(network, chain, contractAddress, gameAddress, walletSigner, () => {
-      loadGames();
+      fullyLoadGames();
     });
   });
 
@@ -876,6 +899,8 @@ const onWalletConnected = async ({ signer }) => {
     });
 
     await loadGames();
+    displayGames();
+    associateGames();
 
     // if (!contentsInterval) {
     //   contentsInterval = setInterval(loadWalletContents, 30000);
