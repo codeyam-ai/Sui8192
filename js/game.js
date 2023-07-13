@@ -424,8 +424,6 @@ async function loadWalletContents() {
   //   existingContents: walletContents 
   // });
 
-  const t = new Date().getTime();
-  console.log("START")
   let contents, cursor;
   while (cursor !== null) {
     const { assets, nextCursor } = await ethos.checkForAssetType({ 
@@ -439,7 +437,6 @@ async function loadWalletContents() {
     if (nextCursor === cursor) break;
     cursor = nextCursor;
   }
-  console.log("END", new Date().getTime() - t)
   
   if (!contents) {
     setTimeout(loadWalletContents, 3000)
@@ -899,8 +896,7 @@ const onWalletConnected = async ({ signer }) => {
     });
 
     await loadGames();
-    displayGames();
-    associateGames();
+    displayGames().then(() => setTimeout(associateGames, 500));
 
     // if (!contentsInterval) {
     //   contentsInterval = setInterval(loadWalletContents, 30000);
