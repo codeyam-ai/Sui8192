@@ -1596,6 +1596,14 @@ li:nth-child(even) {
     font-size: 45px;
   }
 
+  .panel-section {
+    padding: 12px;
+  }
+  
+  #leaderboard-panel {
+    width: calc(100% - 24px);
+  }
+
   @keyframes merge {
     40% {
       width: 70px;

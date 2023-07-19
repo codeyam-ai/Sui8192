@@ -1798,7 +1798,7 @@ const loadNextPage = async (network, contestLeaderboard, timestamp) => {
       
       <div class='leaderboard-name flex-1 '>
         <div title='${leaderAddress}'>
-          ${name === leaderAddress ? truncateMiddle(leaderAddress) : name}
+          ${name === leaderAddress ? truncateMiddle(leaderAddress, 4) : name}
         </div>
         <div class='chevron'>⌄</div>
       </div>     
