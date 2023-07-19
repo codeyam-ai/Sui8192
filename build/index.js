@@ -970,6 +970,11 @@ async function associateGames() {
     }
 
     const gameElementArea = document.getElementById(`game-${game.address}`);
+
+    if (!gameElementArea) {
+      continue;
+    }
+    
     let topGames = leaderboardType === "contest" ? 
       (await contest.getLeaders(network)).leaders :
       await leaderboard.topGames(network, leaderboardAddress);
@@ -1018,6 +1023,7 @@ async function associateGames() {
 }
 
 async function setActiveGame(game) {
+  window.scrollTo(0, 0);
   if (!game) {
     activeGameAddress = null;
     return;

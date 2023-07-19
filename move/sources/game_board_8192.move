@@ -723,6 +723,7 @@ module ethos::game_board_8192 {
         };
         move_direction(&mut game_board, DOWN, vector[1,2,3,4,5,6]);
         assert!(last_tile(&game_board) == &vector[(0 as u64), (2 as u64), (1 as u64)], 1);
+        assert!(top_tile(&game_board) == &8, *top_tile(&game_board));
         assert!(game_board_matches(&game_board, vector[
             EMPTY,   EMPTY,   TILE2,  EMPTY, 
             EMPTY,   EMPTY,   EMPTY,  EMPTY,
@@ -923,10 +924,11 @@ module ethos::game_board_8192 {
             ]),
             score: 0,
             last_tile: vector[],
-            top_tile: TILE1024,
+            top_tile: TILE512,
             game_over: false
         };
         assert!(move_possible(&game_board), 1);
+        assert!(top_tile(&game_board) == &9, *top_tile(&game_board));
     }
 
     #[test]
@@ -944,6 +946,7 @@ module ethos::game_board_8192 {
             game_over: false
         };
         assert!(move_possible(&game_board), 1);
+        assert!(top_tile(&game_board) == &10, *top_tile(&game_board));
     }
 
     #[test]
@@ -957,14 +960,16 @@ module ethos::game_board_8192 {
             ]),
             score: 500,
             last_tile: vector[],
-            top_tile: TILE1024,
+            top_tile: TILE512,
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
         assert!(score(&game_board) == &572, *score(&game_board));
+        assert!(top_tile(&game_board) == &9, *top_tile(&game_board));
 
         move_direction(&mut game_board, UP, vector[4,5,6,7,8,9]);
         assert!(score(&game_board) == &588, *score(&game_board));
+        assert!(top_tile(&game_board) == &9, *top_tile(&game_board));
     } 
 
     #[test]
@@ -1059,6 +1064,7 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &11, *top_tile(&game_board));
         assert!(game_board_matches(&game_board, vector[
             TILE2048, TILE4, TILE2, TILE4, 
             TILE512, TILE16, TILE8, EMPTY,
@@ -1082,6 +1088,7 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, UP, vector[1,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &9, *top_tile(&game_board));
         assert!(game_board_matches(&game_board, vector[
             TILE4, TILE2, TILE4, TILE16, 
             EMPTY, TILE8, TILE16, TILE256,
@@ -1152,6 +1159,7 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, LEFT, vector[4,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &11, *top_tile(&game_board));
         assert!(game_board_matches(&game_board, vector[
             TILE2048, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
@@ -1175,6 +1183,7 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, LEFT, vector[5,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &12, *top_tile(&game_board));
         assert!(game_board_matches(&game_board, vector[
             TILE4096, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
@@ -1198,6 +1207,7 @@ module ethos::game_board_8192 {
             game_over: false
         };
         move_direction(&mut game_board, LEFT, vector[6,2,3,4,5,6]);
+        assert!(top_tile(&game_board) == &13, *top_tile(&game_board));
         assert!(game_board_matches(&game_board, vector[
             TILE8192, EMPTY, EMPTY, EMPTY, 
             EMPTY, EMPTY, EMPTY, EMPTY,
