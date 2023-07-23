@@ -657,7 +657,7 @@ function init() {
     network,
     preferredWallets: ['Ethos Wallet'],
     hideEmailSignIn: true,
-    pollingInterval: 30000
+    pollingInterval: 300000
   };
 
   const start = eById("ethos-start");
