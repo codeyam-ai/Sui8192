@@ -1,4 +1,5 @@
 const BigNumber = require('bignumber.js');
+const { TransactionBlock, ethos } = require('ethos-connect');
 
 const utils = {
   eById: (id) => document.getElementById(id),
@@ -102,8 +103,35 @@ const utils = {
     return document.querySelectorAll('input[class=select-game-check]:checked')
   },
 
-  burnGames: (ids) => {
+  burnGames: async (ids, signer, contractAddress) => {
     console.log("BURN", ids)
+
+    const transactionBlock = new TransactionBlock();
+
+    for (const id of ids) {
+      transactionBlock.moveCall({
+        target: `${contractAddress}::game_8192::burn_game`,
+        typeArguments: [],
+        arguments: [transactionBlock.object(id)]
+      })  
+    }
+
+    try {
+      await ethos.transact({
+        signer,
+        transactionInput: {
+          transactionBlock,
+          options: {
+            showEvents: true
+          },
+          requestType: 'WaitForLocalExecution'
+        }
+      });
+      
+      console.log("Burn response", data)
+    } catch (e) {
+      console.log("Burn error", e)
+    }
   },
 
   fixGames: (ids) => {

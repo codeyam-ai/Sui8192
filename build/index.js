@@ -1240,7 +1240,8 @@ const initializeClicks = () => {
     for (const checkbox of checked) {
       gameIds.push(checkbox.dataset.address)
     }
-    burnGames(gameIds);
+    await burnGames(gameIds, walletSigner, contractAddress);
+    loadGames();
     cancelSelectGames();
   });
 
@@ -2501,6 +2502,7 @@ const hide = () => {
 module.exports = { next, length, add, remove, removeAll, show, hide };
 },{"./utils":10}],10:[function(require,module,exports){
 const BigNumber = require('bignumber.js');
+const { TransactionBlock, ethos } = require('ethos-connect');
 
 const utils = {
   eById: (id) => document.getElementById(id),
@@ -2604,8 +2606,35 @@ const utils = {
     return document.querySelectorAll('input[class=select-game-check]:checked')
   },
 
-  burnGames: (ids) => {
+  burnGames: async (ids, signer, contractAddress) => {
     console.log("BURN", ids)
+
+    const transactionBlock = new TransactionBlock();
+
+    for (const id of ids) {
+      transactionBlock.moveCall({
+        target: `${contractAddress}::game_8192::burn_game`,
+        typeArguments: [],
+        arguments: [transactionBlock.object(id)]
+      })  
+    }
+
+    try {
+      await ethos.transact({
+        signer,
+        transactionInput: {
+          transactionBlock,
+          options: {
+            showEvents: true
+          },
+          requestType: 'WaitForLocalExecution'
+        }
+      });
+      
+      console.log("Burn response", data)
+    } catch (e) {
+      console.log("Burn error", e)
+    }
   },
 
   fixGames: (ids) => {
@@ -2615,7 +2644,7 @@ const utils = {
 
 module.exports = utils;
   
-},{"bignumber.js":102}],11:[function(require,module,exports){
+},{"bignumber.js":102,"ethos-connect":111}],11:[function(require,module,exports){
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");

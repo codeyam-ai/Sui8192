@@ -848,7 +848,8 @@ const initializeClicks = () => {
     for (const checkbox of checked) {
       gameIds.push(checkbox.dataset.address)
     }
-    burnGames(gameIds);
+    await burnGames(gameIds, walletSigner, contractAddress);
+    loadGames();
     cancelSelectGames();
   });
 
