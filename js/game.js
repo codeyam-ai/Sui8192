@@ -554,7 +554,10 @@ async function displayGames() {
 
     const topTile = parseInt(game.topTile)
     gameElement.innerHTML = `
-      <div class='leader-stats flex-1'> 
+      <div class='leader-stats flex-1'>
+        <div class='select-game hidden'>
+          <input type='checkbox' class='select-game-check' id='select-${game.address}' />
+        </div>
         <div class='leader-tile subsubtitle color${topTile}'>
           ${Math.pow(2, topTile)}
         </div>
@@ -569,6 +572,12 @@ async function displayGames() {
 
     gamesElement.append(gameElement);
   }
+
+  setTimeout(() => {
+    setOnClick(eByClass("select-game-check"), (e) => {
+      e.stopPropagation();
+    })
+  }, 500)
 }
 
 async function associateGames() {
@@ -809,6 +818,14 @@ const initializeClicks = () => {
   setOnClick(eById("close-hosted"), () => {
     addClass(eById("hosted"), "hidden");
   });
+
+  setOnClick(eByClass('select-games'),  () => {
+    removeClass(eByClass('select-game'), 'hidden')
+  })
+
+  setOnClick(eByClass('cancel-select-games'),  () => {
+    addClass(eByClass('select-game'), 'hidden')
+  })
 };
 
 const onWalletConnected = async ({ signer }) => {

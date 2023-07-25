@@ -175,9 +175,9 @@ module.exports = {
 };
 },{"canvas-confetti":106}],3:[function(require,module,exports){
 module.exports = {
-  testnetContractAddress: "0x8befee6c1df58c61a86a09d98f7e956f5e9cd7cc073c3aac1baf77cd0c3e225b",
-  testnetLeaderboardAddress: "0xd3badc7e555e4489c76843157e43ed87b59f2e30f83f7f4ba2fa6c2906a1d8ca",
-  testnetMaintainerAddress: "0x25d56e43bd0ad2f57a41fd24ef1bba210bc0c60d4b6bdc034e9936bfc6da4aa0",
+  testnetContractAddress: "0xc2fbe453deeba29297d1535ea79fb1479c8d171ff69b00e522bed1fe0ce3d89c",
+  testnetLeaderboardAddress: "0xd998e116ab3b743038e925ef1512a3fe519de412745d894478fb252f6e5f51c5",
+  testnetMaintainerAddress: "0xb084ce6b7440603f0fa1214ed87b0a2e44bc6ebf3c2d699a620782772900f2bf",
   originalMainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
   mainnetContractAddress: "0x225a5eb5c580cb6b6c44ffd60c4d79021e79c5a6cea7eb3e60962ee5f9bc6cb2",
   mainnetLeaderboardAddress: "0xa834ebce466a79a3e2136c05fadce0322318051e0609f208a5d42cc04e0a67a3",
@@ -946,7 +946,10 @@ async function displayGames() {
 
     const topTile = parseInt(game.topTile)
     gameElement.innerHTML = `
-      <div class='leader-stats flex-1'> 
+      <div class='leader-stats flex-1'>
+        <div class='select-game hidden'>
+          <input type='checkbox' class='select-game-check' id='select-${game.address}' />
+        </div>
         <div class='leader-tile subsubtitle color${topTile}'>
           ${Math.pow(2, topTile)}
         </div>
@@ -961,6 +964,12 @@ async function displayGames() {
 
     gamesElement.append(gameElement);
   }
+
+  setTimeout(() => {
+    setOnClick(eByClass("select-game-check"), (e) => {
+      e.stopPropagation();
+    })
+  }, 500)
 }
 
 async function associateGames() {
@@ -1201,6 +1210,14 @@ const initializeClicks = () => {
   setOnClick(eById("close-hosted"), () => {
     addClass(eById("hosted"), "hidden");
   });
+
+  setOnClick(eByClass('select-games'),  () => {
+    removeClass(eByClass('select-game'), 'hidden')
+  })
+
+  setOnClick(eByClass('cancel-select-games'),  () => {
+    addClass(eByClass('select-game'), 'hidden')
+  })
 };
 
 const onWalletConnected = async ({ signer }) => {
