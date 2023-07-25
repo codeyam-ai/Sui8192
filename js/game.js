@@ -830,16 +830,20 @@ const initializeClicks = () => {
     removeClass(eById('fix-games'), 'hidden')
   })
 
-  const cancelSelectGames = () => {
+  const cancelSelectGames = (checkboxes = []) => {
     addClass(eByClass('select-game'), 'hidden')
     addClass(eByClass('cancel-select-games'), 'hidden')
     addClass(eById('burn-games'), 'hidden')
     addClass(eById('fix-games'), 'hidden')
     removeClass(eByClass('select-games'), 'hidden')
+
+    for (const checkbox of checkboxes) {
+      checkbox.checked = false;
+    }
   }
 
   setOnClick(eByClass('cancel-select-games'),  () => {
-    cancelSelectGames();
+    cancelSelectGames(getAllCheckedGames());
   })
 
   setOnClick(eById('burn-games'), async () => {
@@ -849,8 +853,8 @@ const initializeClicks = () => {
       gameIds.push(checkbox.dataset.address)
     }
     await burnGames(gameIds, walletSigner, contractAddress);
-    loadGames();
-    cancelSelectGames();
+    fullyLoadGames();
+    cancelSelectGames(checked);
   });
 
   setOnClick(eById('fix-games'), async () => {
@@ -859,8 +863,9 @@ const initializeClicks = () => {
     for (const checkbox of checked) {
       gameIds.push(checkbox.dataset.address)
     }
-    fixGames(gameIds)
-    cancelSelectGames();
+    await fixGames(gameIds, walletSigner, contractAddress)
+    fullyLoadGames();
+    cancelSelectGames(checked);
   });
 };
 

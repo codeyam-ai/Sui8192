@@ -104,7 +104,7 @@ const utils = {
   },
 
   burnGames: async (ids, signer, contractAddress) => {
-    console.log("BURN", ids)
+    console.log("Burn", ids)
 
     const transactionBlock = new TransactionBlock();
 
@@ -117,7 +117,7 @@ const utils = {
     }
 
     try {
-      await ethos.transact({
+      const data = await ethos.transact({
         signer,
         transactionInput: {
           transactionBlock,
@@ -134,8 +134,35 @@ const utils = {
     }
   },
 
-  fixGames: (ids) => {
-    console.log("FIX", ids)
+  fixGames: async (ids, signer, contractAddress) => {
+    console.log("Fix", ids)
+
+    const transactionBlock = new TransactionBlock();
+
+    for (const id of ids) {
+      transactionBlock.moveCall({
+        target: `${contractAddress}::game_8192::fix_game`,
+        typeArguments: [],
+        arguments: [transactionBlock.object(id)]
+      })  
+    }
+
+    try {
+      const data = await ethos.transact({
+        signer,
+        transactionInput: {
+          transactionBlock,
+          options: {
+            showEvents: true
+          },
+          requestType: 'WaitForLocalExecution'
+        }
+      });
+      
+      console.log("Fix response", data)
+    } catch (e) {
+      console.log("Fix error", e)
+    }
   }
 }
 
