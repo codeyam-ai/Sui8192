@@ -200,6 +200,25 @@ module ethos::game_8192 {
         game.game_over = game_over;
     }
 
+    public entry fun burn_game(game: Game8192)  {
+        let Game8192 {  
+            id,
+            game: _,
+            player: _,
+            active_board: _,
+            move_count: _,
+            score: _,
+            top_tile: _,      
+            game_over: _,
+        } = game;
+        object::delete(id);
+    }
+
+    // Not clear why the top_tile is not being set in the contract properly. This is a temporary fix.
+    public entry fun fix_game(game: &mut Game8192)  {
+        game.top_tile = game_board_8192::analyze_top_tile(&game.active_board);
+    }
+
     public entry fun pay_maintainer(maintainer: &mut Game8192Maintainer, ctx: &mut TxContext) {
         assert!(tx_context::sender(ctx) == maintainer.maintainer_address, ENotMaintainer);
         let amount = balance::value<SUI>(&maintainer.balance);
