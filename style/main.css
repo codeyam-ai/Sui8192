@@ -577,6 +577,11 @@ a:visited {
   background-color: #ffc700;
 }
 
+.select-game {
+  padding: 6px 12px;
+  margin: 0 -18px;
+}
+
 .merge {
   animation-name: merge;
   animation-duration: 0.5s;

@@ -96,6 +96,18 @@ const utils = {
     }
 
     return bn.decimalPlaces(3, BigNumber.ROUND_DOWN).toFormat() + postfix;
+  },
+
+  getAllCheckedGames: () => {
+    return document.querySelectorAll('input[class=select-game-check]:checked')
+  },
+
+  burnGames: (ids) => {
+    console.log("BURN", ids)
+  },
+
+  fixGames: (ids) => {
+    console.log("FIX", ids)
   }
 }
 
