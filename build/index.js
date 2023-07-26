@@ -251,8 +251,7 @@ const contest = {
         )
         
         const leaderboard = await response.json();
-        console.log(leaderboard)
-        const ids = leaderboard.games.map(g => g.gameId);
+        const ids = leaderboard.games.map(g => g.gameId); 
 
         const suiObjects = [];
         while(ids.length) {
@@ -1275,6 +1274,10 @@ const initializeClicks = () => {
     fullyLoadGames();
     cancelSelectGames(checked);
   });
+
+  setOnClick(eByClass('contest-day'), (e) => {
+    console.log(e.srcElement.dataset.day)
+  })
 };
 
 const onWalletConnected = async ({ signer }) => {

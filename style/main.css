@@ -1290,6 +1290,21 @@ a:visited.link-button {
   font-weight: 300;
 }
 
+.contest .contest-days {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  cursor: pointer;
+  color: #83808e;
+  font-weight: 600;
+}
+
+.contest .contest-days .selected {
+  text-decoration: underline;
+  color: #7937df;
+}
+
 .contest .contest-buttons {
   display: flex;
   flex-direction: row;

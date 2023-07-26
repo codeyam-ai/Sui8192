@@ -869,6 +869,10 @@ const initializeClicks = () => {
     fullyLoadGames();
     cancelSelectGames(checked);
   });
+
+  setOnClick(eByClass('contest-day'), (e) => {
+    console.log(e.srcElement.dataset.day)
+  })
 };
 
 const onWalletConnected = async ({ signer }) => {
