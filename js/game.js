@@ -65,9 +65,10 @@ let contentsInterval;
 let faucetUsed = false;
 let network = MAINNET;
 let root;
-let leaderboardType = (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) ? "contest" : "normal"
+let leaderboardType = "contest"
 let countdownTimeout;
 let lastPauseAt = new Date().getTime();
+let contestDay;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -259,9 +260,9 @@ function init() {
   // test();
   initializeNetwork();
   setActiveGameAddress();
-  trackCountdown();
+  // trackCountdown();
 
-  leaderboard.load(network, leaderboardAddress, false, leaderboardType === "contest");
+  leaderboard.load(network, leaderboardAddress, false, contestDay);
 
   const ethosConfiguration = {
     chain,
@@ -584,6 +585,8 @@ async function displayGames() {
 }
 
 async function associateGames() {
+  if (leaderboardType === "contest") return;
+
   let highScore = 0;
   for (const game of games) {
     if (highScore < parseInt(game.score)) {
@@ -596,9 +599,7 @@ async function associateGames() {
       continue;
     }
     
-    let topGames = leaderboardType === "contest" ? 
-      (await contest.getLeaders(network)).leaders :
-      await leaderboard.topGames(network, leaderboardAddress);
+    let topGames = leaderboardType === await leaderboard.topGames(network, leaderboardAddress);      
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.gameId === game.address
@@ -684,7 +685,7 @@ async function setActiveGame(game) {
 function showLeaderboard() {
   clearTimeout(countdownTimeout);
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress, true);
+  leaderboard.load(network, leaderboardAddress, true, null);
   fullyLoadGames();
   removeClass(eByClass("contest-game"), "hidden")
   addClass(eByClass("contest-pending"), "hidden")
@@ -699,42 +700,42 @@ function showLeaderboard() {
   leaderboardType = "normal"
 }
 
-function trackCountdown() {
-  clearTimeout(countdownTimeout);
-  const countdown = contest.timeUntilStart();
-  if (contest.ended()) {
-    removeClass(eByClass("after-contest"), "hidden");
-    addClass(eByClass("during-contest"), "hidden");
-    addClass(eByClass("contest-pending"), "hidden")
-    addClass(eById("countdown"), "hidden");
-    removeClass(eById("leaderboard-panel"), "hidden");
-    removeClass(eByClass("contest-game"), "hidden")
-  } else if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
-    removeClass(eByClass("during-contest"), "hidden");
-    addClass(eByClass("after-contest"), "hidden");
-    addClass(eByClass("contest-pending"), "hidden")
-    addClass(eById("countdown"), "hidden");
-    removeClass(eById("leaderboard-panel"), "hidden");
-    removeClass(eByClass("contest-game"), "hidden")
-  } else {
-    removeClass(eByClass("contest-pending"), "hidden")
-    addClass(eByClass("during-contest"), "hidden");
-    addClass(eByClass("after-contest"), "hidden");
-    addClass(eByClass("contest-game"), "hidden")
-    removeClass(eById("countdown"), "hidden");
-    addClass(eById("leaderboard-panel"), "hidden");
-    eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
-    eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
-    eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
-    eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
-  }
+// function trackCountdown() {
+//   clearTimeout(countdownTimeout);
+//   const countdown = contest.timesUntilStart();
+//   if (contest.ended()) {
+//     removeClass(eByClass("after-contest"), "hidden");
+//     addClass(eByClass("during-contest"), "hidden");
+//     addClass(eByClass("contest-pending"), "hidden")
+//     addClass(eById("countdown"), "hidden");
+//     removeClass(eById("leaderboard-panel"), "hidden");
+//     removeClass(eByClass("contest-game"), "hidden")
+//   } else if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
+//     removeClass(eByClass("during-contest"), "hidden");
+//     addClass(eByClass("after-contest"), "hidden");
+//     addClass(eByClass("contest-pending"), "hidden")
+//     addClass(eById("countdown"), "hidden");
+//     removeClass(eById("leaderboard-panel"), "hidden");
+//     removeClass(eByClass("contest-game"), "hidden")
+//   } else {
+//     removeClass(eByClass("contest-pending"), "hidden")
+//     addClass(eByClass("during-contest"), "hidden");
+//     addClass(eByClass("after-contest"), "hidden");
+//     addClass(eByClass("contest-game"), "hidden")
+//     removeClass(eById("countdown"), "hidden");
+//     addClass(eById("leaderboard-panel"), "hidden");
+//     eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
+//     eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
+//     eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
+//     eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
+//   }
 
-  countdownTimeout = setTimeout(trackCountdown, 1000);
-}
+//   countdownTimeout = setTimeout(trackCountdown, 1000);
+// }
 
 function showContest() {
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress, true, true);
+  leaderboard.load(network, leaderboardAddress, true, contestDay);
   fullyLoadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -742,6 +743,7 @@ function showContest() {
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("contest-button"), "selected");
   addClass(eById("leaderboard"), 'contest')
+  removeClass(eById("leaderboard-panel"), "hidden");
   leaderboardType = "contest"
   window.scrollTo(0, 0);
 }
@@ -969,14 +971,14 @@ const onWalletConnected = async ({ signer }) => {
 
     if (games.length === 0) {
       modal.close();
-      showLeaderboard();
+      showContest();
     } else {
       modal.close();
 
       if (games.length === 1) {
         setActiveGame(games[0]);
       } else {
-        showLeaderboard();
+        showContest();
       }
     }
 

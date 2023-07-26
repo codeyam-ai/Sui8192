@@ -217,7 +217,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
     return completeHTML;
 };
 
-const load = async (network, leaderboardAddress, force = false, contestLeaderboard = false) => {
+const load = async (network, leaderboardAddress, force = false, contestDay = 1) => {
     cachedLeaderboardAddress = leaderboardAddress
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
@@ -240,8 +240,8 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     leaderboardList.innerHTML = "";
 
     let games, timestamp;
-    if (contestLeaderboard) {
-      const leaderboard = await contest.getLeaders(network);
+    if (contestDay) {
+      const leaderboard = await contest.getLeaders(contestDay, network);
       games = leaderboard.leaders;
       timestamp = leaderboard.timestamp;
     } else {
@@ -254,10 +254,10 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     }
     setOnClick(eById("more-leaderboard"), () => loadNextPage(network, contestLeaderboard, timestamp));
 
-    await loadNextPage(network, contestLeaderboard, timestamp);
+    await loadNextPage(network, contestDay, contestLeaderboard, timestamp);
 };
 
-const loadNextPage = async (network, contestLeaderboard, timestamp) => {
+const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) => {
     if (loadingNextPage) return;
 
     loadingNextPage = true;
@@ -267,7 +267,7 @@ const loadNextPage = async (network, contestLeaderboard, timestamp) => {
 
     let games;
     if (contestLeaderboard) {
-      const leaderboard = await contest.getLeaders(network, timestamp);
+      const leaderboard = await contest.getLeaders(contestDay, network, timestamp);
       games = leaderboard.leaders;
     } else {
       games = await topGames(network, true);

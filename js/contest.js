@@ -12,16 +12,18 @@ const {
     contestLeaderboardId
   } = require("./constants");
   
-const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
+const contestApi = "https://dev-collection.ethoswallet.xyz/api/v1/sui8192"
 const startDate = new Date("2023-06-20T16:00:00.000Z");
 const endDate = new Date("2023-06-27T15:59:59.000Z");
 const cachedLeaders = {
     timestamp: 0,
     leaders: []
 }
+let leaderboardIds;
+let contestEndTime;
 
 const contest = {
-    getLeaders: async (network, timestamp) => {
+    getLeaders: async (day, network, timestamp) => {
         if (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30) {
             return cachedLeaders;
         }
@@ -29,8 +31,18 @@ const contest = {
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
+        if (!leaderboardIds || new Date(leaderboardIds[0].end) < Date.now()) {
+          const leaderboardResponse = await fetch(
+            `${contestApi}/leaderboards?limit=10`
+          )
+
+          const leaderboardList = await leaderboardResponse.json();
+          leaderboardIds = leaderboardList.map(l => l.id);
+        }
+        const leaderboardId = leaderboardIds[day - 1];
+
         const response = await fetch(
-            `${contestApi}/${contestLeaderboardId}/leaderboard`
+            `${contestApi}/${leaderboardId}/leaderboard`
         )
         
         const leaderboard = await response.json();

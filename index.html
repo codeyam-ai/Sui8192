@@ -62,16 +62,14 @@
             <div class="get-started-message" class="message text-center hidden">
               <div class="header">
                 <div></div>
-                <div style="font-size: small; font-weight: 500;">From June 20th - 27th, 2023</div>
+                <div><img src="contest-logo.png" alt="Sui8192 Logo" style="height: 30px;" /></div>
                 <div class="close">×</div>
               </div>
               <div class="start-content">
-                <img src="contest-logo.png" alt="Sui8192 Logo" style="height: 30px;" />
-                <h1 style="margin-top: 24px; font-weight: 800;">Sui Summer Contest</h1>
+                <h1 style="margin-top: 24px; font-weight: 800;">Daily Sui8192 Contest</h1>
                 <p style="font-size: x-large; font-weight: 400; line-height: normal;">
-                  100 winners & over 9,000 SUI in total prizes!
+                  Winners every day!
                 </p>
-                <p style="font-size: small; margin-bottom: 30px;">* US residents are not eligible *</p>
                 <button class='sign-in' style="font-size: large; font-weight: 500; padding: 12px 24px;">
                   Get Started
                 </button>
@@ -169,6 +167,9 @@
         <div class="header-buttons wide">
           <div class="play-button header-button selected">
             Play
+          </div>
+          <div class="contest-button header-button center">
+            Daily Contest
           </div>
           <div class="leaderboard-button header-button">
             Leaderboard
@@ -298,10 +299,10 @@
         <div class="play-button header-button selected">
           Play
         </div>
-        <!-- <div class="contest-button header-button">
-          Contest
+        <div class="contest-button header-button">
+          Daily Contest
           <div style="background-color: white; border-radius: 25%; padding: 3px">New</div>
-        </div> -->
+        </div>
         <div class="leaderboard-button header-button">
           Leaderboard
         </div>
@@ -321,25 +322,16 @@
             <div class="contest-banner">
               <img src="contest-logo.png" alt="Sui8192 Contest" style="height: 30px;" />
               <div>
-                <h2 style="font-size: xx-large; font-weight: 500;">SUI 8192 Summer Contest</h2>
-                <p style="font-size: large;">100 winners and over 9,000 SUI in prizes!</p>
-                <div class="during-contest">
-                  <p style="font-size: small;">From June 20th - June 27th, 2023</p>
-                  <p style="font-size: small;">* US residents are not eligible *</p>
-                </div>
-                <div class="after-contest">
-                  <p>The contest has ended!</p>
-                  <p>Congrats to all the winners!</p>
-                </div>
+                <h2 style="font-size: xx-large; font-weight: 500;">SUI 8192 Daily Contest</h2>
+                <p style="font-size: large;">Multiple winners every day!</p>
               </div>
             </div>
             <p class="contest-text">
-              Ethos Wallet and the Sui Foundation are hosting a SUI 8192 summer contest.
+              Ethos Wallet and the Sui Foundation are hosting a daily SUI 8192 contest.
               See below for more details on prizes and rules.
             </p>
             
             <h2 class="contest-title" style="font-size: x-large; margin-bottom: 0;">Competition Leaderboard</h2>
-            <p class="contest-pending" style="font-size: small; margin-bottom: 0;">The competition leaderboard will display here when the competition begins.</p>
           </div>
 
           <div class="content">
@@ -364,43 +356,6 @@
             </div>
           </div>
           <div class="split-panel">
-            <div id="countdown" class="panel panel-section hidden">
-              <h1 style="margin-bottom: 120px; font-size: xx-large; text-align: center;">Time Until Contest Begins</h1>
-              <div class='countdown-values'>
-                <div>
-                  <div id="countdown-time-days" class="value"></div>
-                  <div>Days</div>
-                </div>
-                <div class="colon">
-                  <div>:</div>
-                  <div></div>
-                </div>
-                <div>
-                  <div id="countdown-time-hours" class="value"></div>
-                  <div>Hours</div>
-                </div>
-                <div class="colon">
-                  <div>:</div>
-                  <div></div>
-                </div>
-                <div>
-                  <div id="countdown-time-minutes" class="value"></div>
-                  <div>Minutes</div>
-                </div>
-                <div class="colon">
-                  <div>:</div>
-                  <div></div>
-                </div>
-                <div>
-                  <div id="countdown-time-seconds" class="value"></div>
-                  <div>Seconds</div>
-                </div>  
-              </div>
-              <div style="padding-top: 90px; text-align: center;">
-                <h2 style="font-size: large;">In the meantime practice your game!</h2>
-                <button class="primary-button leaderboard-button">Play A Game</button>
-              </div>
-            </div>
             <div id="leaderboard-panel" class="panel panel-section hidden">
               <div class="leader-title">
                 <div class="title"><span class="show-contest">Contest</span> Leaderboard</div>
@@ -448,56 +403,19 @@
                   </div>
                 </div>
                 <div class="show-contest">
-                  <div class="contest-pending" style="text-align: center; padding: 24px;">
-                    The contest has not yet started. Check back soon!
-                  </div>  
-                </div>
-                <div class="show-contest">
-                  <div class="after-contest" style="text-align: center; padding: 12px;">
-                    The contest has ended.
+                  <div class="after-contest" style="text-align: center; padding-top: 12px;">
+                    This daily contest has ended.
                     <br/>
                     Congrats to all the winners!
-                    <div class="signed-in">
-                      <br/>
-                      If you are a winner be sure to provide your email below so the Sui Foundation can contact your about your prize.
-                    </div>
-                  </div>
-                </div>
-              
-                <div class="contest-game hidden">
-                  <div class="has-games">
-                    <div id="verify-section" class="signed-in show-contest hidden">
-                      <div id="verify-email-message" class="hidden">
-                        You must verify your email to receive prizes:
-                        <div id="verify-email">Verify Email</div>
-                        <div style="font-size: small;">If you have already verified you can ignore this.</div>
-                      </div>
-                      <div id="verify-email-form" class="hidden">
-                        <div>
-                          <input type="email" id="verify-email-input" placeholder="Email" />
-                          <button id="verify-email-button" class="primary-button">Send</button>
-                        </div>
-                        <div id="verify-email-response" class="hidden"></div>
-                      </div>
-                      <div id="verify-address-message" class="hidden">
-                        Hi <span id="verify-address-email"></span>, you must now verify your address:
-                        <span id="verify-address">Verify Address</span>
-                      </div>
-                      <div id="verified-message" class="hidden">
-                        Thank you! Your email and address have been verified.
-                        <span id="view-verification">View</span>
-                      </div>
-                      <div id="verification-review" class="hidden">
-                        <div id="verification-review-address"></div>
-                        <div id="verification-review-email"></div>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
                 <div class="show-contest">
-                  <div class="after-contest" style="text-align: center; padding: 12px;">
-                    You can still play, but no additional moves will count towards the contest as the leaderboard is frozen.
+                  <div class="after-contest" style="text-align: center; padding-top: 12px;">
+                    You can still play, but no additional moves on these games will count as the leaderboard is frozen.
+                  </div>
+                  <div class="after-contest" style="text-align: center; padding-top: 12px;">
+                    Visit today's contest and create a new game to compete!
                   </div>
                 </div>
 
@@ -566,20 +484,24 @@
                 </div>
                 <div>
                   <p>
-                    The following prizes will be distributed to the top 100 players (per the competition leaderboard <span class="contest-pending">which will display on this page</span>) at
-                    the end of the contest:
+                    Every day one contest will run starting and ending at 8am Eastern Time.
+                  </p>
+                  <p>
+                    SUI prizes will be awarded to the highest scoring games on the leaderboard 
+                    at the end of each day's contest. To be eligible, games must be started
+                    after the daily contest has begun. The score at the end of the contest 
+                    will be recorded even if the game has not ended.
+                  </p>
+                  <p>
+                    The following prizes will be sent to winning wallets within three 
+                    working days of the end of each contest.
                   </p>
                   <ul class="prizes">
-                    <li><b>1st Place:</b> 4,096 Sui</li>
-                    <li><b>2nd Place:</b> 2,048 Sui</li>
-                    <li><b>3rd Place:</b> 1,024 Sui</li>
-                    <li><b>4th Place:</b> 512 Sui</li>
-                    <li><b>5th Place:</b> 256 Sui</li>
-                    <li><b>6th Place:</b> 128 Sui</li>
-                    <li><b>7th - 9th Place:</b> 64 Sui</li>
-                    <li><b>10th -24th Place:</b> 32 Sui</li>
-                    <li><b>25th - 49th Place:</b> 16 Sui</li>
-                    <li><b>50th - 100th Place:</b> 8 Sui</li>
+                    <li><b>1st Place:</b> 60 Sui</li>
+                    <li><b>2nd Place:</b> 30 Sui</li>
+                    <li><b>3rd Place:</b> 15 Sui</li>
+                    <li><b>4th & 5th Place:</b> 10 Sui</li>
+                    <li><b>6th - 10th Place:</b>5 Sui</li>
                   </ul>
                 </div>
               </div>
@@ -588,14 +510,12 @@
                   Contest Rules
                 </div>
                 <div>
-                  <p>The following are the rules of the SUI 8192 contest, sponsored by the Sui Foundation:</p>
+                  <p>The following are the rules of the SUI 8192 daily contest, sponsored by the Sui Foundation:</p>
                   <ul>
-                    <li>US residents are <b><i>not</i></b> eligible</li>
-                    <li>All games must be created after <b>June 20th, 2023</b> at <b>4pm UTC</b></li>
-                    <li>Leaderboard will be locked and contest will end at <b>4pm UTC</b> on <b>June 27th, 2023</b></li>
-                    <li>Valid games will be displayed in your "Your Contest Games" section</li>
-                    <li>All winners must provide a valid email and go through a KYC "Know Your Customer" process to receive winnings.</li>
-                    <li>Each individual can only win a prize for one game, their highest scoring game of the competition</li>
+                    <li>All games must be created after <b>5am PT</b></li>
+                    <li>Leaderboard will be locked and daily contest will end at <b>5pm PT</b> each day</li>
+                    <li>Valid games will be displayed in your "Your Contest Games" section for each contest</li>
+                    <li>Each individual can only win a prize for one game, their highest scoring game of the daily competition</li>
                   </ul>
                 </div>
               </div>
@@ -791,12 +711,6 @@
         </div>
       </div>
     </div>
-    <div>
-      <div class="contest-button text-center">
-        Previous Contest Results
-      </div>
-    </div>
-
     <script src="build/index.js"></script>
   </body>
 </html>
