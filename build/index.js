@@ -175,11 +175,12 @@ module.exports = {
 };
 },{"canvas-confetti":106}],3:[function(require,module,exports){
 module.exports = {
-  testnetContractAddress: "0x8befee6c1df58c61a86a09d98f7e956f5e9cd7cc073c3aac1baf77cd0c3e225b",
-  testnetLeaderboardAddress: "0xd3badc7e555e4489c76843157e43ed87b59f2e30f83f7f4ba2fa6c2906a1d8ca",
-  testnetMaintainerAddress: "0x25d56e43bd0ad2f57a41fd24ef1bba210bc0c60d4b6bdc034e9936bfc6da4aa0",
+  testnetContractAddress: "0xc2fbe453deeba29297d1535ea79fb1479c8d171ff69b00e522bed1fe0ce3d89c",
+  testnetLeaderboardAddress: "0xd998e116ab3b743038e925ef1512a3fe519de412745d894478fb252f6e5f51c5",
+  testnetMaintainerAddress: "0xb084ce6b7440603f0fa1214ed87b0a2e44bc6ebf3c2d699a620782772900f2bf",
   originalMainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
   mainnetContractAddress: "0x225a5eb5c580cb6b6c44ffd60c4d79021e79c5a6cea7eb3e60962ee5f9bc6cb2",
+  newMainnetContractAddress: "0x033495b86d276fcf98695d1a8225242783ee26e232f547653a3412245f5ae4c3",
   mainnetLeaderboardAddress: "0xa834ebce466a79a3e2136c05fadce0322318051e0609f208a5d42cc04e0a67a3",
   mainnetMaintainerAddress: "0x1d6d6770b9929e9d8233b31348f035a2a552d8427ae07d6413d1f88939f3807f",
   tileNames: {
@@ -415,6 +416,9 @@ const {
   truncateMiddle,
   formatBalance,
   setOnClick,
+  getAllCheckedGames,
+  burnGames,
+  fixGames,
 } = require("./utils");
 const modal = require("./modal");
 const queue = require("./queue");
@@ -946,7 +950,10 @@ async function displayGames() {
 
     const topTile = parseInt(game.topTile)
     gameElement.innerHTML = `
-      <div class='leader-stats flex-1'> 
+      <div class='leader-stats flex-1'>
+        <div class='select-game hidden'>
+          <input type='checkbox' class='select-game-check' data-address='${game.address}' />
+        </div>
         <div class='leader-tile subsubtitle color${topTile}'>
           ${Math.pow(2, topTile)}
         </div>
@@ -961,6 +968,12 @@ async function displayGames() {
 
     gamesElement.append(gameElement);
   }
+
+  setTimeout(() => {
+    setOnClick(eByClass("select-game"), (e) => {
+      e.stopPropagation();
+    })
+  }, 500)
 }
 
 async function associateGames() {
@@ -1200,6 +1213,52 @@ const initializeClicks = () => {
 
   setOnClick(eById("close-hosted"), () => {
     addClass(eById("hosted"), "hidden");
+  });
+
+  setOnClick(eByClass('select-games'),  () => {
+    addClass(eByClass('select-games'), 'hidden')
+    removeClass(eByClass('select-game'), 'hidden')
+    removeClass(eByClass('cancel-select-games'), 'hidden')
+    removeClass(eById('burn-games'), 'hidden')
+    removeClass(eById('fix-games'), 'hidden')
+  })
+
+  const cancelSelectGames = (checkboxes = []) => {
+    addClass(eByClass('select-game'), 'hidden')
+    addClass(eByClass('cancel-select-games'), 'hidden')
+    addClass(eById('burn-games'), 'hidden')
+    addClass(eById('fix-games'), 'hidden')
+    removeClass(eByClass('select-games'), 'hidden')
+
+    for (const checkbox of checkboxes) {
+      checkbox.checked = false;
+    }
+  }
+
+  setOnClick(eByClass('cancel-select-games'),  () => {
+    cancelSelectGames(getAllCheckedGames());
+  })
+
+  setOnClick(eById('burn-games'), async () => {
+    const checked = getAllCheckedGames()
+    const gameIds = []
+    for (const checkbox of checked) {
+      gameIds.push(checkbox.dataset.address)
+    }
+    await burnGames(gameIds, walletSigner, contractAddress);
+    fullyLoadGames();
+    cancelSelectGames(checked);
+  });
+
+  setOnClick(eById('fix-games'), async () => {
+    const checked = getAllCheckedGames()
+    const gameIds = []
+    for (const checkbox of checked) {
+      gameIds.push(checkbox.dataset.address)
+    }
+    await fixGames(gameIds, walletSigner, contractAddress)
+    fullyLoadGames();
+    cancelSelectGames(checked);
   });
 };
 
@@ -2449,6 +2508,8 @@ const hide = () => {
 module.exports = { next, length, add, remove, removeAll, show, hide };
 },{"./utils":10}],10:[function(require,module,exports){
 const BigNumber = require('bignumber.js');
+const { TransactionBlock, ethos } = require('ethos-connect');
+const { newMainnetContractAddress } = require('./constants');
 
 const utils = {
   eById: (id) => document.getElementById(id),
@@ -2546,12 +2607,78 @@ const utils = {
     }
 
     return bn.decimalPlaces(3, BigNumber.ROUND_DOWN).toFormat() + postfix;
+  },
+
+  getAllCheckedGames: () => {
+    return document.querySelectorAll('input[class=select-game-check]:checked')
+  },
+
+  burnGames: async (ids, signer, contractAddress) => {
+    console.log("Burn", ids)
+
+    const transactionBlock = new TransactionBlock();
+
+    for (const id of ids) {
+      transactionBlock.moveCall({
+        target: `${newMainnetContractAddress}::game_8192::burn_game`,
+        typeArguments: [],
+        arguments: [transactionBlock.object(id)]
+      })  
+    }
+
+    try {
+      const data = await ethos.transact({
+        signer,
+        transactionInput: {
+          transactionBlock,
+          options: {
+            showEvents: true
+          },
+          requestType: 'WaitForLocalExecution'
+        }
+      });
+      
+      console.log("Burn response", data)
+    } catch (e) {
+      console.log("Burn error", e)
+    }
+  },
+
+  fixGames: async (ids, signer, contractAddress) => {
+    console.log("Fix", ids)
+
+    const transactionBlock = new TransactionBlock();
+
+    for (const id of ids) {
+      transactionBlock.moveCall({
+        target: `${newMainnetContractAddress}::game_8192::fix_game`,
+        typeArguments: [],
+        arguments: [transactionBlock.object(id)]
+      })  
+    }
+
+    try {
+      const data = await ethos.transact({
+        signer,
+        transactionInput: {
+          transactionBlock,
+          options: {
+            showEvents: true
+          },
+          requestType: 'WaitForLocalExecution'
+        }
+      });
+      
+      console.log("Fix response", data)
+    } catch (e) {
+      console.log("Fix error", e)
+    }
   }
 }
 
 module.exports = utils;
   
-},{"bignumber.js":102}],11:[function(require,module,exports){
+},{"./constants":3,"bignumber.js":102,"ethos-connect":111}],11:[function(require,module,exports){
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");

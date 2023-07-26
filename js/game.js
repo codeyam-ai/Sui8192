@@ -23,6 +23,9 @@ const {
   truncateMiddle,
   formatBalance,
   setOnClick,
+  getAllCheckedGames,
+  burnGames,
+  fixGames,
 } = require("./utils");
 const modal = require("./modal");
 const queue = require("./queue");
@@ -554,7 +557,10 @@ async function displayGames() {
 
     const topTile = parseInt(game.topTile)
     gameElement.innerHTML = `
-      <div class='leader-stats flex-1'> 
+      <div class='leader-stats flex-1'>
+        <div class='select-game hidden'>
+          <input type='checkbox' class='select-game-check' data-address='${game.address}' />
+        </div>
         <div class='leader-tile subsubtitle color${topTile}'>
           ${Math.pow(2, topTile)}
         </div>
@@ -569,6 +575,12 @@ async function displayGames() {
 
     gamesElement.append(gameElement);
   }
+
+  setTimeout(() => {
+    setOnClick(eByClass("select-game"), (e) => {
+      e.stopPropagation();
+    })
+  }, 500)
 }
 
 async function associateGames() {
@@ -808,6 +820,52 @@ const initializeClicks = () => {
 
   setOnClick(eById("close-hosted"), () => {
     addClass(eById("hosted"), "hidden");
+  });
+
+  setOnClick(eByClass('select-games'),  () => {
+    addClass(eByClass('select-games'), 'hidden')
+    removeClass(eByClass('select-game'), 'hidden')
+    removeClass(eByClass('cancel-select-games'), 'hidden')
+    removeClass(eById('burn-games'), 'hidden')
+    removeClass(eById('fix-games'), 'hidden')
+  })
+
+  const cancelSelectGames = (checkboxes = []) => {
+    addClass(eByClass('select-game'), 'hidden')
+    addClass(eByClass('cancel-select-games'), 'hidden')
+    addClass(eById('burn-games'), 'hidden')
+    addClass(eById('fix-games'), 'hidden')
+    removeClass(eByClass('select-games'), 'hidden')
+
+    for (const checkbox of checkboxes) {
+      checkbox.checked = false;
+    }
+  }
+
+  setOnClick(eByClass('cancel-select-games'),  () => {
+    cancelSelectGames(getAllCheckedGames());
+  })
+
+  setOnClick(eById('burn-games'), async () => {
+    const checked = getAllCheckedGames()
+    const gameIds = []
+    for (const checkbox of checked) {
+      gameIds.push(checkbox.dataset.address)
+    }
+    await burnGames(gameIds, walletSigner, contractAddress);
+    fullyLoadGames();
+    cancelSelectGames(checked);
+  });
+
+  setOnClick(eById('fix-games'), async () => {
+    const checked = getAllCheckedGames()
+    const gameIds = []
+    for (const checkbox of checked) {
+      gameIds.push(checkbox.dataset.address)
+    }
+    await fixGames(gameIds, walletSigner, contractAddress)
+    fullyLoadGames();
+    cancelSelectGames(checked);
   });
 };
 

@@ -1,4 +1,6 @@
 const BigNumber = require('bignumber.js');
+const { TransactionBlock, ethos } = require('ethos-connect');
+const { newMainnetContractAddress } = require('./constants');
 
 const utils = {
   eById: (id) => document.getElementById(id),
@@ -96,6 +98,72 @@ const utils = {
     }
 
     return bn.decimalPlaces(3, BigNumber.ROUND_DOWN).toFormat() + postfix;
+  },
+
+  getAllCheckedGames: () => {
+    return document.querySelectorAll('input[class=select-game-check]:checked')
+  },
+
+  burnGames: async (ids, signer, contractAddress) => {
+    console.log("Burn", ids)
+
+    const transactionBlock = new TransactionBlock();
+
+    for (const id of ids) {
+      transactionBlock.moveCall({
+        target: `${newMainnetContractAddress}::game_8192::burn_game`,
+        typeArguments: [],
+        arguments: [transactionBlock.object(id)]
+      })  
+    }
+
+    try {
+      const data = await ethos.transact({
+        signer,
+        transactionInput: {
+          transactionBlock,
+          options: {
+            showEvents: true
+          },
+          requestType: 'WaitForLocalExecution'
+        }
+      });
+      
+      console.log("Burn response", data)
+    } catch (e) {
+      console.log("Burn error", e)
+    }
+  },
+
+  fixGames: async (ids, signer, contractAddress) => {
+    console.log("Fix", ids)
+
+    const transactionBlock = new TransactionBlock();
+
+    for (const id of ids) {
+      transactionBlock.moveCall({
+        target: `${newMainnetContractAddress}::game_8192::fix_game`,
+        typeArguments: [],
+        arguments: [transactionBlock.object(id)]
+      })  
+    }
+
+    try {
+      const data = await ethos.transact({
+        signer,
+        transactionInput: {
+          transactionBlock,
+          options: {
+            showEvents: true
+          },
+          requestType: 'WaitForLocalExecution'
+        }
+      });
+      
+      console.log("Fix response", data)
+    } catch (e) {
+      console.log("Fix error", e)
+    }
   }
 }
 

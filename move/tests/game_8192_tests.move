@@ -104,4 +104,20 @@ module ethos::game_8192_tests {
 
         test_scenario::end(scenario);
     }
+
+    #[test]
+    fun test_burn_game() {
+        let scenario = test_scenario::begin(PLAYER);
+        {
+            create_game(&mut scenario);
+        };
+
+        test_scenario::next_tx(&mut scenario, PLAYER);
+        {
+            let game = test_scenario::take_from_sender<Game8192>(&mut scenario);
+            game_8192::burn_game(game);
+        };
+
+        test_scenario::end(scenario);
+    }
 }

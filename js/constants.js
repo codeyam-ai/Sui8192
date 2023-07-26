@@ -1,9 +1,10 @@
 module.exports = {
-  testnetContractAddress: "0x8befee6c1df58c61a86a09d98f7e956f5e9cd7cc073c3aac1baf77cd0c3e225b",
-  testnetLeaderboardAddress: "0xd3badc7e555e4489c76843157e43ed87b59f2e30f83f7f4ba2fa6c2906a1d8ca",
-  testnetMaintainerAddress: "0x25d56e43bd0ad2f57a41fd24ef1bba210bc0c60d4b6bdc034e9936bfc6da4aa0",
+  testnetContractAddress: "0xc2fbe453deeba29297d1535ea79fb1479c8d171ff69b00e522bed1fe0ce3d89c",
+  testnetLeaderboardAddress: "0xd998e116ab3b743038e925ef1512a3fe519de412745d894478fb252f6e5f51c5",
+  testnetMaintainerAddress: "0xb084ce6b7440603f0fa1214ed87b0a2e44bc6ebf3c2d699a620782772900f2bf",
   originalMainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
   mainnetContractAddress: "0x225a5eb5c580cb6b6c44ffd60c4d79021e79c5a6cea7eb3e60962ee5f9bc6cb2",
+  newMainnetContractAddress: "0x033495b86d276fcf98695d1a8225242783ee26e232f547653a3412245f5ae4c3",
   mainnetLeaderboardAddress: "0xa834ebce466a79a3e2136c05fadce0322318051e0609f208a5d42cc04e0a67a3",
   mainnetMaintainerAddress: "0x1d6d6770b9929e9d8233b31348f035a2a552d8427ae07d6413d1f88939f3807f",
   tileNames: {

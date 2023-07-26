@@ -191,6 +191,28 @@ module ethos::game_board_8192 {
         vector::length(&empty_space_positions(game_board, ALL))
     }
 
+    public(friend) fun analyze_top_tile(game_board: &GameBoard8192): u64 {
+        let top_tile = 0;
+
+        let rows = ROW_COUNT;
+        let columns = COLUMN_COUNT;
+        
+        let row = 0;
+        while (row < rows) {
+          let column = 0;
+          while (column < columns) {
+            let space = board_space_at(game_board, row, column);
+            if (space > top_tile) {
+              top_tile = space
+            };
+            column = column + 1;
+          };
+          row = row + 1;
+        };
+
+        top_tile
+    }
+
 
     // PRIVATE FUNCTIONS //
 
@@ -1300,6 +1322,23 @@ module ethos::game_board_8192 {
             TILE4, TILE4, TILE8, TILE2
         ]), 1);
     }  
+
+    #[test]
+    fun test_analyze_top_tile() {
+        let game_board = GameBoard8192 {
+            packed_spaces: pack_spaces(vector[
+                EMPTY, EMPTY, EMPTY, TILE16,
+                EMPTY, TILE2, TILE4, TILE256,
+                TILE2, TILE4, TILE8, TILE512,
+                TILE2, TILE4, TILE8, TILE128
+            ]),
+            score: 0,
+            last_tile: vector[],
+            top_tile: TILE512,
+            game_over: false
+        };
+        assert!(analyze_top_tile(&game_board) == 9, analyze_top_tile(&game_board));
+    }
 
     // #[test]
     // fun test__valid_move() {        
