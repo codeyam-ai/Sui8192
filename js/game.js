@@ -492,17 +492,13 @@ async function loadGames() {
   }
 
   games = walletContents//.nfts
-    // .filter((nft) => {
-    //   if (nft.packageObjectId !== originalContractAddress) {
-    //     return false;
-    //   }
+    .filter((nft) => {
+      if (validIds && !validIds.includes(nft.objectId)) {
+        return false;
+      }
 
-    //   if (validIds && !validIds.includes(nft.objectId)) {
-    //     return false;
-    //   }
-
-    //   return true;
-    // })
+      return true;
+    })
     .map((nft) => ({
       address: nft.objectId,
       board: nft.content.fields.active_board,
@@ -871,7 +867,9 @@ const initializeClicks = () => {
   });
 
   setOnClick(eByClass('contest-day'), (e) => {
-    console.log(e.srcElement.dataset.day)
+    contestDay = e.srcElement.dataset.day;
+    leaderboard.load(network, leaderboardAddress, true, contestDay);
+    loadGames()
   })
 };
 

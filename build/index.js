@@ -200,7 +200,6 @@ module.exports = {
   },
   supabaseProject: "cqqcogxdhircwzdfcqet",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
-  contestLeaderboardId: 'f8f51a89-c74e-423d-a231-c9c761465a0d'
 }
 },{}],4:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
@@ -897,17 +896,13 @@ async function loadGames() {
   }
 
   games = walletContents//.nfts
-    // .filter((nft) => {
-    //   if (nft.packageObjectId !== originalContractAddress) {
-    //     return false;
-    //   }
+    .filter((nft) => {
+      if (validIds && !validIds.includes(nft.objectId)) {
+        return false;
+      }
 
-    //   if (validIds && !validIds.includes(nft.objectId)) {
-    //     return false;
-    //   }
-
-    //   return true;
-    // })
+      return true;
+    })
     .map((nft) => ({
       address: nft.objectId,
       board: nft.content.fields.active_board,
@@ -1276,7 +1271,9 @@ const initializeClicks = () => {
   });
 
   setOnClick(eByClass('contest-day'), (e) => {
-    console.log(e.srcElement.dataset.day)
+    contestDay = e.srcElement.dataset.day;
+    leaderboard.load(network, leaderboardAddress, true, contestDay);
+    loadGames()
   })
 };
 
@@ -1830,9 +1827,9 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
     if (best) {
       best.innerHTML = games[0]?.score || 0;
     }
-    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, contestLeaderboard, timestamp));
+    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, !!contestDay, timestamp));
 
-    await loadNextPage(network, contestDay, contestLeaderboard, timestamp);
+    await loadNextPage(network, contestDay, !!contestDay, timestamp);
 };
 
 const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) => {

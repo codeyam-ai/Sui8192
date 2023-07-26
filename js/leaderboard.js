@@ -252,9 +252,9 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
     if (best) {
       best.innerHTML = games[0]?.score || 0;
     }
-    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, contestLeaderboard, timestamp));
+    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, !!contestDay, timestamp));
 
-    await loadNextPage(network, contestDay, contestLeaderboard, timestamp);
+    await loadNextPage(network, contestDay, !!contestDay, timestamp);
 };
 
 const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) => {
