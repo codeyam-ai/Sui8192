@@ -1,10 +1,10 @@
 [package]
 name = "sui8192"
-version = "0.0.2"
-published-at = "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e"
+version = "0.0.3"
+published-at = "0x225a5eb5c580cb6b6c44ffd60c4d79021e79c5a6cea7eb3e60962ee5f9bc6cb2"
 
 [dependencies]
 Sui = { local = "../../../sui/sui/crates/sui-framework/packages/sui-framework" }
 
 [addresses]
-ethos = "0x225a5eb5c580cb6b6c44ffd60c4d79021e79c5a6cea7eb3e60962ee5f9bc6cb2"
+ethos = "0x033495b86d276fcf98695d1a8225242783ee26e232f547653a3412245f5ae4c3"

@@ -1,5 +1,6 @@
 const BigNumber = require('bignumber.js');
 const { TransactionBlock, ethos } = require('ethos-connect');
+const { newMainnetContractAddress } = require('./constants');
 
 const utils = {
   eById: (id) => document.getElementById(id),
@@ -110,7 +111,7 @@ const utils = {
 
     for (const id of ids) {
       transactionBlock.moveCall({
-        target: `${contractAddress}::game_8192::burn_game`,
+        target: `${newMainnetContractAddress}::game_8192::burn_game`,
         typeArguments: [],
         arguments: [transactionBlock.object(id)]
       })  
@@ -141,7 +142,7 @@ const utils = {
 
     for (const id of ids) {
       transactionBlock.moveCall({
-        target: `${contractAddress}::game_8192::fix_game`,
+        target: `${newMainnetContractAddress}::game_8192::fix_game`,
         typeArguments: [],
         arguments: [transactionBlock.object(id)]
       })  
