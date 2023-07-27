@@ -242,7 +242,6 @@ const contest = {
           leaderboards = await leaderboardResponse.json();
         }
         const selectedLeaderboard = leaderboards[day - 1];
-        console.log(selectedLeaderboard)
         const leaderboardId = selectedLeaderboard.id;
         startDate = new Date(selectedLeaderboard.start);
         endDate = new Date(selectedLeaderboard.end);
@@ -1275,7 +1274,7 @@ const initializeClicks = () => {
   setOnClick(eByClass('contest-day'), (e) => {
     removeClass(eByClass('contest-day'), 'selected')
     contestDay = e.srcElement.dataset.day;
-    addClass(e.srcElement, 'selected')
+    addClass(eById(`contest-day-${contestDay}`), 'selected')
     leaderboard.load(network, leaderboardAddress, true, contestDay);
     loadGames()
   })

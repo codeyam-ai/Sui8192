@@ -362,11 +362,11 @@
               </div>
               <div class="show-contest">
                 <div class="contest-days">
-                  <div class="contest-day selected" data-day="1">Today</div>
-                  <div class='contest-day' data-day="2">Yesterday</div>
-                  <div class='contest-day' data-day="3">2 Days Ago</div>
-                  <div class='contest-day' data-day="4">3 Days Ago</div>
-                  <div class='contest-day' data-day="5">4 Days Ago</div>
+                  <div id='contest-day-1' class="contest-day selected" data-day="1">Today</div>
+                  <div id='contest-day-2' class='contest-day' data-day="2">Yesterday</div>
+                  <div id='contest-day-3' class='contest-day' data-day="3">2 Days Ago</div>
+                  <div id='contest-day-4' class='contest-day' data-day="4">3 Days Ago</div>
+                  <div id='contest-day-5' class='contest-day' data-day="5">4 Days Ago</div>
                 </div>
               </div>
               <div class="show-contest text-center hidden" style="padding-top: 30px;">
@@ -431,7 +431,7 @@
                     You can still play, but no additional moves on these games will count as the leaderboard is frozen.
                   </div>
                   <div class="after-contest" style="text-align: center; padding-top: 12px;">
-                    Visit today's contest and create a new game to compete!
+                    Visit <span class='contest-day' data-day="1">today's contest</span> and create a new game to compete!
                   </div>
                 </div>
 

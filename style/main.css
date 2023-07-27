@@ -1300,9 +1300,10 @@ a:visited.link-button {
   font-weight: 600;
 }
 
-.contest .contest-days .selected {
+.contest .contest-days .selected, span.contest-day {
   text-decoration: underline;
   color: #7937df;
+  cursor: pointer;
 }
 
 .contest .contest-buttons {

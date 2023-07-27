@@ -869,7 +869,7 @@ const initializeClicks = () => {
   setOnClick(eByClass('contest-day'), (e) => {
     removeClass(eByClass('contest-day'), 'selected')
     contestDay = e.srcElement.dataset.day;
-    addClass(e.srcElement, 'selected')
+    addClass(eById(`contest-day-${contestDay}`), 'selected')
     leaderboard.load(network, leaderboardAddress, true, contestDay);
     loadGames()
   })
