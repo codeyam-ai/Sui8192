@@ -1482,26 +1482,29 @@ li:nth-child(even) {
 }
 
 .countdown-values {
+  margin: auto;
+  width: 450px;
   display: flex; 
   flex-direction: row; 
   justify-content: center;
+  align-items: start;
 }
 
 .countdown-values div {
-  width: 102px;
+  width: 90px;
   text-align: center;
 }
 
 .countdown-values .colon div {
   width: 30px;
   text-align: center;
-  font-size: 60px;
+  font-size: 45px;
 }
 
 .countdown-values .value {
-  font-size: 60px;
+  font-size: 45px;
   font-weight: bold;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 
 .countdown-values .value:last-child {

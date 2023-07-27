@@ -260,8 +260,8 @@ function init() {
   // test();
   initializeNetwork();
   setActiveGameAddress();
-  // trackCountdown();
-
+  contest.countdown();
+  
   leaderboard.load(network, leaderboardAddress, false, contestDay);
 
   const ethosConfiguration = {

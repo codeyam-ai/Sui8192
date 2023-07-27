@@ -11,7 +11,7 @@ const {
     mainnetContractAddress,
     contestLeaderboardId
   } = require("./constants");
-const { eByClass, addClass, removeClass } = require("./utils");
+const { eById, eByClass, addClass, removeClass } = require("./utils");
   
 const contestApi = "https://dev-collection.ethoswallet.xyz/api/v1/sui8192"
 const cachedLeaders = {
@@ -129,14 +129,14 @@ const contest = {
         return validGames.filter((game) => new Date(game.start) >= startDate).map((game) => game.gameId);
     },
 
-    timeUntilStart: () => {  
+    timeUntilEnd: () => {  
         const _second = 1000;
         const _minute = _second * 60;
         const _hour = _minute * 60;
         const _day = _hour * 24;
 
         const now = new Date();
-        const distance = startDate - now;
+        const distance = endDate - now;
         
         return {
             days: Math.floor(distance / _day),
@@ -144,6 +144,15 @@ const contest = {
             minutes: Math.floor((distance % _hour) / _minute),
             seconds: Math.floor((distance % _minute) / _second)
         }
+    },
+
+    countdown: () => {
+      const remaining = contest.timeUntilEnd();
+      eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
+      eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
+      eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
+      eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;    
+      setTimeout(contest.countdown, 1000)  
     },
 
     ended: () => {
