@@ -248,6 +248,12 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
       games = await topGames(network, true);
     }
 
+    if (games.length > 0) {
+      addClass(eByClass('no-games-leader'), 'hidden')
+    } else {
+      removeClass(eByClass('no-games-leader'), 'hidden')
+    }
+
     const best = eById("best");
     if (best) {
       best.innerHTML = games[0]?.score || 0;

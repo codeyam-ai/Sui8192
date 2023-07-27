@@ -11,9 +11,11 @@ const {
     mainnetContractAddress,
     contestLeaderboardId
   } = require("./constants");
+const { eByClass, addClass, removeClass } = require("./utils");
   
 const contestApi = "https://dev-collection.ethoswallet.xyz/api/v1/sui8192"
 const cachedLeaders = {
+    day: 0,
     timestamp: 0,
     leaders: []
 }
@@ -23,7 +25,7 @@ let endDate;
 
 const contest = {
     getLeaders: async (day, network, timestamp) => {
-        if (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30) {
+        if (cachedLeaders.day === day && (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30)) {
             return cachedLeaders;
         }
 
@@ -41,6 +43,12 @@ const contest = {
         const leaderboardId = selectedLeaderboard.id;
         startDate = new Date(selectedLeaderboard.start);
         endDate = new Date(selectedLeaderboard.end);
+
+        if (endDate.getTime() < Date.now()) {
+          removeClass(eByClass('after-contest'), 'hidden');
+        } else {
+          addClass(eByClass('after-contest'), 'hidden');
+        }
 
         const response = await fetch(
             `${contestApi}/${leaderboardId}/leaderboard`
@@ -98,6 +106,7 @@ const contest = {
           }
         )
  
+        cachedLeaders.day = day;
         cachedLeaders.timestamp = Date.now();
         cachedLeaders.leaders = leaderboardItems;
 
