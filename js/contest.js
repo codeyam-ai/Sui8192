@@ -45,8 +45,10 @@ const contest = {
         endDate = new Date(selectedLeaderboard.end);
 
         if (endDate.getTime() < Date.now()) {
+          addClass(eByClass('during-contest'), 'hidden');
           removeClass(eByClass('after-contest'), 'hidden');
         } else {
+          removeClass(eByClass('during-contest'), 'hidden');
           addClass(eByClass('after-contest'), 'hidden');
         }
 
@@ -69,14 +71,14 @@ const contest = {
         
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
-            if (!gameObject.data) {
-              return {
-                gameId: leaderboardObject.top_games[index].fields.game_id,
-                topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
-                score: parseInt(leaderboardObject.top_games[index].fields.score),
-                leaderAddress: leaderboardObject.top_games[index].fields.leader_address
-              }
-            } else {
+            if (!gameObject.data) return null;
+            //   return {
+            //     gameId: leaderboardObject.top_games[index].fields.game_id,
+            //     topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
+            //     score: parseInt(leaderboardObject.top_games[index].fields.score),
+            //     leaderAddress: leaderboardObject.top_games[index].fields.leader_address
+            //   }
+            // } else {
               const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
               let topTile = 0;
               for (let i=0; i<ROWS; ++i) {
@@ -95,7 +97,9 @@ const contest = {
                 leaderAddress: gameObject.data.content.fields.player
               }
             }
-          }
+          // }
+        ).filter(
+        (item) => !!item
         ).sort(
           (a, b) => {
             if (a.topTile === b.topTile) {
@@ -130,13 +134,14 @@ const contest = {
     },
 
     timeUntilEnd: () => {  
+        if (!leaderboards?.[0]?.end) return;
         const _second = 1000;
         const _minute = _second * 60;
         const _hour = _minute * 60;
         const _day = _hour * 24;
 
         const now = new Date();
-        const distance = endDate - now;
+        const distance = new Date(leaderboards[0].end) - now;
         
         return {
             days: Math.floor(distance / _day),
@@ -148,10 +153,12 @@ const contest = {
 
     countdown: () => {
       const remaining = contest.timeUntilEnd();
-      eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
-      eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
-      eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
-      eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;    
+      if (remaining) {
+        eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
+        eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
+        eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
+        eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
+      }
       setTimeout(contest.countdown, 1000)  
     },
 

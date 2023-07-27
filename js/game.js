@@ -37,7 +37,8 @@ const contest = require('./contest');
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
-const TESTNET = "https://fullnode.testnet.sui.io/"
+// const TESTNET = "https://fullnode.testnet.sui.io/"
+const TESTNET = "https://sui.ethoswallet.xyz/sui?env=test"
 // const MAINNET = "https://fullnode.mainnet.sui.io/"
 // const MAINNET = "https://sui.ethoswallet.xyz/sui"
 const MAINNET = "https://sui-node.ethoswallet.xyz"
