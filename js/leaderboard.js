@@ -17,6 +17,7 @@ const {
   spaceAt
 } = require('./board');
 const contest = require('./contest');
+const { add } = require("./queue");
 
 let cachedLeaderboardAddress;
 let leaderboardObject;
@@ -232,8 +233,6 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;
-    leaderboardObject = await get(network);
-
     addClass(eById("loading-leaderboard"), "hidden");
 
     const leaderboardList = eById("leaderboard-list");
@@ -245,6 +244,7 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
       games = leaderboard.leaders;
       timestamp = leaderboard.timestamp;
     } else {
+      leaderboardObject = await get(network);
       games = await topGames(network, true);
     }
 
@@ -269,6 +269,11 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
     if (contestLeaderboard) {
       const leaderboard = await contest.getLeaders(contestDay, network, timestamp);
       games = leaderboard.leaders;
+      if (games.length === 0) {
+        removeClass(eById("no-contest-games"), 'hidden')
+      } else {
+        addClass(eById("no-contest-games"), 'hidden')
+      }
     } else {
       games = await topGames(network, true);
     }

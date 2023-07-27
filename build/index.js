@@ -217,14 +217,13 @@ const {
   } = require("./constants");
   
 const contestApi = "https://dev-collection.ethoswallet.xyz/api/v1/sui8192"
-const startDate = new Date("2023-06-20T16:00:00.000Z");
-const endDate = new Date("2023-06-27T15:59:59.000Z");
 const cachedLeaders = {
     timestamp: 0,
     leaders: []
 }
-let leaderboardIds;
-let contestEndTime;
+let leaderboards;
+let startDate;
+let endDate;
 
 const contest = {
     getLeaders: async (day, network, timestamp) => {
@@ -235,15 +234,18 @@ const contest = {
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
-        if (!leaderboardIds || new Date(leaderboardIds[0].end) < Date.now()) {
+        if (!leaderboards || new Date(leaderboards[0].end) < Date.now()) {
           const leaderboardResponse = await fetch(
             `${contestApi}/leaderboards?limit=10`
           )
 
-          const leaderboardList = await leaderboardResponse.json();
-          leaderboardIds = leaderboardList.map(l => l.id);
+          leaderboards = await leaderboardResponse.json();
         }
-        const leaderboardId = leaderboardIds[day - 1];
+        const selectedLeaderboard = leaderboards[day - 1];
+        console.log(selectedLeaderboard)
+        const leaderboardId = selectedLeaderboard.id;
+        startDate = new Date(selectedLeaderboard.start);
+        endDate = new Date(selectedLeaderboard.end);
 
         const response = await fetch(
             `${contestApi}/${leaderboardId}/leaderboard`
@@ -1271,7 +1273,9 @@ const initializeClicks = () => {
   });
 
   setOnClick(eByClass('contest-day'), (e) => {
+    removeClass(eByClass('contest-day'), 'selected')
     contestDay = e.srcElement.dataset.day;
+    addClass(e.srcElement, 'selected')
     leaderboard.load(network, leaderboardAddress, true, contestDay);
     loadGames()
   })
@@ -1592,6 +1596,7 @@ const {
   spaceAt
 } = require('./board');
 const contest = require('./contest');
+const { add } = require("./queue");
 
 let cachedLeaderboardAddress;
 let leaderboardObject;
@@ -1807,8 +1812,6 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;
-    leaderboardObject = await get(network);
-
     addClass(eById("loading-leaderboard"), "hidden");
 
     const leaderboardList = eById("leaderboard-list");
@@ -1820,6 +1823,7 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
       games = leaderboard.leaders;
       timestamp = leaderboard.timestamp;
     } else {
+      leaderboardObject = await get(network);
       games = await topGames(network, true);
     }
 
@@ -1844,6 +1848,11 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
     if (contestLeaderboard) {
       const leaderboard = await contest.getLeaders(contestDay, network, timestamp);
       games = leaderboard.leaders;
+      if (games.length === 0) {
+        removeClass(eById("no-contest-games"), 'hidden')
+      } else {
+        addClass(eById("no-contest-games"), 'hidden')
+      }
     } else {
       games = await topGames(network, true);
     }
@@ -2127,7 +2136,7 @@ module.exports = {
     reset
 };
 
-},{"./board":1,"./constants":3,"./contest":4,"./utils":10,"@mysten/sui.js":25,"ethos-connect":111}],7:[function(require,module,exports){
+},{"./board":1,"./constants":3,"./contest":4,"./queue":9,"./utils":10,"@mysten/sui.js":25,"ethos-connect":111}],7:[function(require,module,exports){
 const { eById, eByClass, addClass, removeClass } = require("./utils");
 
 const modal = {
