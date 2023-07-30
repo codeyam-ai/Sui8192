@@ -824,14 +824,24 @@ const initializeClicks = () => {
 
   setOnClick(eByClass('select-games'),  () => {
     addClass(eByClass('select-games'), 'hidden')
+    removeClass(eByClass('select-all-games'), 'hidden')
     removeClass(eByClass('select-game'), 'hidden')
     removeClass(eByClass('cancel-select-games'), 'hidden')
     removeClass(eById('burn-games'), 'hidden')
     removeClass(eById('fix-games'), 'hidden')
   })
 
+  setOnClick(eByClass('select-all-games'),  () => {
+    const checkBoxes = eByClass('select-game-check');
+
+    for (const checkbox of checkBoxes) {
+      checkbox.checked = true;
+    }
+  });
+
   const cancelSelectGames = (checkboxes = []) => {
     addClass(eByClass('select-game'), 'hidden')
+    addClass(eByClass('select-all-games'), 'hidden')
     addClass(eByClass('cancel-select-games'), 'hidden')
     addClass(eById('burn-games'), 'hidden')
     addClass(eById('fix-games'), 'hidden')
