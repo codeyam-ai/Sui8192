@@ -1293,6 +1293,7 @@ a:visited.link-button {
 .contest .contest-days {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 12px 0;
   cursor: pointer;

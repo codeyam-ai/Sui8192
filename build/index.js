@@ -261,6 +261,7 @@ const contest = {
         )
         
         const leaderboard = await response.json();
+        console.log("leaderboard", leaderboard)
         const ids = leaderboard.games.map(g => g.gameId); 
 
         const suiObjects = [];
