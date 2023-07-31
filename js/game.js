@@ -12,6 +12,9 @@ const {
   testnetContractAddress,
   testnetLeaderboardAddress,
   testnetMaintainerAddress,
+  devnetContractAddress,
+  devnetLeaderboardAddress,
+  devnetMaintainerAddress,
   supabaseProject,
   supabaseAnonKey
 } = require("./constants");
@@ -39,13 +42,16 @@ const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
 // const TESTNET = "https://fullnode.testnet.sui.io/"
 const TESTNET = "https://sui.ethoswallet.xyz/sui?env=test"
+const DEVNET = "https://fullnode.devnet.sui.io/"
 // const MAINNET = "https://fullnode.mainnet.sui.io/"
 // const MAINNET = "https://sui.ethoswallet.xyz/sui"
 const MAINNET = "https://sui-node.ethoswallet.xyz"
 const LOCALNET_NETWORK_NAME = 'local';
+const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
 const MAINNET_NETWORK_NAME = 'mainNet';
 const LOCALNET_CHAIN = "sui:local";
+const DEVNET_CHAIN = "sui:devnet";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
@@ -109,6 +115,14 @@ const setNetwork = (newNetworkName) => {
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
+  } else if (newNetworkName === DEVNET_NETWORK_NAME) {
+    networkName = DEVNET_NETWORK_NAME;
+    network = DEVNET;
+    chain = DEVNET_CHAIN;
+    originalContractAddress = devnetContractAddress;
+    contractAddress = devnetContractAddress
+    leaderboardAddress = devnetLeaderboardAddress;
+    maintainerAddress = devnetMaintainerAddress;
   } else {
     networkName = MAINNET_NETWORK_NAME;
     network = MAINNET;
@@ -133,6 +147,7 @@ const initializeNetwork = () => {
 
   setOnClick(eByClass(MAINNET_NETWORK_NAME), () => setNetwork(MAINNET_NETWORK_NAME));
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
+  setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
 }
 
 let xDown = null;                                                        
@@ -823,14 +838,24 @@ const initializeClicks = () => {
 
   setOnClick(eByClass('select-games'),  () => {
     addClass(eByClass('select-games'), 'hidden')
+    removeClass(eByClass('select-all-games'), 'hidden')
     removeClass(eByClass('select-game'), 'hidden')
     removeClass(eByClass('cancel-select-games'), 'hidden')
     removeClass(eById('burn-games'), 'hidden')
     removeClass(eById('fix-games'), 'hidden')
   })
 
+  setOnClick(eByClass('select-all-games'),  () => {
+    const checkBoxes = eByClass('select-game-check');
+
+    for (const checkbox of checkBoxes) {
+      checkbox.checked = true;
+    }
+  });
+
   const cancelSelectGames = (checkboxes = []) => {
     addClass(eByClass('select-game'), 'hidden')
+    addClass(eByClass('select-all-games'), 'hidden')
     addClass(eByClass('cancel-select-games'), 'hidden')
     addClass(eById('burn-games'), 'hidden')
     addClass(eById('fix-games'), 'hidden')

@@ -175,6 +175,9 @@ module.exports = {
 };
 },{"canvas-confetti":106}],3:[function(require,module,exports){
 module.exports = {
+  devnetContractAddress: "0x77ab8f89fc4672bf4911cc8520a777842cb560a7040799126a88458138ec6788",
+  devnetLeaderboardAddress: "0x6ce8c428cb4e8c98ae3c8a3eec60ccaba636121efd7dba45b7ad1656bdc62569",
+  devnetMaintainerAddress: "0x777921518915d21147657dba3b4062a0d94cd00c3a5ad0459f399b8d4e7e2913",
   testnetContractAddress: "0xc2fbe453deeba29297d1535ea79fb1479c8d171ff69b00e522bed1fe0ce3d89c",
   testnetLeaderboardAddress: "0xd998e116ab3b743038e925ef1512a3fe519de412745d894478fb252f6e5f51c5",
   testnetMaintainerAddress: "0xb084ce6b7440603f0fa1214ed87b0a2e44bc6ebf3c2d699a620782772900f2bf",
@@ -443,6 +446,9 @@ const {
   testnetContractAddress,
   testnetLeaderboardAddress,
   testnetMaintainerAddress,
+  devnetContractAddress,
+  devnetLeaderboardAddress,
+  devnetMaintainerAddress,
   supabaseProject,
   supabaseAnonKey
 } = require("./constants");
@@ -470,13 +476,16 @@ const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
 // const TESTNET = "https://fullnode.testnet.sui.io/"
 const TESTNET = "https://sui.ethoswallet.xyz/sui?env=test"
+const DEVNET = "https://fullnode.devnet.sui.io/"
 // const MAINNET = "https://fullnode.mainnet.sui.io/"
 // const MAINNET = "https://sui.ethoswallet.xyz/sui"
 const MAINNET = "https://sui-node.ethoswallet.xyz"
 const LOCALNET_NETWORK_NAME = 'local';
+const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
 const MAINNET_NETWORK_NAME = 'mainNet';
 const LOCALNET_CHAIN = "sui:local";
+const DEVNET_CHAIN = "sui:devnet";
 const TESTNET_CHAIN = "sui:testnet";
 const MAINNET_CHAIN = "sui:mainnet";
 
@@ -540,6 +549,14 @@ const setNetwork = (newNetworkName) => {
     contractAddress = testnetContractAddress
     leaderboardAddress = testnetLeaderboardAddress;
     maintainerAddress = testnetMaintainerAddress;
+  } else if (newNetworkName === DEVNET_NETWORK_NAME) {
+    networkName = DEVNET_NETWORK_NAME;
+    network = DEVNET;
+    chain = DEVNET_CHAIN;
+    originalContractAddress = devnetContractAddress;
+    contractAddress = devnetContractAddress
+    leaderboardAddress = devnetLeaderboardAddress;
+    maintainerAddress = devnetMaintainerAddress;
   } else {
     networkName = MAINNET_NETWORK_NAME;
     network = MAINNET;
@@ -564,6 +581,7 @@ const initializeNetwork = () => {
 
   setOnClick(eByClass(MAINNET_NETWORK_NAME), () => setNetwork(MAINNET_NETWORK_NAME));
   setOnClick(eByClass(TESTNET_NETWORK_NAME), () => setNetwork(TESTNET_NETWORK_NAME));
+  setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
 }
 
 let xDown = null;                                                        
@@ -1254,14 +1272,24 @@ const initializeClicks = () => {
 
   setOnClick(eByClass('select-games'),  () => {
     addClass(eByClass('select-games'), 'hidden')
+    removeClass(eByClass('select-all-games'), 'hidden')
     removeClass(eByClass('select-game'), 'hidden')
     removeClass(eByClass('cancel-select-games'), 'hidden')
     removeClass(eById('burn-games'), 'hidden')
     removeClass(eById('fix-games'), 'hidden')
   })
 
+  setOnClick(eByClass('select-all-games'),  () => {
+    const checkBoxes = eByClass('select-game-check');
+
+    for (const checkbox of checkBoxes) {
+      checkbox.checked = true;
+    }
+  });
+
   const cancelSelectGames = (checkboxes = []) => {
     addClass(eByClass('select-game'), 'hidden')
+    addClass(eByClass('select-all-games'), 'hidden')
     addClass(eByClass('cancel-select-games'), 'hidden')
     addClass(eById('burn-games'), 'hidden')
     addClass(eById('fix-games'), 'hidden')

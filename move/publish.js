@@ -9,7 +9,7 @@ if (!process.env.MNEMONIC) {
 }
 
 const keypair = sdk.Ed25519Keypair.deriveKeypair(process.env.MNEMONIC, "m/44'/784'/0'/0'/0'");
-const provider = new sdk.JsonRpcProvider(new sdk.Connection({ fullnode: 'https://fullnode.testnet.sui.io/' }));
+const provider = new sdk.JsonRpcProvider(new sdk.Connection({ fullnode: 'https://fullnode.devnet.sui.io/' }));
 const signer = new sdk.RawSigner(keypair, provider);
 
 const { modules, dependencies } = JSON.parse(
