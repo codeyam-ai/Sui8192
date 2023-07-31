@@ -248,6 +248,8 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
       games = await topGames(network, true);
     }
 
+    console.log("games", games)
+
     if (games.length > 0) {
       addClass(eByClass('no-games-leader'), 'hidden')
     } else {

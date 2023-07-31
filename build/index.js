@@ -175,9 +175,9 @@ module.exports = {
 };
 },{"canvas-confetti":106}],3:[function(require,module,exports){
 module.exports = {
-  devnetContractAddress: "0x77ab8f89fc4672bf4911cc8520a777842cb560a7040799126a88458138ec6788",
-  devnetLeaderboardAddress: "0x6ce8c428cb4e8c98ae3c8a3eec60ccaba636121efd7dba45b7ad1656bdc62569",
-  devnetMaintainerAddress: "0x777921518915d21147657dba3b4062a0d94cd00c3a5ad0459f399b8d4e7e2913",
+  devnetContractAddress: "0x12155794256c3cf97a8300727985c6aca3bbc03f4ae7efdc2d78fe71fc3d8dbc",
+  devnetLeaderboardAddress: "0x8f393690d544bef3d3a3393f789285d0450012f814866f4231a6605283b44384",
+  devnetMaintainerAddress: "0x220231a3067ecbbc9f25d3b43599d2e6a4c0e79f8afe530d70784311ecc8aef9",
   testnetContractAddress: "0xc2fbe453deeba29297d1535ea79fb1479c8d171ff69b00e522bed1fe0ce3d89c",
   testnetLeaderboardAddress: "0xd998e116ab3b743038e925ef1512a3fe519de412745d894478fb252f6e5f51c5",
   testnetMaintainerAddress: "0xb084ce6b7440603f0fa1214ed87b0a2e44bc6ebf3c2d699a620782772900f2bf",
@@ -213,11 +213,6 @@ const {
     spaceAt
   } = require('./board');
 
-const {
-    testnetContractAddress,
-    mainnetContractAddress,
-    contestLeaderboardId
-  } = require("./constants");
 const { eById, eByClass, addClass, removeClass } = require("./utils");
   
 const contestApi = "https://dev-collection.ethoswallet.xyz/api/v1/sui8192"
@@ -241,7 +236,7 @@ const contest = {
         
         if (!leaderboards || new Date(leaderboards[0].end) < Date.now()) {
           const leaderboardResponse = await fetch(
-            `${contestApi}/leaderboards?limit=10`
+            `${contestApi}/leaderboards?start=${new Date().toISOString()}&limit=10`
           )
 
           leaderboards = await leaderboardResponse.json();
@@ -264,7 +259,7 @@ const contest = {
         )
         
         const leaderboard = await response.json();
-        console.log("leaderboard", leaderboard)
+        console.log("leaderboard", `${contestApi}/${leaderboardId}/leaderboard`, leaderboard)
         const ids = leaderboard.games.map(g => g.gameId); 
 
         const suiObjects = [];
@@ -277,6 +272,7 @@ const contest = {
           suiObjects.push(...batchObjects);
         }
         
+        console.log("Leaderboard games suiObjects", suiObjects)
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
             if (!gameObject.data) return null;
@@ -362,10 +358,14 @@ const contest = {
     countdown: () => {
       const remaining = contest.timeUntilEnd();
       if (remaining) {
-        eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
-        eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
-        eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
-        eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
+        if (remaining.days <= 0 && remaining.hours <= 0 && remaining.minutes <= 0 && remaining.seconds <= 0) {
+          contest.getLeaders();
+        } else {
+          eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
+          eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
+          eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
+          eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
+        }
       }
       setTimeout(contest.countdown, 1000)  
     },
@@ -431,7 +431,7 @@ module.exports = contest;
 // } catch (e) {
 //     console.error(e);
 // }
-},{"./board":1,"./constants":3,"./utils":10,"@mysten/sui.js":25}],5:[function(require,module,exports){
+},{"./board":1,"./utils":10,"@mysten/sui.js":25}],5:[function(require,module,exports){
 const React = require("react");
 const { createClient } = require('@supabase/supabase-js');
 const ReactDOM = require("react-dom/client");
@@ -1880,6 +1880,8 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
       leaderboardObject = await get(network);
       games = await topGames(network, true);
     }
+
+    console.log("games", games)
 
     if (games.length > 0) {
       addClass(eByClass('no-games-leader'), 'hidden')

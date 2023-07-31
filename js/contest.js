@@ -6,11 +6,6 @@ const {
     spaceAt
   } = require('./board');
 
-const {
-    testnetContractAddress,
-    mainnetContractAddress,
-    contestLeaderboardId
-  } = require("./constants");
 const { eById, eByClass, addClass, removeClass } = require("./utils");
   
 const contestApi = "https://dev-collection.ethoswallet.xyz/api/v1/sui8192"
@@ -34,7 +29,7 @@ const contest = {
         
         if (!leaderboards || new Date(leaderboards[0].end) < Date.now()) {
           const leaderboardResponse = await fetch(
-            `${contestApi}/leaderboards?limit=10`
+            `${contestApi}/leaderboards?start=${new Date().toISOString()}&limit=10`
           )
 
           leaderboards = await leaderboardResponse.json();
@@ -57,7 +52,7 @@ const contest = {
         )
         
         const leaderboard = await response.json();
-        console.log("leaderboard", leaderboard)
+        console.log("leaderboard", `${contestApi}/${leaderboardId}/leaderboard`, leaderboard)
         const ids = leaderboard.games.map(g => g.gameId); 
 
         const suiObjects = [];
@@ -70,6 +65,7 @@ const contest = {
           suiObjects.push(...batchObjects);
         }
         
+        console.log("Leaderboard games suiObjects", suiObjects)
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
             if (!gameObject.data) return null;
@@ -155,10 +151,14 @@ const contest = {
     countdown: () => {
       const remaining = contest.timeUntilEnd();
       if (remaining) {
-        eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
-        eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
-        eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
-        eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
+        if (remaining.days <= 0 && remaining.hours <= 0 && remaining.minutes <= 0 && remaining.seconds <= 0) {
+          contest.getLeaders();
+        } else {
+          eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
+          eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
+          eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
+          eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
+        }
       }
       setTimeout(contest.countdown, 1000)  
     },
