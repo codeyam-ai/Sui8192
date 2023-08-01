@@ -276,7 +276,9 @@ function init() {
   // test();
   initializeNetwork();
   setActiveGameAddress();
-  contest.countdown();
+  contest.countdown(() => {
+    leaderboard.load(network, leaderboardAddress, false, contestDay);
+  });
   
   leaderboard.load(network, leaderboardAddress, false, contestDay);
 

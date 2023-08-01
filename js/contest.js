@@ -148,11 +148,11 @@ const contest = {
         }
     },
 
-    countdown: () => {
+    countdown: (refresh) => {
       const remaining = contest.timeUntilEnd();
       if (remaining) {
         if (remaining.days <= 0 && remaining.hours <= 0 && remaining.minutes <= 0 && remaining.seconds <= 0) {
-          contest.getLeaders();
+          refresh();
         } else {
           eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
           eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
@@ -160,7 +160,7 @@ const contest = {
           eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
         }
       }
-      setTimeout(contest.countdown, 1000)  
+      setTimeout(() => contest.countdown(refresh), 1000)  
     },
 
     ended: () => {
