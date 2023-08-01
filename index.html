@@ -400,8 +400,9 @@
               </div>
               <div class="no-games-leader text-center hidden" style="padding-top: 30px;">
                 <h2>No Games</h2>
-                <p>No games have been played yet!</p>
-                <p>
+                <p class="after-contest">No games were played for this contest...</p>
+                <p class="during-contest">No games have been played yet!</p>
+                <p class="during-contest">
                   <button class="new-game signed-in">Start New Game</button>
                 </p>
               </div>
@@ -435,8 +436,15 @@
                     <button class="new-game signed-in">+ New Game</button>
                   </div>
                 </div>
+                <div class="show-contest">
+                  <div class="during-contest">
+                    <div class="has-games text-center" style="padding: 6px 0; font-size: smaller;">
+                      Only your top scoring game will display on the leaderboard.
+                    </div>
+                  </div>
+                </div>
                 <div class="no-games">
-                  <div classs="show-contest">
+                  <div class="show-contest">
                     <div class="during-contest">
                       <div class="contest-game" style="text-align: center; padding: 12px 0 24px 0;">
                         <p>You haven't started any games for today's contest yet.</p>

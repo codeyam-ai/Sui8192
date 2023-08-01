@@ -241,6 +241,7 @@ const contest = {
 
           leaderboards = await leaderboardResponse.json();
         }
+
         const selectedLeaderboard = leaderboards[day - 1];
         const leaderboardId = selectedLeaderboard.id;
         startDate = new Date(selectedLeaderboard.start);
@@ -272,7 +273,6 @@ const contest = {
           suiObjects.push(...batchObjects);
         }
         
-        console.log("Leaderboard games suiObjects", suiObjects)
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
             if (!gameObject.data) return null;
@@ -509,7 +509,7 @@ let root;
 let leaderboardType = "contest"
 let countdownTimeout;
 let lastPauseAt = new Date().getTime();
-let contestDay;
+let contestDay = 1;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -1031,7 +1031,32 @@ async function displayGames() {
 }
 
 async function associateGames() {
-  if (leaderboardType === "contest") return;
+  if (leaderboardType === "contest") {
+    const { leaders } = await contest.getLeaders(contestDay, network);
+
+    for (const game of games) {
+      const index = leaders.findIndex(
+        (leader) => leader.gameId === game.address
+      )
+
+      if (index === -1) continue;
+
+      const gameElementArea = document.getElementById(`game-${game.address}`);
+
+      if (!gameElementArea) {
+        continue;
+      }
+
+      gameElementArea.innerHTML = `
+        <div>
+          <span class="light">Leaderboard:</span> <span class='bold'>${
+            index + 1
+          }</span>
+        </div>
+      `;
+    }
+    return;
+  };
 
   let highScore = 0;
   for (const game of games) {
@@ -1880,8 +1905,6 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
       leaderboardObject = await get(network);
       games = await topGames(network, true);
     }
-
-    console.log("games", games)
 
     if (games.length > 0) {
       addClass(eByClass('no-games-leader'), 'hidden')

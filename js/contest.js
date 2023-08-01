@@ -34,6 +34,7 @@ const contest = {
 
           leaderboards = await leaderboardResponse.json();
         }
+
         const selectedLeaderboard = leaderboards[day - 1];
         const leaderboardId = selectedLeaderboard.id;
         startDate = new Date(selectedLeaderboard.start);
@@ -65,7 +66,6 @@ const contest = {
           suiObjects.push(...batchObjects);
         }
         
-        console.log("Leaderboard games suiObjects", suiObjects)
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
             if (!gameObject.data) return null;

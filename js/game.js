@@ -75,7 +75,7 @@ let root;
 let leaderboardType = "contest"
 let countdownTimeout;
 let lastPauseAt = new Date().getTime();
-let contestDay;
+let contestDay = 1;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -597,7 +597,32 @@ async function displayGames() {
 }
 
 async function associateGames() {
-  if (leaderboardType === "contest") return;
+  if (leaderboardType === "contest") {
+    const { leaders } = await contest.getLeaders(contestDay, network);
+
+    for (const game of games) {
+      const index = leaders.findIndex(
+        (leader) => leader.gameId === game.address
+      )
+
+      if (index === -1) continue;
+
+      const gameElementArea = document.getElementById(`game-${game.address}`);
+
+      if (!gameElementArea) {
+        continue;
+      }
+
+      gameElementArea.innerHTML = `
+        <div>
+          <span class="light">Leaderboard:</span> <span class='bold'>${
+            index + 1
+          }</span>
+        </div>
+      `;
+    }
+    return;
+  };
 
   let highScore = 0;
   for (const game of games) {
