@@ -250,8 +250,10 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
 
     if (games.length > 0) {
       addClass(eByClass('no-games-leader'), 'hidden')
+      removeClass(eByClass('has-games-leader'), 'hidden')
     } else {
       removeClass(eByClass('no-games-leader'), 'hidden')
+      addClass(eByClass('has-games-leader'), 'hidden')
     }
 
     const best = eById("best");
