@@ -275,7 +275,18 @@ const showPauseModal = () => {
 function init() {
   // test();
   initializeNetwork();
-  setActiveGameAddress();
+
+  const queryParams = new URLSearchParams(window.location.search);
+  if (queryParams.get('leaderboard')) {
+    if (queryParams.get('leaderboard') === "daily") {
+      showContest();
+    } else {
+      showLeaderboard();
+    }
+  } else {
+    setActiveGameAddress();
+  }
+
   contest.countdown(() => {
     leaderboard.load(network, leaderboardAddress, false, contestDay);
   });
