@@ -215,7 +215,7 @@ const {
 
 const { eById, eByClass, addClass, removeClass } = require("./utils");
   
-const contestApi = "https://dev-collection.ethoswallet.xyz/api/v1/sui8192"
+const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
 const cachedLeaders = {
     day: 0,
     timestamp: 0,
@@ -240,6 +240,7 @@ const contest = {
           )
 
           leaderboards = await leaderboardResponse.json();
+          console.log(`${contestApi}/leaderboards?start=${new Date().toISOString()}&limit=10`, leaderboards)
         }
 
         const selectedLeaderboard = leaderboards[day - 1];
