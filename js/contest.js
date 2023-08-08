@@ -6,35 +6,56 @@ const {
     spaceAt
   } = require('./board');
 
-const {
-    testnetContractAddress,
-    mainnetContractAddress,
-    contestLeaderboardId
-  } = require("./constants");
+const { eById, eByClass, addClass, removeClass } = require("./utils");
   
 const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
-const startDate = new Date("2023-06-20T16:00:00.000Z");
-const endDate = new Date("2023-06-27T15:59:59.000Z");
 const cachedLeaders = {
+    day: 0,
     timestamp: 0,
     leaders: []
 }
+let leaderboards;
+let startDate;
+let endDate;
 
 const contest = {
-    getLeaders: async (network, timestamp) => {
-        if (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30) {
+    getLeaders: async (day, network, timestamp) => {
+        if (cachedLeaders.day === day && (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30)) {
             return cachedLeaders;
         }
 
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
+        if (!leaderboards || new Date(leaderboards[0].end) < Date.now()) {
+          const leaderboardResponse = await fetch(
+            `${contestApi}/leaderboards?start=${new Date().toISOString()}&limit=10`
+          )
+
+          leaderboards = await leaderboardResponse.json();
+          console.log(`${contestApi}/leaderboards?start=${new Date().toISOString()}&limit=10`, leaderboards)
+        }
+
+        const selectedLeaderboard = leaderboards[day - 1];
+        const leaderboardId = selectedLeaderboard.id;
+        startDate = new Date(selectedLeaderboard.start);
+        endDate = new Date(selectedLeaderboard.end);
+
+        if (endDate.getTime() < Date.now()) {
+          addClass(eByClass('during-contest'), 'hidden');
+          removeClass(eByClass('after-contest'), 'hidden');
+        } else {
+          removeClass(eByClass('during-contest'), 'hidden');
+          addClass(eByClass('after-contest'), 'hidden');
+        }
+
         const response = await fetch(
-            `${contestApi}/${contestLeaderboardId}/leaderboard`
+            `${contestApi}/${leaderboardId}/leaderboard`
         )
         
         const leaderboard = await response.json();
-        const ids = leaderboard.games.map(g => g.gameId);
+        console.log("leaderboard", `${contestApi}/${leaderboardId}/leaderboard`, leaderboard)
+        const ids = leaderboard.games.map(g => g.gameId); 
 
         const suiObjects = [];
         while(ids.length) {
@@ -48,14 +69,14 @@ const contest = {
         
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
-            if (!gameObject.data) {
-              return {
-                gameId: leaderboardObject.top_games[index].fields.game_id,
-                topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
-                score: parseInt(leaderboardObject.top_games[index].fields.score),
-                leaderAddress: leaderboardObject.top_games[index].fields.leader_address
-              }
-            } else {
+            if (!gameObject.data) return null;
+            //   return {
+            //     gameId: leaderboardObject.top_games[index].fields.game_id,
+            //     topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
+            //     score: parseInt(leaderboardObject.top_games[index].fields.score),
+            //     leaderAddress: leaderboardObject.top_games[index].fields.leader_address
+            //   }
+            // } else {
               const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
               let topTile = 0;
               for (let i=0; i<ROWS; ++i) {
@@ -74,7 +95,9 @@ const contest = {
                 leaderAddress: gameObject.data.content.fields.player
               }
             }
-          }
+          // }
+        ).filter(
+        (item) => !!item
         ).sort(
           (a, b) => {
             if (a.topTile === b.topTile) {
@@ -85,6 +108,7 @@ const contest = {
           }
         )
  
+        cachedLeaders.day = day;
         cachedLeaders.timestamp = Date.now();
         cachedLeaders.leaders = leaderboardItems;
 
@@ -107,14 +131,15 @@ const contest = {
         return validGames.filter((game) => new Date(game.start) >= startDate).map((game) => game.gameId);
     },
 
-    timeUntilStart: () => {  
+    timeUntilEnd: () => {  
+        if (!leaderboards?.[0]?.end) return;
         const _second = 1000;
         const _minute = _second * 60;
         const _hour = _minute * 60;
         const _day = _hour * 24;
 
         const now = new Date();
-        const distance = startDate - now;
+        const distance = new Date(leaderboards[0].end) - now;
         
         return {
             days: Math.floor(distance / _day),
@@ -122,6 +147,21 @@ const contest = {
             minutes: Math.floor((distance % _hour) / _minute),
             seconds: Math.floor((distance % _minute) / _second)
         }
+    },
+
+    countdown: (refresh) => {
+      const remaining = contest.timeUntilEnd();
+      if (remaining) {
+        if (remaining.days <= 0 && remaining.hours <= 0 && remaining.minutes <= 0 && remaining.seconds <= 0) {
+          refresh();
+        } else {
+          eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
+          eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
+          eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
+          eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
+        }
+      }
+      setTimeout(() => contest.countdown(refresh), 1000)  
     },
 
     ended: () => {

@@ -175,9 +175,9 @@ module.exports = {
 };
 },{"canvas-confetti":106}],3:[function(require,module,exports){
 module.exports = {
-  devnetContractAddress: "0x77ab8f89fc4672bf4911cc8520a777842cb560a7040799126a88458138ec6788",
-  devnetLeaderboardAddress: "0x6ce8c428cb4e8c98ae3c8a3eec60ccaba636121efd7dba45b7ad1656bdc62569",
-  devnetMaintainerAddress: "0x777921518915d21147657dba3b4062a0d94cd00c3a5ad0459f399b8d4e7e2913",
+  devnetContractAddress: "0x12155794256c3cf97a8300727985c6aca3bbc03f4ae7efdc2d78fe71fc3d8dbc",
+  devnetLeaderboardAddress: "0x8f393690d544bef3d3a3393f789285d0450012f814866f4231a6605283b44384",
+  devnetMaintainerAddress: "0x220231a3067ecbbc9f25d3b43599d2e6a4c0e79f8afe530d70784311ecc8aef9",
   testnetContractAddress: "0xc2fbe453deeba29297d1535ea79fb1479c8d171ff69b00e522bed1fe0ce3d89c",
   testnetLeaderboardAddress: "0xd998e116ab3b743038e925ef1512a3fe519de412745d894478fb252f6e5f51c5",
   testnetMaintainerAddress: "0xb084ce6b7440603f0fa1214ed87b0a2e44bc6ebf3c2d699a620782772900f2bf",
@@ -203,7 +203,6 @@ module.exports = {
   },
   supabaseProject: "cqqcogxdhircwzdfcqet",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
-  contestLeaderboardId: 'f8f51a89-c74e-423d-a231-c9c761465a0d'
 }
 },{}],4:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
@@ -214,35 +213,56 @@ const {
     spaceAt
   } = require('./board');
 
-const {
-    testnetContractAddress,
-    mainnetContractAddress,
-    contestLeaderboardId
-  } = require("./constants");
+const { eById, eByClass, addClass, removeClass } = require("./utils");
   
 const contestApi = "https://collection.ethoswallet.xyz/api/v1/sui8192"
-const startDate = new Date("2023-06-20T16:00:00.000Z");
-const endDate = new Date("2023-06-27T15:59:59.000Z");
 const cachedLeaders = {
+    day: 0,
     timestamp: 0,
     leaders: []
 }
+let leaderboards;
+let startDate;
+let endDate;
 
 const contest = {
-    getLeaders: async (network, timestamp) => {
-        if (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30) {
+    getLeaders: async (day, network, timestamp) => {
+        if (cachedLeaders.day === day && (cachedLeaders.timestamp === timestamp || cachedLeaders.timestamp > Date.now() - 1000 * 30)) {
             return cachedLeaders;
         }
 
         const connection = new Connection({ fullnode: network })
         const provider = new JsonRpcProvider(connection);
         
+        if (!leaderboards || new Date(leaderboards[0].end) < Date.now()) {
+          const leaderboardResponse = await fetch(
+            `${contestApi}/leaderboards?start=${new Date().toISOString()}&limit=10`
+          )
+
+          leaderboards = await leaderboardResponse.json();
+          console.log(`${contestApi}/leaderboards?start=${new Date().toISOString()}&limit=10`, leaderboards)
+        }
+
+        const selectedLeaderboard = leaderboards[day - 1];
+        const leaderboardId = selectedLeaderboard.id;
+        startDate = new Date(selectedLeaderboard.start);
+        endDate = new Date(selectedLeaderboard.end);
+
+        if (endDate.getTime() < Date.now()) {
+          addClass(eByClass('during-contest'), 'hidden');
+          removeClass(eByClass('after-contest'), 'hidden');
+        } else {
+          removeClass(eByClass('during-contest'), 'hidden');
+          addClass(eByClass('after-contest'), 'hidden');
+        }
+
         const response = await fetch(
-            `${contestApi}/${contestLeaderboardId}/leaderboard`
+            `${contestApi}/${leaderboardId}/leaderboard`
         )
         
         const leaderboard = await response.json();
-        const ids = leaderboard.games.map(g => g.gameId);
+        console.log("leaderboard", `${contestApi}/${leaderboardId}/leaderboard`, leaderboard)
+        const ids = leaderboard.games.map(g => g.gameId); 
 
         const suiObjects = [];
         while(ids.length) {
@@ -256,14 +276,14 @@ const contest = {
         
         const leaderboardItems = suiObjects.map(
           (gameObject, index) => {
-            if (!gameObject.data) {
-              return {
-                gameId: leaderboardObject.top_games[index].fields.game_id,
-                topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
-                score: parseInt(leaderboardObject.top_games[index].fields.score),
-                leaderAddress: leaderboardObject.top_games[index].fields.leader_address
-              }
-            } else {
+            if (!gameObject.data) return null;
+            //   return {
+            //     gameId: leaderboardObject.top_games[index].fields.game_id,
+            //     topTile: parseInt(leaderboardObject.top_games[index].fields.top_tile),
+            //     score: parseInt(leaderboardObject.top_games[index].fields.score),
+            //     leaderAddress: leaderboardObject.top_games[index].fields.leader_address
+            //   }
+            // } else {
               const packedSpaces = gameObject.data.content.fields.active_board.fields.packed_spaces;
               let topTile = 0;
               for (let i=0; i<ROWS; ++i) {
@@ -282,7 +302,9 @@ const contest = {
                 leaderAddress: gameObject.data.content.fields.player
               }
             }
-          }
+          // }
+        ).filter(
+        (item) => !!item
         ).sort(
           (a, b) => {
             if (a.topTile === b.topTile) {
@@ -293,6 +315,7 @@ const contest = {
           }
         )
  
+        cachedLeaders.day = day;
         cachedLeaders.timestamp = Date.now();
         cachedLeaders.leaders = leaderboardItems;
 
@@ -315,14 +338,15 @@ const contest = {
         return validGames.filter((game) => new Date(game.start) >= startDate).map((game) => game.gameId);
     },
 
-    timeUntilStart: () => {  
+    timeUntilEnd: () => {  
+        if (!leaderboards?.[0]?.end) return;
         const _second = 1000;
         const _minute = _second * 60;
         const _hour = _minute * 60;
         const _day = _hour * 24;
 
         const now = new Date();
-        const distance = startDate - now;
+        const distance = new Date(leaderboards[0].end) - now;
         
         return {
             days: Math.floor(distance / _day),
@@ -330,6 +354,21 @@ const contest = {
             minutes: Math.floor((distance % _hour) / _minute),
             seconds: Math.floor((distance % _minute) / _second)
         }
+    },
+
+    countdown: (refresh) => {
+      const remaining = contest.timeUntilEnd();
+      if (remaining) {
+        if (remaining.days <= 0 && remaining.hours <= 0 && remaining.minutes <= 0 && remaining.seconds <= 0) {
+          refresh();
+        } else {
+          eById("countdown-time-days").innerHTML = `${remaining.days < 10 ? 0 : ''}${remaining.days}`;
+          eById("countdown-time-hours").innerHTML = `${remaining.hours < 10 ? 0 : ''}${remaining.hours}`;
+          eById("countdown-time-minutes").innerHTML = `${remaining.minutes < 10 ? 0 : ''}${remaining.minutes}`;
+          eById("countdown-time-seconds").innerHTML = `${remaining.seconds < 10 ? 0 : ''}${remaining.seconds}`;      
+        }
+      }
+      setTimeout(() => contest.countdown(refresh), 1000)  
     },
 
     ended: () => {
@@ -393,7 +432,7 @@ module.exports = contest;
 // } catch (e) {
 //     console.error(e);
 // }
-},{"./board":1,"./constants":3,"@mysten/sui.js":25}],5:[function(require,module,exports){
+},{"./board":1,"./utils":10,"@mysten/sui.js":25}],5:[function(require,module,exports){
 const React = require("react");
 const { createClient } = require('@supabase/supabase-js');
 const ReactDOM = require("react-dom/client");
@@ -436,8 +475,9 @@ const contest = require('./contest');
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
 const LOCALNET = "http://127.0.0.1:9000";
+// const TESTNET = "https://fullnode.testnet.sui.io/"
+const TESTNET = "https://sui.ethoswallet.xyz/sui?env=test"
 const DEVNET = "https://fullnode.devnet.sui.io/"
-const TESTNET = "https://fullnode.testnet.sui.io/"
 // const MAINNET = "https://fullnode.mainnet.sui.io/"
 // const MAINNET = "https://sui.ethoswallet.xyz/sui"
 const MAINNET = "https://sui-node.ethoswallet.xyz"
@@ -467,9 +507,10 @@ let contentsInterval;
 let faucetUsed = false;
 let network = MAINNET;
 let root;
-let leaderboardType = (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) ? "contest" : "normal"
+let leaderboardType = "contest"
 let countdownTimeout;
 let lastPauseAt = new Date().getTime();
+let contestDay = 1;
 
 const int = (intString = "-1") => parseInt(intString);
 
@@ -669,10 +710,23 @@ const showPauseModal = () => {
 function init() {
   // test();
   initializeNetwork();
-  setActiveGameAddress();
-  trackCountdown();
 
-  leaderboard.load(network, leaderboardAddress, false, leaderboardType === "contest");
+  const queryParams = new URLSearchParams(window.location.search);
+  if (queryParams.get('leaderboard')) {
+    if (queryParams.get('leaderboard') === "daily") {
+      showContest();
+    } else {
+      showLeaderboard();
+    }
+  } else {
+    setActiveGameAddress();
+  }
+
+  contest.countdown(() => {
+    leaderboard.load(network, leaderboardAddress, false, contestDay);
+  });
+  
+  leaderboard.load(network, leaderboardAddress, false, contestDay);
 
   const ethosConfiguration = {
     chain,
@@ -902,17 +956,13 @@ async function loadGames() {
   }
 
   games = walletContents//.nfts
-    // .filter((nft) => {
-    //   if (nft.packageObjectId !== originalContractAddress) {
-    //     return false;
-    //   }
+    .filter((nft) => {
+      if (validIds && !validIds.includes(nft.objectId)) {
+        return false;
+      }
 
-    //   if (validIds && !validIds.includes(nft.objectId)) {
-    //     return false;
-    //   }
-
-    //   return true;
-    // })
+      return true;
+    })
     .map((nft) => ({
       address: nft.objectId,
       board: nft.content.fields.active_board,
@@ -995,6 +1045,33 @@ async function displayGames() {
 }
 
 async function associateGames() {
+  if (leaderboardType === "contest") {
+    const { leaders } = await contest.getLeaders(contestDay, network);
+
+    for (const game of games) {
+      const index = leaders.findIndex(
+        (leader) => leader.gameId === game.address
+      )
+
+      if (index === -1) continue;
+
+      const gameElementArea = document.getElementById(`game-${game.address}`);
+
+      if (!gameElementArea) {
+        continue;
+      }
+
+      gameElementArea.innerHTML = `
+        <div>
+          <span class="light">Leaderboard:</span> <span class='bold'>${
+            index + 1
+          }</span>
+        </div>
+      `;
+    }
+    return;
+  };
+
   let highScore = 0;
   for (const game of games) {
     if (highScore < parseInt(game.score)) {
@@ -1007,9 +1084,7 @@ async function associateGames() {
       continue;
     }
     
-    let topGames = leaderboardType === "contest" ? 
-      (await contest.getLeaders(network)).leaders :
-      await leaderboard.topGames(network, leaderboardAddress);
+    let topGames = leaderboardType === await leaderboard.topGames(network, leaderboardAddress);      
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.gameId === game.address
@@ -1095,7 +1170,7 @@ async function setActiveGame(game) {
 function showLeaderboard() {
   clearTimeout(countdownTimeout);
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress, true);
+  leaderboard.load(network, leaderboardAddress, true, null);
   fullyLoadGames();
   removeClass(eByClass("contest-game"), "hidden")
   addClass(eByClass("contest-pending"), "hidden")
@@ -1110,42 +1185,42 @@ function showLeaderboard() {
   leaderboardType = "normal"
 }
 
-function trackCountdown() {
-  clearTimeout(countdownTimeout);
-  const countdown = contest.timeUntilStart();
-  if (contest.ended()) {
-    removeClass(eByClass("after-contest"), "hidden");
-    addClass(eByClass("during-contest"), "hidden");
-    addClass(eByClass("contest-pending"), "hidden")
-    addClass(eById("countdown"), "hidden");
-    removeClass(eById("leaderboard-panel"), "hidden");
-    removeClass(eByClass("contest-game"), "hidden")
-  } else if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
-    removeClass(eByClass("during-contest"), "hidden");
-    addClass(eByClass("after-contest"), "hidden");
-    addClass(eByClass("contest-pending"), "hidden")
-    addClass(eById("countdown"), "hidden");
-    removeClass(eById("leaderboard-panel"), "hidden");
-    removeClass(eByClass("contest-game"), "hidden")
-  } else {
-    removeClass(eByClass("contest-pending"), "hidden")
-    addClass(eByClass("during-contest"), "hidden");
-    addClass(eByClass("after-contest"), "hidden");
-    addClass(eByClass("contest-game"), "hidden")
-    removeClass(eById("countdown"), "hidden");
-    addClass(eById("leaderboard-panel"), "hidden");
-    eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
-    eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
-    eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
-    eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
-  }
+// function trackCountdown() {
+//   clearTimeout(countdownTimeout);
+//   const countdown = contest.timesUntilStart();
+//   if (contest.ended()) {
+//     removeClass(eByClass("after-contest"), "hidden");
+//     addClass(eByClass("during-contest"), "hidden");
+//     addClass(eByClass("contest-pending"), "hidden")
+//     addClass(eById("countdown"), "hidden");
+//     removeClass(eById("leaderboard-panel"), "hidden");
+//     removeClass(eByClass("contest-game"), "hidden")
+//   } else if (countdown.days <= 0 && countdown.hours <= 0 && countdown.minutes <= 0 && countdown.seconds <= 0) {
+//     removeClass(eByClass("during-contest"), "hidden");
+//     addClass(eByClass("after-contest"), "hidden");
+//     addClass(eByClass("contest-pending"), "hidden")
+//     addClass(eById("countdown"), "hidden");
+//     removeClass(eById("leaderboard-panel"), "hidden");
+//     removeClass(eByClass("contest-game"), "hidden")
+//   } else {
+//     removeClass(eByClass("contest-pending"), "hidden")
+//     addClass(eByClass("during-contest"), "hidden");
+//     addClass(eByClass("after-contest"), "hidden");
+//     addClass(eByClass("contest-game"), "hidden")
+//     removeClass(eById("countdown"), "hidden");
+//     addClass(eById("leaderboard-panel"), "hidden");
+//     eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
+//     eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
+//     eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
+//     eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
+//   }
 
-  countdownTimeout = setTimeout(trackCountdown, 1000);
-}
+//   countdownTimeout = setTimeout(trackCountdown, 1000);
+// }
 
 function showContest() {
   setActiveGame(null);
-  leaderboard.load(network, leaderboardAddress, true, true);
+  leaderboard.load(network, leaderboardAddress, true, contestDay);
   fullyLoadGames();
   addClass(eById("game"), "hidden");
   removeClass(eByClass("play-button"), "selected");
@@ -1153,6 +1228,7 @@ function showContest() {
   removeClass(eById("leaderboard"), "hidden");
   addClass(eByClass("contest-button"), "selected");
   addClass(eById("leaderboard"), 'contest')
+  removeClass(eById("leaderboard-panel"), "hidden");
   leaderboardType = "contest"
   window.scrollTo(0, 0);
 }
@@ -1288,6 +1364,14 @@ const initializeClicks = () => {
     fullyLoadGames();
     cancelSelectGames(checked);
   });
+
+  setOnClick(eByClass('contest-day'), (e) => {
+    removeClass(eByClass('contest-day'), 'selected')
+    contestDay = e.srcElement.dataset.day;
+    addClass(eById(`contest-day-${contestDay}`), 'selected')
+    leaderboard.load(network, leaderboardAddress, true, contestDay);
+    loadGames()
+  })
 };
 
 const onWalletConnected = async ({ signer }) => {
@@ -1390,14 +1474,14 @@ const onWalletConnected = async ({ signer }) => {
 
     if (games.length === 0) {
       modal.close();
-      showLeaderboard();
+      showContest();
     } else {
       modal.close();
 
       if (games.length === 1) {
         setActiveGame(games[0]);
       } else {
-        showLeaderboard();
+        showContest();
       }
     }
 
@@ -1605,6 +1689,7 @@ const {
   spaceAt
 } = require('./board');
 const contest = require('./contest');
+const { add } = require("./queue");
 
 let cachedLeaderboardAddress;
 let leaderboardObject;
@@ -1805,7 +1890,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
     return completeHTML;
 };
 
-const load = async (network, leaderboardAddress, force = false, contestLeaderboard = false) => {
+const load = async (network, leaderboardAddress, force = false, contestDay = 1) => {
     cachedLeaderboardAddress = leaderboardAddress
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
@@ -1820,32 +1905,39 @@ const load = async (network, leaderboardAddress, force = false, contestLeaderboa
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;
-    leaderboardObject = await get(network);
-
     addClass(eById("loading-leaderboard"), "hidden");
 
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
     let games, timestamp;
-    if (contestLeaderboard) {
-      const leaderboard = await contest.getLeaders(network);
+    if (contestDay) {
+      const leaderboard = await contest.getLeaders(contestDay, network);
       games = leaderboard.leaders;
       timestamp = leaderboard.timestamp;
     } else {
+      leaderboardObject = await get(network);
       games = await topGames(network, true);
+    }
+
+    if (games.length > 0) {
+      addClass(eByClass('no-games-leader'), 'hidden')
+      removeClass(eByClass('has-games-leader'), 'hidden')
+    } else {
+      removeClass(eByClass('no-games-leader'), 'hidden')
+      addClass(eByClass('has-games-leader'), 'hidden')
     }
 
     const best = eById("best");
     if (best) {
       best.innerHTML = games[0]?.score || 0;
     }
-    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, contestLeaderboard, timestamp));
+    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, !!contestDay, timestamp));
 
-    await loadNextPage(network, contestLeaderboard, timestamp);
+    await loadNextPage(network, contestDay, !!contestDay, timestamp);
 };
 
-const loadNextPage = async (network, contestLeaderboard, timestamp) => {
+const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) => {
     if (loadingNextPage) return;
 
     loadingNextPage = true;
@@ -1855,8 +1947,13 @@ const loadNextPage = async (network, contestLeaderboard, timestamp) => {
 
     let games;
     if (contestLeaderboard) {
-      const leaderboard = await contest.getLeaders(network, timestamp);
+      const leaderboard = await contest.getLeaders(contestDay, network, timestamp);
       games = leaderboard.leaders;
+      if (games.length === 0) {
+        removeClass(eById("no-contest-games"), 'hidden')
+      } else {
+        addClass(eById("no-contest-games"), 'hidden')
+      }
     } else {
       games = await topGames(network, true);
     }
@@ -2140,7 +2237,7 @@ module.exports = {
     reset
 };
 
-},{"./board":1,"./constants":3,"./contest":4,"./utils":10,"@mysten/sui.js":25,"ethos-connect":111}],7:[function(require,module,exports){
+},{"./board":1,"./constants":3,"./contest":4,"./queue":9,"./utils":10,"@mysten/sui.js":25,"ethos-connect":111}],7:[function(require,module,exports){
 const { eById, eByClass, addClass, removeClass } = require("./utils");
 
 const modal = {

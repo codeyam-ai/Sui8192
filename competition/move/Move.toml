@@ -1,0 +1,9 @@
+[package]
+name = "sui8192-competition"
+version = "0.0.1"
+
+[dependencies]
+Sui = { local = "../../../../sui/sui/crates/sui-framework/packages/sui-framework" }
+
+[addresses]
+ethos = "0x0"
