@@ -1,7 +1,9 @@
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");
+const { ProfileManager } = require('@polymedia/profile-sdk');
 const {
-  tileNames,
+rpcMainnet,
+tileNames,
 } = require("./constants");
 const {
     eById,
@@ -26,6 +28,13 @@ let leaderboardTimestamp;
 let loadingNextPage = 0;
 let page = 1;
 let perPage = 25;
+
+const profileManager = new ProfileManager({
+  network: 'mainnet',
+  suiClient: new JsonRpcProvider(new Connection({
+      fullnode: rpcMainnet
+  })),
+});
 
 const topGames = async (network, force) => {
   if (_topGames && !force) return _topGames;
@@ -420,7 +429,30 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         //         yDown = null;
         //     };
 
-            const indexDetails = (index) => {
+            const indexDetails = async (index) => {
+                // Get the Polymedia Profile associated to this `leaderAddress`. It is instant,
+                // because loadProfiles() has already fetched all relevant profiles.
+                let profile = null;
+                try {
+                    profile = await profileManager.getProfileByOwner({ lookupAddress: leaderAddress });
+                } catch (error) {
+                    console.warn("[indexDetails] Failed to fetch profile:", error);
+                }
+
+                // Build a new section to show the profile username
+                let profileSection = '';
+                if (profile) {
+                    profileSection = `
+                    <div>
+                      <div class='game-info-header'>Player Name</div>
+                      <div class='game-highlighted'>
+                        <a href='https://profile.polymedia.app/view/${profile.id}'
+                          target='_blank' rel='noopener'>${sanitize(profile.name)}</a>
+                      </div>
+                    </div>
+                    `;
+                }
+
                 details.innerHTML = `
           <div class='game-status'>
             <div>
@@ -452,6 +484,7 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
                 ${leaderAddress.slice(-33)}
               </div>
             </div>
+            ${profileSection}
           </div>
         `;
             };
@@ -470,6 +503,42 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
     }
 
     loadingNextPage = false;
+
+    // Load the Polymedia Profile associated to each leader address, and then
+    // update .leaderboard-name from `0x12...3456` to `John Doe (0x12...3456)`.
+    (async function loadProfiles() {
+      if (!games || games.length === 0) {
+        return;
+      }
+
+      // Fetch the Polymedia Profiles associated to the visible leader addresses
+      let profiles; // Map<string, PolymediaProfile|null>
+      try {
+        profiles = await profileManager.getProfilesByOwner({
+          lookupAddresses: games.map(game => game.leaderAddress)
+        });
+      } catch(error) {
+        console.warn("[loadProfiles] Failed to load profiles:", error);
+        return;
+      }
+
+      // Replace the contents of each .leaderboard-name element
+      const leaderboardNameDivs = document.querySelectorAll('.leaderboard-name');
+      for (const nameDiv of leaderboardNameDivs) {
+        // Find player address
+        const innerDiv = nameDiv.querySelector('div[title]');
+        const leaderAddress = innerDiv.getAttribute('title');
+        // Get Polymedia Profile
+        const profile = profiles.get(leaderAddress);
+        if (!profile) {
+          continue;
+        }
+        // Replace innerDiv contents
+        const shortAddress = truncateMiddle(leaderAddress, 4);
+        const textContent = `${sanitize(profile.name)} (${shortAddress})`;
+        innerDiv.innerHTML = textContent;
+      }
+    })();
 };
 
 const minScore = () => {
@@ -554,6 +623,12 @@ const reset = async (network, chain, contractAddress, walletSigner, onComplete) 
   ethos.hideWallet(walletSigner);
   onComplete();
 };
+
+function sanitize(input) {
+  const tempDiv = document.createElement('div');
+  tempDiv.textContent = input;
+  return tempDiv.innerHTML;
+}
 
 module.exports = {
     topGames,
