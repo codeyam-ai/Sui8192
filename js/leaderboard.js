@@ -1,7 +1,7 @@
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");
 const {
-   tileNames,
+  tileNames,
 } = require("./constants");
 const {
     eById,

@@ -5,6 +5,10 @@ const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require(
 
 const leaderboard = require("./leaderboard");
 const {
+  rpcLocalnet,
+  rpcTestnet,
+  rpcDevnet,
+  rpcMainnet,
   originalMainnetContractAddress,
   mainnetContractAddress,
   mainnetLeaderboardAddress,
@@ -39,13 +43,10 @@ const { default: BigNumber } = require("bignumber.js");
 const contest = require('./contest');
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
-const LOCALNET = "http://127.0.0.1:9000";
-// const TESTNET = "https://fullnode.testnet.sui.io/"
-const TESTNET = "https://sui.ethoswallet.xyz/sui?env=test"
-const DEVNET = "https://fullnode.devnet.sui.io/"
-// const MAINNET = "https://fullnode.mainnet.sui.io/"
-// const MAINNET = "https://sui.ethoswallet.xyz/sui"
-const MAINNET = "https://sui-node.ethoswallet.xyz"
+const LOCALNET = rpcLocalnet;
+const TESTNET = rpcTestnet;
+const DEVNET = rpcDevnet;
+const MAINNET = rpcMainnet;
 const LOCALNET_NETWORK_NAME = 'local';
 const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
