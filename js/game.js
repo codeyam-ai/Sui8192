@@ -96,7 +96,7 @@ const setNetwork = (newNetworkName) => {
       '',
       `?network=${newNetworkName}`
     );
-    window.location.reload();  
+    window.location.reload();
   }
 
   if (newNetworkName === LOCALNET_CHAIN) {
@@ -135,14 +135,14 @@ const setNetwork = (newNetworkName) => {
 
   removeClass(eByClass('network-button'), 'selected');
   addClass(eByClass(newNetworkName), 'selected');
-  
+
   init();
 }
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
   const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
-  
+
   setNetwork(initialNetwork, true);
 
   setOnClick(eByClass(MAINNET_NETWORK_NAME), () => setNetwork(MAINNET_NETWORK_NAME));
@@ -150,73 +150,73 @@ const initializeNetwork = () => {
   setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
 }
 
-let xDown = null;                                                        
+let xDown = null;
 let yDown = null;
 
 const getTouches = (evt) => {
   return evt.touches
-}                                                     
-                                                                         
+}
+
 const handleTouchStart = (evt) => {
-  const firstTouch = getTouches(evt)[0];                                      
-  xDown = firstTouch.clientX;                                      
-  yDown = firstTouch.clientY;                                      
-};                                                
-                                                                         
+  const firstTouch = getTouches(evt)[0];
+  xDown = firstTouch.clientX;
+  yDown = firstTouch.clientY;
+};
+
 const handleTouchMove = (evt) => {
     if ( ! xDown || ! yDown ) {
         return;
     }
 
-    var xUp = evt.touches[0].clientX;                                    
+    var xUp = evt.touches[0].clientX;
     var yUp = evt.touches[0].clientY;
 
     var xDiff = xDown - xUp;
     var yDiff = yDown - yUp;
-                                                                         
+
     if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
         if ( xDiff > 0 ) {
           executeMove("left");
         } else {
           executeMove("right");
-        }                       
+        }
     } else {
         if ( yDiff > 0 ) {
           executeMove("up");
-        } else { 
+        } else {
           executeMove("down");
-        }                                                                 
+        }
     }
     /* reset values */
     xDown = null;
-    yDown = null;                                             
+    yDown = null;
 };
 
 const initializeKeyListener = () => {
   const board = eById("board");
-  board.addEventListener('touchstart', handleTouchStart, false);        
+  board.addEventListener('touchstart', handleTouchStart, false);
   board.addEventListener('touchmove', handleTouchMove, false);
 
   window.onkeydown = (e) => {
     switch (e.keyCode) {
       case 37:
       case 65:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("left");
         break;
       case 38:
       case 87:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("up");
         break;
       case 39:
       case 68:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("right");
         break;
       case 40:
       case 83:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("down");
         break;
     }
@@ -290,7 +290,7 @@ function init() {
   contest.countdown(() => {
     leaderboard.load(network, leaderboardAddress, false, contestDay);
   });
-  
+
   leaderboard.load(network, leaderboardAddress, false, contestDay);
 
   const ethosConfiguration = {
@@ -333,7 +333,7 @@ function handleResult(newBoard, direction) {
 
     setTimeout(() => {
       if (topTile < 9) return;
-      if (        
+      if (
         topTile >= leaderboard.minTile() &&
         newBoard.score > leaderboard.minScore()
       ) {
@@ -414,7 +414,7 @@ function showUnknownError(error) {
 //   faucetUsed = true;
 
 //   let success;
-  
+
 //   try {
 //     success = await ethos.dripSui({ address, network: dripNetwork });
 //   } catch (e) {
@@ -424,7 +424,7 @@ function showUnknownError(error) {
 //   }
 
 //   if (!success) {
-//     const contents = await ethos.getWalletContents({ 
+//     const contents = await ethos.getWalletContents({
 //       address,
 //       network,
 //       existingContents: walletContents
@@ -452,15 +452,15 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
-  // const contents = await ethos.getWalletContents({ 
-  //   address, 
+  // const contents = await ethos.getWalletContents({
+  //   address,
   //   network,
-  //   existingContents: walletContents 
+  //   existingContents: walletContents
   // });
 
   let contents, cursor;
   while (cursor !== null) {
-    const { assets, nextCursor } = await ethos.checkForAssetType({ 
+    const { assets, nextCursor } = await ethos.checkForAssetType({
       signer: walletSigner,
       type: `${originalContractAddress}::game_8192::Game8192`,
       cursor
@@ -471,14 +471,14 @@ async function loadWalletContents() {
     if (nextCursor === cursor) break;
     cursor = nextCursor;
   }
-  
+
   if (!contents) {
     setTimeout(loadWalletContents, 3000)
     return;
   }
 
   walletContents = contents;
-  
+
   const { suiBalance } = walletContents;
 
   // if (suiBalance < 5000000) {
@@ -559,12 +559,12 @@ async function loadGames() {
     removeClass(eByClass('no-games'), 'hidden')
     addClass(eByClass('has-games'), "hidden");
   }
-  
+
   if (activeGameAddress) {
     const activeGame = games.find((game) => game.address === activeGameAddress);
     if (activeGame) {
       setActiveGame(activeGame);
-      return; 
+      return;
     }
   }
 }
@@ -572,7 +572,7 @@ async function loadGames() {
 async function displayGames() {
   const gamesElement = eById("games-list");
 
-  for (const game of games) {    
+  for (const game of games) {
     const gameElement = document.createElement("DIV");
     addClass(gameElement, "game-preview");
     setOnClick(gameElement, () => {
@@ -595,7 +595,7 @@ async function displayGames() {
         </div>
         <div class='game-over'>${game.gameOver ? "Ended" : ""}</div>
       </div>
-      <div class='game-preview-right' id='game-${game.address}'>         
+      <div class='game-preview-right' id='game-${game.address}'>
       </div>
     `;
 
@@ -648,8 +648,8 @@ async function associateGames() {
     if (!gameElementArea) {
       continue;
     }
-    
-    let topGames = leaderboardType === await leaderboard.topGames(network, leaderboardAddress);      
+
+    let topGames = leaderboardType === await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.gameId === game.address
@@ -657,10 +657,10 @@ async function associateGames() {
     const leaderboardItem = topGames[leaderboardItemIndex];
     const leaderboardItemUpToDate =
       int(leaderboardItem?.score) === int(game.score) || (
-        int(game.topTile) <= int(leaderboard.minTile()) && 
+        int(game.topTile) <= int(leaderboard.minTile()) &&
         int(game.score) <= int(leaderboard.minScore())
       );
-    
+
     const topTile = parseInt(game.topTile)
     gameElementArea.innerHTML = `
       <div class="${
@@ -700,14 +700,14 @@ async function setActiveGame(game) {
     activeGameAddress = null;
     return;
   }
-  
+
   addClass(eByClass("error"), "hidden");
   initializeKeyListener();
   activeGameAddress = game.address;
 
   const transactionsList = eById("transactions-list");
   if (!transactionsList) return;
-  
+
   transactionsList.innerHTML = "";
   moves.reset();
   moves.checkPreapprovals(chain, contractAddress, activeGameAddress, walletSigner);
@@ -777,7 +777,7 @@ function showLeaderboard() {
 //     eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
 //     eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
 //     eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
-//     eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
+//     eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;
 //   }
 
 //   countdownTimeout = setTimeout(trackCountdown, 1000);
@@ -1074,14 +1074,14 @@ const onWalletConnected = async ({ signer }) => {
 const initializeEmailVerification = async (signer) => {
   const supabase = createClient(`https://${supabaseProject}.supabase.co`, supabaseAnonKey)
   const user = await supabase.auth.getUser()
-  
-  removeClass(eById('verify-section'), 'hidden')  
+
+  removeClass(eById('verify-section'), 'hidden')
 
   if (user?.data?.user) {
     const { email } = user.data.user;
 
     const verified = () => {
-      removeClass(eById('verified-message'), 'hidden') 
+      removeClass(eById('verified-message'), 'hidden')
       addClass(eById('verify-address-message'), 'hidden')
       setOnClick(eById('view-verification'), () => {
         if (eById('verification-review').classList.contains('hidden')) {
@@ -1098,11 +1098,11 @@ const initializeEmailVerification = async (signer) => {
       verified()
     } else {
       eById('verify-address-email').innerHTML = email;
-      removeClass(eById('verify-address-message'), 'hidden') 
+      removeClass(eById('verify-address-message'), 'hidden')
       setOnClick(eById('verify-address'), async () => {
         const address = signer.currentAccount.address;
         const signature = await ethos.signMessage({
-          signer, 
+          signer,
           message: `I verify that this address is associated with the email ${email}`
         });
         await supabase.from('contest').insert(
@@ -1111,7 +1111,7 @@ const initializeEmailVerification = async (signer) => {
         verified()
       });
     }
-  } else {  
+  } else {
     removeClass(eById('verify-email-message'), 'hidden')
     setOnClick(eById('verify-email'), () => {
       removeClass(eById('verify-email-form'), 'hidden')
@@ -1131,7 +1131,7 @@ const initializeEmailVerification = async (signer) => {
           eById('verify-email-response').innerHTML = "Email verification sent!"
         }
       });
-    });  
+    });
   }
 }
 

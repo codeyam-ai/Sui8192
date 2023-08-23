@@ -73,7 +73,7 @@ const topGames = async (network, force) => {
       }
     }
   )
-  
+
   return _topGames;
 }
 
@@ -81,9 +81,9 @@ const getObjects = async (network, ids) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
     if (!Array.isArray(ids)) ids = [ids ?? cachedLeaderboardAddress];
-    const objects = await provider.multiGetObjects({ 
-      ids, 
-      options: { showContent: true } 
+    const objects = await provider.multiGetObjects({
+      ids,
+      options: { showContent: true }
     });
     return objects;
 };
@@ -131,7 +131,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     //       none: null,
     //       some: 'u64'
     //     };
-      
+
     //     const bcsConfig = {
     //       vectorType: 'vector',
     //       addressLength: 32,
@@ -139,12 +139,12 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     //       types: { enums },
     //       withPrimitives: true
     //     };
-        
+
     //     const bcs = new BCS(bcsConfig);
     //     // const bcs = new BCS(getSuiMoveConfig());
 
     //     bcs.registerAddressType('SuiAddress', 32, 'hex');
-        
+
     //     bcs.registerStructType('GameHistory8192', {
     //         move_count: 'u64',
     //         direction: 'u64',
@@ -174,7 +174,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
 
 const historyHTML = (moveIndex, totalMoves, histories) => {
     const history = histories[moveIndex];
-    
+
     const rows = [];
     for (let row = 0; row < ROWS; row++) {
         const rowHTML = [];
@@ -209,7 +209,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
         </div>
         <div>
           <div>Score</div>
-          <div class='game-highlighted'> 
+          <div class='game-highlighted'>
             ${history.score}
           </div>
         </div>
@@ -288,8 +288,8 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
 
     const pageMax = Math.min(games.length, currentMax);
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
-        const { gameId, topTile, score, leaderAddress } = games[i];  
-    
+        const { gameId, topTile, score, leaderAddress } = games[i];
+
         const name = leaderAddress
         // const name = await ethos.getSuiName(leaderAddress);
 
@@ -299,7 +299,7 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         const listing = document.createElement("DIV");
         addClass(listing, "leader-listing");
         listing.innerHTML = `
-      <div class='leader-stats flex-1'> 
+      <div class='leader-stats flex-1'>
         <div>${i + 1}</div>
         <div class='leader-tile subsubtitle color${topTile}'>
           ${Math.pow(2, topTile)}
@@ -308,13 +308,13 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
           Score <span>${score}</span>
         </div>
       </div>
-      
+
       <div class='leaderboard-name flex-1 '>
         <div title='${leaderAddress}'>
           ${name === leaderAddress ? truncateMiddle(leaderAddress, 4) : name}
         </div>
         <div class='chevron'>⌄</div>
-      </div>     
+      </div>
     `;
 
         leaderElement.append(listing);
@@ -367,25 +367,25 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         //         };
         //     };
 
-        //     details.addEventListener('touchstart', handleTouchStart, false);        
+        //     details.addEventListener('touchstart', handleTouchStart, false);
         //     details.addEventListener('touchmove', handleTouchMove, false);
 
-        //     let xDown = null;                                                        
+        //     let xDown = null;
         //     let yDown = null;
 
         //     function getTouches(evt) {
         //       return evt.touches ||
-        //             evt.originalEvent.touches; 
-        //     }                                                     
-                                                                                    
+        //             evt.originalEvent.touches;
+        //     }
+
         //     function handleTouchStart(evt) {
         //         evt.stopPropagation();
         //         evt.preventDefault();
-        //         const firstTouch = getTouches(evt)[0];                                      
-        //         xDown = firstTouch.clientX;                                      
-        //         yDown = firstTouch.clientY;                                      
-        //     };                                                
-                                                                                    
+        //         const firstTouch = getTouches(evt)[0];
+        //         xDown = firstTouch.clientX;
+        //         yDown = firstTouch.clientY;
+        //     };
+
         //     function handleTouchMove(evt) {
         //         if ( ! xDown || ! yDown ) {
         //             return;
@@ -394,18 +394,18 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         //         evt.stopPropagation();
         //         evt.preventDefault();
 
-        //         var xUp = evt.touches[0].clientX;                                    
+        //         var xUp = evt.touches[0].clientX;
         //         var yUp = evt.touches[0].clientY;
 
         //         var xDiff = xDown - xUp;
         //         var yDiff = yDown - yUp;
-                                                                                    
+
         //         if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
         //             if ( xDiff > 0 ) {
-        //                 /* right swipe */ 
+        //                 /* right swipe */
         //             } else {
         //                 /* left swipe */
-        //             }                       
+        //             }
         //         } else {
         //             currentIndex += Math.round(yDiff / -1);
         //             if (currentIndex > game.histories.length - 1) {
@@ -414,10 +414,10 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         //                 currentIndex = 0;
         //             }
         //             indexDetails(currentIndex);
-        //             return false;                                                                 
+        //             return false;
         //         }
         //         xDown = null;
-        //         yDown = null;                                             
+        //         yDown = null;
         //     };
 
             const indexDetails = (index) => {
@@ -499,7 +499,7 @@ const submit = async (network, chain, contractAddress, gameAddress, walletSigner
     });
 
     await ethos.executeTransactionBlock({
-      signer: walletSigner, 
+      signer: walletSigner,
       transactionInput: {
         transactionBlock: transactionBlockBytes,
         signature,
@@ -536,7 +536,7 @@ const reset = async (network, chain, contractAddress, walletSigner, onComplete) 
   });
 
   await ethos.executeTransactionBlock({
-    signer: walletSigner, 
+    signer: walletSigner,
     transactionInput: {
       transactionBlock: transactionBlockBytes,
       signature,
