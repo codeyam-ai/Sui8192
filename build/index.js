@@ -173,8 +173,15 @@ module.exports = {
     frame();
   }
 };
-},{"canvas-confetti":106}],3:[function(require,module,exports){
+},{"canvas-confetti":110}],3:[function(require,module,exports){
 module.exports = {
+  rpcLocalnet: "http://127.0.0.1:9000",
+  // rpcTestnet: "https://fullnode.testnet.sui.io/",
+  rpcTestnet: "https://sui.ethoswallet.xyz/sui?env=test",
+  rpcDevnet: "https://fullnode.devnet.sui.io/",
+  // rpcMainnet: "https://fullnode.mainnet.sui.io/",
+  // rpcMainnet: "https://sui.ethoswallet.xyz/sui",
+  rpcMainnet: "https://sui-node.ethoswallet.xyz",
   devnetContractAddress: "0xb6d5bf1cf2c28b823d2c1fa9f7457f93190b277d42f41f7d35a8e9cf6dce20a1",
   devnetLeaderboardAddress: "0xcbf34f3edb739d040316283863e53c1d56f6072e346116be1659c7ef5cc771c1",
   devnetMaintainerAddress: "0xafb18a9140c22caddad91ee7b206c7e5f6396194d9462b1ab97955aecb2c7ed6",
@@ -204,6 +211,7 @@ module.exports = {
   supabaseProject: "cqqcogxdhircwzdfcqet",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
 }
+
 },{}],4:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 
@@ -432,7 +440,7 @@ module.exports = contest;
 // } catch (e) {
 //     console.error(e);
 // }
-},{"./board":1,"./utils":10,"@mysten/sui.js":25}],5:[function(require,module,exports){
+},{"./board":1,"./utils":10,"@mysten/sui.js":26}],5:[function(require,module,exports){
 const React = require("react");
 const { createClient } = require('@supabase/supabase-js');
 const ReactDOM = require("react-dom/client");
@@ -440,6 +448,10 @@ const { EthosConnectProvider, SignInButton, TransactionBlock, ethos } = require(
 
 const leaderboard = require("./leaderboard");
 const {
+  rpcLocalnet,
+  rpcTestnet,
+  rpcDevnet,
+  rpcMainnet,
   originalMainnetContractAddress,
   mainnetContractAddress,
   mainnetLeaderboardAddress,
@@ -474,13 +486,10 @@ const { default: BigNumber } = require("bignumber.js");
 const contest = require('./contest');
 
 const DASHBOARD_LINK = "https://ethoswallet.xyz/dashboard";
-const LOCALNET = "http://127.0.0.1:9000";
-// const TESTNET = "https://fullnode.testnet.sui.io/"
-const TESTNET = "https://sui.ethoswallet.xyz/sui?env=test"
-const DEVNET = "https://fullnode.devnet.sui.io/"
-// const MAINNET = "https://fullnode.mainnet.sui.io/"
-// const MAINNET = "https://sui.ethoswallet.xyz/sui"
-const MAINNET = "https://sui-node.ethoswallet.xyz"
+const LOCALNET = rpcLocalnet;
+const TESTNET = rpcTestnet;
+const DEVNET = rpcDevnet;
+const MAINNET = rpcMainnet;
 const LOCALNET_NETWORK_NAME = 'local';
 const DEVNET_NETWORK_NAME = 'devNet';
 const TESTNET_NETWORK_NAME = 'testNet';
@@ -531,7 +540,7 @@ const setNetwork = (newNetworkName) => {
       '',
       `?network=${newNetworkName}`
     );
-    window.location.reload();  
+    window.location.reload();
   }
 
   if (newNetworkName === LOCALNET_CHAIN) {
@@ -570,14 +579,14 @@ const setNetwork = (newNetworkName) => {
 
   removeClass(eByClass('network-button'), 'selected');
   addClass(eByClass(newNetworkName), 'selected');
-  
+
   init();
 }
 
 const initializeNetwork = () => {
   const queryParams = new URLSearchParams(window.location.search);
   const initialNetwork = queryParams.get('network') ?? MAINNET_NETWORK_NAME;
-  
+
   setNetwork(initialNetwork, true);
 
   setOnClick(eByClass(MAINNET_NETWORK_NAME), () => setNetwork(MAINNET_NETWORK_NAME));
@@ -585,73 +594,73 @@ const initializeNetwork = () => {
   setOnClick(eByClass(DEVNET_NETWORK_NAME), () => setNetwork(DEVNET_NETWORK_NAME));
 }
 
-let xDown = null;                                                        
+let xDown = null;
 let yDown = null;
 
 const getTouches = (evt) => {
   return evt.touches
-}                                                     
-                                                                         
+}
+
 const handleTouchStart = (evt) => {
-  const firstTouch = getTouches(evt)[0];                                      
-  xDown = firstTouch.clientX;                                      
-  yDown = firstTouch.clientY;                                      
-};                                                
-                                                                         
+  const firstTouch = getTouches(evt)[0];
+  xDown = firstTouch.clientX;
+  yDown = firstTouch.clientY;
+};
+
 const handleTouchMove = (evt) => {
     if ( ! xDown || ! yDown ) {
         return;
     }
 
-    var xUp = evt.touches[0].clientX;                                    
+    var xUp = evt.touches[0].clientX;
     var yUp = evt.touches[0].clientY;
 
     var xDiff = xDown - xUp;
     var yDiff = yDown - yUp;
-                                                                         
+
     if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
         if ( xDiff > 0 ) {
           executeMove("left");
         } else {
           executeMove("right");
-        }                       
+        }
     } else {
         if ( yDiff > 0 ) {
           executeMove("up");
-        } else { 
+        } else {
           executeMove("down");
-        }                                                                 
+        }
     }
     /* reset values */
     xDown = null;
-    yDown = null;                                             
+    yDown = null;
 };
 
 const initializeKeyListener = () => {
   const board = eById("board");
-  board.addEventListener('touchstart', handleTouchStart, false);        
+  board.addEventListener('touchstart', handleTouchStart, false);
   board.addEventListener('touchmove', handleTouchMove, false);
 
   window.onkeydown = (e) => {
     switch (e.keyCode) {
       case 37:
       case 65:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("left");
         break;
       case 38:
       case 87:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("up");
         break;
       case 39:
       case 68:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("right");
         break;
       case 40:
       case 83:
-        e.preventDefault();    
+        e.preventDefault();
         executeMove("down");
         break;
     }
@@ -725,7 +734,7 @@ function init() {
   contest.countdown(() => {
     leaderboard.load(network, leaderboardAddress, false, contestDay);
   });
-  
+
   leaderboard.load(network, leaderboardAddress, false, contestDay);
 
   const ethosConfiguration = {
@@ -768,7 +777,7 @@ function handleResult(newBoard, direction) {
 
     setTimeout(() => {
       if (topTile < 9) return;
-      if (        
+      if (
         topTile >= leaderboard.minTile() &&
         newBoard.score > leaderboard.minScore()
       ) {
@@ -849,7 +858,7 @@ function showUnknownError(error) {
 //   faucetUsed = true;
 
 //   let success;
-  
+
 //   try {
 //     success = await ethos.dripSui({ address, network: dripNetwork });
 //   } catch (e) {
@@ -859,7 +868,7 @@ function showUnknownError(error) {
 //   }
 
 //   if (!success) {
-//     const contents = await ethos.getWalletContents({ 
+//     const contents = await ethos.getWalletContents({
 //       address,
 //       network,
 //       existingContents: walletContents
@@ -887,15 +896,15 @@ async function loadWalletContents() {
     addressElement.innerHTML = truncateMiddle(address, 4);
   }
 
-  // const contents = await ethos.getWalletContents({ 
-  //   address, 
+  // const contents = await ethos.getWalletContents({
+  //   address,
   //   network,
-  //   existingContents: walletContents 
+  //   existingContents: walletContents
   // });
 
   let contents, cursor;
   while (cursor !== null) {
-    const { assets, nextCursor } = await ethos.checkForAssetType({ 
+    const { assets, nextCursor } = await ethos.checkForAssetType({
       signer: walletSigner,
       type: `${originalContractAddress}::game_8192::Game8192`,
       cursor
@@ -906,14 +915,14 @@ async function loadWalletContents() {
     if (nextCursor === cursor) break;
     cursor = nextCursor;
   }
-  
+
   if (!contents) {
     setTimeout(loadWalletContents, 3000)
     return;
   }
 
   walletContents = contents;
-  
+
   const { suiBalance } = walletContents;
 
   // if (suiBalance < 5000000) {
@@ -994,12 +1003,12 @@ async function loadGames() {
     removeClass(eByClass('no-games'), 'hidden')
     addClass(eByClass('has-games'), "hidden");
   }
-  
+
   if (activeGameAddress) {
     const activeGame = games.find((game) => game.address === activeGameAddress);
     if (activeGame) {
       setActiveGame(activeGame);
-      return; 
+      return;
     }
   }
 }
@@ -1007,7 +1016,7 @@ async function loadGames() {
 async function displayGames() {
   const gamesElement = eById("games-list");
 
-  for (const game of games) {    
+  for (const game of games) {
     const gameElement = document.createElement("DIV");
     addClass(gameElement, "game-preview");
     setOnClick(gameElement, () => {
@@ -1030,7 +1039,7 @@ async function displayGames() {
         </div>
         <div class='game-over'>${game.gameOver ? "Ended" : ""}</div>
       </div>
-      <div class='game-preview-right' id='game-${game.address}'>         
+      <div class='game-preview-right' id='game-${game.address}'>
       </div>
     `;
 
@@ -1083,8 +1092,8 @@ async function associateGames() {
     if (!gameElementArea) {
       continue;
     }
-    
-    let topGames = leaderboardType === await leaderboard.topGames(network, leaderboardAddress);      
+
+    let topGames = leaderboardType === await leaderboard.topGames(network, leaderboardAddress);
     if (topGames.length === 0) topGames = [];
     const leaderboardItemIndex = topGames.findIndex(
       (top_game) => top_game.gameId === game.address
@@ -1092,10 +1101,10 @@ async function associateGames() {
     const leaderboardItem = topGames[leaderboardItemIndex];
     const leaderboardItemUpToDate =
       int(leaderboardItem?.score) === int(game.score) || (
-        int(game.topTile) <= int(leaderboard.minTile()) && 
+        int(game.topTile) <= int(leaderboard.minTile()) &&
         int(game.score) <= int(leaderboard.minScore())
       );
-    
+
     const topTile = parseInt(game.topTile)
     gameElementArea.innerHTML = `
       <div class="${
@@ -1135,14 +1144,14 @@ async function setActiveGame(game) {
     activeGameAddress = null;
     return;
   }
-  
+
   addClass(eByClass("error"), "hidden");
   initializeKeyListener();
   activeGameAddress = game.address;
 
   const transactionsList = eById("transactions-list");
   if (!transactionsList) return;
-  
+
   transactionsList.innerHTML = "";
   moves.reset();
   moves.checkPreapprovals(chain, contractAddress, activeGameAddress, walletSigner);
@@ -1212,7 +1221,7 @@ function showLeaderboard() {
 //     eById("countdown-time-days").innerHTML = `${countdown.days < 10 ? 0 : ''}${countdown.days}`;
 //     eById("countdown-time-hours").innerHTML = `${countdown.hours < 10 ? 0 : ''}${countdown.hours}`;
 //     eById("countdown-time-minutes").innerHTML = `${countdown.minutes < 10 ? 0 : ''}${countdown.minutes}`;
-//     eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;    
+//     eById("countdown-time-seconds").innerHTML = `${countdown.seconds < 10 ? 0 : ''}${countdown.seconds}`;
 //   }
 
 //   countdownTimeout = setTimeout(trackCountdown, 1000);
@@ -1509,14 +1518,14 @@ const onWalletConnected = async ({ signer }) => {
 const initializeEmailVerification = async (signer) => {
   const supabase = createClient(`https://${supabaseProject}.supabase.co`, supabaseAnonKey)
   const user = await supabase.auth.getUser()
-  
-  removeClass(eById('verify-section'), 'hidden')  
+
+  removeClass(eById('verify-section'), 'hidden')
 
   if (user?.data?.user) {
     const { email } = user.data.user;
 
     const verified = () => {
-      removeClass(eById('verified-message'), 'hidden') 
+      removeClass(eById('verified-message'), 'hidden')
       addClass(eById('verify-address-message'), 'hidden')
       setOnClick(eById('view-verification'), () => {
         if (eById('verification-review').classList.contains('hidden')) {
@@ -1533,11 +1542,11 @@ const initializeEmailVerification = async (signer) => {
       verified()
     } else {
       eById('verify-address-email').innerHTML = email;
-      removeClass(eById('verify-address-message'), 'hidden') 
+      removeClass(eById('verify-address-message'), 'hidden')
       setOnClick(eById('verify-address'), async () => {
         const address = signer.currentAccount.address;
         const signature = await ethos.signMessage({
-          signer, 
+          signer,
           message: `I verify that this address is associated with the email ${email}`
         });
         await supabase.from('contest').insert(
@@ -1546,7 +1555,7 @@ const initializeEmailVerification = async (signer) => {
         verified()
       });
     }
-  } else {  
+  } else {
     removeClass(eById('verify-email-message'), 'hidden')
     setOnClick(eById('verify-email'), () => {
       removeClass(eById('verify-email-form'), 'hidden')
@@ -1566,7 +1575,7 @@ const initializeEmailVerification = async (signer) => {
           eById('verify-email-response').innerHTML = "Email verification sent!"
         }
       });
-    });  
+    });
   }
 }
 
@@ -1669,11 +1678,13 @@ window.requestAnimationFrame(init);
 //   }
 // }
 
-},{"./board":1,"./confetti":2,"./constants":3,"./contest":4,"./leaderboard":6,"./modal":7,"./moves":8,"./queue":9,"./utils":10,"@supabase/supabase-js":94,"bignumber.js":102,"ethos-connect":111,"react":123,"react-dom/client":119}],6:[function(require,module,exports){
+},{"./board":1,"./confetti":2,"./constants":3,"./contest":4,"./leaderboard":6,"./modal":7,"./moves":8,"./queue":9,"./utils":10,"@supabase/supabase-js":98,"bignumber.js":106,"ethos-connect":115,"react":127,"react-dom/client":123}],6:[function(require,module,exports){
 const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
 const { ethos, TransactionBlock } = require("ethos-connect");
+const { ProfileManager } = require('@polymedia/profile-sdk');
 const {
-   tileNames,
+rpcMainnet,
+tileNames,
 } = require("./constants");
 const {
     eById,
@@ -1698,6 +1709,13 @@ let leaderboardTimestamp;
 let loadingNextPage = 0;
 let page = 1;
 let perPage = 25;
+
+const profileManager = new ProfileManager({
+  network: 'mainnet',
+  suiClient: new JsonRpcProvider(new Connection({
+      fullnode: rpcMainnet
+  })),
+});
 
 const topGames = async (network, force) => {
   if (_topGames && !force) return _topGames;
@@ -1745,7 +1763,7 @@ const topGames = async (network, force) => {
       }
     }
   )
-  
+
   return _topGames;
 }
 
@@ -1753,9 +1771,9 @@ const getObjects = async (network, ids) => {
     const connection = new Connection({ fullnode: network })
     const provider = new JsonRpcProvider(connection);
     if (!Array.isArray(ids)) ids = [ids ?? cachedLeaderboardAddress];
-    const objects = await provider.multiGetObjects({ 
-      ids, 
-      options: { showContent: true } 
+    const objects = await provider.multiGetObjects({
+      ids,
+      options: { showContent: true }
     });
     return objects;
 };
@@ -1803,7 +1821,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     //       none: null,
     //       some: 'u64'
     //     };
-      
+
     //     const bcsConfig = {
     //       vectorType: 'vector',
     //       addressLength: 32,
@@ -1811,12 +1829,12 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     //       types: { enums },
     //       withPrimitives: true
     //     };
-        
+
     //     const bcs = new BCS(bcsConfig);
     //     // const bcs = new BCS(getSuiMoveConfig());
 
     //     bcs.registerAddressType('SuiAddress', 32, 'hex');
-        
+
     //     bcs.registerStructType('GameHistory8192', {
     //         move_count: 'u64',
     //         direction: 'u64',
@@ -1846,7 +1864,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
 
 const historyHTML = (moveIndex, totalMoves, histories) => {
     const history = histories[moveIndex];
-    
+
     const rows = [];
     for (let row = 0; row < ROWS; row++) {
         const rowHTML = [];
@@ -1881,7 +1899,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
         </div>
         <div>
           <div>Score</div>
-          <div class='game-highlighted'> 
+          <div class='game-highlighted'>
             ${history.score}
           </div>
         </div>
@@ -1960,8 +1978,8 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
 
     const pageMax = Math.min(games.length, currentMax);
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
-        const { gameId, topTile, score, leaderAddress } = games[i];  
-    
+        const { gameId, topTile, score, leaderAddress } = games[i];
+
         const name = leaderAddress
         // const name = await ethos.getSuiName(leaderAddress);
 
@@ -1971,7 +1989,7 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         const listing = document.createElement("DIV");
         addClass(listing, "leader-listing");
         listing.innerHTML = `
-      <div class='leader-stats flex-1'> 
+      <div class='leader-stats flex-1'>
         <div>${i + 1}</div>
         <div class='leader-tile subsubtitle color${topTile}'>
           ${Math.pow(2, topTile)}
@@ -1980,13 +1998,13 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
           Score <span>${score}</span>
         </div>
       </div>
-      
+
       <div class='leaderboard-name flex-1 '>
         <div title='${leaderAddress}'>
           ${name === leaderAddress ? truncateMiddle(leaderAddress, 4) : name}
         </div>
         <div class='chevron'>⌄</div>
-      </div>     
+      </div>
     `;
 
         leaderElement.append(listing);
@@ -2039,25 +2057,25 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         //         };
         //     };
 
-        //     details.addEventListener('touchstart', handleTouchStart, false);        
+        //     details.addEventListener('touchstart', handleTouchStart, false);
         //     details.addEventListener('touchmove', handleTouchMove, false);
 
-        //     let xDown = null;                                                        
+        //     let xDown = null;
         //     let yDown = null;
 
         //     function getTouches(evt) {
         //       return evt.touches ||
-        //             evt.originalEvent.touches; 
-        //     }                                                     
-                                                                                    
+        //             evt.originalEvent.touches;
+        //     }
+
         //     function handleTouchStart(evt) {
         //         evt.stopPropagation();
         //         evt.preventDefault();
-        //         const firstTouch = getTouches(evt)[0];                                      
-        //         xDown = firstTouch.clientX;                                      
-        //         yDown = firstTouch.clientY;                                      
-        //     };                                                
-                                                                                    
+        //         const firstTouch = getTouches(evt)[0];
+        //         xDown = firstTouch.clientX;
+        //         yDown = firstTouch.clientY;
+        //     };
+
         //     function handleTouchMove(evt) {
         //         if ( ! xDown || ! yDown ) {
         //             return;
@@ -2066,18 +2084,18 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         //         evt.stopPropagation();
         //         evt.preventDefault();
 
-        //         var xUp = evt.touches[0].clientX;                                    
+        //         var xUp = evt.touches[0].clientX;
         //         var yUp = evt.touches[0].clientY;
 
         //         var xDiff = xDown - xUp;
         //         var yDiff = yDown - yUp;
-                                                                                    
+
         //         if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
         //             if ( xDiff > 0 ) {
-        //                 /* right swipe */ 
+        //                 /* right swipe */
         //             } else {
         //                 /* left swipe */
-        //             }                       
+        //             }
         //         } else {
         //             currentIndex += Math.round(yDiff / -1);
         //             if (currentIndex > game.histories.length - 1) {
@@ -2086,13 +2104,36 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         //                 currentIndex = 0;
         //             }
         //             indexDetails(currentIndex);
-        //             return false;                                                                 
+        //             return false;
         //         }
         //         xDown = null;
-        //         yDown = null;                                             
+        //         yDown = null;
         //     };
 
-            const indexDetails = (index) => {
+            const indexDetails = async (index) => {
+                // Get the Polymedia Profile associated to this `leaderAddress`. It is instant,
+                // because loadProfiles() has already fetched all relevant profiles.
+                let profile = null;
+                try {
+                    profile = await profileManager.getProfileByOwner({ lookupAddress: leaderAddress });
+                } catch (error) {
+                    console.warn("[indexDetails] Failed to fetch profile:", error);
+                }
+
+                // Build a new section to show the profile username
+                let profileSection = '';
+                if (profile) {
+                    profileSection = `
+                    <div>
+                      <div class='game-info-header'>Player Name</div>
+                      <div class='game-highlighted'>
+                        <a href='https://profile.polymedia.app/view/${profile.id}'
+                          target='_blank' rel='noopener'>${sanitize(profile.name)}</a>
+                      </div>
+                    </div>
+                    `;
+                }
+
                 details.innerHTML = `
           <div class='game-status'>
             <div>
@@ -2124,6 +2165,7 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
                 ${leaderAddress.slice(-33)}
               </div>
             </div>
+            ${profileSection}
           </div>
         `;
             };
@@ -2142,6 +2184,42 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
     }
 
     loadingNextPage = false;
+
+    // Load the Polymedia Profile associated to each leader address, and then
+    // update .leaderboard-name from `0x12...3456` to `John Doe (0x12...3456)`.
+    (async function loadProfiles() {
+      if (!games || games.length === 0) {
+        return;
+      }
+
+      // Fetch the Polymedia Profiles associated to the visible leader addresses
+      let profiles; // Map<string, PolymediaProfile|null>
+      try {
+        profiles = await profileManager.getProfilesByOwner({
+          lookupAddresses: games.map(game => game.leaderAddress)
+        });
+      } catch(error) {
+        console.warn("[loadProfiles] Failed to load profiles:", error);
+        return;
+      }
+
+      // Replace the contents of each .leaderboard-name element
+      const leaderboardNameDivs = document.querySelectorAll('.leaderboard-name');
+      for (const nameDiv of leaderboardNameDivs) {
+        // Find player address
+        const innerDiv = nameDiv.querySelector('div[title]');
+        const leaderAddress = innerDiv.getAttribute('title');
+        // Get Polymedia Profile
+        const profile = profiles.get(leaderAddress);
+        if (!profile) {
+          continue;
+        }
+        // Replace innerDiv contents
+        const shortAddress = truncateMiddle(leaderAddress, 4);
+        const textContent = `${sanitize(profile.name)} (${shortAddress})`;
+        innerDiv.innerHTML = textContent;
+      }
+    })();
 };
 
 const minScore = () => {
@@ -2171,7 +2249,7 @@ const submit = async (network, chain, contractAddress, gameAddress, walletSigner
     });
 
     await ethos.executeTransactionBlock({
-      signer: walletSigner, 
+      signer: walletSigner,
       transactionInput: {
         transactionBlock: transactionBlockBytes,
         signature,
@@ -2208,7 +2286,7 @@ const reset = async (network, chain, contractAddress, walletSigner, onComplete) 
   });
 
   await ethos.executeTransactionBlock({
-    signer: walletSigner, 
+    signer: walletSigner,
     transactionInput: {
       transactionBlock: transactionBlockBytes,
       signature,
@@ -2227,6 +2305,12 @@ const reset = async (network, chain, contractAddress, walletSigner, onComplete) 
   onComplete();
 };
 
+function sanitize(input) {
+  const tempDiv = document.createElement('div');
+  tempDiv.textContent = input;
+  return tempDiv.innerHTML;
+}
+
 module.exports = {
     topGames,
     minTile,
@@ -2237,7 +2321,7 @@ module.exports = {
     reset
 };
 
-},{"./board":1,"./constants":3,"./contest":4,"./queue":9,"./utils":10,"@mysten/sui.js":25,"ethos-connect":111}],7:[function(require,module,exports){
+},{"./board":1,"./constants":3,"./contest":4,"./queue":9,"./utils":10,"@mysten/sui.js":26,"@polymedia/profile-sdk":47,"ethos-connect":115}],7:[function(require,module,exports){
 const { eById, eByClass, addClass, removeClass } = require("./utils");
 
 const modal = {
@@ -2566,7 +2650,7 @@ module.exports = {
   reset,
 };
 
-},{"./board":1,"./queue":9,"./utils":10,"ethos-connect":111}],9:[function(require,module,exports){
+},{"./board":1,"./queue":9,"./utils":10,"ethos-connect":115}],9:[function(require,module,exports){
 const { 
   eById, 
   addClass, 
@@ -2803,7 +2887,7 @@ const utils = {
 
 module.exports = utils;
   
-},{"./constants":3,"bignumber.js":102,"ethos-connect":111}],11:[function(require,module,exports){
+},{"./constants":3,"bignumber.js":106,"ethos-connect":115}],11:[function(require,module,exports){
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -3025,7 +3109,10 @@ function _regeneratorRuntime() {
       if ("executing" === state) throw new Error("Generator is already running");
       if ("completed" === state) {
         if ("throw" === method) throw arg;
-        return doneResult();
+        return {
+          value: void 0,
+          done: !0
+        };
       }
       for (context.method = method, context.arg = arg;;) {
         var delegate = context.delegate;
@@ -3078,7 +3165,7 @@ function _regeneratorRuntime() {
     }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0);
   }
   function values(iterable) {
-    if (iterable) {
+    if (iterable || "" === iterable) {
       var iteratorMethod = iterable[iteratorSymbol];
       if (iteratorMethod) return iteratorMethod.call(iterable);
       if ("function" == typeof iterable.next) return iterable;
@@ -3091,15 +3178,7 @@ function _regeneratorRuntime() {
         return next.next = next;
       }
     }
-    return {
-      next: doneResult
-    };
-  }
-  function doneResult() {
-    return {
-      value: undefined,
-      done: !0
-    };
+    throw new TypeError(_typeof(iterable) + " is not iterable");
   }
   return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", {
     value: GeneratorFunctionPrototype,
@@ -3280,6 +3359,1236 @@ try {
 }
 
 },{"../helpers/regeneratorRuntime":19}],25:[function(require,module,exports){
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// src/index.ts
+var src_exports = {};
+__export(src_exports, {
+  BCS: () => BCS,
+  BcsReader: () => BcsReader,
+  BcsWriter: () => BcsWriter,
+  decodeStr: () => decodeStr,
+  encodeStr: () => encodeStr,
+  fromB58: () => fromB58,
+  fromB64: () => fromB64,
+  fromHEX: () => fromHEX,
+  getRustConfig: () => getRustConfig,
+  getSuiMoveConfig: () => getSuiMoveConfig,
+  registerPrimitives: () => registerPrimitives,
+  splitGenericParameters: () => splitGenericParameters,
+  toB58: () => toB58,
+  toB64: () => toB64,
+  toHEX: () => toHEX
+});
+module.exports = __toCommonJS(src_exports);
+
+// src/b64.ts
+function b64ToUint6(nChr) {
+  return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
+}
+function fromB64(sBase64, nBlocksSize) {
+  var sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, ""), nInLen = sB64Enc.length, nOutLen = nBlocksSize ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize : nInLen * 3 + 1 >> 2, taBytes = new Uint8Array(nOutLen);
+  for (var nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+    nMod4 = nInIdx & 3;
+    nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << 6 * (3 - nMod4);
+    if (nMod4 === 3 || nInLen - nInIdx === 1) {
+      for (nMod3 = 0; nMod3 < 3 && nOutIdx < nOutLen; nMod3++, nOutIdx++) {
+        taBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
+      }
+      nUint24 = 0;
+    }
+  }
+  return taBytes;
+}
+function uint6ToB64(nUint6) {
+  return nUint6 < 26 ? nUint6 + 65 : nUint6 < 52 ? nUint6 + 71 : nUint6 < 62 ? nUint6 - 4 : nUint6 === 62 ? 43 : nUint6 === 63 ? 47 : 65;
+}
+function toB64(aBytes) {
+  var nMod3 = 2, sB64Enc = "";
+  for (var nLen = aBytes.length, nUint24 = 0, nIdx = 0; nIdx < nLen; nIdx++) {
+    nMod3 = nIdx % 3;
+    nUint24 |= aBytes[nIdx] << (16 >>> nMod3 & 24);
+    if (nMod3 === 2 || aBytes.length - nIdx === 1) {
+      sB64Enc += String.fromCodePoint(
+        uint6ToB64(nUint24 >>> 18 & 63),
+        uint6ToB64(nUint24 >>> 12 & 63),
+        uint6ToB64(nUint24 >>> 6 & 63),
+        uint6ToB64(nUint24 & 63)
+      );
+      nUint24 = 0;
+    }
+  }
+  return sB64Enc.slice(0, sB64Enc.length - 2 + nMod3) + (nMod3 === 2 ? "" : nMod3 === 1 ? "=" : "==");
+}
+
+// src/hex.ts
+function fromHEX(hexStr) {
+  let intArr = hexStr.replace("0x", "").match(/.{1,2}/g).map((byte) => parseInt(byte, 16));
+  if (intArr === null) {
+    throw new Error(`Unable to parse HEX: ${hexStr}`);
+  }
+  return Uint8Array.from(intArr);
+}
+function toHEX(bytes) {
+  return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
+}
+
+// src/index.ts
+var import_bs58 = __toESM(require("bs58"));
+var SUI_ADDRESS_LENGTH = 32;
+function toLittleEndian(bigint, size) {
+  let result = new Uint8Array(size);
+  let i = 0;
+  while (bigint > 0) {
+    result[i] = Number(bigint % BigInt(256));
+    bigint = bigint / BigInt(256);
+    i += 1;
+  }
+  return result;
+}
+var toB58 = (buffer) => import_bs58.default.encode(buffer);
+var fromB58 = (str) => import_bs58.default.decode(str);
+var BcsReader = class {
+  /**
+   * @param {Uint8Array} data Data to use as a buffer.
+   */
+  constructor(data) {
+    this.bytePosition = 0;
+    this.dataView = new DataView(data.buffer);
+  }
+  /**
+   * Shift current cursor position by `bytes`.
+   *
+   * @param {Number} bytes Number of bytes to
+   * @returns {this} Self for possible chaining.
+   */
+  shift(bytes) {
+    this.bytePosition += bytes;
+    return this;
+  }
+  /**
+   * Read U8 value from the buffer and shift cursor by 1.
+   * @returns
+   */
+  read8() {
+    let value = this.dataView.getUint8(this.bytePosition);
+    this.shift(1);
+    return value;
+  }
+  /**
+   * Read U16 value from the buffer and shift cursor by 2.
+   * @returns
+   */
+  read16() {
+    let value = this.dataView.getUint16(this.bytePosition, true);
+    this.shift(2);
+    return value;
+  }
+  /**
+   * Read U32 value from the buffer and shift cursor by 4.
+   * @returns
+   */
+  read32() {
+    let value = this.dataView.getUint32(this.bytePosition, true);
+    this.shift(4);
+    return value;
+  }
+  /**
+   * Read U64 value from the buffer and shift cursor by 8.
+   * @returns
+   */
+  read64() {
+    let value1 = this.read32();
+    let value2 = this.read32();
+    let result = value2.toString(16) + value1.toString(16).padStart(8, "0");
+    return BigInt("0x" + result).toString(10);
+  }
+  /**
+   * Read U128 value from the buffer and shift cursor by 16.
+   */
+  read128() {
+    let value1 = BigInt(this.read64());
+    let value2 = BigInt(this.read64());
+    let result = value2.toString(16) + value1.toString(16).padStart(16, "0");
+    return BigInt("0x" + result).toString(10);
+  }
+  /**
+   * Read U128 value from the buffer and shift cursor by 32.
+   * @returns
+   */
+  read256() {
+    let value1 = BigInt(this.read128());
+    let value2 = BigInt(this.read128());
+    let result = value2.toString(16) + value1.toString(16).padStart(32, "0");
+    return BigInt("0x" + result).toString(10);
+  }
+  /**
+   * Read `num` number of bytes from the buffer and shift cursor by `num`.
+   * @param num Number of bytes to read.
+   */
+  readBytes(num) {
+    let start = this.bytePosition + this.dataView.byteOffset;
+    let value = new Uint8Array(this.dataView.buffer, start, num);
+    this.shift(num);
+    return value;
+  }
+  /**
+   * Read ULEB value - an integer of varying size. Used for enum indexes and
+   * vector lengths.
+   * @returns {Number} The ULEB value.
+   */
+  readULEB() {
+    let start = this.bytePosition + this.dataView.byteOffset;
+    let buffer = new Uint8Array(this.dataView.buffer, start);
+    let { value, length } = ulebDecode(buffer);
+    this.shift(length);
+    return value;
+  }
+  /**
+   * Read a BCS vector: read a length and then apply function `cb` X times
+   * where X is the length of the vector, defined as ULEB in BCS bytes.
+   * @param cb Callback to process elements of vector.
+   * @returns {Array<Any>} Array of the resulting values, returned by callback.
+   */
+  readVec(cb) {
+    let length = this.readULEB();
+    let result = [];
+    for (let i = 0; i < length; i++) {
+      result.push(cb(this, i, length));
+    }
+    return result;
+  }
+};
+var BcsWriter = class {
+  constructor({ size = 1024, maxSize, allocateSize = 1024 } = {}) {
+    this.bytePosition = 0;
+    this.size = size;
+    this.maxSize = maxSize || size;
+    this.allocateSize = allocateSize;
+    this.dataView = new DataView(new ArrayBuffer(size));
+  }
+  ensureSizeOrGrow(bytes) {
+    const requiredSize = this.bytePosition + bytes;
+    if (requiredSize > this.size) {
+      const nextSize = Math.min(this.maxSize, this.size + this.allocateSize);
+      if (requiredSize > nextSize) {
+        throw new Error(
+          `Attempting to serialize to BCS, but buffer does not have enough size. Allocated size: ${this.size}, Max size: ${this.maxSize}, Required size: ${requiredSize}`
+        );
+      }
+      this.size = nextSize;
+      const nextBuffer = new ArrayBuffer(this.size);
+      new Uint8Array(nextBuffer).set(new Uint8Array(this.dataView.buffer));
+      this.dataView = new DataView(nextBuffer);
+    }
+  }
+  /**
+   * Shift current cursor position by `bytes`.
+   *
+   * @param {Number} bytes Number of bytes to
+   * @returns {this} Self for possible chaining.
+   */
+  shift(bytes) {
+    this.bytePosition += bytes;
+    return this;
+  }
+  /**
+   * Write a U8 value into a buffer and shift cursor position by 1.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  write8(value) {
+    this.ensureSizeOrGrow(1);
+    this.dataView.setUint8(this.bytePosition, Number(value));
+    return this.shift(1);
+  }
+  /**
+   * Write a U16 value into a buffer and shift cursor position by 2.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  write16(value) {
+    this.ensureSizeOrGrow(2);
+    this.dataView.setUint16(this.bytePosition, Number(value), true);
+    return this.shift(2);
+  }
+  /**
+   * Write a U32 value into a buffer and shift cursor position by 4.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  write32(value) {
+    this.ensureSizeOrGrow(4);
+    this.dataView.setUint32(this.bytePosition, Number(value), true);
+    return this.shift(4);
+  }
+  /**
+   * Write a U64 value into a buffer and shift cursor position by 8.
+   * @param {bigint} value Value to write.
+   * @returns {this}
+   */
+  write64(value) {
+    toLittleEndian(BigInt(value), 8).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a U128 value into a buffer and shift cursor position by 16.
+   *
+   * @param {bigint} value Value to write.
+   * @returns {this}
+   */
+  write128(value) {
+    toLittleEndian(BigInt(value), 16).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a U256 value into a buffer and shift cursor position by 16.
+   *
+   * @param {bigint} value Value to write.
+   * @returns {this}
+   */
+  write256(value) {
+    toLittleEndian(BigInt(value), 32).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a ULEB value into a buffer and shift cursor position by number of bytes
+   * written.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  writeULEB(value) {
+    ulebEncode(value).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a vector into a buffer by first writing the vector length and then calling
+   * a callback on each passed value.
+   *
+   * @param {Array<Any>} vector Array of elements to write.
+   * @param {WriteVecCb} cb Callback to call on each element of the vector.
+   * @returns {this}
+   */
+  writeVec(vector, cb) {
+    this.writeULEB(vector.length);
+    Array.from(vector).forEach((el, i) => cb(this, el, i, vector.length));
+    return this;
+  }
+  /**
+   * Adds support for iterations over the object.
+   * @returns {Uint8Array}
+   */
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.bytePosition; i++) {
+      yield this.dataView.getUint8(i);
+    }
+    return this.toBytes();
+  }
+  /**
+   * Get underlying buffer taking only value bytes (in case initial buffer size was bigger).
+   * @returns {Uint8Array} Resulting bcs.
+   */
+  toBytes() {
+    return new Uint8Array(this.dataView.buffer.slice(0, this.bytePosition));
+  }
+  /**
+   * Represent data as 'hex' or 'base64'
+   * @param encoding Encoding to use: 'base64' or 'hex'
+   */
+  toString(encoding) {
+    return encodeStr(this.toBytes(), encoding);
+  }
+};
+function ulebEncode(num) {
+  let arr = [];
+  let len = 0;
+  if (num === 0) {
+    return [0];
+  }
+  while (num > 0) {
+    arr[len] = num & 127;
+    if (num >>= 7) {
+      arr[len] |= 128;
+    }
+    len += 1;
+  }
+  return arr;
+}
+function ulebDecode(arr) {
+  let total = 0;
+  let shift = 0;
+  let len = 0;
+  while (true) {
+    let byte = arr[len];
+    len += 1;
+    total |= (byte & 127) << shift;
+    if ((byte & 128) === 0) {
+      break;
+    }
+    shift += 7;
+  }
+  return {
+    value: total,
+    length: len
+  };
+}
+var _BCS = class {
+  /**
+   * Construct a BCS instance with a prepared schema.
+   *
+   * @param schema A prepared schema with type definitions
+   * @param withPrimitives Whether to register primitive types by default
+   */
+  constructor(schema) {
+    /**
+     * Map of kind `TypeName => TypeInterface`. Holds all
+     * callbacks for (de)serialization of every registered type.
+     *
+     * If the value stored is a string, it is treated as an alias.
+     */
+    this.types = /* @__PURE__ */ new Map();
+    /**
+     * Count temp keys to generate a new one when requested.
+     */
+    this.counter = 0;
+    if (schema instanceof _BCS) {
+      this.schema = schema.schema;
+      this.types = new Map(schema.types);
+      return;
+    }
+    this.schema = schema;
+    this.registerAddressType(_BCS.ADDRESS, schema.addressLength, schema.addressEncoding);
+    this.registerVectorType(schema.vectorType);
+    if (schema.types && schema.types.structs) {
+      for (let name of Object.keys(schema.types.structs)) {
+        this.registerStructType(name, schema.types.structs[name]);
+      }
+    }
+    if (schema.types && schema.types.enums) {
+      for (let name of Object.keys(schema.types.enums)) {
+        this.registerEnumType(name, schema.types.enums[name]);
+      }
+    }
+    if (schema.types && schema.types.aliases) {
+      for (let name of Object.keys(schema.types.aliases)) {
+        this.registerAlias(name, schema.types.aliases[name]);
+      }
+    }
+    if (schema.withPrimitives !== false) {
+      registerPrimitives(this);
+    }
+  }
+  /**
+   * Name of the key to use for temporary struct definitions.
+   * Returns a temp key + index (for a case when multiple temp
+   * structs are processed).
+   */
+  tempKey() {
+    return `bcs-struct-${++this.counter}`;
+  }
+  /**
+   * Serialize data into bcs.
+   *
+   * @example
+   * bcs.registerVectorType('vector<u8>', 'u8');
+   *
+   * let serialized = BCS
+   *   .set('vector<u8>', [1,2,3,4,5,6])
+   *   .toBytes();
+   *
+   * console.assert(toHex(serialized) === '06010203040506');
+   *
+   * @param type Name of the type to serialize (must be registered) or a struct type.
+   * @param data Data to serialize.
+   * @param size Serialization buffer size. Default 1024 = 1KB.
+   * @return A BCS reader instance. Usually you'd want to call `.toBytes()`
+   */
+  ser(type, data, options) {
+    if (typeof type === "string" || Array.isArray(type)) {
+      const { name, params } = this.parseTypeName(type);
+      return this.getTypeInterface(name).encode(this, data, options, params);
+    }
+    if (typeof type === "object") {
+      const key = this.tempKey();
+      const temp = new _BCS(this);
+      return temp.registerStructType(key, type).ser(key, data, options);
+    }
+    throw new Error(`Incorrect type passed into the '.ser()' function. 
+${JSON.stringify(type)}`);
+  }
+  /**
+   * Deserialize BCS into a JS type.
+   *
+   * @example
+   * let num = bcs.ser('u64', '4294967295').toString('hex');
+   * let deNum = bcs.de('u64', num, 'hex');
+   * console.assert(deNum.toString(10) === '4294967295');
+   *
+   * @param type Name of the type to deserialize (must be registered) or a struct type definition.
+   * @param data Data to deserialize.
+   * @param encoding Optional - encoding to use if data is of type String
+   * @return Deserialized data.
+   */
+  de(type, data, encoding) {
+    if (typeof data === "string") {
+      if (encoding) {
+        data = decodeStr(data, encoding);
+      } else {
+        throw new Error("To pass a string to `bcs.de`, specify encoding");
+      }
+    }
+    if (typeof type === "string" || Array.isArray(type)) {
+      const { name, params } = this.parseTypeName(type);
+      return this.getTypeInterface(name).decode(this, data, params);
+    }
+    if (typeof type === "object") {
+      const temp = new _BCS(this);
+      const key = this.tempKey();
+      return temp.registerStructType(key, type).de(key, data, encoding);
+    }
+    throw new Error(`Incorrect type passed into the '.de()' function. 
+${JSON.stringify(type)}`);
+  }
+  /**
+   * Check whether a `TypeInterface` has been loaded for a `type`.
+   * @param type Name of the type to check.
+   * @returns
+   */
+  hasType(type) {
+    return this.types.has(type);
+  }
+  /**
+   * Create an alias for a type.
+   * WARNING: this can potentially lead to recursion
+   * @param name Alias to use
+   * @param forType Type to reference
+   * @returns
+   *
+   * @example
+   * ```
+   * let bcs = new BCS(getSuiMoveConfig());
+   * bcs.registerAlias('ObjectDigest', BCS.BASE58);
+   * let b58_digest = bcs.de('ObjectDigest', '<digest_bytes>', 'base64');
+   * ```
+   */
+  registerAlias(name, forType) {
+    this.types.set(name, forType);
+    return this;
+  }
+  /**
+   * Method to register new types for BCS internal representation.
+   * For each registered type 2 callbacks must be specified and one is optional:
+   *
+   * - encodeCb(writer, data) - write a way to serialize data with BcsWriter;
+   * - decodeCb(reader) - write a way to deserialize data with BcsReader;
+   * - validateCb(data) - validate data - either return bool or throw an error
+   *
+   * @example
+   * // our type would be a string that consists only of numbers
+   * bcs.registerType('number_string',
+   *    (writer, data) => writer.writeVec(data, (w, el) => w.write8(el)),
+   *    (reader) => reader.readVec((r) => r.read8()).join(''), // read each value as u8
+   *    (value) => /[0-9]+/.test(value) // test that it has at least one digit
+   * );
+   * console.log(Array.from(bcs.ser('number_string', '12345').toBytes()) == [5,1,2,3,4,5]);
+   *
+   * @param name
+   * @param encodeCb Callback to encode a value.
+   * @param decodeCb Callback to decode a value.
+   * @param validateCb Optional validator Callback to check type before serialization.
+   */
+  registerType(typeName, encodeCb, decodeCb, validateCb = () => true) {
+    const { name, params: generics } = this.parseTypeName(typeName);
+    this.types.set(name, {
+      encode(self, data, options, typeParams) {
+        const typeMap = generics.reduce((acc, value, index) => {
+          return Object.assign(acc, { [value]: typeParams[index] });
+        }, {});
+        return this._encodeRaw.call(self, new BcsWriter(options), data, typeParams, typeMap);
+      },
+      decode(self, data, typeParams) {
+        const typeMap = generics.reduce((acc, value, index) => {
+          return Object.assign(acc, { [value]: typeParams[index] });
+        }, {});
+        return this._decodeRaw.call(self, new BcsReader(data), typeParams, typeMap);
+      },
+      // these methods should always be used with caution as they require pre-defined
+      // reader and writer and mainly exist to allow multi-field (de)serialization;
+      _encodeRaw(writer, data, typeParams, typeMap) {
+        if (validateCb(data)) {
+          return encodeCb.call(this, writer, data, typeParams, typeMap);
+        } else {
+          throw new Error(`Validation failed for type ${name}, data: ${data}`);
+        }
+      },
+      _decodeRaw(reader, typeParams, typeMap) {
+        return decodeCb.call(this, reader, typeParams, typeMap);
+      }
+    });
+    return this;
+  }
+  /**
+   * Register an address type which is a sequence of U8s of specified length.
+   * @example
+   * bcs.registerAddressType('address', SUI_ADDRESS_LENGTH);
+   * let addr = bcs.de('address', 'c3aca510c785c7094ac99aeaa1e69d493122444df50bb8a99dfa790c654a79af');
+   *
+   * @param name Name of the address type.
+   * @param length Byte length of the address.
+   * @param encoding Encoding to use for the address type
+   * @returns
+   */
+  registerAddressType(name, length, encoding = "hex") {
+    switch (encoding) {
+      case "base64":
+        return this.registerType(
+          name,
+          function encodeAddress(writer, data) {
+            return fromB64(data).reduce((writer2, el) => writer2.write8(el), writer);
+          },
+          function decodeAddress(reader) {
+            return toB64(reader.readBytes(length));
+          }
+        );
+      case "hex":
+        return this.registerType(
+          name,
+          function encodeAddress(writer, data) {
+            return fromHEX(data).reduce((writer2, el) => writer2.write8(el), writer);
+          },
+          function decodeAddress(reader) {
+            return toHEX(reader.readBytes(length));
+          }
+        );
+      default:
+        throw new Error("Unsupported encoding! Use either hex or base64");
+    }
+  }
+  /**
+   * Register custom vector type inside the bcs.
+   *
+   * @example
+   * bcs.registerVectorType('vector<T>'); // generic registration
+   * let array = bcs.de('vector<u8>', '06010203040506', 'hex'); // [1,2,3,4,5,6];
+   * let again = bcs.ser('vector<u8>', [1,2,3,4,5,6]).toString('hex');
+   *
+   * @param name Name of the type to register
+   * @param elementType Optional name of the inner type of the vector
+   * @return Returns self for chaining.
+   */
+  registerVectorType(typeName) {
+    let { name, params } = this.parseTypeName(typeName);
+    if (params.length > 1) {
+      throw new Error("Vector can have only one type parameter; got " + name);
+    }
+    return this.registerType(
+      typeName,
+      function encodeVector(writer, data, typeParams, typeMap) {
+        return writer.writeVec(data, (writer2, el) => {
+          let elementType = typeParams[0];
+          if (!elementType) {
+            throw new Error(`Incorrect number of type parameters passed a to vector '${typeName}'`);
+          }
+          let { name: name2, params: params2 } = this.parseTypeName(elementType);
+          if (this.hasType(name2)) {
+            return this.getTypeInterface(name2)._encodeRaw.call(this, writer2, el, params2, typeMap);
+          }
+          if (!(name2 in typeMap)) {
+            throw new Error(
+              `Unable to find a matching type definition for ${name2} in vector; make sure you passed a generic`
+            );
+          }
+          let { name: innerName, params: innerParams } = this.parseTypeName(typeMap[name2]);
+          return this.getTypeInterface(innerName)._encodeRaw.call(
+            this,
+            writer2,
+            el,
+            innerParams,
+            typeMap
+          );
+        });
+      },
+      function decodeVector(reader, typeParams, typeMap) {
+        return reader.readVec((reader2) => {
+          let elementType = typeParams[0];
+          if (!elementType) {
+            throw new Error(`Incorrect number of type parameters passed to a vector '${typeName}'`);
+          }
+          let { name: name2, params: params2 } = this.parseTypeName(elementType);
+          if (this.hasType(name2)) {
+            return this.getTypeInterface(name2)._decodeRaw.call(this, reader2, params2, typeMap);
+          }
+          if (!(name2 in typeMap)) {
+            throw new Error(
+              `Unable to find a matching type definition for ${name2} in vector; make sure you passed a generic`
+            );
+          }
+          let { name: innerName, params: innerParams } = this.parseTypeName(typeMap[name2]);
+          return this.getTypeInterface(innerName)._decodeRaw.call(
+            this,
+            reader2,
+            innerParams,
+            typeMap
+          );
+        });
+      }
+    );
+  }
+  /**
+   * Safe method to register a custom Move struct. The first argument is a name of the
+   * struct which is only used on the FrontEnd and has no affect on serialization results,
+   * and the second is a struct description passed as an Object.
+   *
+   * The description object MUST have the same order on all of the platforms (ie in Move
+   * or in Rust).
+   *
+   * @example
+   * // Move / Rust struct
+   * // struct Coin {
+   * //   value: u64,
+   * //   owner: vector<u8>, // name // Vec<u8> in Rust
+   * //   is_locked: bool,
+   * // }
+   *
+   * bcs.registerStructType('Coin', {
+   *   value: bcs.U64,
+   *   owner: bcs.STRING,
+   *   is_locked: bcs.BOOL
+   * });
+   *
+   * // Created in Rust with diem/bcs
+   * // let rust_bcs_str = '80d1b105600000000e4269672057616c6c65742047757900';
+   * let rust_bcs_str = [ // using an Array here as BCS works with Uint8Array
+   *  128, 209, 177,   5,  96,  0,  0,
+   *    0,  14,  66, 105, 103, 32, 87,
+   *   97, 108, 108, 101, 116, 32, 71,
+   *  117, 121,   0
+   * ];
+   *
+   * // Let's encode the value as well
+   * let test_set = bcs.ser('Coin', {
+   *   owner: 'Big Wallet Guy',
+   *   value: '412412400000',
+   *   is_locked: false,
+   * });
+   *
+   * console.assert(Array.from(test_set.toBytes()) === rust_bcs_str, 'Whoopsie, result mismatch');
+   *
+   * @param name Name of the type to register.
+   * @param fields Fields of the struct. Must be in the correct order.
+   * @return Returns BCS for chaining.
+   */
+  registerStructType(typeName, fields) {
+    for (let key in fields) {
+      let internalName = this.tempKey();
+      let value = fields[key];
+      if (!Array.isArray(value) && typeof value !== "string") {
+        fields[key] = internalName;
+        this.registerStructType(internalName, value);
+      }
+    }
+    let struct = Object.freeze(fields);
+    let canonicalOrder = Object.keys(struct);
+    let { name: structName, params: generics } = this.parseTypeName(typeName);
+    return this.registerType(
+      typeName,
+      function encodeStruct(writer, data, typeParams, typeMap) {
+        if (!data || data.constructor !== Object) {
+          throw new Error(`Expected ${structName} to be an Object, got: ${data}`);
+        }
+        if (typeParams.length !== generics.length) {
+          throw new Error(
+            `Incorrect number of generic parameters passed; expected: ${generics.length}, got: ${typeParams.length}`
+          );
+        }
+        for (let key of canonicalOrder) {
+          if (!(key in data)) {
+            throw new Error(`Struct ${structName} requires field ${key}:${struct[key]}`);
+          }
+          const { name: fieldType, params: fieldParams } = this.parseTypeName(
+            struct[key]
+          );
+          if (!generics.includes(fieldType)) {
+            this.getTypeInterface(fieldType)._encodeRaw.call(
+              this,
+              writer,
+              data[key],
+              fieldParams,
+              typeMap
+            );
+          } else {
+            const paramIdx = generics.indexOf(fieldType);
+            let { name, params } = this.parseTypeName(typeParams[paramIdx]);
+            if (this.hasType(name)) {
+              this.getTypeInterface(name)._encodeRaw.call(
+                this,
+                writer,
+                data[key],
+                params,
+                typeMap
+              );
+              continue;
+            }
+            if (!(name in typeMap)) {
+              throw new Error(
+                `Unable to find a matching type definition for ${name} in ${structName}; make sure you passed a generic`
+              );
+            }
+            let { name: innerName, params: innerParams } = this.parseTypeName(typeMap[name]);
+            this.getTypeInterface(innerName)._encodeRaw.call(
+              this,
+              writer,
+              data[key],
+              innerParams,
+              typeMap
+            );
+          }
+        }
+        return writer;
+      },
+      function decodeStruct(reader, typeParams, typeMap) {
+        if (typeParams.length !== generics.length) {
+          throw new Error(
+            `Incorrect number of generic parameters passed; expected: ${generics.length}, got: ${typeParams.length}`
+          );
+        }
+        let result = {};
+        for (let key of canonicalOrder) {
+          const { name: fieldName, params: fieldParams } = this.parseTypeName(
+            struct[key]
+          );
+          if (!generics.includes(fieldName)) {
+            result[key] = this.getTypeInterface(fieldName)._decodeRaw.call(
+              this,
+              reader,
+              fieldParams,
+              typeMap
+            );
+          } else {
+            const paramIdx = generics.indexOf(fieldName);
+            let { name, params } = this.parseTypeName(typeParams[paramIdx]);
+            if (this.hasType(name)) {
+              result[key] = this.getTypeInterface(name)._decodeRaw.call(
+                this,
+                reader,
+                params,
+                typeMap
+              );
+              continue;
+            }
+            if (!(name in typeMap)) {
+              throw new Error(
+                `Unable to find a matching type definition for ${name} in ${structName}; make sure you passed a generic`
+              );
+            }
+            let { name: innerName, params: innerParams } = this.parseTypeName(typeMap[name]);
+            result[key] = this.getTypeInterface(innerName)._decodeRaw.call(
+              this,
+              reader,
+              innerParams,
+              typeMap
+            );
+          }
+        }
+        return result;
+      }
+    );
+  }
+  /**
+   * Safe method to register custom enum type where each invariant holds the value of another type.
+   * @example
+   * bcs.registerStructType('Coin', { value: 'u64' });
+   * bcs.registerEnumType('MyEnum', {
+   *  single: 'Coin',
+   *  multi: 'vector<Coin>',
+   *  empty: null
+   * });
+   *
+   * console.log(
+   *  bcs.de('MyEnum', 'AICWmAAAAAAA', 'base64'), // { single: { value: 10000000 } }
+   *  bcs.de('MyEnum', 'AQIBAAAAAAAAAAIAAAAAAAAA', 'base64')  // { multi: [ { value: 1 }, { value: 2 } ] }
+   * )
+   *
+   * // and serialization
+   * bcs.ser('MyEnum', { single: { value: 10000000 } }).toBytes();
+   * bcs.ser('MyEnum', { multi: [ { value: 1 }, { value: 2 } ] });
+   *
+   * @param name
+   * @param variants
+   */
+  registerEnumType(typeName, variants) {
+    for (let key in variants) {
+      let internalName = this.tempKey();
+      let value = variants[key];
+      if (value !== null && !Array.isArray(value) && typeof value !== "string") {
+        variants[key] = internalName;
+        this.registerStructType(internalName, value);
+      }
+    }
+    let struct = Object.freeze(variants);
+    let canonicalOrder = Object.keys(struct);
+    let { name, params: canonicalTypeParams } = this.parseTypeName(typeName);
+    return this.registerType(
+      typeName,
+      function encodeEnum(writer, data, typeParams, typeMap) {
+        if (!data) {
+          throw new Error(`Unable to write enum "${name}", missing data.
+Received: "${data}"`);
+        }
+        if (typeof data !== "object") {
+          throw new Error(
+            `Incorrect data passed into enum "${name}", expected object with properties: "${canonicalOrder.join(
+              " | "
+            )}".
+Received: "${JSON.stringify(data)}"`
+          );
+        }
+        let key = Object.keys(data)[0];
+        if (key === void 0) {
+          throw new Error(`Empty object passed as invariant of the enum "${name}"`);
+        }
+        let orderByte = canonicalOrder.indexOf(key);
+        if (orderByte === -1) {
+          throw new Error(
+            `Unknown invariant of the enum "${name}", allowed values: "${canonicalOrder.join(
+              " | "
+            )}"; received "${key}"`
+          );
+        }
+        let invariant = canonicalOrder[orderByte];
+        let invariantType = struct[invariant];
+        writer.write8(orderByte);
+        if (invariantType === null) {
+          return writer;
+        }
+        let paramIndex = canonicalTypeParams.indexOf(invariantType);
+        let typeOrParam = paramIndex === -1 ? invariantType : typeParams[paramIndex];
+        {
+          let { name: name2, params } = this.parseTypeName(typeOrParam);
+          return this.getTypeInterface(name2)._encodeRaw.call(
+            this,
+            writer,
+            data[key],
+            params,
+            typeMap
+          );
+        }
+      },
+      function decodeEnum(reader, typeParams, typeMap) {
+        let orderByte = reader.readULEB();
+        let invariant = canonicalOrder[orderByte];
+        let invariantType = struct[invariant];
+        if (orderByte === -1) {
+          throw new Error(
+            `Decoding type mismatch, expected enum "${name}" invariant index, received "${orderByte}"`
+          );
+        }
+        if (invariantType === null) {
+          return { [invariant]: true };
+        }
+        let paramIndex = canonicalTypeParams.indexOf(invariantType);
+        let typeOrParam = paramIndex === -1 ? invariantType : typeParams[paramIndex];
+        {
+          let { name: name2, params } = this.parseTypeName(typeOrParam);
+          return {
+            [invariant]: this.getTypeInterface(name2)._decodeRaw.call(this, reader, params, typeMap)
+          };
+        }
+      }
+    );
+  }
+  /**
+   * Get a set of encoders/decoders for specific type.
+   * Mainly used to define custom type de/serialization logic.
+   *
+   * @param type
+   * @returns {TypeInterface}
+   */
+  getTypeInterface(type) {
+    let typeInterface = this.types.get(type);
+    if (typeof typeInterface === "string") {
+      let chain = [];
+      while (typeof typeInterface === "string") {
+        if (chain.includes(typeInterface)) {
+          throw new Error(`Recursive definition found: ${chain.join(" -> ")} -> ${typeInterface}`);
+        }
+        chain.push(typeInterface);
+        typeInterface = this.types.get(typeInterface);
+      }
+    }
+    if (typeInterface === void 0) {
+      throw new Error(`Type ${type} is not registered`);
+    }
+    return typeInterface;
+  }
+  /**
+   * Parse a type name and get the type's generics.
+   * @example
+   * let { typeName, typeParams } = parseTypeName('Option<Coin<SUI>>');
+   * // typeName: Option
+   * // typeParams: [ 'Coin<SUI>' ]
+   *
+   * @param name Name of the type to process
+   * @returns Object with typeName and typeParams listed as Array
+   */
+  parseTypeName(name) {
+    if (Array.isArray(name)) {
+      let [typeName2, ...params2] = name;
+      return { name: typeName2, params: params2 };
+    }
+    if (typeof name !== "string") {
+      throw new Error(`Illegal type passed as a name of the type: ${name}`);
+    }
+    let [left, right] = this.schema.genericSeparators || ["<", ">"];
+    let l_bound = name.indexOf(left);
+    let r_bound = Array.from(name).reverse().indexOf(right);
+    if (l_bound === -1 && r_bound === -1) {
+      return { name, params: [] };
+    }
+    if (l_bound === -1 || r_bound === -1) {
+      throw new Error(`Unclosed generic in name '${name}'`);
+    }
+    let typeName = name.slice(0, l_bound);
+    let params = splitGenericParameters(
+      name.slice(l_bound + 1, name.length - r_bound - 1),
+      this.schema.genericSeparators
+    );
+    return { name: typeName, params };
+  }
+};
+var BCS = _BCS;
+// Prefefined types constants
+BCS.U8 = "u8";
+BCS.U16 = "u16";
+BCS.U32 = "u32";
+BCS.U64 = "u64";
+BCS.U128 = "u128";
+BCS.U256 = "u256";
+BCS.BOOL = "bool";
+BCS.VECTOR = "vector";
+BCS.ADDRESS = "address";
+BCS.STRING = "string";
+BCS.HEX = "hex-string";
+BCS.BASE58 = "base58-string";
+BCS.BASE64 = "base64-string";
+function encodeStr(data, encoding) {
+  switch (encoding) {
+    case "base58":
+      return toB58(data);
+    case "base64":
+      return toB64(data);
+    case "hex":
+      return toHEX(data);
+    default:
+      throw new Error("Unsupported encoding, supported values are: base64, hex");
+  }
+}
+function decodeStr(data, encoding) {
+  switch (encoding) {
+    case "base58":
+      return fromB58(data);
+    case "base64":
+      return fromB64(data);
+    case "hex":
+      return fromHEX(data);
+    default:
+      throw new Error("Unsupported encoding, supported values are: base64, hex");
+  }
+}
+function registerPrimitives(bcs) {
+  bcs.registerType(
+    BCS.U8,
+    function(writer, data) {
+      return writer.write8(data);
+    },
+    function(reader) {
+      return reader.read8();
+    },
+    (u8) => u8 < 256
+  );
+  bcs.registerType(
+    BCS.U16,
+    function(writer, data) {
+      return writer.write16(data);
+    },
+    function(reader) {
+      return reader.read16();
+    },
+    (u16) => u16 < 65536
+  );
+  bcs.registerType(
+    BCS.U32,
+    function(writer, data) {
+      return writer.write32(data);
+    },
+    function(reader) {
+      return reader.read32();
+    },
+    (u32) => u32 <= 4294967296n
+  );
+  bcs.registerType(
+    BCS.U64,
+    function(writer, data) {
+      return writer.write64(data);
+    },
+    function(reader) {
+      return reader.read64();
+    }
+  );
+  bcs.registerType(
+    BCS.U128,
+    function(writer, data) {
+      return writer.write128(data);
+    },
+    function(reader) {
+      return reader.read128();
+    }
+  );
+  bcs.registerType(
+    BCS.U256,
+    function(writer, data) {
+      return writer.write256(data);
+    },
+    function(reader) {
+      return reader.read256();
+    }
+  );
+  bcs.registerType(
+    BCS.BOOL,
+    function(writer, data) {
+      return writer.write8(data);
+    },
+    function(reader) {
+      return reader.read8().toString(10) === "1";
+    }
+  );
+  bcs.registerType(
+    BCS.STRING,
+    function(writer, data) {
+      return writer.writeVec(Array.from(data), (writer2, el) => writer2.write8(el.charCodeAt(0)));
+    },
+    function(reader) {
+      return reader.readVec((reader2) => reader2.read8()).map((el) => String.fromCharCode(Number(el))).join("");
+    },
+    (_str) => true
+  );
+  bcs.registerType(
+    BCS.HEX,
+    function(writer, data) {
+      return writer.writeVec(Array.from(fromHEX(data)), (writer2, el) => writer2.write8(el));
+    },
+    function(reader) {
+      let bytes = reader.readVec((reader2) => reader2.read8());
+      return toHEX(new Uint8Array(bytes));
+    }
+  );
+  bcs.registerType(
+    BCS.BASE58,
+    function(writer, data) {
+      return writer.writeVec(Array.from(fromB58(data)), (writer2, el) => writer2.write8(el));
+    },
+    function(reader) {
+      let bytes = reader.readVec((reader2) => reader2.read8());
+      return toB58(new Uint8Array(bytes));
+    }
+  );
+  bcs.registerType(
+    BCS.BASE64,
+    function(writer, data) {
+      return writer.writeVec(Array.from(fromB64(data)), (writer2, el) => writer2.write8(el));
+    },
+    function(reader) {
+      let bytes = reader.readVec((reader2) => reader2.read8());
+      return toB64(new Uint8Array(bytes));
+    }
+  );
+}
+function getRustConfig() {
+  return {
+    genericSeparators: ["<", ">"],
+    vectorType: "Vec",
+    addressLength: SUI_ADDRESS_LENGTH,
+    addressEncoding: "hex"
+  };
+}
+function getSuiMoveConfig() {
+  return {
+    genericSeparators: ["<", ">"],
+    vectorType: "vector",
+    addressLength: SUI_ADDRESS_LENGTH,
+    addressEncoding: "hex"
+  };
+}
+function splitGenericParameters(str, genericSeparators = ["<", ">"]) {
+  const [left, right] = genericSeparators;
+  const tok = [];
+  let word = "";
+  let nestedAngleBrackets = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (char === left) {
+      nestedAngleBrackets++;
+    }
+    if (char === right) {
+      nestedAngleBrackets--;
+    }
+    if (nestedAngleBrackets === 0 && char === ",") {
+      tok.push(word.trim());
+      word = "";
+      continue;
+    }
+    word += char;
+  }
+  tok.push(word.trim());
+  return tok;
+}
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  BCS,
+  BcsReader,
+  BcsWriter,
+  decodeStr,
+  encodeStr,
+  fromB58,
+  fromB64,
+  fromHEX,
+  getRustConfig,
+  getSuiMoveConfig,
+  registerPrimitives,
+  splitGenericParameters,
+  toB58,
+  toB64,
+  toHEX
+});
+
+},{"bs58":108}],26:[function(require,module,exports){
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -8460,7 +9769,7 @@ var import_superstruct22 = require("superstruct");
   verifyMessage
 });
 
-},{"@mysten/bcs":26,"@noble/curves/secp256k1":33,"@noble/hashes/blake2b":38,"@noble/hashes/hmac":40,"@noble/hashes/sha256":43,"@noble/hashes/sha512":44,"@noble/hashes/utils":45,"@scure/bip32":47,"@scure/bip39":48,"@suchipi/femver":49,"jayson/lib/client/browser/index.js":114,"rpc-websockets":124,"superstruct":130,"tweetnacl":132}],26:[function(require,module,exports){
+},{"@mysten/bcs":27,"@noble/curves/secp256k1":34,"@noble/hashes/blake2b":39,"@noble/hashes/hmac":41,"@noble/hashes/sha256":44,"@noble/hashes/sha512":45,"@noble/hashes/utils":46,"@scure/bip32":50,"@scure/bip39":51,"@suchipi/femver":52,"jayson/lib/client/browser/index.js":118,"rpc-websockets":128,"superstruct":134,"tweetnacl":136}],27:[function(require,module,exports){
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -9768,7 +11077,7 @@ function getSuiMoveConfig() {
   toHEX
 });
 
-},{"bs58":104}],27:[function(require,module,exports){
+},{"bs58":108}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createCurve = exports.getHash = void 0;
@@ -9791,7 +11100,7 @@ function createCurve(curveDef, defHash) {
 }
 exports.createCurve = createCurve;
 
-},{"./abstract/weierstrass.js":32,"@noble/hashes/hmac":40,"@noble/hashes/utils":45}],28:[function(require,module,exports){
+},{"./abstract/weierstrass.js":33,"@noble/hashes/hmac":41,"@noble/hashes/utils":46}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateBasic = exports.wNAF = void 0;
@@ -9953,7 +11262,7 @@ function validateBasic(curve) {
 }
 exports.validateBasic = validateBasic;
 
-},{"./modular.js":30,"./utils.js":31}],29:[function(require,module,exports){
+},{"./modular.js":31,"./utils.js":32}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createHasher = exports.isogenyMap = exports.hash_to_field = exports.expand_message_xof = exports.expand_message_xmd = void 0;
@@ -10129,7 +11438,7 @@ function createHasher(Point, mapToCurve, def) {
 }
 exports.createHasher = createHasher;
 
-},{"./modular.js":30,"./utils.js":31}],30:[function(require,module,exports){
+},{"./modular.js":31,"./utils.js":32}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.hashToPrivateScalar = exports.FpSqrtEven = exports.FpSqrtOdd = exports.Field = exports.nLength = exports.FpIsSquare = exports.FpDiv = exports.FpInvertBatch = exports.FpPow = exports.validateField = exports.isNegativeLE = exports.FpSqrt = exports.tonelliShanks = exports.invert = exports.pow2 = exports.pow = exports.mod = void 0;
@@ -10149,10 +11458,10 @@ function mod(a, b) {
 }
 exports.mod = mod;
 /**
- * Efficiently exponentiate num to power and do modular division.
+ * Efficiently raise num to power and do modular division.
  * Unsafe in some contexts: uses ladder, so can expose bigint bits.
  * @example
- * powMod(2n, 6n, 11n) // 64n % 11n == 9n
+ * pow(2n, 6n, 11n) // 64n % 11n == 9n
  */
 // TODO: use field version && remove
 function pow(num, power, modulo) {
@@ -10185,7 +11494,7 @@ function invert(number, modulo) {
     if (number === _0n || modulo <= _0n) {
         throw new Error(`invert: expected positive integers, got n=${number} mod=${modulo}`);
     }
-    // Eucledian GCD https://brilliant.org/wiki/extended-euclidean-algorithm/
+    // Euclidean GCD https://brilliant.org/wiki/extended-euclidean-algorithm/
     // Fermat's little theorem "CT-like" version inv(n) = n^(m-2) mod m is 30x slower.
     let a = mod(number, modulo);
     let b = modulo;
@@ -10492,10 +11801,12 @@ exports.FpSqrtEven = FpSqrtEven;
 /**
  * FIPS 186 B.4.1-compliant "constant-time" private key generation utility.
  * Can take (n+8) or more bytes of uniform input e.g. from CSPRNG or KDF
- * and convert them into private scalar, with the modulo bias being neglible.
+ * and convert them into private scalar, with the modulo bias being negligible.
  * Needs at least 40 bytes of input for 32-byte private key.
  * https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/
  * @param hash hash output from SHA3 or a similar function
+ * @param groupOrder size of subgroup - (e.g. curveFn.CURVE.n)
+ * @param isLE interpret hash bytes as LE num
  * @returns valid private scalar
  */
 function hashToPrivateScalar(hash, groupOrder, isLE = false) {
@@ -10509,16 +11820,23 @@ function hashToPrivateScalar(hash, groupOrder, isLE = false) {
 }
 exports.hashToPrivateScalar = hashToPrivateScalar;
 
-},{"./utils.js":31}],31:[function(require,module,exports){
+},{"./utils.js":32}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateObject = exports.createHmacDrbg = exports.bitMask = exports.bitSet = exports.bitGet = exports.bitLen = exports.utf8ToBytes = exports.equalBytes = exports.concatBytes = exports.ensureBytes = exports.numberToVarBytesBE = exports.numberToBytesLE = exports.numberToBytesBE = exports.bytesToNumberLE = exports.bytesToNumberBE = exports.hexToBytes = exports.hexToNumber = exports.numberToHexUnpadded = exports.bytesToHex = void 0;
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
+// 100 lines of code in the file are duplicated from noble-hashes (utils).
+// This is OK: `abstract` directory does not use noble-hashes.
+// User may opt-in into using different hashing library. This way, noble-hashes
+// won't be included into their bundle.
 const _0n = BigInt(0);
 const _1n = BigInt(1);
 const _2n = BigInt(2);
 const u8a = (a) => a instanceof Uint8Array;
 const hexes = Array.from({ length: 256 }, (v, i) => i.toString(16).padStart(2, '0'));
+/**
+ * @example bytesToHex(Uint8Array.from([0xca, 0xfe, 0x01, 0x23])) // 'cafe0123'
+ */
 function bytesToHex(bytes) {
     if (!u8a(bytes))
         throw new Error('Uint8Array expected');
@@ -10542,25 +11860,28 @@ function hexToNumber(hex) {
     return BigInt(hex === '' ? '0' : `0x${hex}`);
 }
 exports.hexToNumber = hexToNumber;
-// Caching slows it down 2-3x
+/**
+ * @example hexToBytes('cafe0123') // Uint8Array.from([0xca, 0xfe, 0x01, 0x23])
+ */
 function hexToBytes(hex) {
     if (typeof hex !== 'string')
         throw new Error('hex string expected, got ' + typeof hex);
-    if (hex.length % 2)
-        throw new Error('hex string is invalid: unpadded ' + hex.length);
-    const array = new Uint8Array(hex.length / 2);
+    const len = hex.length;
+    if (len % 2)
+        throw new Error('padded hex string expected, got unpadded hex of length ' + len);
+    const array = new Uint8Array(len / 2);
     for (let i = 0; i < array.length; i++) {
         const j = i * 2;
         const hexByte = hex.slice(j, j + 2);
         const byte = Number.parseInt(hexByte, 16);
         if (Number.isNaN(byte) || byte < 0)
-            throw new Error('invalid byte sequence');
+            throw new Error('Invalid byte sequence');
         array[i] = byte;
     }
     return array;
 }
 exports.hexToBytes = hexToBytes;
-// Big Endian
+// BE: Big Endian, LE: Little Endian
 function bytesToNumberBE(bytes) {
     return hexToNumber(bytesToHex(bytes));
 }
@@ -10571,13 +11892,28 @@ function bytesToNumberLE(bytes) {
     return hexToNumber(bytesToHex(Uint8Array.from(bytes).reverse()));
 }
 exports.bytesToNumberLE = bytesToNumberLE;
-const numberToBytesBE = (n, len) => hexToBytes(n.toString(16).padStart(len * 2, '0'));
+function numberToBytesBE(n, len) {
+    return hexToBytes(n.toString(16).padStart(len * 2, '0'));
+}
 exports.numberToBytesBE = numberToBytesBE;
-const numberToBytesLE = (n, len) => (0, exports.numberToBytesBE)(n, len).reverse();
+function numberToBytesLE(n, len) {
+    return numberToBytesBE(n, len).reverse();
+}
 exports.numberToBytesLE = numberToBytesLE;
-// Returns variable number bytes (minimal bigint encoding?)
-const numberToVarBytesBE = (n) => hexToBytes(numberToHexUnpadded(n));
+// Unpadded, rarely used
+function numberToVarBytesBE(n) {
+    return hexToBytes(numberToHexUnpadded(n));
+}
 exports.numberToVarBytesBE = numberToVarBytesBE;
+/**
+ * Takes hex string or Uint8Array, converts to Uint8Array.
+ * Validates output length.
+ * Will throw error for other types.
+ * @param title descriptive title for an error e.g. 'private key'
+ * @param hex hex string or Uint8Array
+ * @param expectedLength optional, will compare to result array's length
+ * @returns
+ */
 function ensureBytes(title, hex, expectedLength) {
     let res;
     if (typeof hex === 'string') {
@@ -10602,11 +11938,13 @@ function ensureBytes(title, hex, expectedLength) {
     return res;
 }
 exports.ensureBytes = ensureBytes;
-// Copies several Uint8Arrays into one.
-function concatBytes(...arrs) {
-    const r = new Uint8Array(arrs.reduce((sum, a) => sum + a.length, 0));
+/**
+ * Copies several Uint8Arrays into one.
+ */
+function concatBytes(...arrays) {
+    const r = new Uint8Array(arrays.reduce((sum, a) => sum + a.length, 0));
     let pad = 0; // walk through each item, ensure they have proper type
-    arrs.forEach((a) => {
+    arrays.forEach((a) => {
         if (!u8a(a))
             throw new Error('Uint8Array expected');
         r.set(a, pad);
@@ -10625,15 +11963,20 @@ function equalBytes(b1, b2) {
     return true;
 }
 exports.equalBytes = equalBytes;
+/**
+ * @example utf8ToBytes('abc') // new Uint8Array([97, 98, 99])
+ */
 function utf8ToBytes(str) {
-    if (typeof str !== 'string') {
+    if (typeof str !== 'string')
         throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
-    }
-    return new TextEncoder().encode(str);
+    return new Uint8Array(new TextEncoder().encode(str)); // https://bugzil.la/1681809
 }
 exports.utf8ToBytes = utf8ToBytes;
 // Bit operations
-// Amount of bits inside bigint (Same as n.toString(2).length)
+/**
+ * Calculates amount of bits in a bigint.
+ * Same as `n.toString(2).length`
+ */
 function bitLen(n) {
     let len;
     for (len = 0; n > _0n; n >>= _1n, len += 1)
@@ -10641,15 +11984,26 @@ function bitLen(n) {
     return len;
 }
 exports.bitLen = bitLen;
-// Gets single bit at position. NOTE: first bit position is 0 (same as arrays)
-// Same as !!+Array.from(n.toString(2)).reverse()[pos]
-const bitGet = (n, pos) => (n >> BigInt(pos)) & _1n;
+/**
+ * Gets single bit at position.
+ * NOTE: first bit position is 0 (same as arrays)
+ * Same as `!!+Array.from(n.toString(2)).reverse()[pos]`
+ */
+function bitGet(n, pos) {
+    return (n >> BigInt(pos)) & _1n;
+}
 exports.bitGet = bitGet;
-// Sets single bit at position
-const bitSet = (n, pos, value) => n | ((value ? _1n : _0n) << BigInt(pos));
+/**
+ * Sets single bit at position.
+ */
+const bitSet = (n, pos, value) => {
+    return n | ((value ? _1n : _0n) << BigInt(pos));
+};
 exports.bitSet = bitSet;
-// Return mask for N bits (Same as BigInt(`0b${Array(i).fill('1').join('')}`))
-// Not using ** operator with bigints for old engines.
+/**
+ * Calculate mask for N bits. Not using ** operator with bigints because of old engines.
+ * Same as BigInt(`0b${Array(i).fill('1').join('')}`)
+ */
 const bitMask = (n) => (_2n << BigInt(n - 1)) - _1n;
 exports.bitMask = bitMask;
 // DRBG
@@ -10754,7 +12108,7 @@ exports.validateObject = validateObject;
 // const z3 = validateObject(o, { test: 'boolean', z: 'bug' });
 // const z4 = validateObject(o, { a: 'boolean', z: 'bug' });
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mapToCurveSimpleSWU = exports.SWUFpSqrtRatio = exports.weierstrass = exports.weierstrassPoints = exports.DER = void 0;
@@ -11595,18 +12949,22 @@ function weierstrass(curveDef) {
     const defaultSigOpts = { lowS: CURVE.lowS, prehash: false };
     const defaultVerOpts = { lowS: CURVE.lowS, prehash: false };
     /**
-     * Signs message hash (not message: you need to hash it by yourself).
+     * Signs message hash with a private key.
      * ```
      * sign(m, d, k) where
      *   (x, y) = G × k
      *   r = x mod n
      *   s = (m + dr)/k mod n
      * ```
-     * @param opts `lowS, extraEntropy, prehash`
+     * @param msgHash NOT message. msg needs to be hashed to `msgHash`, or use `prehash`.
+     * @param privKey private key
+     * @param opts lowS for non-malleable sigs. extraEntropy for mixing randomness into k. prehash will hash first arg.
+     * @returns signature with recovery param
      */
     function sign(msgHash, privKey, opts = defaultSigOpts) {
         const { seed, k2sig } = prepSig(msgHash, privKey, opts); // Steps A, D of RFC6979 3.2.
-        const drbg = ut.createHmacDrbg(CURVE.hash.outputLen, CURVE.nByteLength, CURVE.hmac);
+        const C = CURVE;
+        const drbg = ut.createHmacDrbg(C.hash.outputLen, C.nByteLength, C.hmac);
         return drbg(seed, k2sig); // Steps B, C, D, E, F, G
     }
     // Enable precomputes. Slows down first publicKey computation by 20ms.
@@ -11688,10 +13046,15 @@ function weierstrass(curveDef) {
     };
 }
 exports.weierstrass = weierstrass;
-// Implementation of the Shallue and van de Woestijne method for any Weierstrass curve
-// TODO: check if there is a way to merge this with uvRatio in Edwards && move to modular?
-// b = True and y = sqrt(u / v) if (u / v) is square in F, and
-// b = False and y = sqrt(Z * (u / v)) otherwise.
+/**
+ * Implementation of the Shallue and van de Woestijne method for any weierstrass curve.
+ * TODO: check if there is a way to merge this with uvRatio in Edwards; move to modular.
+ * b = True and y = sqrt(u / v) if (u / v) is square in F, and
+ * b = False and y = sqrt(Z * (u / v)) otherwise.
+ * @param Fp
+ * @param Z
+ * @returns
+ */
 function SWUFpSqrtRatio(Fp, Z) {
     // Generic implementation
     const q = Fp.ORDER;
@@ -11699,10 +13062,14 @@ function SWUFpSqrtRatio(Fp, Z) {
     for (let o = q - _1n; o % _2n === _0n; o /= _2n)
         l += _1n;
     const c1 = l; // 1. c1, the largest integer such that 2^c1 divides q - 1.
-    const c2 = (q - _1n) / _2n ** c1; // 2. c2 = (q - 1) / (2^c1)        # Integer arithmetic
+    // We need 2n ** c1 and 2n ** (c1-1). We can't use **; but we can use <<.
+    // 2n ** c1 == 2n << (c1-1)
+    const _2n_pow_c1_1 = _2n << (c1 - _1n - _1n);
+    const _2n_pow_c1 = _2n_pow_c1_1 * _2n;
+    const c2 = (q - _1n) / _2n_pow_c1; // 2. c2 = (q - 1) / (2^c1)  # Integer arithmetic
     const c3 = (c2 - _1n) / _2n; // 3. c3 = (c2 - 1) / 2            # Integer arithmetic
-    const c4 = _2n ** c1 - _1n; // 4. c4 = 2^c1 - 1                # Integer arithmetic
-    const c5 = _2n ** (c1 - _1n); // 5. c5 = 2^(c1 - 1)              # Integer arithmetic
+    const c4 = _2n_pow_c1 - _1n; // 4. c4 = 2^c1 - 1                # Integer arithmetic
+    const c5 = _2n_pow_c1_1; // 5. c5 = 2^(c1 - 1)                  # Integer arithmetic
     const c6 = Fp.pow(Z, c2); // 6. c6 = Z^c2
     const c7 = Fp.pow(Z, (c2 + _1n) / _2n); // 7. c7 = Z^((c2 + 1) / 2)
     let sqrtRatio = (u, v) => {
@@ -11724,7 +13091,8 @@ function SWUFpSqrtRatio(Fp, Z) {
         tv4 = Fp.cmov(tv5, tv4, isQR); // 16. tv4 = CMOV(tv5, tv4, isQR)
         // 17. for i in (c1, c1 - 1, ..., 2):
         for (let i = c1; i > _1n; i--) {
-            let tv5 = _2n ** (i - _2n); // 18.    tv5 = i - 2;    19.    tv5 = 2^tv5
+            let tv5 = i - _2n; // 18.    tv5 = i - 2
+            tv5 = _2n << (tv5 - _1n); // 19.    tv5 = 2^tv5
             let tvv5 = Fp.pow(tv4, tv5); // 20.    tv5 = tv4^tv5
             const e1 = Fp.eql(tvv5, Fp.ONE); // 21.    e1 = tv5 == 1
             tv2 = Fp.mul(tv3, tv1); // 22.    tv2 = tv3 * tv1
@@ -11757,7 +13125,9 @@ function SWUFpSqrtRatio(Fp, Z) {
     return sqrtRatio;
 }
 exports.SWUFpSqrtRatio = SWUFpSqrtRatio;
-// From draft-irtf-cfrg-hash-to-curve-16
+/**
+ * From draft-irtf-cfrg-hash-to-curve-16
+ */
 function mapToCurveSimpleSWU(Fp, opts) {
     mod.validateField(Fp);
     if (!Fp.isValid(opts.A) || !Fp.isValid(opts.B) || !Fp.isValid(opts.Z))
@@ -11800,9 +13170,8 @@ function mapToCurveSimpleSWU(Fp, opts) {
 }
 exports.mapToCurveSimpleSWU = mapToCurveSimpleSWU;
 
-},{"./curve.js":28,"./modular.js":30,"./utils.js":31}],33:[function(require,module,exports){
+},{"./curve.js":29,"./modular.js":31,"./utils.js":32}],34:[function(require,module,exports){
 "use strict";
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encodeToCurve = exports.hashToCurve = exports.schnorr = exports.secp256k1 = void 0;
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
@@ -11811,7 +13180,7 @@ const utils_1 = require("@noble/hashes/utils");
 const modular_js_1 = require("./abstract/modular.js");
 const weierstrass_js_1 = require("./abstract/weierstrass.js");
 const utils_js_1 = require("./abstract/utils.js");
-const htf = require("./abstract/hash-to-curve.js");
+const hash_to_curve_js_1 = require("./abstract/hash-to-curve.js");
 const _shortw_utils_js_1 = require("./_shortw_utils.js");
 const secp256k1P = BigInt('0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f');
 const secp256k1N = BigInt('0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141');
@@ -11996,7 +13365,7 @@ function schnorrVerify(signature, message, publicKey) {
         return false;
     }
 }
-exports.schnorr = {
+exports.schnorr = (() => ({
     getPublicKey: schnorrGetPublicKey,
     sign: schnorrSign,
     verify: schnorrVerify,
@@ -12009,8 +13378,8 @@ exports.schnorr = {
         taggedHash,
         mod: modular_js_1.mod,
     },
-};
-const isoMap = htf.isogenyMap(Fp, [
+}))();
+const isoMap = /* @__PURE__ */ (() => (0, hash_to_curve_js_1.isogenyMap)(Fp, [
     // xNum
     [
         '0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa8c7',
@@ -12038,13 +13407,13 @@ const isoMap = htf.isogenyMap(Fp, [
         '0x6484aa716545ca2cf3a70c3fa8fe337e0a3d21162f0d6299a7bf8192bfd2a76f',
         '0x0000000000000000000000000000000000000000000000000000000000000001', // LAST 1
     ],
-].map((i) => i.map((j) => BigInt(j))));
-const mapSWU = (0, weierstrass_js_1.mapToCurveSimpleSWU)(Fp, {
+].map((i) => i.map((j) => BigInt(j)))))();
+const mapSWU = /* @__PURE__ */ (() => (0, weierstrass_js_1.mapToCurveSimpleSWU)(Fp, {
     A: BigInt('0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533'),
     B: BigInt('1771'),
     Z: Fp.create(BigInt('-11')),
-});
-_a = htf.createHasher(exports.secp256k1.ProjectivePoint, (scalars) => {
+}))();
+const htf = /* @__PURE__ */ (() => (0, hash_to_curve_js_1.createHasher)(exports.secp256k1.ProjectivePoint, (scalars) => {
     const { x, y } = mapSWU(Fp.create(scalars[0]));
     return isoMap(x, y);
 }, {
@@ -12055,9 +13424,11 @@ _a = htf.createHasher(exports.secp256k1.ProjectivePoint, (scalars) => {
     k: 128,
     expand: 'xmd',
     hash: sha256_1.sha256,
-}), exports.hashToCurve = _a.hashToCurve, exports.encodeToCurve = _a.encodeToCurve;
+}))();
+exports.hashToCurve = (() => htf.hashToCurve)();
+exports.encodeToCurve = (() => htf.encodeToCurve)();
 
-},{"./_shortw_utils.js":27,"./abstract/hash-to-curve.js":29,"./abstract/modular.js":30,"./abstract/utils.js":31,"./abstract/weierstrass.js":32,"@noble/hashes/sha256":43,"@noble/hashes/utils":45}],34:[function(require,module,exports){
+},{"./_shortw_utils.js":28,"./abstract/hash-to-curve.js":30,"./abstract/modular.js":31,"./abstract/utils.js":32,"./abstract/weierstrass.js":33,"@noble/hashes/sha256":44,"@noble/hashes/utils":46}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.output = exports.exists = exports.hash = exports.bytes = exports.bool = exports.number = void 0;
@@ -12073,9 +13444,9 @@ function bool(b) {
 exports.bool = bool;
 function bytes(b, ...lengths) {
     if (!(b instanceof Uint8Array))
-        throw new TypeError('Expected Uint8Array');
+        throw new Error('Expected Uint8Array');
     if (lengths.length > 0 && !lengths.includes(b.length))
-        throw new TypeError(`Expected Uint8Array of length ${lengths}, not of length=${b.length}`);
+        throw new Error(`Expected Uint8Array of length ${lengths}, not of length=${b.length}`);
 }
 exports.bytes = bytes;
 function hash(hash) {
@@ -12110,7 +13481,7 @@ const assert = {
 };
 exports.default = assert;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BLAKE2 = exports.SIGMA = void 0;
@@ -12163,6 +13534,8 @@ class BLAKE2 extends utils_js_1.Hash {
         const { blockLen, buffer, buffer32 } = this;
         data = (0, utils_js_1.toBytes)(data);
         const len = data.length;
+        const offset = data.byteOffset;
+        const buf = data.buffer;
         for (let pos = 0; pos < len;) {
             // If buffer is full and we still have input (don't process last block, same as blake2s)
             if (this.pos === blockLen) {
@@ -12170,10 +13543,10 @@ class BLAKE2 extends utils_js_1.Hash {
                 this.pos = 0;
             }
             const take = Math.min(blockLen - this.pos, len - pos);
-            const dataOffset = data.byteOffset + pos;
+            const dataOffset = offset + pos;
             // full block && aligned to 4 bytes && not last in input
             if (take === blockLen && !(dataOffset % 4) && pos + take < len) {
-                const data32 = new Uint32Array(data.buffer, dataOffset, Math.floor((len - pos) / 4));
+                const data32 = new Uint32Array(buf, dataOffset, Math.floor((len - pos) / 4));
                 for (let pos32 = 0; pos + blockLen < len; pos32 += buffer32.length, pos += blockLen) {
                     this.length += blockLen;
                     this.compress(data32, pos32, false);
@@ -12220,7 +13593,7 @@ class BLAKE2 extends utils_js_1.Hash {
 }
 exports.BLAKE2 = BLAKE2;
 
-},{"./_assert.js":34,"./utils.js":45}],36:[function(require,module,exports){
+},{"./_assert.js":35,"./utils.js":46}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SHA2 = void 0;
@@ -12339,7 +13712,7 @@ class SHA2 extends utils_js_1.Hash {
 }
 exports.SHA2 = SHA2;
 
-},{"./_assert.js":34,"./utils.js":45}],37:[function(require,module,exports){
+},{"./_assert.js":35,"./utils.js":46}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.add = exports.toBig = exports.split = exports.fromBig = void 0;
@@ -12408,7 +13781,7 @@ const u64 = {
 };
 exports.default = u64;
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blake2b = void 0;
@@ -12601,16 +13974,16 @@ class BLAKE2b extends _blake2_js_1.BLAKE2 {
  */
 exports.blake2b = (0, utils_js_1.wrapConstructorWithOpts)((opts) => new BLAKE2b(opts));
 
-},{"./_blake2.js":35,"./_u64.js":37,"./utils.js":45}],39:[function(require,module,exports){
+},{"./_blake2.js":36,"./_u64.js":38,"./utils.js":46}],40:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.crypto = void 0;
 exports.crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hmac = void 0;
+exports.hmac = exports.HMAC = void 0;
 const _assert_js_1 = require("./_assert.js");
 const utils_js_1 = require("./utils.js");
 // HMAC (RFC 2104)
@@ -12623,7 +13996,7 @@ class HMAC extends utils_js_1.Hash {
         const key = (0, utils_js_1.toBytes)(_key);
         this.iHash = hash.create();
         if (typeof this.iHash.update !== 'function')
-            throw new TypeError('Expected instance of class which extends utils.Hash');
+            throw new Error('Expected instance of class which extends utils.Hash');
         this.blockLen = this.iHash.blockLen;
         this.outputLen = this.iHash.outputLen;
         const blockLen = this.blockLen;
@@ -12679,6 +14052,7 @@ class HMAC extends utils_js_1.Hash {
         this.iHash.destroy();
     }
 }
+exports.HMAC = HMAC;
 /**
  * HMAC: RFC2104 message authentication code.
  * @param hash - function that would be used e.g. sha256
@@ -12689,7 +14063,7 @@ const hmac = (hash, key, message) => new HMAC(hash, key).update(message).digest(
 exports.hmac = hmac;
 exports.hmac.create = (hash, key) => new HMAC(hash, key);
 
-},{"./_assert.js":34,"./utils.js":45}],41:[function(require,module,exports){
+},{"./_assert.js":35,"./utils.js":46}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pbkdf2Async = exports.pbkdf2 = void 0;
@@ -12781,7 +14155,7 @@ async function pbkdf2Async(hash, password, salt, opts) {
 }
 exports.pbkdf2Async = pbkdf2Async;
 
-},{"./_assert.js":34,"./hmac.js":40,"./utils.js":45}],42:[function(require,module,exports){
+},{"./_assert.js":35,"./hmac.js":41,"./utils.js":46}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ripemd160 = exports.RIPEMD160 = void 0;
@@ -12886,7 +14260,7 @@ exports.RIPEMD160 = RIPEMD160;
  */
 exports.ripemd160 = (0, utils_js_1.wrapConstructor)(() => new RIPEMD160());
 
-},{"./_sha2.js":36,"./utils.js":45}],43:[function(require,module,exports){
+},{"./_sha2.js":37,"./utils.js":46}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sha224 = exports.sha256 = void 0;
@@ -13014,7 +14388,7 @@ class SHA224 extends SHA256 {
 exports.sha256 = (0, utils_js_1.wrapConstructor)(() => new SHA256());
 exports.sha224 = (0, utils_js_1.wrapConstructor)(() => new SHA224());
 
-},{"./_sha2.js":36,"./utils.js":45}],44:[function(require,module,exports){
+},{"./_sha2.js":37,"./utils.js":46}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sha384 = exports.sha512_256 = exports.sha512_224 = exports.sha512 = exports.SHA512 = void 0;
@@ -13250,17 +14624,19 @@ exports.sha512_224 = (0, utils_js_1.wrapConstructor)(() => new SHA512_224());
 exports.sha512_256 = (0, utils_js_1.wrapConstructor)(() => new SHA512_256());
 exports.sha384 = (0, utils_js_1.wrapConstructor)(() => new SHA384());
 
-},{"./_sha2.js":36,"./_u64.js":37,"./utils.js":45}],45:[function(require,module,exports){
+},{"./_sha2.js":37,"./_u64.js":38,"./utils.js":46}],46:[function(require,module,exports){
 "use strict";
 /*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.randomBytes = exports.wrapConstructorWithOpts = exports.wrapConstructor = exports.checkOpts = exports.Hash = exports.concatBytes = exports.toBytes = exports.utf8ToBytes = exports.asyncLoop = exports.nextTick = exports.hexToBytes = exports.bytesToHex = exports.isLE = exports.rotr = exports.createView = exports.u32 = exports.u8 = void 0;
-// We use `globalThis.crypto`, but node.js versions earlier than v19 don't
-// declare it in global scope. For node.js, package.json#exports field mapping
-// rewrites import from `crypto` to `cryptoNode`, which imports native module.
+exports.randomBytes = exports.wrapXOFConstructorWithOpts = exports.wrapConstructorWithOpts = exports.wrapConstructor = exports.checkOpts = exports.Hash = exports.concatBytes = exports.toBytes = exports.utf8ToBytes = exports.asyncLoop = exports.nextTick = exports.hexToBytes = exports.bytesToHex = exports.isLE = exports.rotr = exports.createView = exports.u32 = exports.u8 = void 0;
+// We use WebCrypto aka globalThis.crypto, which exists in browsers and node.js 16+.
+// node.js versions earlier than v19 don't declare it in global scope.
+// For node.js, package.json#exports field mapping rewrites import
+// from `crypto` to `cryptoNode`, which imports native module.
 // Makes the utils un-importable in browsers without a bundler.
 // Once node.js 18 is deprecated, we can just drop the import.
 const crypto_1 = require("@noble/hashes/crypto");
+const u8a = (a) => a instanceof Uint8Array;
 // Cast array to different type
 const u8 = (arr) => new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
 exports.u8 = u8;
@@ -13279,29 +14655,29 @@ if (!exports.isLE)
     throw new Error('Non little-endian hardware is not supported');
 const hexes = Array.from({ length: 256 }, (v, i) => i.toString(16).padStart(2, '0'));
 /**
- * @example bytesToHex(Uint8Array.from([0xde, 0xad, 0xbe, 0xef])) // 'deadbeef'
+ * @example bytesToHex(Uint8Array.from([0xca, 0xfe, 0x01, 0x23])) // 'cafe0123'
  */
-function bytesToHex(uint8a) {
-    // pre-caching improves the speed 6x
-    if (!(uint8a instanceof Uint8Array))
+function bytesToHex(bytes) {
+    if (!u8a(bytes))
         throw new Error('Uint8Array expected');
+    // pre-caching improves the speed 6x
     let hex = '';
-    for (let i = 0; i < uint8a.length; i++) {
-        hex += hexes[uint8a[i]];
+    for (let i = 0; i < bytes.length; i++) {
+        hex += hexes[bytes[i]];
     }
     return hex;
 }
 exports.bytesToHex = bytesToHex;
 /**
- * @example hexToBytes('deadbeef') // Uint8Array.from([0xde, 0xad, 0xbe, 0xef])
+ * @example hexToBytes('cafe0123') // Uint8Array.from([0xca, 0xfe, 0x01, 0x23])
  */
 function hexToBytes(hex) {
-    if (typeof hex !== 'string') {
-        throw new TypeError('hexToBytes: expected string, got ' + typeof hex);
-    }
-    if (hex.length % 2)
-        throw new Error('hexToBytes: received invalid unpadded hex');
-    const array = new Uint8Array(hex.length / 2);
+    if (typeof hex !== 'string')
+        throw new Error('hex string expected, got ' + typeof hex);
+    const len = hex.length;
+    if (len % 2)
+        throw new Error('padded hex string expected, got unpadded hex of length ' + len);
+    const array = new Uint8Array(len / 2);
     for (let i = 0; i < array.length; i++) {
         const j = i * 2;
         const hexByte = hex.slice(j, j + 2);
@@ -13332,38 +14708,41 @@ async function asyncLoop(iters, tick, cb) {
     }
 }
 exports.asyncLoop = asyncLoop;
+/**
+ * @example utf8ToBytes('abc') // new Uint8Array([97, 98, 99])
+ */
 function utf8ToBytes(str) {
-    if (typeof str !== 'string') {
-        throw new TypeError(`utf8ToBytes expected string, got ${typeof str}`);
-    }
-    return new TextEncoder().encode(str);
+    if (typeof str !== 'string')
+        throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
+    return new Uint8Array(new TextEncoder().encode(str)); // https://bugzil.la/1681809
 }
 exports.utf8ToBytes = utf8ToBytes;
+/**
+ * Normalizes (non-hex) string or Uint8Array to Uint8Array.
+ * Warning: when Uint8Array is passed, it would NOT get copied.
+ * Keep in mind for future mutable operations.
+ */
 function toBytes(data) {
     if (typeof data === 'string')
         data = utf8ToBytes(data);
-    if (!(data instanceof Uint8Array))
-        throw new TypeError(`Expected input type is Uint8Array (got ${typeof data})`);
+    if (!u8a(data))
+        throw new Error(`expected Uint8Array, got ${typeof data}`);
     return data;
 }
 exports.toBytes = toBytes;
 /**
- * Concats Uint8Array-s into one; like `Buffer.concat([buf1, buf2])`
- * @example concatBytes(buf1, buf2)
+ * Copies several Uint8Arrays into one.
  */
 function concatBytes(...arrays) {
-    if (!arrays.every((a) => a instanceof Uint8Array))
-        throw new Error('Uint8Array list expected');
-    if (arrays.length === 1)
-        return arrays[0];
-    const length = arrays.reduce((a, arr) => a + arr.length, 0);
-    const result = new Uint8Array(length);
-    for (let i = 0, pad = 0; i < arrays.length; i++) {
-        const arr = arrays[i];
-        result.set(arr, pad);
-        pad += arr.length;
-    }
-    return result;
+    const r = new Uint8Array(arrays.reduce((sum, a) => sum + a.length, 0));
+    let pad = 0; // walk through each item, ensure they have proper type
+    arrays.forEach((a) => {
+        if (!u8a(a))
+            throw new Error('Uint8Array expected');
+        r.set(a, pad);
+        pad += a.length;
+    });
+    return r;
 }
 exports.concatBytes = concatBytes;
 // For runtime check if class implements interface
@@ -13378,17 +14757,17 @@ exports.Hash = Hash;
 const isPlainObject = (obj) => Object.prototype.toString.call(obj) === '[object Object]' && obj.constructor === Object;
 function checkOpts(defaults, opts) {
     if (opts !== undefined && (typeof opts !== 'object' || !isPlainObject(opts)))
-        throw new TypeError('Options should be object or undefined');
+        throw new Error('Options should be object or undefined');
     const merged = Object.assign(defaults, opts);
     return merged;
 }
 exports.checkOpts = checkOpts;
-function wrapConstructor(hashConstructor) {
-    const hashC = (message) => hashConstructor().update(toBytes(message)).digest();
-    const tmp = hashConstructor();
+function wrapConstructor(hashCons) {
+    const hashC = (msg) => hashCons().update(toBytes(msg)).digest();
+    const tmp = hashCons();
     hashC.outputLen = tmp.outputLen;
     hashC.blockLen = tmp.blockLen;
-    hashC.create = () => hashConstructor();
+    hashC.create = () => hashCons();
     return hashC;
 }
 exports.wrapConstructor = wrapConstructor;
@@ -13401,8 +14780,17 @@ function wrapConstructorWithOpts(hashCons) {
     return hashC;
 }
 exports.wrapConstructorWithOpts = wrapConstructorWithOpts;
+function wrapXOFConstructorWithOpts(hashCons) {
+    const hashC = (msg, opts) => hashCons(opts).update(toBytes(msg)).digest();
+    const tmp = hashCons({});
+    hashC.outputLen = tmp.outputLen;
+    hashC.blockLen = tmp.blockLen;
+    hashC.create = (opts) => hashCons(opts);
+    return hashC;
+}
+exports.wrapXOFConstructorWithOpts = wrapXOFConstructorWithOpts;
 /**
- * Secure PRNG. Uses `globalThis.crypto` or node.js crypto module.
+ * Secure PRNG. Uses `crypto.getRandomValues`, which defers to OS.
  */
 function randomBytes(bytesLength = 32) {
     if (crypto_1.crypto && typeof crypto_1.crypto.getRandomValues === 'function') {
@@ -13412,7 +14800,498 @@ function randomBytes(bytesLength = 32) {
 }
 exports.randomBytes = randomBytes;
 
-},{"@noble/hashes/crypto":39}],46:[function(require,module,exports){
+},{"@noble/hashes/crypto":40}],47:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./profile"), exports);
+
+},{"./profile":48}],48:[function(require,module,exports){
+"use strict";
+/*
+  ___  ___  _ __   ____  __ ___ ___ ___   _
+ | _ \/ _ \| |\ \ / /  \/  | __|   \_ _| /_\
+ |  _/ (_) | |_\ V /| |\/| | _|| |) | | / _ \
+ |_|_ \___/|____|_| |_| _|_|___|___/___/_/ \_\
+ | _ \ _ \/ _ \| __|_ _| |  | __|
+ |  _/   / (_) | _| | || |__| _|
+ |_| |_|_\\___/|_| |___|____|___| by @juzybits
+
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProfileManager = exports.POLYMEDIA_PROFILE_REGISTRY_ID_MAINNET = exports.POLYMEDIA_PROFILE_PACKAGE_ID_MAINNET = exports.POLYMEDIA_PROFILE_REGISTRY_ID_TESTNET = exports.POLYMEDIA_PROFILE_PACKAGE_ID_TESTNET = exports.POLYMEDIA_PROFILE_REGISTRY_ID_DEVNET = exports.POLYMEDIA_PROFILE_PACKAGE_ID_DEVNET = exports.POLYMEDIA_PROFILE_REGISTRY_ID_LOCALNET = exports.POLYMEDIA_PROFILE_PACKAGE_ID_LOCALNET = void 0;
+const bcs_1 = require("@mysten/bcs");
+const sui_js_1 = require("@mysten/sui.js");
+exports.POLYMEDIA_PROFILE_PACKAGE_ID_LOCALNET = '0x6ced420f60b41fa73ccedde9057ac7d382506e007f9ddb59fcce9b314f35d696';
+exports.POLYMEDIA_PROFILE_REGISTRY_ID_LOCALNET = '0xe082e8fbcc466d25561f045c343f2eae0634ccca6bd9db8cd26e4dd84e4eaaad';
+exports.POLYMEDIA_PROFILE_PACKAGE_ID_DEVNET = '0x1eb08098bfcfe2e659525d8036833143246f779c55c6b38eec80b0edcb1a3388';
+exports.POLYMEDIA_PROFILE_REGISTRY_ID_DEVNET = '0x61bacafd53850607f09f4b4a040d8c16e83a45ed246aa96a2c977a1c6e15baa0';
+exports.POLYMEDIA_PROFILE_PACKAGE_ID_TESTNET = '0xe6b9d38ab44c0055b6fda90183b73b7557900e3d7e2215130d152e7b5f5b6f65';
+exports.POLYMEDIA_PROFILE_REGISTRY_ID_TESTNET = '0xe1db46532bcc8ad2314c672aa890d91075565b592be3e7b315f883ae3e827f9c';
+exports.POLYMEDIA_PROFILE_PACKAGE_ID_MAINNET = '0x57138e18b82cc8ea6e92c3d5737d6078b1304b655f59cf5ae9668cc44aad4ead';
+exports.POLYMEDIA_PROFILE_REGISTRY_ID_MAINNET = '0xd6eb0ca817dfe0763af9303a6bea89b88a524844d78e657dc25ed8ba3877deac';
+/**
+ * Helps you interact with the `polymedia_profile` Sui package
+ */
+class ProfileManager {
+    constructor({ network, suiClient, packageId, registryId }) {
+        this.cachedAddresses = new Map();
+        this.cachedObjects = new Map();
+        this.suiClient = suiClient;
+        if (network === 'localnet') {
+            this.packageId = packageId || exports.POLYMEDIA_PROFILE_PACKAGE_ID_LOCALNET;
+            this.registryId = registryId || exports.POLYMEDIA_PROFILE_REGISTRY_ID_LOCALNET;
+        }
+        else if (network === 'devnet') {
+            this.packageId = packageId || exports.POLYMEDIA_PROFILE_PACKAGE_ID_DEVNET;
+            this.registryId = registryId || exports.POLYMEDIA_PROFILE_REGISTRY_ID_DEVNET;
+        }
+        else if (network === 'testnet') {
+            this.packageId = packageId || exports.POLYMEDIA_PROFILE_PACKAGE_ID_TESTNET;
+            this.registryId = registryId || exports.POLYMEDIA_PROFILE_REGISTRY_ID_TESTNET;
+        }
+        else if (network === 'mainnet') {
+            this.packageId = packageId || exports.POLYMEDIA_PROFILE_PACKAGE_ID_MAINNET;
+            this.registryId = registryId || exports.POLYMEDIA_PROFILE_REGISTRY_ID_MAINNET;
+        }
+        else {
+            throw new Error('Network not recognized: ' + network);
+        }
+    }
+    /** @deprecated Use `getProfilesByOwner` instead. */
+    async getProfiles({ lookupAddresses, useCache = true }) {
+        return this.getProfilesByOwner({ lookupAddresses, useCache });
+    }
+    async getProfilesByOwner({ lookupAddresses, useCache = true }) {
+        let result = new Map();
+        const newLookupAddresses = new Set(); // unseen addresses (i.e. not cached)
+        // Check if addresses are already in cache and add them to the returned map
+        for (const addr of lookupAddresses) {
+            if (useCache && this.cachedAddresses.has(addr)) {
+                const cachedProfile = this.cachedAddresses.get(addr) || null;
+                result.set(addr, cachedProfile);
+            }
+            else { // address not seen before so we need to look it up
+                newLookupAddresses.add(addr);
+            }
+        }
+        if (newLookupAddresses.size > 0) {
+            // Find the profile object IDs associated to `newLookupAddresses`.
+            // Addresses that don't have a profile are not included in the returned array.
+            const newObjectIds = await this.fetchProfileObjectIds({
+                lookupAddresses: [...newLookupAddresses]
+            });
+            // Add addresses without a profile to the cache with a `null` value
+            for (const addr of newLookupAddresses) {
+                if (!newObjectIds.has(addr)) {
+                    result.set(addr, null);
+                    this.cachedAddresses.set(addr, null);
+                }
+            }
+            if (newObjectIds.size > 0) {
+                // Retrieve the remaining profile objects
+                const profileObjects = await this.getProfilesById({
+                    lookupObjectIds: [...newObjectIds.values()]
+                });
+                // Add the remaining profile objects to the returned map and cache
+                for (const profile of profileObjects.values()) {
+                    if (profile) { // nulls have already been added to the result and cache above
+                        result.set(profile.owner, profile);
+                        this.cachedAddresses.set(profile.owner, profile);
+                    }
+                }
+            }
+            // Sort the results in the same order as `lookupAddresses`
+            const sortedResult = new Map();
+            for (const addr of lookupAddresses) {
+                sortedResult.set(addr, result.get(addr) || null);
+            }
+            result = sortedResult;
+        }
+        return result;
+    }
+    /** @deprecated Use `getProfileByOwner` instead. */
+    async getProfile({ lookupAddress, useCache = true }) {
+        return this.getProfileByOwner({ lookupAddress, useCache });
+    }
+    async getProfileByOwner({ lookupAddress, useCache = true }) {
+        const lookupAddresses = [lookupAddress];
+        const profiles = await this.getProfilesByOwner({ lookupAddresses, useCache });
+        return profiles.get(lookupAddress) || null;
+    }
+    async hasProfile({ lookupAddress, useCache = true }) {
+        const profile = await this.getProfileByOwner({ lookupAddress, useCache });
+        return profile !== null;
+    }
+    /** @deprecated Use `getProfilesById` instead. */
+    async fetchProfileObjects({ lookupObjectIds, useCache = true }) {
+        return this.getProfilesById({ lookupObjectIds, useCache });
+    }
+    async getProfilesById({ lookupObjectIds, useCache = true }) {
+        let result = new Map();
+        const newLookupObjectIds = new Set(); // unseen objects (i.e. not cached)
+        // Check if objects are already in cache and add them to the returned map
+        for (const objectId of lookupObjectIds) {
+            if (useCache && this.cachedObjects.has(objectId)) {
+                const cachedProfile = this.cachedObjects.get(objectId) || null;
+                result.set(objectId, cachedProfile);
+            }
+            else { // object not seen before so we need to look it up
+                newLookupObjectIds.add(objectId);
+            }
+        }
+        if (newLookupObjectIds.size > 0) {
+            // Add to the results the profile objects associated to `newLookupObjectIds`.
+            // Profile objects that don't exist are not included in the returned array.
+            const newProfiles = await sui_fetchProfileObjects({
+                suiClient: this.suiClient,
+                lookupObjectIds,
+            });
+            for (const profile of newProfiles) {
+                result.set(profile.id, profile);
+            }
+            // Add to the results the object IDs without associated profile objects as `null`.
+            for (const objectId of newLookupObjectIds) {
+                if (!result.has(objectId)) {
+                    result.set(objectId, null);
+                }
+            }
+            // Sort results in the same order as `lookupObjectIds`.
+            // Add results to cache (as `null` for object IDs without associated profile objects).
+            const sortedResult = new Map();
+            for (const objectId of lookupObjectIds) {
+                const profile = result.get(objectId) || null;
+                sortedResult.set(objectId, profile);
+                this.cachedObjects.set(objectId, profile);
+            }
+            result = sortedResult;
+        }
+        return result;
+    }
+    /** @deprecated Use `getProfileObjectById` instead. */
+    async fetchProfileObject({ objectId }) {
+        return this.getProfileObjectById({ objectId });
+    }
+    async getProfileObjectById({ objectId }) {
+        const profiles = await this.getProfilesById({
+            lookupObjectIds: [objectId],
+        });
+        return profiles.get(objectId) || null;
+    }
+    async createRegistry({ signTransactionBlock, registryName }) {
+        return await sui_createRegistry({
+            suiClient: this.suiClient,
+            signTransactionBlock,
+            packageId: this.packageId,
+            registryName,
+        });
+    }
+    async createProfile({ signTransactionBlock, name, imageUrl = '', description = '', data = null, }) {
+        return await sui_createProfile({
+            suiClient: this.suiClient,
+            signTransactionBlock,
+            packageId: this.packageId,
+            registryId: this.registryId,
+            name,
+            imageUrl,
+            description,
+            data,
+        });
+    }
+    async editProfile({ signTransactionBlock, profileId, name, imageUrl = '', description = '', data = null, }) {
+        return await sui_editProfile({
+            suiClient: this.suiClient,
+            signTransactionBlock,
+            profileId: profileId,
+            packageId: this.packageId,
+            name,
+            imageUrl,
+            description,
+            data,
+        });
+    }
+    /**
+     * Given one or more Sui addresses, find their associated profile object IDs.
+     * Addresses that don't have a profile won't be included in the returned array.
+     */
+    async fetchProfileObjectIds({ lookupAddresses }) {
+        const results = new Map();
+        const addressBatches = chunkArray(lookupAddresses, 30);
+        const promises = addressBatches.map(async (batch) => {
+            const lookupResults = await sui_fetchProfileObjectIds({
+                suiClient: this.suiClient,
+                packageId: this.packageId,
+                registryId: this.registryId,
+                lookupAddresses: batch,
+            });
+            for (const result of lookupResults) {
+                results.set('0x' + result.lookupAddr, '0x' + result.profileAddr);
+            }
+        });
+        await Promise.all(promises);
+        return results;
+    }
+}
+exports.ProfileManager = ProfileManager;
+/* Sui RPC calls and signed transactions */
+// Register a custom struct type for Sui 'Binary Canonical (de)Serialization'
+const bcs = new bcs_1.BCS((0, bcs_1.getSuiMoveConfig)());
+const LookupResult = {
+    lookupAddr: bcs_1.BCS.ADDRESS,
+    profileAddr: bcs_1.BCS.ADDRESS,
+};
+bcs.registerStructType(exports.POLYMEDIA_PROFILE_PACKAGE_ID_LOCALNET + '::profile::LookupResult', LookupResult);
+bcs.registerStructType(exports.POLYMEDIA_PROFILE_PACKAGE_ID_DEVNET + '::profile::LookupResult', LookupResult);
+bcs.registerStructType(exports.POLYMEDIA_PROFILE_PACKAGE_ID_TESTNET + '::profile::LookupResult', LookupResult);
+bcs.registerStructType(exports.POLYMEDIA_PROFILE_PACKAGE_ID_MAINNET + '::profile::LookupResult', LookupResult);
+/**
+ * Given one or more Sui addresses, find their associated profile object IDs.
+ * Addresses that don't have a profile won't be included in the returned array.
+ */
+function sui_fetchProfileObjectIds({ suiClient, packageId, registryId, lookupAddresses, }) {
+    const tx = new sui_js_1.TransactionBlock();
+    tx.moveCall({
+        target: `${packageId}::profile::get_profiles`,
+        typeArguments: [],
+        arguments: [
+            tx.object(registryId),
+            tx.pure(lookupAddresses),
+        ],
+    });
+    return suiClient.devInspectTransactionBlock({
+        transactionBlock: tx,
+        sender: '0x7777777777777777777777777777777777777777777777777777777777777777',
+    })
+        .then((resp) => {
+        if (resp.effects.status.status == 'success') {
+            // Deserialize the returned value into an array of LookupResult objects
+            // @ts-ignore
+            const returnValue = resp.results[0].returnValues[0]; // grab the 1st and only tuple
+            const valueType = returnValue[1];
+            const valueData = Uint8Array.from(returnValue[0]);
+            const lookupResults = bcs.de(valueType, valueData, 'hex');
+            return lookupResults;
+        }
+        else {
+            throw new Error(resp.effects.status.error);
+        }
+    });
+}
+/**
+ * Fetch one or more Sui objects and return them as PolymediaProfile instances
+ * Object IDs that don't exist or are not a Profile won't be included in the returned array.
+ */
+async function sui_fetchProfileObjects({ suiClient, lookupObjectIds }) {
+    const allProfiles = new Array();
+    const objectIdBatches = chunkArray(lookupObjectIds, 50);
+    const promises = objectIdBatches.map(async (lookupObjectIds) => {
+        const resps = await suiClient.multiGetObjects({
+            ids: lookupObjectIds,
+            options: {
+                showContent: true,
+                showOwner: true,
+            },
+        });
+        const profiles = [];
+        for (const resp of resps) {
+            const profile = suiObjectToProfile(resp);
+            if (profile) {
+                profiles.push(profile);
+            }
+        }
+        allProfiles.push(...profiles);
+    });
+    await Promise.all(promises);
+    return allProfiles;
+}
+async function sui_createRegistry({ suiClient, signTransactionBlock, packageId, registryName, }) {
+    const tx = new sui_js_1.TransactionBlock();
+    tx.moveCall({
+        target: `${packageId}::profile::create_registry`,
+        typeArguments: [],
+        arguments: [
+            tx.pure(Array.from((new TextEncoder()).encode(registryName))),
+        ],
+    });
+    const signedTx = await signTransactionBlock({
+        transactionBlock: tx,
+    });
+    return suiClient.executeTransactionBlock({
+        transactionBlock: signedTx.transactionBlockBytes,
+        signature: signedTx.signature,
+        options: {
+            showEffects: true,
+        },
+    })
+        .then(resp => {
+        const effects = resp.effects;
+        if (effects.status.status === 'success') {
+            if (effects.created?.length === 1) {
+                return effects.created[0];
+            }
+            else { // Should never happen
+                throw new Error('New registry object missing from response: ' + JSON.stringify(resp));
+            }
+        }
+        else {
+            throw new Error(effects.status.error);
+        }
+    });
+}
+async function sui_createProfile({ suiClient, signTransactionBlock, packageId, registryId, name, imageUrl = '', description = '', data = null, }) {
+    const dataJson = data ? JSON.stringify(data) : '';
+    const tx = new sui_js_1.TransactionBlock();
+    // Temporary hack for legacy POLYMEDIA_PROFILE_PACKAGE_ID_TESTNET. TODO: remove eventually
+    const hasDataField = packageId !== '0x176c277279d99cdd2e8afcf618ba8d6705465cdeabb3bdbe1a7ce020141e67dd';
+    const moveArgs = [
+        tx.object(registryId),
+        tx.pure(Array.from((new TextEncoder()).encode(name))),
+        tx.pure(Array.from((new TextEncoder()).encode(imageUrl))),
+        tx.pure(Array.from((new TextEncoder()).encode(description))),
+    ];
+    if (hasDataField) {
+        moveArgs.push(tx.pure(Array.from((new TextEncoder()).encode(dataJson))));
+    }
+    tx.moveCall({
+        target: `${packageId}::profile::create_profile`,
+        typeArguments: [],
+        arguments: moveArgs,
+    });
+    // Creates 2 objects: the profile (owned by the caller) and a dynamic field (inside the registry's table)
+    const signedTx = await signTransactionBlock({
+        transactionBlock: tx,
+    });
+    const resp = await suiClient.executeTransactionBlock({
+        transactionBlock: signedTx.transactionBlockBytes,
+        signature: signedTx.signature,
+        options: {
+            showEffects: true,
+            showEvents: true,
+        },
+    });
+    // Verify the transaction results
+    const effects = resp.effects;
+    if (effects.status.status !== 'success') {
+        throw new Error(effects.status.error);
+    }
+    // Build and return PolymediaProfile object from the 'EventCreateProfile' event
+    if (resp.events)
+        for (const event of resp.events) {
+            if (event.type.endsWith('::profile::EventCreateProfile')) {
+                const newProfile = {
+                    id: event.parsedJson.profile_id,
+                    name: name,
+                    imageUrl: imageUrl,
+                    description: description,
+                    data: data,
+                    owner: event.sender,
+                };
+                return newProfile;
+            }
+        }
+    // Should never happen:
+    throw new Error("Transaction was successful, but can't find the new profile object ID in the response: " + JSON.stringify(resp));
+}
+async function sui_editProfile({ suiClient, signTransactionBlock, profileId, packageId, name, imageUrl = '', description = '', data = null, }) {
+    const dataJson = data ? JSON.stringify(data) : '';
+    const tx = new sui_js_1.TransactionBlock();
+    // Temporary hack for legacy POLYMEDIA_PROFILE_PACKAGE_ID_TESTNET. TODO: remove eventually
+    const hasDataField = packageId !== '0x176c277279d99cdd2e8afcf618ba8d6705465cdeabb3bdbe1a7ce020141e67dd';
+    const moveArgs = [
+        tx.object(profileId),
+        tx.pure(Array.from((new TextEncoder()).encode(name))),
+        tx.pure(Array.from((new TextEncoder()).encode(imageUrl))),
+        tx.pure(Array.from((new TextEncoder()).encode(description))),
+    ];
+    if (hasDataField) {
+        moveArgs.push(tx.pure(Array.from((new TextEncoder()).encode(dataJson))));
+    }
+    tx.moveCall({
+        target: `${packageId}::profile::edit_profile`,
+        typeArguments: [],
+        arguments: moveArgs,
+    });
+    const signedTx = await signTransactionBlock({
+        transactionBlock: tx,
+    });
+    const resp = await suiClient.executeTransactionBlock({
+        transactionBlock: signedTx.transactionBlockBytes,
+        signature: signedTx.signature,
+        options: {
+            showEffects: true,
+        },
+    });
+    // Verify the transaction results
+    const effects = resp.effects;
+    if (effects.status.status !== 'success') {
+        throw new Error(effects.status.error);
+    }
+    return resp;
+}
+/* Convenience functions */
+function chunkArray(elements, chunkSize) {
+    const result = [];
+    for (let i = 0; i < elements.length; i += chunkSize) {
+        result.push(elements.slice(i, i + chunkSize));
+    }
+    return result;
+}
+/**
+ * Convert a generic `SuiObjectResponse` into a `PolymediaProfile`.
+ *
+ * Note: when fetching `SuiObjectResponse`, call SuiClient.getObject/multiGetObjects with:
+    options: {
+        showContent: true,
+        showOwner: true,
+    },
+*/
+function suiObjectToProfile(resp) {
+    if (resp.error || !resp.data) {
+        return null;
+    }
+    const content = resp.data.content;
+    if (!content) {
+        throw new Error('Missing object content. Make sure to fetch the object with `showContent: true`');
+    }
+    if (content.dataType !== 'moveObject') {
+        throw new Error(`Wrong object dataType. Expected 'moveObject' but got: '${content.dataType}'`);
+    }
+    if (!content.type.endsWith('::profile::Profile')) {
+        throw new Error('Wrong object type. Expected a Profile but got: ' + content.type);
+    }
+    const owner = resp.data.owner;
+    if (!owner) {
+        throw new Error('Missing object owner. Make sure to fetch the object with `showOwner: true`');
+    }
+    const isOwnedObject = typeof owner === 'object' && (('AddressOwner' in owner) || ('ObjectOwner' in owner));
+    if (!isOwnedObject) {
+        throw new Error('Expected an owned object');
+    }
+    const fields = content.fields;
+    return {
+        id: fields.id.id,
+        name: fields.name,
+        imageUrl: fields.image_url,
+        description: fields.description,
+        data: fields.data ? JSON.parse(fields.data) : null,
+        owner: ('AddressOwner' in owner) ? owner.AddressOwner : owner.ObjectOwner,
+    };
+}
+
+},{"@mysten/bcs":25,"@mysten/sui.js":26}],49:[function(require,module,exports){
 "use strict";
 /*! scure-base - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -13815,7 +15694,7 @@ const stringToBytes = (type, str) => {
 exports.stringToBytes = stringToBytes;
 exports.bytes = exports.stringToBytes;
 
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HDKey = exports.HARDENED_OFFSET = void 0;
@@ -14077,7 +15956,7 @@ class HDKey {
 }
 exports.HDKey = HDKey;
 
-},{"@noble/curves/abstract/modular":30,"@noble/curves/secp256k1":33,"@noble/hashes/_assert":34,"@noble/hashes/hmac":40,"@noble/hashes/ripemd160":42,"@noble/hashes/sha256":43,"@noble/hashes/sha512":44,"@noble/hashes/utils":45,"@scure/base":46}],48:[function(require,module,exports){
+},{"@noble/curves/abstract/modular":31,"@noble/curves/secp256k1":34,"@noble/hashes/_assert":35,"@noble/hashes/hmac":41,"@noble/hashes/ripemd160":43,"@noble/hashes/sha256":44,"@noble/hashes/sha512":45,"@noble/hashes/utils":46,"@scure/base":49}],51:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mnemonicToSeedSync = exports.mnemonicToSeed = exports.validateMnemonic = exports.entropyToMnemonic = exports.mnemonicToEntropy = exports.generateMnemonic = void 0;
@@ -14221,7 +16100,7 @@ function mnemonicToSeedSync(mnemonic, passphrase = '') {
 }
 exports.mnemonicToSeedSync = mnemonicToSeedSync;
 
-},{"@noble/hashes/_assert":34,"@noble/hashes/pbkdf2":41,"@noble/hashes/sha256":43,"@noble/hashes/sha512":44,"@noble/hashes/utils":45,"@scure/base":46}],49:[function(require,module,exports){
+},{"@noble/hashes/_assert":35,"@noble/hashes/pbkdf2":42,"@noble/hashes/sha256":44,"@noble/hashes/sha512":45,"@noble/hashes/utils":46,"@scure/base":49}],52:[function(require,module,exports){
 function isValid(versionString) {
   return /^\d+\.\d+\.\d+$/.test(versionString);
 }
@@ -14330,7 +16209,7 @@ module.exports = {
   eq,
 };
 
-},{}],50:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -14438,7 +16317,7 @@ class FunctionsClient {
 }
 exports.FunctionsClient = FunctionsClient;
 
-},{"./helper":51,"./types":53}],51:[function(require,module,exports){
+},{"./helper":54,"./types":56}],54:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -14489,7 +16368,7 @@ const resolveFetch = (customFetch) => {
 };
 exports.resolveFetch = resolveFetch;
 
-},{"cross-fetch":107}],52:[function(require,module,exports){
+},{"cross-fetch":111}],55:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionsRelayError = exports.FunctionsHttpError = exports.FunctionsFetchError = exports.FunctionsError = exports.FunctionsClient = void 0;
@@ -14501,7 +16380,7 @@ Object.defineProperty(exports, "FunctionsFetchError", { enumerable: true, get: f
 Object.defineProperty(exports, "FunctionsHttpError", { enumerable: true, get: function () { return types_1.FunctionsHttpError; } });
 Object.defineProperty(exports, "FunctionsRelayError", { enumerable: true, get: function () { return types_1.FunctionsRelayError; } });
 
-},{"./FunctionsClient":50,"./types":53}],53:[function(require,module,exports){
+},{"./FunctionsClient":53,"./types":56}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionsHttpError = exports.FunctionsRelayError = exports.FunctionsFetchError = exports.FunctionsError = void 0;
@@ -14532,17 +16411,8 @@ class FunctionsHttpError extends FunctionsError {
 }
 exports.FunctionsHttpError = FunctionsHttpError;
 
-},{}],54:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -14571,47 +16441,44 @@ class GoTrueAdminApi {
     /**
      * Removes a logged-in session.
      * @param jwt A valid, logged-in JWT.
+     * @param scope The logout sope.
      */
-    signOut(jwt) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/logout`, {
-                    headers: this.headers,
-                    jwt,
-                    noResolveJson: true,
-                });
-                return { data: null, error: null };
+    async signOut(jwt, scope = 'global') {
+        try {
+            await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/logout?scope=${scope}`, {
+                headers: this.headers,
+                jwt,
+                noResolveJson: true,
+            });
+            return { data: null, error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Sends an invite link to an email address.
      * @param email The email address of the user.
      * @param options Additional options to be included when inviting.
      */
-    inviteUserByEmail(email, options = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/invite`, {
-                    body: { email, data: options.data },
-                    headers: this.headers,
-                    redirectTo: options.redirectTo,
-                    xform: fetch_1._userResponse,
-                });
+    async inviteUserByEmail(email, options = {}) {
+        try {
+            return await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/invite`, {
+                body: { email, data: options.data },
+                headers: this.headers,
+                redirectTo: options.redirectTo,
+                xform: fetch_1._userResponse,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Generates email links and OTPs to be sent via a custom email provider.
@@ -14620,58 +16487,54 @@ class GoTrueAdminApi {
      * @param options.data Optional user metadata. For signup only.
      * @param options.redirectTo The redirect url which should be appended to the generated link
      */
-    generateLink(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { options } = params, rest = __rest(params, ["options"]);
-                const body = Object.assign(Object.assign({}, rest), options);
-                if ('newEmail' in rest) {
-                    // replace newEmail with new_email in request body
-                    body.new_email = rest === null || rest === void 0 ? void 0 : rest.newEmail;
-                    delete body['newEmail'];
-                }
-                return yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/admin/generate_link`, {
-                    body: body,
-                    headers: this.headers,
-                    xform: fetch_1._generateLinkResponse,
-                    redirectTo: options === null || options === void 0 ? void 0 : options.redirectTo,
-                });
+    async generateLink(params) {
+        try {
+            const { options } = params, rest = __rest(params, ["options"]);
+            const body = Object.assign(Object.assign({}, rest), options);
+            if ('newEmail' in rest) {
+                // replace newEmail with new_email in request body
+                body.new_email = rest === null || rest === void 0 ? void 0 : rest.newEmail;
+                delete body['newEmail'];
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return {
-                        data: {
-                            properties: null,
-                            user: null,
-                        },
-                        error,
-                    };
-                }
-                throw error;
+            return await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/admin/generate_link`, {
+                body: body,
+                headers: this.headers,
+                xform: fetch_1._generateLinkResponse,
+                redirectTo: options === null || options === void 0 ? void 0 : options.redirectTo,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return {
+                    data: {
+                        properties: null,
+                        user: null,
+                    },
+                    error,
+                };
             }
-        });
+            throw error;
+        }
     }
     // User Admin API
     /**
      * Creates a new user.
      * This function should only be called on a server. Never expose your `service_role` key in the browser.
      */
-    createUser(attributes) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/admin/users`, {
-                    body: attributes,
-                    headers: this.headers,
-                    xform: fetch_1._userResponse,
-                });
+    async createUser(attributes) {
+        try {
+            return await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/admin/users`, {
+                body: attributes,
+                headers: this.headers,
+                xform: fetch_1._userResponse,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Get a list of users.
@@ -14679,42 +16542,40 @@ class GoTrueAdminApi {
      * This function should only be called on a server. Never expose your `service_role` key in the browser.
      * @param params An object which supports `page` and `perPage` as numbers, to alter the paginated results.
      */
-    listUsers(params) {
+    async listUsers(params) {
         var _a, _b, _c, _d, _e, _f, _g;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const pagination = { nextPage: null, lastPage: 0, total: 0 };
-                const response = yield (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/admin/users`, {
-                    headers: this.headers,
-                    noResolveJson: true,
-                    query: {
-                        page: (_b = (_a = params === null || params === void 0 ? void 0 : params.page) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : '',
-                        per_page: (_d = (_c = params === null || params === void 0 ? void 0 : params.perPage) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : '',
-                    },
-                    xform: fetch_1._noResolveJsonResponse,
+        try {
+            const pagination = { nextPage: null, lastPage: 0, total: 0 };
+            const response = await (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/admin/users`, {
+                headers: this.headers,
+                noResolveJson: true,
+                query: {
+                    page: (_b = (_a = params === null || params === void 0 ? void 0 : params.page) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : '',
+                    per_page: (_d = (_c = params === null || params === void 0 ? void 0 : params.perPage) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : '',
+                },
+                xform: fetch_1._noResolveJsonResponse,
+            });
+            if (response.error)
+                throw response.error;
+            const users = await response.json();
+            const total = (_e = response.headers.get('x-total-count')) !== null && _e !== void 0 ? _e : 0;
+            const links = (_g = (_f = response.headers.get('link')) === null || _f === void 0 ? void 0 : _f.split(',')) !== null && _g !== void 0 ? _g : [];
+            if (links.length > 0) {
+                links.forEach((link) => {
+                    const page = parseInt(link.split(';')[0].split('=')[1].substring(0, 1));
+                    const rel = JSON.parse(link.split(';')[1].split('=')[1]);
+                    pagination[`${rel}Page`] = page;
                 });
-                if (response.error)
-                    throw response.error;
-                const users = yield response.json();
-                const total = (_e = response.headers.get('x-total-count')) !== null && _e !== void 0 ? _e : 0;
-                const links = (_g = (_f = response.headers.get('link')) === null || _f === void 0 ? void 0 : _f.split(',')) !== null && _g !== void 0 ? _g : [];
-                if (links.length > 0) {
-                    links.forEach((link) => {
-                        const page = parseInt(link.split(';')[0].split('=')[1].substring(0, 1));
-                        const rel = JSON.parse(link.split(';')[1].split('=')[1]);
-                        pagination[`${rel}Page`] = page;
-                    });
-                    pagination.total = parseInt(total);
-                }
-                return { data: Object.assign(Object.assign({}, users), pagination), error: null };
+                pagination.total = parseInt(total);
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { users: [] }, error };
-                }
-                throw error;
+            return { data: Object.assign(Object.assign({}, users), pagination), error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { users: [] }, error };
             }
-        });
+            throw error;
+        }
     }
     /**
      * Get user by id.
@@ -14723,21 +16584,19 @@ class GoTrueAdminApi {
      *
      * This function should only be called on a server. Never expose your `service_role` key in the browser.
      */
-    getUserById(uid) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/admin/users/${uid}`, {
-                    headers: this.headers,
-                    xform: fetch_1._userResponse,
-                });
+    async getUserById(uid) {
+        try {
+            return await (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/admin/users/${uid}`, {
+                headers: this.headers,
+                xform: fetch_1._userResponse,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Updates the user data.
@@ -14746,22 +16605,20 @@ class GoTrueAdminApi {
      *
      * This function should only be called on a server. Never expose your `service_role` key in the browser.
      */
-    updateUserById(uid, attributes) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield (0, fetch_1._request)(this.fetch, 'PUT', `${this.url}/admin/users/${uid}`, {
-                    body: attributes,
-                    headers: this.headers,
-                    xform: fetch_1._userResponse,
-                });
+    async updateUserById(uid, attributes) {
+        try {
+            return await (0, fetch_1._request)(this.fetch, 'PUT', `${this.url}/admin/users/${uid}`, {
+                body: attributes,
+                headers: this.headers,
+                xform: fetch_1._userResponse,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Delete a user. Requires a `service_role` key.
@@ -14772,74 +16629,59 @@ class GoTrueAdminApi {
      *
      * This function should only be called on a server. Never expose your `service_role` key in the browser.
      */
-    deleteUser(id, shouldSoftDelete = false) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield (0, fetch_1._request)(this.fetch, 'DELETE', `${this.url}/admin/users/${id}`, {
-                    headers: this.headers,
-                    body: {
-                        should_soft_delete: shouldSoftDelete,
-                    },
-                    xform: fetch_1._userResponse,
-                });
+    async deleteUser(id, shouldSoftDelete = false) {
+        try {
+            return await (0, fetch_1._request)(this.fetch, 'DELETE', `${this.url}/admin/users/${id}`, {
+                headers: this.headers,
+                body: {
+                    should_soft_delete: shouldSoftDelete,
+                },
+                xform: fetch_1._userResponse,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
-    _listFactors(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { data, error } = yield (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/admin/users/${params.userId}/factors`, {
-                    headers: this.headers,
-                    xform: (factors) => {
-                        return { data: { factors }, error: null };
-                    },
-                });
-                return { data, error };
+    async _listFactors(params) {
+        try {
+            const { data, error } = await (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/admin/users/${params.userId}/factors`, {
+                headers: this.headers,
+                xform: (factors) => {
+                    return { data: { factors }, error: null };
+                },
+            });
+            return { data, error };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
-    _deleteFactor(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield (0, fetch_1._request)(this.fetch, 'DELETE', `${this.url}/admin/users/${params.userId}/factors/${params.id}`, {
-                    headers: this.headers,
-                });
-                return { data, error: null };
+    async _deleteFactor(params) {
+        try {
+            const data = await (0, fetch_1._request)(this.fetch, 'DELETE', `${this.url}/admin/users/${params.userId}/factors/${params.id}`, {
+                headers: this.headers,
+            });
+            return { data, error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
 }
 exports.default = GoTrueAdminApi;
 
-},{"./lib/errors":58,"./lib/fetch":59,"./lib/helpers":60}],55:[function(require,module,exports){
+},{"./lib/errors":61,"./lib/fetch":62,"./lib/helpers":63}],58:[function(require,module,exports){
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -14851,6 +16693,7 @@ const fetch_1 = require("./lib/fetch");
 const helpers_1 = require("./lib/helpers");
 const local_storage_1 = __importDefault(require("./lib/local-storage"));
 const polyfills_1 = require("./lib/polyfills");
+const version_1 = require("./lib/version");
 (0, polyfills_1.polyfillGlobalThis)(); // Make "globalThis" available
 const DEFAULT_OPTIONS = {
     url: constants_1.GOTRUE_URL,
@@ -14860,12 +16703,16 @@ const DEFAULT_OPTIONS = {
     detectSessionInUrl: true,
     headers: constants_1.DEFAULT_HEADERS,
     flowType: 'implicit',
+    debug: false,
 };
 /** Current session will be checked for refresh at this interval. */
 const AUTO_REFRESH_TICK_DURATION = 30 * 1000;
 /**
  * A token refresh will be attempted this many ticks before the current session expires. */
 const AUTO_REFRESH_TICK_THRESHOLD = 3;
+async function lockNoOp(name, acquireTimeout, fn) {
+    return await fn();
+}
 class GoTrueClient {
     /**
      * Create a new client for use in the browser.
@@ -14884,11 +16731,19 @@ class GoTrueClient {
          */
         this.initializePromise = null;
         this.detectSessionInUrl = true;
+        this.lockAcquired = false;
+        this.pendingInLock = [];
         /**
          * Used to broadcast state change events to other tabs listening.
          */
         this.broadcastChannel = null;
+        this.instanceID = GoTrueClient.nextInstanceID;
+        GoTrueClient.nextInstanceID += 1;
+        if (this.instanceID > 0 && (0, helpers_1.isBrowser)()) {
+            console.warn('Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.');
+        }
         const settings = Object.assign(Object.assign({}, DEFAULT_OPTIONS), options);
+        this.logDebugMessages = settings.debug;
         this.inMemorySession = null;
         this.storageKey = settings.storageKey;
         this.autoRefreshToken = settings.autoRefreshToken;
@@ -14902,6 +16757,7 @@ class GoTrueClient {
         this.url = settings.url;
         this.headers = settings.headers;
         this.fetch = (0, helpers_1.resolveFetch)(settings.fetch);
+        this.lock = settings.lock || lockNoOp;
         this.detectSessionInUrl = settings.detectSessionInUrl;
         this.flowType = settings.flowType;
         this.mfa = {
@@ -14924,22 +16780,34 @@ class GoTrueClient {
             catch (e) {
                 console.error('Failed to create a new BroadcastChannel, multi-tab state changes will not be available', e);
             }
-            (_a = this.broadcastChannel) === null || _a === void 0 ? void 0 : _a.addEventListener('message', (event) => __awaiter(this, void 0, void 0, function* () {
-                yield this._notifyAllSubscribers(event.data.event, event.data.session, false); // broadcast = false so we don't get an endless loop of messages
-            }));
+            (_a = this.broadcastChannel) === null || _a === void 0 ? void 0 : _a.addEventListener('message', async (event) => {
+                this._debug('received broadcast notification from other tab or client', event);
+                await this._notifyAllSubscribers(event.data.event, event.data.session, false); // broadcast = false so we don't get an endless loop of messages
+            });
         }
         this.initialize();
+    }
+    _debug(...args) {
+        if (this.logDebugMessages) {
+            console.log(`GoTrueClient@${this.instanceID} (${version_1.version}) ${new Date().toISOString()}`, ...args);
+        }
+        return this;
     }
     /**
      * Initializes the client session either from the url or from storage.
      * This method is automatically called when instantiating the client, but should also be called
      * manually when checking for an error from an auth redirect (oauth, magiclink, password recovery, etc).
      */
-    initialize() {
-        if (!this.initializePromise) {
-            this.initializePromise = this._initialize();
+    async initialize() {
+        if (this.initializePromise) {
+            return await this.initializePromise;
         }
-        return this.initializePromise;
+        this.initializePromise = (async () => {
+            return await this._acquireLock(-1, async () => {
+                return await this._initialize();
+            });
+        })();
+        return await this.initializePromise;
     }
     /**
      * IMPORTANT:
@@ -14947,49 +16815,48 @@ class GoTrueClient {
      * 2. Never return a session from this method as it would be cached over
      *    the whole lifetime of the client
      */
-    _initialize() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.initializePromise) {
-                return this.initializePromise;
-            }
-            try {
-                const isPKCEFlow = (0, helpers_1.isBrowser)() ? yield this._isPKCEFlow() : false;
-                if (isPKCEFlow || (this.detectSessionInUrl && this._isImplicitGrantFlow())) {
-                    const { data, error } = yield this._getSessionFromUrl(isPKCEFlow);
-                    if (error) {
-                        // failed login attempt via url,
-                        // remove old session as in verifyOtp, signUp and signInWith*
-                        yield this._removeSession();
-                        return { error };
-                    }
-                    const { session, redirectType } = data;
-                    yield this._saveSession(session);
-                    setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                        if (redirectType === 'recovery') {
-                            yield this._notifyAllSubscribers('PASSWORD_RECOVERY', session);
-                        }
-                        else {
-                            yield this._notifyAllSubscribers('SIGNED_IN', session);
-                        }
-                    }), 0);
-                    return { error: null };
-                }
-                // no login attempt via callback url try to recover session from storage
-                yield this._recoverAndRefresh();
-                return { error: null };
-            }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
+    async _initialize() {
+        try {
+            const isPKCEFlow = (0, helpers_1.isBrowser)() ? await this._isPKCEFlow() : false;
+            this._debug('#_initialize()', 'begin', 'is PKCE flow', isPKCEFlow);
+            if (isPKCEFlow || (this.detectSessionInUrl && this._isImplicitGrantFlow())) {
+                const { data, error } = await this._getSessionFromURL(isPKCEFlow);
+                if (error) {
+                    this._debug('#_initialize()', 'error detecting session from URL', error);
+                    // failed login attempt via url,
+                    // remove old session as in verifyOtp, signUp and signInWith*
+                    await this._removeSession();
                     return { error };
                 }
-                return {
-                    error: new errors_1.AuthUnknownError('Unexpected error during initialization', error),
-                };
+                const { session, redirectType } = data;
+                this._debug('#_initialize()', 'detected session in URL', session, 'redirect type', redirectType);
+                await this._saveSession(session);
+                setTimeout(async () => {
+                    if (redirectType === 'recovery') {
+                        await this._notifyAllSubscribers('PASSWORD_RECOVERY', session);
+                    }
+                    else {
+                        await this._notifyAllSubscribers('SIGNED_IN', session);
+                    }
+                }, 0);
+                return { error: null };
             }
-            finally {
-                yield this._handleVisibilityChange();
+            // no login attempt via callback url try to recover session from storage
+            await this._recoverAndRefresh();
+            return { error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { error };
             }
-        });
+            return {
+                error: new errors_1.AuthUnknownError('Unexpected error during initialization', error),
+            };
+        }
+        finally {
+            await this._handleVisibilityChange();
+            this._debug('#_initialize()', 'end');
+        }
     }
     /**
      * Creates a new user.
@@ -15001,72 +16868,70 @@ class GoTrueClient {
      * @returns A logged-in session if the server has "autoconfirm" ON
      * @returns A user if the server has "autoconfirm" OFF
      */
-    signUp(credentials) {
+    async signUp(credentials) {
         var _a, _b, _c;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this._removeSession();
-                let res;
-                if ('email' in credentials) {
-                    const { email, password, options } = credentials;
-                    let codeChallenge = null;
-                    let codeChallengeMethod = null;
-                    if (this.flowType === 'pkce') {
-                        const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
-                        yield (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
-                        codeChallenge = yield (0, helpers_1.generatePKCEChallenge)(codeVerifier);
-                        codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
-                    }
-                    res = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/signup`, {
-                        headers: this.headers,
-                        redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
-                        body: {
-                            email,
-                            password,
-                            data: (_a = options === null || options === void 0 ? void 0 : options.data) !== null && _a !== void 0 ? _a : {},
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                            code_challenge: codeChallenge,
-                            code_challenge_method: codeChallengeMethod,
-                        },
-                        xform: fetch_1._sessionResponse,
-                    });
+        try {
+            await this._removeSession();
+            let res;
+            if ('email' in credentials) {
+                const { email, password, options } = credentials;
+                let codeChallenge = null;
+                let codeChallengeMethod = null;
+                if (this.flowType === 'pkce') {
+                    const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
+                    await (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
+                    codeChallenge = await (0, helpers_1.generatePKCEChallenge)(codeVerifier);
+                    codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
                 }
-                else if ('phone' in credentials) {
-                    const { phone, password, options } = credentials;
-                    res = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/signup`, {
-                        headers: this.headers,
-                        body: {
-                            phone,
-                            password,
-                            data: (_b = options === null || options === void 0 ? void 0 : options.data) !== null && _b !== void 0 ? _b : {},
-                            channel: (_c = options === null || options === void 0 ? void 0 : options.channel) !== null && _c !== void 0 ? _c : 'sms',
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                        },
-                        xform: fetch_1._sessionResponse,
-                    });
-                }
-                else {
-                    throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number and a password');
-                }
-                const { data, error } = res;
-                if (error || !data) {
-                    return { data: { user: null, session: null }, error: error };
-                }
-                const session = data.session;
-                const user = data.user;
-                if (data.session) {
-                    yield this._saveSession(data.session);
-                    yield this._notifyAllSubscribers('SIGNED_IN', session);
-                }
-                return { data: { user, session }, error: null };
+                res = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/signup`, {
+                    headers: this.headers,
+                    redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
+                    body: {
+                        email,
+                        password,
+                        data: (_a = options === null || options === void 0 ? void 0 : options.data) !== null && _a !== void 0 ? _a : {},
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                        code_challenge: codeChallenge,
+                        code_challenge_method: codeChallengeMethod,
+                    },
+                    xform: fetch_1._sessionResponse,
+                });
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
-                throw error;
+            else if ('phone' in credentials) {
+                const { phone, password, options } = credentials;
+                res = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/signup`, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        password,
+                        data: (_b = options === null || options === void 0 ? void 0 : options.data) !== null && _b !== void 0 ? _b : {},
+                        channel: (_c = options === null || options === void 0 ? void 0 : options.channel) !== null && _c !== void 0 ? _c : 'sms',
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    xform: fetch_1._sessionResponse,
+                });
             }
-        });
+            else {
+                throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number and a password');
+            }
+            const { data, error } = res;
+            if (error || !data) {
+                return { data: { user: null, session: null }, error: error };
+            }
+            const session = data.session;
+            const user = data.user;
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', session);
+            }
+            return { data: { user, session }, error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
     }
     /**
      * Log in an existing user with an email and password or phone and password.
@@ -15076,90 +16941,38 @@ class GoTrueClient {
      * email/phone and password combination is wrong or that the account can only
      * be accessed via social login.
      */
-    signInWithPassword(credentials) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this._removeSession();
-                let res;
-                if ('email' in credentials) {
-                    const { email, password, options } = credentials;
-                    res = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=password`, {
-                        headers: this.headers,
-                        body: {
-                            email,
-                            password,
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                        },
-                        xform: fetch_1._sessionResponse,
-                    });
-                }
-                else if ('phone' in credentials) {
-                    const { phone, password, options } = credentials;
-                    res = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=password`, {
-                        headers: this.headers,
-                        body: {
-                            phone,
-                            password,
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                        },
-                        xform: fetch_1._sessionResponse,
-                    });
-                }
-                else {
-                    throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number and a password');
-                }
-                const { data, error } = res;
-                if (error) {
-                    return { data: { user: null, session: null }, error };
-                }
-                else if (!data || !data.session || !data.user) {
-                    return { data: { user: null, session: null }, error: new errors_1.AuthInvalidTokenResponseError() };
-                }
-                if (data.session) {
-                    yield this._saveSession(data.session);
-                    yield this._notifyAllSubscribers('SIGNED_IN', data.session);
-                }
-                return { data: { user: data.user, session: data.session }, error };
+    async signInWithPassword(credentials) {
+        try {
+            await this._removeSession();
+            let res;
+            if ('email' in credentials) {
+                const { email, password, options } = credentials;
+                res = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=password`, {
+                    headers: this.headers,
+                    body: {
+                        email,
+                        password,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    xform: fetch_1._sessionResponse,
+                });
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
-                throw error;
+            else if ('phone' in credentials) {
+                const { phone, password, options } = credentials;
+                res = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=password`, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        password,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    xform: fetch_1._sessionResponse,
+                });
             }
-        });
-    }
-    /**
-     * Log in an existing user via a third-party provider.
-     * This method supports the PKCE flow.
-     */
-    signInWithOAuth(credentials) {
-        var _a, _b, _c, _d;
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this._removeSession();
-            return yield this._handleProviderSignIn(credentials.provider, {
-                redirectTo: (_a = credentials.options) === null || _a === void 0 ? void 0 : _a.redirectTo,
-                scopes: (_b = credentials.options) === null || _b === void 0 ? void 0 : _b.scopes,
-                queryParams: (_c = credentials.options) === null || _c === void 0 ? void 0 : _c.queryParams,
-                skipBrowserRedirect: (_d = credentials.options) === null || _d === void 0 ? void 0 : _d.skipBrowserRedirect,
-            });
-        });
-    }
-    /**
-     * Log in an existing user by exchanging an Auth Code issued during the PKCE flow.
-     */
-    exchangeCodeForSession(authCode) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const codeVerifier = yield (0, helpers_1.getItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
-            const { data, error } = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=pkce`, {
-                headers: this.headers,
-                body: {
-                    auth_code: authCode,
-                    code_verifier: codeVerifier,
-                },
-                xform: fetch_1._sessionResponse,
-            });
-            yield (0, helpers_1.removeItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
+            else {
+                throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number and a password');
+            }
+            const { data, error } = res;
             if (error) {
                 return { data: { user: null, session: null }, error };
             }
@@ -15167,56 +16980,105 @@ class GoTrueClient {
                 return { data: { user: null, session: null }, error: new errors_1.AuthInvalidTokenResponseError() };
             }
             if (data.session) {
-                yield this._saveSession(data.session);
-                yield this._notifyAllSubscribers('SIGNED_IN', data.session);
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', data.session);
             }
-            return { data, error };
+            return { data: { user: data.user, session: data.session }, error };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
+    }
+    /**
+     * Log in an existing user via a third-party provider.
+     * This method supports the PKCE flow.
+     */
+    async signInWithOAuth(credentials) {
+        var _a, _b, _c, _d;
+        await this._removeSession();
+        return await this._handleProviderSignIn(credentials.provider, {
+            redirectTo: (_a = credentials.options) === null || _a === void 0 ? void 0 : _a.redirectTo,
+            scopes: (_b = credentials.options) === null || _b === void 0 ? void 0 : _b.scopes,
+            queryParams: (_c = credentials.options) === null || _c === void 0 ? void 0 : _c.queryParams,
+            skipBrowserRedirect: (_d = credentials.options) === null || _d === void 0 ? void 0 : _d.skipBrowserRedirect,
         });
     }
     /**
-     * Allows signing in with an ID token issued by certain supported providers.
-     * The ID token is verified for validity and a new session is established.
-     *
-     * @experimental
+     * Log in an existing user by exchanging an Auth Code issued during the PKCE flow.
      */
-    signInWithIdToken(credentials) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this._removeSession();
-            try {
-                const { options, provider, token, nonce } = credentials;
-                const res = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=id_token`, {
-                    headers: this.headers,
-                    body: {
-                        provider,
-                        id_token: token,
-                        nonce,
-                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                    },
-                    xform: fetch_1._sessionResponse,
-                });
-                const { data, error } = res;
-                if (error) {
-                    return { data: { user: null, session: null }, error };
-                }
-                else if (!data || !data.session || !data.user) {
-                    return {
-                        data: { user: null, session: null },
-                        error: new errors_1.AuthInvalidTokenResponseError(),
-                    };
-                }
-                if (data.session) {
-                    yield this._saveSession(data.session);
-                    yield this._notifyAllSubscribers('SIGNED_IN', data.session);
-                }
-                return { data, error };
-            }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
-                throw error;
-            }
+    async exchangeCodeForSession(authCode) {
+        await this.initializePromise;
+        return this._acquireLock(-1, async () => {
+            return this._exchangeCodeForSession(authCode);
         });
+    }
+    async _exchangeCodeForSession(authCode) {
+        const codeVerifier = await (0, helpers_1.getItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
+        const { data, error } = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=pkce`, {
+            headers: this.headers,
+            body: {
+                auth_code: authCode,
+                code_verifier: codeVerifier,
+            },
+            xform: fetch_1._sessionResponse,
+        });
+        await (0, helpers_1.removeItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
+        if (error) {
+            return { data: { user: null, session: null }, error };
+        }
+        else if (!data || !data.session || !data.user) {
+            return { data: { user: null, session: null }, error: new errors_1.AuthInvalidTokenResponseError() };
+        }
+        if (data.session) {
+            await this._saveSession(data.session);
+            await this._notifyAllSubscribers('SIGNED_IN', data.session);
+        }
+        return { data, error };
+    }
+    /**
+     * Allows signing in with an OIDC ID token. The authentication provider used
+     * should be enabled and configured.
+     */
+    async signInWithIdToken(credentials) {
+        await this._removeSession();
+        try {
+            const { options, provider, token, access_token, nonce } = credentials;
+            const res = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=id_token`, {
+                headers: this.headers,
+                body: {
+                    provider,
+                    id_token: token,
+                    access_token,
+                    nonce,
+                    gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                },
+                xform: fetch_1._sessionResponse,
+            });
+            const { data, error } = res;
+            if (error) {
+                return { data: { user: null, session: null }, error };
+            }
+            else if (!data || !data.session || !data.user) {
+                return {
+                    data: { user: null, session: null },
+                    error: new errors_1.AuthInvalidTokenResponseError(),
+                };
+            }
+            if (data.session) {
+                await this._saveSession(data.session);
+                await this._notifyAllSubscribers('SIGNED_IN', data.session);
+            }
+            return { data, error };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
     }
     /**
      * Log in a user using magiclink or a one-time password (OTP).
@@ -15235,97 +17097,99 @@ class GoTrueClient {
      * at this time.
      * This method supports PKCE when an email is passed.
      */
-    signInWithOtp(credentials) {
+    async signInWithOtp(credentials) {
         var _a, _b, _c, _d, _e;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this._removeSession();
-                if ('email' in credentials) {
-                    const { email, options } = credentials;
-                    let codeChallenge = null;
-                    let codeChallengeMethod = null;
-                    if (this.flowType === 'pkce') {
-                        const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
-                        yield (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
-                        codeChallenge = yield (0, helpers_1.generatePKCEChallenge)(codeVerifier);
-                        codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
-                    }
-                    const { error } = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/otp`, {
-                        headers: this.headers,
-                        body: {
-                            email,
-                            data: (_a = options === null || options === void 0 ? void 0 : options.data) !== null && _a !== void 0 ? _a : {},
-                            create_user: (_b = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _b !== void 0 ? _b : true,
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                            code_challenge: codeChallenge,
-                            code_challenge_method: codeChallengeMethod,
-                        },
-                        redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
-                    });
-                    return { data: { user: null, session: null }, error };
+        try {
+            await this._removeSession();
+            if ('email' in credentials) {
+                const { email, options } = credentials;
+                let codeChallenge = null;
+                let codeChallengeMethod = null;
+                if (this.flowType === 'pkce') {
+                    const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
+                    await (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
+                    codeChallenge = await (0, helpers_1.generatePKCEChallenge)(codeVerifier);
+                    codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
                 }
-                if ('phone' in credentials) {
-                    const { phone, options } = credentials;
-                    const { error } = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/otp`, {
-                        headers: this.headers,
-                        body: {
-                            phone,
-                            data: (_c = options === null || options === void 0 ? void 0 : options.data) !== null && _c !== void 0 ? _c : {},
-                            create_user: (_d = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _d !== void 0 ? _d : true,
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                            channel: (_e = options === null || options === void 0 ? void 0 : options.channel) !== null && _e !== void 0 ? _e : 'sms',
-                        },
-                    });
-                    return { data: { user: null, session: null }, error };
-                }
-                throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number.');
+                const { error } = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/otp`, {
+                    headers: this.headers,
+                    body: {
+                        email,
+                        data: (_a = options === null || options === void 0 ? void 0 : options.data) !== null && _a !== void 0 ? _a : {},
+                        create_user: (_b = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _b !== void 0 ? _b : true,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                        code_challenge: codeChallenge,
+                        code_challenge_method: codeChallengeMethod,
+                    },
+                    redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
+                });
+                return { data: { user: null, session: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
-                throw error;
+            if ('phone' in credentials) {
+                const { phone, options } = credentials;
+                const { data, error } = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/otp`, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        data: (_c = options === null || options === void 0 ? void 0 : options.data) !== null && _c !== void 0 ? _c : {},
+                        create_user: (_d = options === null || options === void 0 ? void 0 : options.shouldCreateUser) !== null && _d !== void 0 ? _d : true,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                        channel: (_e = options === null || options === void 0 ? void 0 : options.channel) !== null && _e !== void 0 ? _e : 'sms',
+                    },
+                });
+                return { data: { user: null, session: null, messageId: data === null || data === void 0 ? void 0 : data.message_id }, error };
             }
-        });
+            throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number.');
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
     }
     /**
      * Log in a user given a User supplied OTP received via mobile.
      */
-    verifyOtp(params) {
+    async verifyOtp(params) {
         var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (params.type !== 'email_change' && params.type !== 'phone_change') {
-                    // we don't want to remove the authenticated session if the user is performing an email_change or phone_change verification
-                    yield this._removeSession();
-                }
-                const { data, error } = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/verify`, {
-                    headers: this.headers,
-                    body: Object.assign(Object.assign({}, params), { gotrue_meta_security: { captcha_token: (_a = params.options) === null || _a === void 0 ? void 0 : _a.captchaToken } }),
-                    redirectTo: (_b = params.options) === null || _b === void 0 ? void 0 : _b.redirectTo,
-                    xform: fetch_1._sessionResponse,
-                });
-                if (error) {
-                    throw error;
-                }
-                if (!data) {
-                    throw new Error('An error occurred on token verification.');
-                }
-                const session = data.session;
-                const user = data.user;
-                if (session === null || session === void 0 ? void 0 : session.access_token) {
-                    yield this._saveSession(session);
-                    yield this._notifyAllSubscribers('SIGNED_IN', session);
-                }
-                return { data: { user, session }, error: null };
+        try {
+            if (params.type !== 'email_change' && params.type !== 'phone_change') {
+                // we don't want to remove the authenticated session if the user is performing an email_change or phone_change verification
+                await this._removeSession();
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
+            let redirectTo = undefined;
+            let captchaToken = undefined;
+            if ('options' in params) {
+                redirectTo = (_a = params.options) === null || _a === void 0 ? void 0 : _a.redirectTo;
+                captchaToken = (_b = params.options) === null || _b === void 0 ? void 0 : _b.captchaToken;
+            }
+            const { data, error } = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/verify`, {
+                headers: this.headers,
+                body: Object.assign(Object.assign({}, params), { gotrue_meta_security: { captcha_token: captchaToken } }),
+                redirectTo,
+                xform: fetch_1._sessionResponse,
+            });
+            if (error) {
                 throw error;
             }
-        });
+            if (!data) {
+                throw new Error('An error occurred on token verification.');
+            }
+            const session = data.session;
+            const user = data.user;
+            if (session === null || session === void 0 ? void 0 : session.access_token) {
+                await this._saveSession(session);
+                await this._notifyAllSubscribers('SIGNED_IN', session);
+            }
+            return { data: { user, session }, error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
     }
     /**
      * Attempts a single-sign on using an enterprise Identity Provider. A
@@ -15341,118 +17205,213 @@ class GoTrueClient {
      * If you have built an organization-specific login page, you can use the
      * organization's SSO Identity Provider UUID directly instead.
      */
-    signInWithSSO(params) {
+    async signInWithSSO(params) {
         var _a, _b, _c;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this._removeSession();
-                return yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/sso`, {
-                    body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, ('providerId' in params ? { provider_id: params.providerId } : null)), ('domain' in params ? { domain: params.domain } : null)), { redirect_to: (_b = (_a = params.options) === null || _a === void 0 ? void 0 : _a.redirectTo) !== null && _b !== void 0 ? _b : undefined }), (((_c = params === null || params === void 0 ? void 0 : params.options) === null || _c === void 0 ? void 0 : _c.captchaToken)
-                        ? { gotrue_meta_security: { captcha_token: params.options.captchaToken } }
-                        : null)), { skip_http_redirect: true }),
-                    headers: this.headers,
-                    xform: fetch_1._ssoResponse,
-                });
+        try {
+            await this._removeSession();
+            return await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/sso`, {
+                body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, ('providerId' in params ? { provider_id: params.providerId } : null)), ('domain' in params ? { domain: params.domain } : null)), { redirect_to: (_b = (_a = params.options) === null || _a === void 0 ? void 0 : _a.redirectTo) !== null && _b !== void 0 ? _b : undefined }), (((_c = params === null || params === void 0 ? void 0 : params.options) === null || _c === void 0 ? void 0 : _c.captchaToken)
+                    ? { gotrue_meta_security: { captcha_token: params.options.captchaToken } }
+                    : null)), { skip_http_redirect: true }),
+                headers: this.headers,
+                xform: fetch_1._ssoResponse,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Sends a reauthentication OTP to the user's email or phone number.
      * Requires the user to be signed-in.
      */
-    reauthenticate() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { data: { session }, error: sessionError, } = yield this.getSession();
+    async reauthenticate() {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._reauthenticate();
+        });
+    }
+    async _reauthenticate() {
+        try {
+            return await this._useSession(async (result) => {
+                const { data: { session }, error: sessionError, } = result;
                 if (sessionError)
                     throw sessionError;
                 if (!session)
                     throw new errors_1.AuthSessionMissingError();
-                const { error } = yield (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/reauthenticate`, {
+                const { error } = await (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/reauthenticate`, {
                     headers: this.headers,
                     jwt: session.access_token,
                 });
                 return { data: { user: null, session: null }, error };
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Resends an existing signup confirmation email, email change email, SMS OTP or phone change OTP.
      */
-    resend(credentials) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this._removeSession();
-                const endpoint = `${this.url}/resend`;
-                if ('email' in credentials) {
-                    const { email, type, options } = credentials;
-                    const { error } = yield (0, fetch_1._request)(this.fetch, 'POST', endpoint, {
-                        headers: this.headers,
-                        body: {
-                            email,
-                            type,
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                        },
-                    });
-                    return { data: { user: null, session: null }, error };
-                }
-                else if ('phone' in credentials) {
-                    const { phone, type, options } = credentials;
-                    const { error } = yield (0, fetch_1._request)(this.fetch, 'POST', endpoint, {
-                        headers: this.headers,
-                        body: {
-                            phone,
-                            type,
-                            gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
-                        },
-                    });
-                    return { data: { user: null, session: null }, error };
-                }
-                throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number and a type');
+    async resend(credentials) {
+        try {
+            if (credentials.type != 'email_change' && credentials.type != 'phone_change') {
+                await this._removeSession();
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
-                throw error;
+            const endpoint = `${this.url}/resend`;
+            if ('email' in credentials) {
+                const { email, type, options } = credentials;
+                const { error } = await (0, fetch_1._request)(this.fetch, 'POST', endpoint, {
+                    headers: this.headers,
+                    body: {
+                        email,
+                        type,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                    redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
+                });
+                return { data: { user: null, session: null }, error };
             }
-        });
+            else if ('phone' in credentials) {
+                const { phone, type, options } = credentials;
+                const { data, error } = await (0, fetch_1._request)(this.fetch, 'POST', endpoint, {
+                    headers: this.headers,
+                    body: {
+                        phone,
+                        type,
+                        gotrue_meta_security: { captcha_token: options === null || options === void 0 ? void 0 : options.captchaToken },
+                    },
+                });
+                return { data: { user: null, session: null, messageId: data === null || data === void 0 ? void 0 : data.message_id }, error };
+            }
+            throw new errors_1.AuthInvalidCredentialsError('You must provide either an email or phone number and a type');
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
+            }
+            throw error;
+        }
     }
     /**
      * Returns the session, refreshing it if necessary.
      * The session returned can be null if the session is not detected which can happen in the event a user is not signed-in or has logged out.
      */
-    getSession() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // make sure we've read the session from the url if there is one
-            // save to just await, as long we make sure _initialize() never throws
-            yield this.initializePromise;
+    async getSession() {
+        await this.initializePromise;
+        return this._acquireLock(-1, async () => {
+            return this._useSession(async (result) => {
+                return result;
+            });
+        });
+    }
+    /**
+     * Acquires a global lock based on the storage key.
+     */
+    async _acquireLock(acquireTimeout, fn) {
+        this._debug('#_acquireLock', 'begin', acquireTimeout);
+        try {
+            if (this.lockAcquired) {
+                const last = this.pendingInLock.length
+                    ? this.pendingInLock[this.pendingInLock.length - 1]
+                    : Promise.resolve();
+                const result = (async () => {
+                    await last;
+                    return await fn();
+                })();
+                this.pendingInLock.push((async () => {
+                    try {
+                        await result;
+                    }
+                    catch (e) {
+                        // we jsut care if it finished
+                    }
+                })());
+                return result;
+            }
+            return await this.lock(`lock:${this.storageKey}`, acquireTimeout, async () => {
+                this._debug('#_acquireLock', 'lock acquired for storage key', this.storageKey);
+                try {
+                    this.lockAcquired = true;
+                    const result = fn();
+                    this.pendingInLock.push((async () => {
+                        try {
+                            await result;
+                        }
+                        catch (e) {
+                            // we just care if it finished
+                        }
+                    })());
+                    await result;
+                    // keep draining the queue until there's nothing to wait on
+                    while (this.pendingInLock.length) {
+                        const waitOn = [...this.pendingInLock];
+                        await Promise.all(waitOn);
+                        this.pendingInLock.splice(0, waitOn.length);
+                    }
+                    return await result;
+                }
+                finally {
+                    this._debug('#_acquireLock', 'lock released for storage key', this.storageKey);
+                    this.lockAcquired = false;
+                }
+            });
+        }
+        finally {
+            this._debug('#_acquireLock', 'end');
+        }
+    }
+    /**
+     * Use instead of {@link #getSession} inside the library. It is
+     * semantically usually what you want, as getting a session involves some
+     * processing afterwards that requires only one client operating on the
+     * session at once across multiple tabs or processes.
+     */
+    async _useSession(fn) {
+        this._debug('#_useSession', 'begin');
+        try {
+            // the use of __loadSession here is the only correct use of the function!
+            const result = await this.__loadSession();
+            return await fn(result);
+        }
+        finally {
+            this._debug('#_useSession', 'end');
+        }
+    }
+    /**
+     * NEVER USE DIRECTLY!
+     *
+     * Always use {@link #_useSession}.
+     */
+    async __loadSession() {
+        this._debug('#__loadSession()', 'begin');
+        if (!this.lockAcquired) {
+            this._debug('#__loadSession()', 'used outside of an acquired lock!', new Error().stack);
+        }
+        try {
             let currentSession = null;
             if (this.persistSession) {
-                const maybeSession = yield (0, helpers_1.getItemAsync)(this.storage, this.storageKey);
+                const maybeSession = await (0, helpers_1.getItemAsync)(this.storage, this.storageKey);
+                this._debug('#getSession()', 'session from storage', maybeSession);
                 if (maybeSession !== null) {
                     if (this._isValidSession(maybeSession)) {
                         currentSession = maybeSession;
                     }
                     else {
-                        yield this._removeSession();
+                        this._debug('#getSession()', 'session from storage is not valid');
+                        await this._removeSession();
                     }
                 }
             }
             else {
                 currentSession = this.inMemorySession;
+                this._debug('#getSession()', 'session from memory', currentSession);
             }
             if (!currentSession) {
                 return { data: { session: null }, error: null };
@@ -15460,53 +17419,75 @@ class GoTrueClient {
             const hasExpired = currentSession.expires_at
                 ? currentSession.expires_at <= Date.now() / 1000
                 : false;
+            this._debug('#__loadSession()', `session has${hasExpired ? '' : ' not'} expired`, 'expires_at', currentSession.expires_at);
             if (!hasExpired) {
                 return { data: { session: currentSession }, error: null };
             }
-            const { session, error } = yield this._callRefreshToken(currentSession.refresh_token);
+            const { session, error } = await this._callRefreshToken(currentSession.refresh_token);
             if (error) {
                 return { data: { session: null }, error };
             }
             return { data: { session }, error: null };
-        });
+        }
+        finally {
+            this._debug('#__loadSession()', 'end');
+        }
     }
     /**
      * Gets the current user details if there is an existing session.
      * @param jwt Takes in an optional access token jwt. If no jwt is provided, getUser() will attempt to get the jwt from the current session.
      */
-    getUser(jwt) {
-        var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!jwt) {
-                    const { data, error } = yield this.getSession();
-                    if (error) {
-                        throw error;
-                    }
-                    // Default to Authorization header if there is no existing session
-                    jwt = (_b = (_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token) !== null && _b !== void 0 ? _b : undefined;
-                }
-                return yield (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/user`, {
+    async getUser(jwt) {
+        if (jwt) {
+            return await this._getUser(jwt);
+        }
+        await this.initializePromise;
+        return this._acquireLock(-1, async () => {
+            return await this._getUser();
+        });
+    }
+    async _getUser(jwt) {
+        try {
+            if (jwt) {
+                return await (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/user`, {
                     headers: this.headers,
                     jwt: jwt,
                     xform: fetch_1._userResponse,
                 });
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null }, error };
+            return await this._useSession(async (result) => {
+                var _a, _b;
+                const { data, error } = result;
+                if (error) {
+                    throw error;
                 }
-                throw error;
+                return await (0, fetch_1._request)(this.fetch, 'GET', `${this.url}/user`, {
+                    headers: this.headers,
+                    jwt: (_b = (_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token) !== null && _b !== void 0 ? _b : undefined,
+                    xform: fetch_1._userResponse,
+                });
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null }, error };
             }
-        });
+            throw error;
+        }
     }
     /**
      * Updates user data for a logged in user.
      */
-    updateUser(attributes, options = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { data: sessionData, error: sessionError } = yield this.getSession();
+    async updateUser(attributes, options = {}) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._updateUser(attributes, options);
+        });
+    }
+    async _updateUser(attributes, options = {}) {
+        try {
+            return await this._useSession(async (result) => {
+                const { data: sessionData, error: sessionError } = result;
                 if (sessionError) {
                     throw sessionError;
                 }
@@ -15514,7 +17495,7 @@ class GoTrueClient {
                     throw new errors_1.AuthSessionMissingError();
                 }
                 const session = sessionData.session;
-                const { data, error: userError } = yield (0, fetch_1._request)(this.fetch, 'PUT', `${this.url}/user`, {
+                const { data, error: userError } = await (0, fetch_1._request)(this.fetch, 'PUT', `${this.url}/user`, {
                     headers: this.headers,
                     redirectTo: options === null || options === void 0 ? void 0 : options.emailRedirectTo,
                     body: attributes,
@@ -15524,17 +17505,17 @@ class GoTrueClient {
                 if (userError)
                     throw userError;
                 session.user = data.user;
-                yield this._saveSession(session);
-                yield this._notifyAllSubscribers('USER_UPDATED', session);
+                await this._saveSession(session);
+                await this._notifyAllSubscribers('USER_UPDATED', session);
                 return { data: { user: session.user }, error: null };
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Decodes a JWT (without performing any validation).
@@ -15547,56 +17528,60 @@ class GoTrueClient {
      * If the refresh token or access token in the current session is invalid, an error will be thrown.
      * @param currentSession The current session that minimally contains an access token and refresh token.
      */
-    setSession(currentSession) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!currentSession.access_token || !currentSession.refresh_token) {
-                    throw new errors_1.AuthSessionMissingError();
-                }
-                const timeNow = Date.now() / 1000;
-                let expiresAt = timeNow;
-                let hasExpired = true;
-                let session = null;
-                const payload = (0, helpers_1.decodeJWTPayload)(currentSession.access_token);
-                if (payload.exp) {
-                    expiresAt = payload.exp;
-                    hasExpired = expiresAt <= timeNow;
-                }
-                if (hasExpired) {
-                    const { session: refreshedSession, error } = yield this._callRefreshToken(currentSession.refresh_token);
-                    if (error) {
-                        return { data: { user: null, session: null }, error: error };
-                    }
-                    if (!refreshedSession) {
-                        return { data: { user: null, session: null }, error: null };
-                    }
-                    session = refreshedSession;
-                }
-                else {
-                    const { data, error } = yield this.getUser(currentSession.access_token);
-                    if (error) {
-                        throw error;
-                    }
-                    session = {
-                        access_token: currentSession.access_token,
-                        refresh_token: currentSession.refresh_token,
-                        user: data.user,
-                        token_type: 'bearer',
-                        expires_in: expiresAt - timeNow,
-                        expires_at: expiresAt,
-                    };
-                    yield this._saveSession(session);
-                    yield this._notifyAllSubscribers('SIGNED_IN', session);
-                }
-                return { data: { user: session.user, session }, error: null };
-            }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { session: null, user: null }, error };
-                }
-                throw error;
-            }
+    async setSession(currentSession) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._setSession(currentSession);
         });
+    }
+    async _setSession(currentSession) {
+        try {
+            if (!currentSession.access_token || !currentSession.refresh_token) {
+                throw new errors_1.AuthSessionMissingError();
+            }
+            const timeNow = Date.now() / 1000;
+            let expiresAt = timeNow;
+            let hasExpired = true;
+            let session = null;
+            const payload = (0, helpers_1.decodeJWTPayload)(currentSession.access_token);
+            if (payload.exp) {
+                expiresAt = payload.exp;
+                hasExpired = expiresAt <= timeNow;
+            }
+            if (hasExpired) {
+                const { session: refreshedSession, error } = await this._callRefreshToken(currentSession.refresh_token);
+                if (error) {
+                    return { data: { user: null, session: null }, error: error };
+                }
+                if (!refreshedSession) {
+                    return { data: { user: null, session: null }, error: null };
+                }
+                session = refreshedSession;
+            }
+            else {
+                const { data, error } = await this._getUser(currentSession.access_token);
+                if (error) {
+                    throw error;
+                }
+                session = {
+                    access_token: currentSession.access_token,
+                    refresh_token: currentSession.refresh_token,
+                    user: data.user,
+                    token_type: 'bearer',
+                    expires_in: expiresAt - timeNow,
+                    expires_at: expiresAt,
+                };
+                await this._saveSession(session);
+                await this._notifyAllSubscribers('SIGNED_IN', session);
+            }
+            return { data: { user: session.user, session }, error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { session: null, user: null }, error };
+            }
+            throw error;
+        }
     }
     /**
      * Returns a new session, regardless of expiry status.
@@ -15604,12 +17589,18 @@ class GoTrueClient {
      * If the current session's refresh token is invalid, an error will be thrown.
      * @param currentSession The current session. If passed in, it must contain a refresh token.
      */
-    refreshSession(currentSession) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
+    async refreshSession(currentSession) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._refreshSession(currentSession);
+        });
+    }
+    async _refreshSession(currentSession) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a;
                 if (!currentSession) {
-                    const { data, error } = yield this.getSession();
+                    const { data, error } = result;
                     if (error) {
                         throw error;
                     }
@@ -15618,7 +17609,7 @@ class GoTrueClient {
                 if (!(currentSession === null || currentSession === void 0 ? void 0 : currentSession.refresh_token)) {
                     throw new errors_1.AuthSessionMissingError();
                 }
-                const { session, error } = yield this._callRefreshToken(currentSession.refresh_token);
+                const { session, error } = await this._callRefreshToken(currentSession.refresh_token);
                 if (error) {
                     return { data: { user: null, session: null }, error: error };
                 }
@@ -15626,112 +17617,92 @@ class GoTrueClient {
                     return { data: { user: null, session: null }, error: null };
                 }
                 return { data: { user: session.user, session }, error: null };
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { user: null, session: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { user: null, session: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Gets the session data from a URL string
      */
-    _getSessionFromUrl(isPKCEFlow) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!(0, helpers_1.isBrowser)())
-                    throw new errors_1.AuthImplicitGrantRedirectError('No browser detected.');
-                if (this.flowType === 'implicit' && !this._isImplicitGrantFlow()) {
-                    throw new errors_1.AuthImplicitGrantRedirectError('Not a valid implicit grant flow url.');
-                }
-                else if (this.flowType == 'pkce' && !isPKCEFlow) {
-                    throw new errors_1.AuthPKCEGrantCodeExchangeError('Not a valid PKCE flow url.');
-                }
-                if (isPKCEFlow) {
-                    const authCode = (0, helpers_1.getParameterByName)('code');
-                    if (!authCode)
-                        throw new errors_1.AuthPKCEGrantCodeExchangeError('No code detected.');
-                    const { data, error } = yield this.exchangeCodeForSession(authCode);
-                    if (error)
-                        throw error;
-                    if (!data.session)
-                        throw new errors_1.AuthPKCEGrantCodeExchangeError('No session detected.');
-                    let url = new URL(window.location.href);
-                    url.searchParams.delete('code');
-                    window.history.replaceState(window.history.state, '', url.toString());
-                    return { data: { session: data.session, redirectType: null }, error: null };
-                }
-                const error_description = (0, helpers_1.getParameterByName)('error_description');
-                if (error_description) {
-                    const error_code = (0, helpers_1.getParameterByName)('error_code');
-                    if (!error_code)
-                        throw new errors_1.AuthImplicitGrantRedirectError('No error_code detected.');
-                    const error = (0, helpers_1.getParameterByName)('error');
-                    if (!error)
-                        throw new errors_1.AuthImplicitGrantRedirectError('No error detected.');
-                    throw new errors_1.AuthImplicitGrantRedirectError(error_description, { error, code: error_code });
-                }
-                const provider_token = (0, helpers_1.getParameterByName)('provider_token');
-                const provider_refresh_token = (0, helpers_1.getParameterByName)('provider_refresh_token');
-                const access_token = (0, helpers_1.getParameterByName)('access_token');
-                if (!access_token)
-                    throw new errors_1.AuthImplicitGrantRedirectError('No access_token detected.');
-                const expires_in = (0, helpers_1.getParameterByName)('expires_in');
-                if (!expires_in)
-                    throw new errors_1.AuthImplicitGrantRedirectError('No expires_in detected.');
-                const refresh_token = (0, helpers_1.getParameterByName)('refresh_token');
-                if (!refresh_token)
-                    throw new errors_1.AuthImplicitGrantRedirectError('No refresh_token detected.');
-                const token_type = (0, helpers_1.getParameterByName)('token_type');
-                if (!token_type)
-                    throw new errors_1.AuthImplicitGrantRedirectError('No token_type detected.');
-                const timeNow = Math.round(Date.now() / 1000);
-                const expires_at = timeNow + parseInt(expires_in);
-                const { data, error } = yield this.getUser(access_token);
+    async _getSessionFromURL(isPKCEFlow) {
+        try {
+            if (!(0, helpers_1.isBrowser)())
+                throw new errors_1.AuthImplicitGrantRedirectError('No browser detected.');
+            if (this.flowType === 'implicit' && !this._isImplicitGrantFlow()) {
+                throw new errors_1.AuthImplicitGrantRedirectError('Not a valid implicit grant flow url.');
+            }
+            else if (this.flowType == 'pkce' && !isPKCEFlow) {
+                throw new errors_1.AuthPKCEGrantCodeExchangeError('Not a valid PKCE flow url.');
+            }
+            const params = (0, helpers_1.parseParametersFromURL)(window.location.href);
+            if (isPKCEFlow) {
+                if (!params.code)
+                    throw new errors_1.AuthPKCEGrantCodeExchangeError('No code detected.');
+                const { data, error } = await this._exchangeCodeForSession(params.code);
                 if (error)
                     throw error;
-                const user = data.user;
-                const session = {
-                    provider_token,
-                    provider_refresh_token,
-                    access_token,
-                    expires_in: parseInt(expires_in),
-                    expires_at,
-                    refresh_token,
-                    token_type,
-                    user,
-                };
-                const redirectType = (0, helpers_1.getParameterByName)('type');
-                // Remove tokens from URL
-                window.location.hash = '';
-                return { data: { session, redirectType }, error: null };
+                const url = new URL(window.location.href);
+                url.searchParams.delete('code');
+                window.history.replaceState(window.history.state, '', url.toString());
+                return { data: { session: data.session, redirectType: null }, error: null };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { session: null, redirectType: null }, error };
-                }
+            if (params.error || params.error_description || params.error_code) {
+                throw new errors_1.AuthImplicitGrantRedirectError(params.error_description || 'Error in URL with unspecified error_description', {
+                    error: params.error || 'unspecified_error',
+                    code: params.error_code || 'unspecified_code',
+                });
+            }
+            const { provider_token, provider_refresh_token, access_token, refresh_token, expires_in, token_type, } = params;
+            if (!access_token || !expires_in || !refresh_token || !token_type) {
+                throw new errors_1.AuthImplicitGrantRedirectError('No session defined in URL');
+            }
+            const timeNow = Math.round(Date.now() / 1000);
+            const expiresIn = parseInt(expires_in);
+            const expires_at = timeNow + expiresIn;
+            const { data, error } = await this._getUser(access_token);
+            if (error)
                 throw error;
+            const session = {
+                provider_token,
+                provider_refresh_token,
+                access_token,
+                expires_in: expiresIn,
+                expires_at,
+                refresh_token,
+                token_type,
+                user: data.user,
+            };
+            // Remove tokens from URL
+            window.location.hash = '';
+            this._debug('#_getSessionFromURL()', 'clearing window.location.hash');
+            return { data: { session, redirectType: params.type }, error: null };
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { session: null, redirectType: null }, error };
             }
-        });
+            throw error;
+        }
     }
     /**
      * Checks if the current URL contains parameters given by an implicit oauth grant flow (https://www.rfc-editor.org/rfc/rfc6749.html#section-4.2)
      */
     _isImplicitGrantFlow() {
-        return ((0, helpers_1.isBrowser)() &&
-            (Boolean((0, helpers_1.getParameterByName)('access_token')) ||
-                Boolean((0, helpers_1.getParameterByName)('error_description'))));
+        const params = (0, helpers_1.parseParametersFromURL)(window.location.href);
+        return !!((0, helpers_1.isBrowser)() && (params.access_token || params.error_description));
     }
     /**
      * Checks if the current URL and backing storage contain parameters given by a PKCE flow
      */
-    _isPKCEFlow() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const currentStorageContent = yield (0, helpers_1.getItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
-            return Boolean((0, helpers_1.getParameterByName)('code')) && Boolean(currentStorageContent);
-        });
+    async _isPKCEFlow() {
+        const params = (0, helpers_1.parseParametersFromURL)(window.location.href);
+        const currentStorageContent = await (0, helpers_1.getItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
+        return !!(params.code && currentStorageContent);
     }
     /**
      * Inside a browser context, `signOut()` will remove the logged in user from the browser session
@@ -15739,17 +17710,25 @@ class GoTrueClient {
      *
      * For server-side management, you can revoke all refresh tokens for a user by passing a user's JWT through to `auth.api.signOut(JWT: string)`.
      * There is no way to revoke a user's access token jwt until it expires. It is recommended to set a shorter expiry on the jwt for this reason.
+     *
+     * If using others scope, no `SIGNED_OUT` event is fired!
      */
-    signOut() {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            const { data, error: sessionError } = yield this.getSession();
+    async signOut(options = { scope: 'global' }) {
+        await this.initializePromise;
+        return await this._acquireLock(-1, async () => {
+            return await this._signOut(options);
+        });
+    }
+    async _signOut({ scope } = { scope: 'global' }) {
+        return await this._useSession(async (result) => {
+            var _a;
+            const { data, error: sessionError } = result;
             if (sessionError) {
                 return { error: sessionError };
             }
             const accessToken = (_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token;
             if (accessToken) {
-                const { error } = yield this.admin.signOut(accessToken);
+                const { error } = await this.admin.signOut(accessToken, scope);
                 if (error) {
                     // ignore 404s since user might not exist anymore
                     // ignore 401s since an invalid or expired JWT should sign out the current session
@@ -15758,9 +17737,11 @@ class GoTrueClient {
                     }
                 }
             }
-            yield this._removeSession();
-            yield (0, helpers_1.removeItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
-            yield this._notifyAllSubscribers('SIGNED_OUT', null);
+            if (scope !== 'others') {
+                await this._removeSession();
+                await (0, helpers_1.removeItemAsync)(this.storage, `${this.storageKey}-code-verifier`);
+                await this._notifyAllSubscribers('SIGNED_OUT', null);
+            }
             return { error: null };
         });
     }
@@ -15774,24 +17755,33 @@ class GoTrueClient {
             id,
             callback,
             unsubscribe: () => {
+                this._debug('#unsubscribe()', 'state change callback with id removed', id);
                 this.stateChangeEmitters.delete(id);
             },
         };
+        this._debug('#onAuthStateChange()', 'registered callback with id', id);
         this.stateChangeEmitters.set(id, subscription);
-        this.emitInitialSession(id);
+        (async () => {
+            await this.initializePromise;
+            await this._acquireLock(-1, async () => {
+                this._emitInitialSession(id);
+            });
+        })();
         return { data: { subscription } };
     }
-    emitInitialSession(id) {
-        var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
+    async _emitInitialSession(id) {
+        return await this._useSession(async (result) => {
+            var _a, _b;
             try {
-                const { data: { session }, error, } = yield this.getSession();
+                const { data: { session }, error, } = result;
                 if (error)
                     throw error;
-                yield ((_a = this.stateChangeEmitters.get(id)) === null || _a === void 0 ? void 0 : _a.callback('INITIAL_SESSION', session));
+                await ((_a = this.stateChangeEmitters.get(id)) === null || _a === void 0 ? void 0 : _a.callback('INITIAL_SESSION', session));
+                this._debug('INITIAL_SESSION', 'callback id', id, 'session', session);
             }
             catch (err) {
-                yield ((_b = this.stateChangeEmitters.get(id)) === null || _b === void 0 ? void 0 : _b.callback('INITIAL_SESSION', null));
+                await ((_b = this.stateChangeEmitters.get(id)) === null || _b === void 0 ? void 0 : _b.callback('INITIAL_SESSION', null));
+                this._debug('INITIAL_SESSION', 'callback id', id, 'error', err);
                 console.error(err);
             }
         });
@@ -15803,65 +17793,68 @@ class GoTrueClient {
      * @param options.redirectTo The URL to send the user to after they click the password reset link.
      * @param options.captchaToken Verification token received when the user completes the captcha on the site.
      */
-    resetPasswordForEmail(email, options = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let codeChallenge = null;
-            let codeChallengeMethod = null;
-            if (this.flowType === 'pkce') {
-                const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
-                yield (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
-                codeChallenge = yield (0, helpers_1.generatePKCEChallenge)(codeVerifier);
-                codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
+    async resetPasswordForEmail(email, options = {}) {
+        let codeChallenge = null;
+        let codeChallengeMethod = null;
+        if (this.flowType === 'pkce') {
+            const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
+            await (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
+            codeChallenge = await (0, helpers_1.generatePKCEChallenge)(codeVerifier);
+            codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
+        }
+        try {
+            return await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/recover`, {
+                body: {
+                    email,
+                    code_challenge: codeChallenge,
+                    code_challenge_method: codeChallengeMethod,
+                    gotrue_meta_security: { captcha_token: options.captchaToken },
+                },
+                headers: this.headers,
+                redirectTo: options.redirectTo,
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            try {
-                return yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/recover`, {
-                    body: {
-                        email,
-                        code_challenge: codeChallenge,
-                        code_challenge_method: codeChallengeMethod,
-                        gotrue_meta_security: { captcha_token: options.captchaToken },
-                    },
-                    headers: this.headers,
-                    redirectTo: options.redirectTo,
-                });
-            }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * Generates a new JWT.
      * @param refreshToken A valid refresh token that was returned on login.
      */
-    _refreshAccessToken(refreshToken) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const startedAt = Date.now();
-                // will attempt to refresh the token with exponential backoff
-                return yield (0, helpers_1.retryable)((attempt) => __awaiter(this, void 0, void 0, function* () {
-                    yield (0, helpers_1.sleep)(attempt * 200); // 0, 200, 400, 800, ...
-                    return yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=refresh_token`, {
-                        body: { refresh_token: refreshToken },
-                        headers: this.headers,
-                        xform: fetch_1._sessionResponse,
-                    });
-                }), (attempt, _, result) => result &&
-                    result.error &&
-                    result.error instanceof errors_1.AuthRetryableFetchError &&
-                    // retryable only if the request can be sent before the backoff overflows the tick duration
-                    Date.now() + (attempt + 1) * 200 - startedAt < AUTO_REFRESH_TICK_DURATION);
+    async _refreshAccessToken(refreshToken) {
+        const debugName = `#_refreshAccessToken(${refreshToken.substring(0, 5)}...)`;
+        this._debug(debugName, 'begin');
+        try {
+            const startedAt = Date.now();
+            // will attempt to refresh the token with exponential backoff
+            return await (0, helpers_1.retryable)(async (attempt) => {
+                await (0, helpers_1.sleep)(attempt * 200); // 0, 200, 400, 800, ...
+                this._debug(debugName, 'refreshing attempt', attempt);
+                return await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/token?grant_type=refresh_token`, {
+                    body: { refresh_token: refreshToken },
+                    headers: this.headers,
+                    xform: fetch_1._sessionResponse,
+                });
+            }, (attempt, _, result) => result &&
+                result.error &&
+                (0, errors_1.isAuthRetryableFetchError)(result.error) &&
+                // retryable only if the request can be sent before the backoff overflows the tick duration
+                Date.now() + (attempt + 1) * 200 - startedAt < AUTO_REFRESH_TICK_DURATION);
+        }
+        catch (error) {
+            this._debug(debugName, 'error', error);
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: { session: null, user: null }, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: { session: null, user: null }, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
+        finally {
+            this._debug(debugName, 'end');
+        }
     }
     _isValidSession(maybeSession) {
         const isValidSession = typeof maybeSession === 'object' &&
@@ -15871,144 +17864,160 @@ class GoTrueClient {
             'expires_at' in maybeSession;
         return isValidSession;
     }
-    _handleProviderSignIn(provider, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const url = yield this._getUrlForProvider(provider, {
-                redirectTo: options.redirectTo,
-                scopes: options.scopes,
-                queryParams: options.queryParams,
-            });
-            // try to open on the browser
-            if ((0, helpers_1.isBrowser)() && !options.skipBrowserRedirect) {
-                window.location.assign(url);
-            }
-            return { data: { provider, url }, error: null };
+    async _handleProviderSignIn(provider, options) {
+        const url = await this._getUrlForProvider(provider, {
+            redirectTo: options.redirectTo,
+            scopes: options.scopes,
+            queryParams: options.queryParams,
         });
+        this._debug('#_handleProviderSignIn()', 'provider', provider, 'options', options, 'url', url);
+        // try to open on the browser
+        if ((0, helpers_1.isBrowser)() && !options.skipBrowserRedirect) {
+            window.location.assign(url);
+        }
+        return { data: { provider, url }, error: null };
     }
     /**
      * Recovers the session from LocalStorage and refreshes
      * Note: this method is async to accommodate for AsyncStorage e.g. in React native.
      */
-    _recoverAndRefresh() {
+    async _recoverAndRefresh() {
         var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const currentSession = yield (0, helpers_1.getItemAsync)(this.storage, this.storageKey);
-                if (!this._isValidSession(currentSession)) {
-                    if (currentSession !== null) {
-                        yield this._removeSession();
-                    }
-                    return;
+        const debugName = '#_recoverAndRefresh()';
+        this._debug(debugName, 'begin');
+        try {
+            const currentSession = await (0, helpers_1.getItemAsync)(this.storage, this.storageKey);
+            this._debug(debugName, 'session from storage', currentSession);
+            if (!this._isValidSession(currentSession)) {
+                this._debug(debugName, 'session is not valid');
+                if (currentSession !== null) {
+                    await this._removeSession();
                 }
-                const timeNow = Math.round(Date.now() / 1000);
-                if (((_a = currentSession.expires_at) !== null && _a !== void 0 ? _a : Infinity) < timeNow + constants_1.EXPIRY_MARGIN) {
-                    if (this.autoRefreshToken && currentSession.refresh_token) {
-                        const { error } = yield this._callRefreshToken(currentSession.refresh_token);
-                        if (error) {
-                            console.log(error.message);
-                            yield this._removeSession();
+                return;
+            }
+            const timeNow = Math.round(Date.now() / 1000);
+            const expiresWithMargin = ((_a = currentSession.expires_at) !== null && _a !== void 0 ? _a : Infinity) < timeNow + constants_1.EXPIRY_MARGIN;
+            this._debug(debugName, `session has${expiresWithMargin ? '' : ' not'} expired with margin of ${constants_1.EXPIRY_MARGIN}s`);
+            if (expiresWithMargin) {
+                if (this.autoRefreshToken && currentSession.refresh_token) {
+                    const { error } = await this._callRefreshToken(currentSession.refresh_token);
+                    if (error) {
+                        console.error(error);
+                        if (!(0, errors_1.isAuthRetryableFetchError)(error)) {
+                            this._debug(debugName, 'refresh failed with a non-retryable error, removing the session', error);
+                            await this._removeSession();
                         }
                     }
                 }
-                else {
-                    if (this.persistSession) {
-                        yield this._saveSession(currentSession);
-                    }
-                    yield this._notifyAllSubscribers('SIGNED_IN', currentSession);
-                }
             }
-            catch (err) {
-                console.error(err);
-                return;
+            else {
+                // no need to persist currentSession again, as we just loaded it from
+                // local storage; persisting it again may overwrite a value saved by
+                // another client with access to the same local storage
+                await this._notifyAllSubscribers('SIGNED_IN', currentSession);
             }
-        });
+        }
+        catch (err) {
+            this._debug(debugName, 'error', err);
+            console.error(err);
+            return;
+        }
+        finally {
+            this._debug(debugName, 'end');
+        }
     }
-    _callRefreshToken(refreshToken) {
+    async _callRefreshToken(refreshToken) {
         var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            // refreshing is already in progress
-            if (this.refreshingDeferred) {
-                return this.refreshingDeferred.promise;
-            }
-            try {
-                this.refreshingDeferred = new helpers_1.Deferred();
-                if (!refreshToken) {
-                    throw new errors_1.AuthSessionMissingError();
-                }
-                const { data, error } = yield this._refreshAccessToken(refreshToken);
-                if (error)
-                    throw error;
-                if (!data.session)
-                    throw new errors_1.AuthSessionMissingError();
-                yield this._saveSession(data.session);
-                yield this._notifyAllSubscribers('TOKEN_REFRESHED', data.session);
-                const result = { session: data.session, error: null };
-                this.refreshingDeferred.resolve(result);
+        if (!refreshToken) {
+            throw new errors_1.AuthSessionMissingError();
+        }
+        // refreshing is already in progress
+        if (this.refreshingDeferred) {
+            return this.refreshingDeferred.promise;
+        }
+        const debugName = `#_callRefreshToken(${refreshToken.substring(0, 5)}...)`;
+        this._debug(debugName, 'begin');
+        try {
+            this.refreshingDeferred = new helpers_1.Deferred();
+            const { data, error } = await this._refreshAccessToken(refreshToken);
+            if (error)
+                throw error;
+            if (!data.session)
+                throw new errors_1.AuthSessionMissingError();
+            await this._saveSession(data.session);
+            await this._notifyAllSubscribers('TOKEN_REFRESHED', data.session);
+            const result = { session: data.session, error: null };
+            this.refreshingDeferred.resolve(result);
+            return result;
+        }
+        catch (error) {
+            this._debug(debugName, 'error', error);
+            if ((0, errors_1.isAuthError)(error)) {
+                const result = { session: null, error };
+                (_a = this.refreshingDeferred) === null || _a === void 0 ? void 0 : _a.resolve(result);
                 return result;
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    const result = { session: null, error };
-                    (_a = this.refreshingDeferred) === null || _a === void 0 ? void 0 : _a.resolve(result);
-                    return result;
-                }
-                (_b = this.refreshingDeferred) === null || _b === void 0 ? void 0 : _b.reject(error);
-                throw error;
-            }
-            finally {
-                this.refreshingDeferred = null;
-            }
-        });
+            (_b = this.refreshingDeferred) === null || _b === void 0 ? void 0 : _b.reject(error);
+            throw error;
+        }
+        finally {
+            this.refreshingDeferred = null;
+            this._debug(debugName, 'end');
+        }
     }
-    _notifyAllSubscribers(event, session, broadcast = true) {
-        return __awaiter(this, void 0, void 0, function* () {
+    async _notifyAllSubscribers(event, session, broadcast = true) {
+        const debugName = `#_notifyAllSubscribers(${event})`;
+        this._debug(debugName, 'begin', session, `broadcast = ${broadcast}`);
+        try {
             if (this.broadcastChannel && broadcast) {
                 this.broadcastChannel.postMessage({ event, session });
             }
             const errors = [];
-            const promises = Array.from(this.stateChangeEmitters.values()).map((x) => __awaiter(this, void 0, void 0, function* () {
+            const promises = Array.from(this.stateChangeEmitters.values()).map(async (x) => {
                 try {
-                    yield x.callback(event, session);
+                    await x.callback(event, session);
                 }
                 catch (e) {
                     errors.push(e);
                 }
-            }));
-            yield Promise.all(promises);
+            });
+            await Promise.all(promises);
             if (errors.length > 0) {
                 for (let i = 0; i < errors.length; i += 1) {
                     console.error(errors[i]);
                 }
                 throw errors[0];
             }
-        });
+        }
+        finally {
+            this._debug(debugName, 'end');
+        }
     }
     /**
      * set currentSession and currentUser
      * process to _startAutoRefreshToken if possible
      */
-    _saveSession(session) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.persistSession) {
-                this.inMemorySession = session;
-            }
-            if (this.persistSession && session.expires_at) {
-                yield this._persistSession(session);
-            }
-        });
+    async _saveSession(session) {
+        this._debug('#_saveSession()', session);
+        if (!this.persistSession) {
+            this.inMemorySession = session;
+        }
+        if (this.persistSession && session.expires_at) {
+            await this._persistSession(session);
+        }
     }
     _persistSession(currentSession) {
+        this._debug('#_persistSession()', currentSession);
         return (0, helpers_1.setItemAsync)(this.storage, this.storageKey, currentSession);
     }
-    _removeSession() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.persistSession) {
-                yield (0, helpers_1.removeItemAsync)(this.storage, this.storageKey);
-            }
-            else {
-                this.inMemorySession = null;
-            }
-        });
+    async _removeSession() {
+        this._debug('#_removeSession()');
+        if (this.persistSession) {
+            await (0, helpers_1.removeItemAsync)(this.storage, this.storageKey);
+        }
+        else {
+            this.inMemorySession = null;
+        }
     }
     /**
      * Removes any registered visibilitychange callback.
@@ -16017,6 +18026,7 @@ class GoTrueClient {
      * {@see #stopAutoRefresh}
      */
     _removeVisibilityChangedCallback() {
+        this._debug('#_removeVisibilityChangedCallback()');
         const callback = this.visibilityChangedCallback;
         this.visibilityChangedCallback = null;
         try {
@@ -16032,43 +18042,46 @@ class GoTrueClient {
      * This is the private implementation of {@link #startAutoRefresh}. Use this
      * within the library.
      */
-    _startAutoRefresh() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this._stopAutoRefresh();
-            const ticker = setInterval(() => this._autoRefreshTokenTick(), AUTO_REFRESH_TICK_DURATION);
-            this.autoRefreshTicker = ticker;
-            if (ticker && typeof ticker === 'object' && typeof ticker.unref === 'function') {
-                // ticker is a NodeJS Timeout object that has an `unref` method
-                // https://nodejs.org/api/timers.html#timeoutunref
-                // When auto refresh is used in NodeJS (like for testing) the
-                // `setInterval` is preventing the process from being marked as
-                // finished and tests run endlessly. This can be prevented by calling
-                // `unref()` on the returned object.
-                ticker.unref();
-                // @ts-ignore
-            }
-            else if (typeof Deno !== 'undefined' && typeof Deno.unrefTimer === 'function') {
-                // similar like for NodeJS, but with the Deno API
-                // https://deno.land/api@latest?unstable&s=Deno.unrefTimer
-                // @ts-ignore
-                Deno.unrefTimer(ticker);
-            }
-            // run the tick immediately
-            yield this._autoRefreshTokenTick();
-        });
+    async _startAutoRefresh() {
+        await this._stopAutoRefresh();
+        this._debug('#_startAutoRefresh()');
+        const ticker = setInterval(() => this._autoRefreshTokenTick(), AUTO_REFRESH_TICK_DURATION);
+        this.autoRefreshTicker = ticker;
+        if (ticker && typeof ticker === 'object' && typeof ticker.unref === 'function') {
+            // ticker is a NodeJS Timeout object that has an `unref` method
+            // https://nodejs.org/api/timers.html#timeoutunref
+            // When auto refresh is used in NodeJS (like for testing) the
+            // `setInterval` is preventing the process from being marked as
+            // finished and tests run endlessly. This can be prevented by calling
+            // `unref()` on the returned object.
+            ticker.unref();
+            // @ts-ignore
+        }
+        else if (typeof Deno !== 'undefined' && typeof Deno.unrefTimer === 'function') {
+            // similar like for NodeJS, but with the Deno API
+            // https://deno.land/api@latest?unstable&s=Deno.unrefTimer
+            // @ts-ignore
+            Deno.unrefTimer(ticker);
+        }
+        // run the tick immediately, but in the next pass of the event loop so that
+        // #_initialize can be allowed to complete without recursively waiting on
+        // itself
+        setTimeout(async () => {
+            await this.initializePromise;
+            await this._autoRefreshTokenTick();
+        }, 0);
     }
     /**
      * This is the private implementation of {@link #stopAutoRefresh}. Use this
      * within the library.
      */
-    _stopAutoRefresh() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const ticker = this.autoRefreshTicker;
-            this.autoRefreshTicker = null;
-            if (ticker) {
-                clearInterval(ticker);
-            }
-        });
+    async _stopAutoRefresh() {
+        this._debug('#_stopAutoRefresh()');
+        const ticker = this.autoRefreshTicker;
+        this.autoRefreshTicker = null;
+        if (ticker) {
+            clearInterval(ticker);
+        }
     }
     /**
      * Starts an auto-refresh process in the background. The session is checked
@@ -16092,11 +18105,9 @@ class GoTrueClient {
      *
      * {@see #stopAutoRefresh}
      */
-    startAutoRefresh() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this._removeVisibilityChangedCallback();
-            yield this._startAutoRefresh();
-        });
+    async startAutoRefresh() {
+        this._removeVisibilityChangedCallback();
+        await this._startAutoRefresh();
     }
     /**
      * Stops an active auto refresh process running in the background (if any).
@@ -16106,83 +18117,104 @@ class GoTrueClient {
      *
      * See {@link #startAutoRefresh} for more details.
      */
-    stopAutoRefresh() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this._removeVisibilityChangedCallback();
-            yield this._stopAutoRefresh();
-        });
+    async stopAutoRefresh() {
+        this._removeVisibilityChangedCallback();
+        await this._stopAutoRefresh();
     }
     /**
      * Runs the auto refresh token tick.
      */
-    _autoRefreshTokenTick() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const now = Date.now();
-            try {
-                const { data: { session }, } = yield this.getSession();
-                if (!session || !session.refresh_token || !session.expires_at) {
-                    return;
+    async _autoRefreshTokenTick() {
+        this._debug('#_autoRefreshTokenTick()', 'begin');
+        try {
+            await this._acquireLock(0, async () => {
+                try {
+                    const now = Date.now();
+                    try {
+                        return await this._useSession(async (result) => {
+                            const { data: { session }, } = result;
+                            if (!session || !session.refresh_token || !session.expires_at) {
+                                this._debug('#_autoRefreshTokenTick()', 'no session');
+                                return;
+                            }
+                            // session will expire in this many ticks (or has already expired if <= 0)
+                            const expiresInTicks = Math.floor((session.expires_at * 1000 - now) / AUTO_REFRESH_TICK_DURATION);
+                            this._debug('#_autoRefreshTokenTick()', `access token expires in ${expiresInTicks} ticks, a tick lasts ${AUTO_REFRESH_TICK_DURATION}ms, refresh threshold is ${AUTO_REFRESH_TICK_THRESHOLD} ticks`);
+                            if (expiresInTicks <= AUTO_REFRESH_TICK_THRESHOLD) {
+                                await this._callRefreshToken(session.refresh_token);
+                            }
+                        });
+                    }
+                    catch (e) {
+                        console.error('Auto refresh tick failed with error. This is likely a transient error.', e);
+                    }
                 }
-                // session will expire in this many ticks (or has already expired if <= 0)
-                const expiresInTicks = Math.floor((session.expires_at * 1000 - now) / AUTO_REFRESH_TICK_DURATION);
-                if (expiresInTicks < AUTO_REFRESH_TICK_THRESHOLD) {
-                    yield this._callRefreshToken(session.refresh_token);
+                finally {
+                    this._debug('#_autoRefreshTokenTick()', 'end');
                 }
+            });
+        }
+        catch (e) {
+            if (e.isAcquireTimeout) {
+                this._debug('auto refresh token tick lock not available');
             }
-            catch (e) {
-                console.error('Auto refresh tick failed with error. This is likely a transient error.', e);
+            else {
+                throw e;
             }
-        });
+        }
     }
     /**
      * Registers callbacks on the browser / platform, which in-turn run
      * algorithms when the browser window/tab are in foreground. On non-browser
      * platforms it assumes always foreground.
      */
-    _handleVisibilityChange() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!(0, helpers_1.isBrowser)() || !(window === null || window === void 0 ? void 0 : window.addEventListener)) {
-                if (this.autoRefreshToken) {
-                    // in non-browser environments the refresh token ticker runs always
-                    this.startAutoRefresh();
-                }
-                return false;
+    async _handleVisibilityChange() {
+        this._debug('#_handleVisibilityChange()');
+        if (!(0, helpers_1.isBrowser)() || !(window === null || window === void 0 ? void 0 : window.addEventListener)) {
+            if (this.autoRefreshToken) {
+                // in non-browser environments the refresh token ticker runs always
+                this.startAutoRefresh();
             }
-            try {
-                this.visibilityChangedCallback = () => __awaiter(this, void 0, void 0, function* () { return yield this._onVisibilityChanged(false); });
-                window === null || window === void 0 ? void 0 : window.addEventListener('visibilitychange', this.visibilityChangedCallback);
-                // now immediately call the visbility changed callback to setup with the
-                // current visbility state
-                yield this._onVisibilityChanged(true); // initial call
-            }
-            catch (error) {
-                console.error('_handleVisibilityChange', error);
-            }
-        });
+            return false;
+        }
+        try {
+            this.visibilityChangedCallback = async () => await this._onVisibilityChanged(false);
+            window === null || window === void 0 ? void 0 : window.addEventListener('visibilitychange', this.visibilityChangedCallback);
+            // now immediately call the visbility changed callback to setup with the
+            // current visbility state
+            await this._onVisibilityChanged(true); // initial call
+        }
+        catch (error) {
+            console.error('_handleVisibilityChange', error);
+        }
     }
     /**
      * Callback registered with `window.addEventListener('visibilitychange')`.
      */
-    _onVisibilityChanged(isInitial) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (document.visibilityState === 'visible') {
+    async _onVisibilityChanged(isInitial) {
+        this._debug(`#_onVisibilityChanged(${isInitial})`, 'visibilityState', document.visibilityState);
+        if (document.visibilityState === 'visible') {
+            // to avoid recursively depending on #_initialize(), run the visibility
+            // changed callback in the next event loop tick
+            setTimeout(async () => {
                 if (!isInitial) {
                     // initial visibility change setup is handled in another flow under #initialize()
-                    yield this.initializePromise;
-                    yield this._recoverAndRefresh();
+                    await this.initializePromise;
+                    await this._recoverAndRefresh();
+                    this._debug('#_onVisibilityChanged()', 'finished waiting for initialize, _recoverAndRefresh');
                 }
                 if (this.autoRefreshToken) {
                     // in browser environments the refresh token ticker runs only on focused tabs
                     // which prevents race conditions
                     this._startAutoRefresh();
                 }
+            }, 0);
+        }
+        else if (document.visibilityState === 'hidden') {
+            if (this.autoRefreshToken) {
+                this._stopAutoRefresh();
             }
-            else if (document.visibilityState === 'hidden') {
-                if (this.autoRefreshToken) {
-                    this._stopAutoRefresh();
-                }
-            }
-        });
+        }
     }
     /**
      * Generates the relevant login URL for a third-party provider.
@@ -16190,66 +18222,65 @@ class GoTrueClient {
      * @param options.scopes A space-separated list of scopes granted to the OAuth application.
      * @param options.queryParams An object of key-value pairs containing query parameters granted to the OAuth application.
      */
-    _getUrlForProvider(provider, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const urlParams = [`provider=${encodeURIComponent(provider)}`];
-            if (options === null || options === void 0 ? void 0 : options.redirectTo) {
-                urlParams.push(`redirect_to=${encodeURIComponent(options.redirectTo)}`);
-            }
-            if (options === null || options === void 0 ? void 0 : options.scopes) {
-                urlParams.push(`scopes=${encodeURIComponent(options.scopes)}`);
-            }
-            if (this.flowType === 'pkce') {
-                const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
-                yield (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
-                const codeChallenge = yield (0, helpers_1.generatePKCEChallenge)(codeVerifier);
-                const codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
-                const flowParams = new URLSearchParams({
-                    code_challenge: `${encodeURIComponent(codeChallenge)}`,
-                    code_challenge_method: `${encodeURIComponent(codeChallengeMethod)}`,
-                });
-                urlParams.push(flowParams.toString());
-            }
-            if (options === null || options === void 0 ? void 0 : options.queryParams) {
-                const query = new URLSearchParams(options.queryParams);
-                urlParams.push(query.toString());
-            }
-            return `${this.url}/authorize?${urlParams.join('&')}`;
-        });
+    async _getUrlForProvider(provider, options) {
+        const urlParams = [`provider=${encodeURIComponent(provider)}`];
+        if (options === null || options === void 0 ? void 0 : options.redirectTo) {
+            urlParams.push(`redirect_to=${encodeURIComponent(options.redirectTo)}`);
+        }
+        if (options === null || options === void 0 ? void 0 : options.scopes) {
+            urlParams.push(`scopes=${encodeURIComponent(options.scopes)}`);
+        }
+        if (this.flowType === 'pkce') {
+            const codeVerifier = (0, helpers_1.generatePKCEVerifier)();
+            await (0, helpers_1.setItemAsync)(this.storage, `${this.storageKey}-code-verifier`, codeVerifier);
+            const codeChallenge = await (0, helpers_1.generatePKCEChallenge)(codeVerifier);
+            const codeChallengeMethod = codeVerifier === codeChallenge ? 'plain' : 's256';
+            this._debug('PKCE', 'code verifier', `${codeVerifier.substring(0, 5)}...`, 'code challenge', codeChallenge, 'method', codeChallengeMethod);
+            const flowParams = new URLSearchParams({
+                code_challenge: `${encodeURIComponent(codeChallenge)}`,
+                code_challenge_method: `${encodeURIComponent(codeChallengeMethod)}`,
+            });
+            urlParams.push(flowParams.toString());
+        }
+        if (options === null || options === void 0 ? void 0 : options.queryParams) {
+            const query = new URLSearchParams(options.queryParams);
+            urlParams.push(query.toString());
+        }
+        return `${this.url}/authorize?${urlParams.join('&')}`;
     }
-    _unenroll(params) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { data: sessionData, error: sessionError } = yield this.getSession();
+    async _unenroll(params) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a;
+                const { data: sessionData, error: sessionError } = result;
                 if (sessionError) {
                     return { data: null, error: sessionError };
                 }
-                return yield (0, fetch_1._request)(this.fetch, 'DELETE', `${this.url}/factors/${params.factorId}`, {
+                return await (0, fetch_1._request)(this.fetch, 'DELETE', `${this.url}/factors/${params.factorId}`, {
                     headers: this.headers,
                     jwt: (_a = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a === void 0 ? void 0 : _a.access_token,
                 });
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * {@see GoTrueMFAApi#enroll}
      */
-    _enroll(params) {
-        var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { data: sessionData, error: sessionError } = yield this.getSession();
+    async _enroll(params) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a, _b;
+                const { data: sessionData, error: sessionError } = result;
                 if (sessionError) {
                     return { data: null, error: sessionError };
                 }
-                const { data, error } = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/factors`, {
+                const { data, error } = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/factors`, {
                     body: {
                         friendly_name: params.friendlyName,
                         factor_type: params.factorType,
@@ -16265,27 +18296,27 @@ class GoTrueClient {
                     data.totp.qr_code = `data:image/svg+xml;utf-8,${data.totp.qr_code}`;
                 }
                 return { data, error: null };
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * {@see GoTrueMFAApi#verify}
      */
-    _verify(params) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { data: sessionData, error: sessionError } = yield this.getSession();
+    async _verify(params) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a;
+                const { data: sessionData, error: sessionError } = result;
                 if (sessionError) {
                     return { data: null, error: sessionError };
                 }
-                const { data, error } = yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/factors/${params.factorId}/verify`, {
+                const { data, error } = await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/factors/${params.factorId}/verify`, {
                     body: { code: params.code, challenge_id: params.challengeId },
                     headers: this.headers,
                     jwt: (_a = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a === void 0 ? void 0 : _a.access_token,
@@ -16293,87 +18324,83 @@ class GoTrueClient {
                 if (error) {
                     return { data: null, error };
                 }
-                yield this._saveSession(Object.assign({ expires_at: Math.round(Date.now() / 1000) + data.expires_in }, data));
-                yield this._notifyAllSubscribers('MFA_CHALLENGE_VERIFIED', data);
+                await this._saveSession(Object.assign({ expires_at: Math.round(Date.now() / 1000) + data.expires_in }, data));
+                await this._notifyAllSubscribers('MFA_CHALLENGE_VERIFIED', data);
                 return { data, error };
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * {@see GoTrueMFAApi#challenge}
      */
-    _challenge(params) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { data: sessionData, error: sessionError } = yield this.getSession();
+    async _challenge(params) {
+        try {
+            return await this._useSession(async (result) => {
+                var _a;
+                const { data: sessionData, error: sessionError } = result;
                 if (sessionError) {
                     return { data: null, error: sessionError };
                 }
-                return yield (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/factors/${params.factorId}/challenge`, {
+                return await (0, fetch_1._request)(this.fetch, 'POST', `${this.url}/factors/${params.factorId}/challenge`, {
                     headers: this.headers,
                     jwt: (_a = sessionData === null || sessionData === void 0 ? void 0 : sessionData.session) === null || _a === void 0 ? void 0 : _a.access_token,
                 });
+            });
+        }
+        catch (error) {
+            if ((0, errors_1.isAuthError)(error)) {
+                return { data: null, error };
             }
-            catch (error) {
-                if ((0, errors_1.isAuthError)(error)) {
-                    return { data: null, error };
-                }
-                throw error;
-            }
-        });
+            throw error;
+        }
     }
     /**
      * {@see GoTrueMFAApi#challengeAndVerify}
      */
-    _challengeAndVerify(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { data: challengeData, error: challengeError } = yield this._challenge({
-                factorId: params.factorId,
-            });
-            if (challengeError) {
-                return { data: null, error: challengeError };
-            }
-            return yield this._verify({
-                factorId: params.factorId,
-                challengeId: challengeData.id,
-                code: params.code,
-            });
+    async _challengeAndVerify(params) {
+        const { data: challengeData, error: challengeError } = await this._challenge({
+            factorId: params.factorId,
+        });
+        if (challengeError) {
+            return { data: null, error: challengeError };
+        }
+        return await this._verify({
+            factorId: params.factorId,
+            challengeId: challengeData.id,
+            code: params.code,
         });
     }
     /**
      * {@see GoTrueMFAApi#listFactors}
      */
-    _listFactors() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { data: { user }, error: userError, } = yield this.getUser();
-            if (userError) {
-                return { data: null, error: userError };
-            }
-            const factors = (user === null || user === void 0 ? void 0 : user.factors) || [];
-            const totp = factors.filter((factor) => factor.factor_type === 'totp' && factor.status === 'verified');
-            return {
-                data: {
-                    all: factors,
-                    totp,
-                },
-                error: null,
-            };
-        });
+    async _listFactors() {
+        const { data: { user }, error: userError, } = await this._getUser();
+        if (userError) {
+            return { data: null, error: userError };
+        }
+        const factors = (user === null || user === void 0 ? void 0 : user.factors) || [];
+        const totp = factors.filter((factor) => factor.factor_type === 'totp' && factor.status === 'verified');
+        return {
+            data: {
+                all: factors,
+                totp,
+            },
+            error: null,
+        };
     }
     /**
      * {@see GoTrueMFAApi#getAuthenticatorAssuranceLevel}
      */
-    _getAuthenticatorAssuranceLevel() {
-        var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            const { data: { session }, error: sessionError, } = yield this.getSession();
+    async _getAuthenticatorAssuranceLevel() {
+        return await this._useSession(async (result) => {
+            var _a, _b;
+            const { data: { session }, error: sessionError, } = result;
             if (sessionError) {
                 return { data: null, error: sessionError };
             }
@@ -16399,8 +18426,9 @@ class GoTrueClient {
     }
 }
 exports.default = GoTrueClient;
+GoTrueClient.nextInstanceID = 0;
 
-},{"./GoTrueAdminApi":54,"./lib/constants":57,"./lib/errors":58,"./lib/fetch":59,"./lib/helpers":60,"./lib/local-storage":61,"./lib/polyfills":62}],56:[function(require,module,exports){
+},{"./GoTrueAdminApi":57,"./lib/constants":60,"./lib/errors":61,"./lib/fetch":62,"./lib/helpers":63,"./lib/local-storage":64,"./lib/polyfills":66,"./lib/version":68}],59:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -16420,15 +18448,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GoTrueClient = exports.GoTrueAdminApi = void 0;
+exports.lockInternals = exports.NavigatorLockAcquireTimeoutError = exports.navigatorLock = exports.GoTrueClient = exports.GoTrueAdminApi = void 0;
 const GoTrueAdminApi_1 = __importDefault(require("./GoTrueAdminApi"));
 exports.GoTrueAdminApi = GoTrueAdminApi_1.default;
 const GoTrueClient_1 = __importDefault(require("./GoTrueClient"));
 exports.GoTrueClient = GoTrueClient_1.default;
 __exportStar(require("./lib/types"), exports);
 __exportStar(require("./lib/errors"), exports);
+var locks_1 = require("./lib/locks");
+Object.defineProperty(exports, "navigatorLock", { enumerable: true, get: function () { return locks_1.navigatorLock; } });
+Object.defineProperty(exports, "NavigatorLockAcquireTimeoutError", { enumerable: true, get: function () { return locks_1.NavigatorLockAcquireTimeoutError; } });
+Object.defineProperty(exports, "lockInternals", { enumerable: true, get: function () { return locks_1.internals; } });
 
-},{"./GoTrueAdminApi":54,"./GoTrueClient":55,"./lib/errors":58,"./lib/types":63}],57:[function(require,module,exports){
+},{"./GoTrueAdminApi":57,"./GoTrueClient":58,"./lib/errors":61,"./lib/locks":65,"./lib/types":67}],60:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NETWORK_FAILURE = exports.EXPIRY_MARGIN = exports.DEFAULT_HEADERS = exports.AUDIENCE = exports.STORAGE_KEY = exports.GOTRUE_URL = void 0;
@@ -16443,10 +18475,10 @@ exports.NETWORK_FAILURE = {
     RETRY_INTERVAL: 2, // in deciseconds
 };
 
-},{"./version":64}],58:[function(require,module,exports){
+},{"./version":68}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthRetryableFetchError = exports.AuthPKCEGrantCodeExchangeError = exports.AuthImplicitGrantRedirectError = exports.AuthInvalidCredentialsError = exports.AuthInvalidTokenResponseError = exports.AuthSessionMissingError = exports.CustomAuthError = exports.AuthUnknownError = exports.isAuthApiError = exports.AuthApiError = exports.isAuthError = exports.AuthError = void 0;
+exports.isAuthRetryableFetchError = exports.AuthRetryableFetchError = exports.AuthPKCEGrantCodeExchangeError = exports.AuthImplicitGrantRedirectError = exports.AuthInvalidCredentialsError = exports.AuthInvalidTokenResponseError = exports.AuthSessionMissingError = exports.CustomAuthError = exports.AuthUnknownError = exports.isAuthApiError = exports.AuthApiError = exports.isAuthError = exports.AuthError = void 0;
 class AuthError extends Error {
     constructor(message, status) {
         super(message);
@@ -16558,18 +18590,13 @@ class AuthRetryableFetchError extends CustomAuthError {
     }
 }
 exports.AuthRetryableFetchError = AuthRetryableFetchError;
+function isAuthRetryableFetchError(error) {
+    return isAuthError(error) && error.name === 'AuthRetryableFetchError';
+}
+exports.isAuthRetryableFetchError = isAuthRetryableFetchError;
 
-},{}],59:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -16586,28 +18613,24 @@ exports._noResolveJsonResponse = exports._generateLinkResponse = exports._ssoRes
 const helpers_1 = require("./helpers");
 const errors_1 = require("./errors");
 const _getErrorMessage = (err) => err.msg || err.message || err.error_description || err.error || JSON.stringify(err);
-const handleError = (error, reject) => __awaiter(void 0, void 0, void 0, function* () {
-    const NETWORK_ERROR_CODES = [502, 503, 504];
+const NETWORK_ERROR_CODES = [502, 503, 504];
+async function handleError(error) {
     if (!(0, helpers_1.looksLikeFetchResponse)(error)) {
-        reject(new errors_1.AuthRetryableFetchError(_getErrorMessage(error), 0));
+        throw new errors_1.AuthRetryableFetchError(_getErrorMessage(error), 0);
     }
-    else if (NETWORK_ERROR_CODES.includes(error.status)) {
+    if (NETWORK_ERROR_CODES.includes(error.status)) {
         // status in 500...599 range - server had an error, request might be retryed.
-        reject(new errors_1.AuthRetryableFetchError(_getErrorMessage(error), error.status));
+        throw new errors_1.AuthRetryableFetchError(_getErrorMessage(error), error.status);
     }
-    else {
-        // got a response from server that is not in the 500...599 range - should not retry
-        error
-            .json()
-            .then((err) => {
-            reject(new errors_1.AuthApiError(_getErrorMessage(err), error.status || 500));
-        })
-            .catch((e) => {
-            // not a valid json response
-            reject(new errors_1.AuthUnknownError(_getErrorMessage(e), e));
-        });
+    let data;
+    try {
+        data = await error.json();
     }
-});
+    catch (e) {
+        throw new errors_1.AuthUnknownError(_getErrorMessage(e), e);
+    }
+    throw new errors_1.AuthApiError(_getErrorMessage(data), error.status || 500);
+}
 const _getRequestParams = (method, options, parameters, body) => {
     const params = { method, headers: (options === null || options === void 0 ? void 0 : options.headers) || {} };
     if (method === 'GET') {
@@ -16617,38 +18640,44 @@ const _getRequestParams = (method, options, parameters, body) => {
     params.body = JSON.stringify(body);
     return Object.assign(Object.assign({}, params), parameters);
 };
-function _request(fetcher, method, url, options) {
+async function _request(fetcher, method, url, options) {
     var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const headers = Object.assign({}, options === null || options === void 0 ? void 0 : options.headers);
-        if (options === null || options === void 0 ? void 0 : options.jwt) {
-            headers['Authorization'] = `Bearer ${options.jwt}`;
-        }
-        const qs = (_a = options === null || options === void 0 ? void 0 : options.query) !== null && _a !== void 0 ? _a : {};
-        if (options === null || options === void 0 ? void 0 : options.redirectTo) {
-            qs['redirect_to'] = options.redirectTo;
-        }
-        const queryString = Object.keys(qs).length ? '?' + new URLSearchParams(qs).toString() : '';
-        const data = yield _handleRequest(fetcher, method, url + queryString, { headers, noResolveJson: options === null || options === void 0 ? void 0 : options.noResolveJson }, {}, options === null || options === void 0 ? void 0 : options.body);
-        return (options === null || options === void 0 ? void 0 : options.xform) ? options === null || options === void 0 ? void 0 : options.xform(data) : { data: Object.assign({}, data), error: null };
-    });
+    const headers = Object.assign({}, options === null || options === void 0 ? void 0 : options.headers);
+    if (options === null || options === void 0 ? void 0 : options.jwt) {
+        headers['Authorization'] = `Bearer ${options.jwt}`;
+    }
+    const qs = (_a = options === null || options === void 0 ? void 0 : options.query) !== null && _a !== void 0 ? _a : {};
+    if (options === null || options === void 0 ? void 0 : options.redirectTo) {
+        qs['redirect_to'] = options.redirectTo;
+    }
+    const queryString = Object.keys(qs).length ? '?' + new URLSearchParams(qs).toString() : '';
+    const data = await _handleRequest(fetcher, method, url + queryString, { headers, noResolveJson: options === null || options === void 0 ? void 0 : options.noResolveJson }, {}, options === null || options === void 0 ? void 0 : options.body);
+    return (options === null || options === void 0 ? void 0 : options.xform) ? options === null || options === void 0 ? void 0 : options.xform(data) : { data: Object.assign({}, data), error: null };
 }
 exports._request = _request;
-function _handleRequest(fetcher, method, url, options, parameters, body) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => {
-            fetcher(url, _getRequestParams(method, options, parameters, body))
-                .then((result) => {
-                if (!result.ok)
-                    throw result;
-                if (options === null || options === void 0 ? void 0 : options.noResolveJson)
-                    return result;
-                return result.json();
-            })
-                .then((data) => resolve(data))
-                .catch((error) => handleError(error, reject));
-        });
-    });
+async function _handleRequest(fetcher, method, url, options, parameters, body) {
+    const requestParams = _getRequestParams(method, options, parameters, body);
+    let result;
+    try {
+        result = await fetcher(url, requestParams);
+    }
+    catch (e) {
+        console.error(e);
+        // fetch failed, likely due to a network or CORS error
+        throw new errors_1.AuthRetryableFetchError(_getErrorMessage(e), 0);
+    }
+    if (!result.ok) {
+        await handleError(result);
+    }
+    if (options === null || options === void 0 ? void 0 : options.noResolveJson) {
+        return result;
+    }
+    try {
+        return await result.json();
+    }
+    catch (e) {
+        await handleError(e);
+    }
 }
 function _sessionResponse(data) {
     var _a;
@@ -16703,7 +18732,7 @@ function hasSession(data) {
     return data.access_token && data.refresh_token && data.expires_in;
 }
 
-},{"./errors":58,"./helpers":60}],60:[function(require,module,exports){
+},{"./errors":61,"./helpers":63}],63:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -16728,17 +18757,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generatePKCEChallenge = exports.generatePKCEVerifier = exports.retryable = exports.sleep = exports.decodeJWTPayload = exports.Deferred = exports.decodeBase64URL = exports.removeItemAsync = exports.getItemAsync = exports.setItemAsync = exports.looksLikeFetchResponse = exports.resolveFetch = exports.getParameterByName = exports.supportsLocalStorage = exports.isBrowser = exports.uuid = exports.expiresAt = void 0;
+exports.generatePKCEChallenge = exports.generatePKCEVerifier = exports.retryable = exports.sleep = exports.decodeJWTPayload = exports.Deferred = exports.decodeBase64URL = exports.removeItemAsync = exports.getItemAsync = exports.setItemAsync = exports.looksLikeFetchResponse = exports.resolveFetch = exports.parseParametersFromURL = exports.supportsLocalStorage = exports.isBrowser = exports.uuid = exports.expiresAt = void 0;
 function expiresAt(expiresIn) {
     const timeNow = Math.round(Date.now() / 1000);
     return timeNow + expiresIn;
@@ -16792,27 +18812,37 @@ const supportsLocalStorage = () => {
     return localStorageWriteTests.writable;
 };
 exports.supportsLocalStorage = supportsLocalStorage;
-function getParameterByName(name, url) {
-    var _a;
-    if (!url)
-        url = ((_a = window === null || window === void 0 ? void 0 : window.location) === null || _a === void 0 ? void 0 : _a.href) || '';
-    // eslint-disable-next-line no-useless-escape
-    name = name.replace(/[\[\]]/g, '\\$&');
-    const regex = new RegExp('[?&#]' + name + '(=([^&#]*)|&|#|$)'), results = regex.exec(url);
-    if (!results)
-        return null;
-    if (!results[2])
-        return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+/**
+ * Extracts parameters encoded in the URL both in the query and fragment.
+ */
+function parseParametersFromURL(href) {
+    const result = {};
+    const url = new URL(href);
+    if (url.hash && url.hash[0] === '#') {
+        try {
+            const hashSearchParams = new URLSearchParams(url.hash.substring(1));
+            hashSearchParams.forEach((value, key) => {
+                result[key] = value;
+            });
+        }
+        catch (e) {
+            // hash is not a query string
+        }
+    }
+    // search parameters take precedence over hash parameters
+    url.searchParams.forEach((value, key) => {
+        result[key] = value;
+    });
+    return result;
 }
-exports.getParameterByName = getParameterByName;
+exports.parseParametersFromURL = parseParametersFromURL;
 const resolveFetch = (customFetch) => {
     let _fetch;
     if (customFetch) {
         _fetch = customFetch;
     }
     else if (typeof fetch === 'undefined') {
-        _fetch = (...args) => __awaiter(void 0, void 0, void 0, function* () { return yield (yield Promise.resolve().then(() => __importStar(require('cross-fetch')))).fetch(...args); });
+        _fetch = async (...args) => await (await Promise.resolve().then(() => __importStar(require('cross-fetch')))).fetch(...args);
     }
     else {
         _fetch = fetch;
@@ -16830,12 +18860,12 @@ const looksLikeFetchResponse = (maybeResponse) => {
 };
 exports.looksLikeFetchResponse = looksLikeFetchResponse;
 // Storage helpers
-const setItemAsync = (storage, key, data) => __awaiter(void 0, void 0, void 0, function* () {
-    yield storage.setItem(key, JSON.stringify(data));
-});
+const setItemAsync = async (storage, key, data) => {
+    await storage.setItem(key, JSON.stringify(data));
+};
 exports.setItemAsync = setItemAsync;
-const getItemAsync = (storage, key) => __awaiter(void 0, void 0, void 0, function* () {
-    const value = yield storage.getItem(key);
+const getItemAsync = async (storage, key) => {
+    const value = await storage.getItem(key);
     if (!value) {
         return null;
     }
@@ -16845,11 +18875,11 @@ const getItemAsync = (storage, key) => __awaiter(void 0, void 0, void 0, functio
     catch (_a) {
         return value;
     }
-});
+};
 exports.getItemAsync = getItemAsync;
-const removeItemAsync = (storage, key) => __awaiter(void 0, void 0, void 0, function* () {
-    yield storage.removeItem(key);
-});
+const removeItemAsync = async (storage, key) => {
+    await storage.removeItem(key);
+};
 exports.removeItemAsync = removeItemAsync;
 function decodeBase64URL(value) {
     const key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -16914,8 +18944,8 @@ exports.decodeJWTPayload = decodeJWTPayload;
 /**
  * Creates a promise that resolves to null after some time.
  */
-function sleep(time) {
-    return new Promise((accept) => {
+async function sleep(time) {
+    return await new Promise((accept) => {
         setTimeout(() => accept(null), time);
     });
 }
@@ -16929,10 +18959,10 @@ function retryable(fn, isRetryable) {
     const promise = new Promise((accept, reject) => {
         // eslint-disable-next-line @typescript-eslint/no-extra-semi
         ;
-        (() => __awaiter(this, void 0, void 0, function* () {
+        (async () => {
             for (let attempt = 0; attempt < Infinity; attempt++) {
                 try {
-                    const result = yield fn(attempt);
+                    const result = await fn(attempt);
                     if (!isRetryable(attempt, null, result)) {
                         accept(result);
                         return;
@@ -16945,7 +18975,7 @@ function retryable(fn, isRetryable) {
                     }
                 }
             }
-        }))();
+        })();
     });
     return promise;
 }
@@ -16970,33 +19000,29 @@ function generatePKCEVerifier() {
     return Array.from(array, dec2hex).join('');
 }
 exports.generatePKCEVerifier = generatePKCEVerifier;
-function sha256(randomString) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const encoder = new TextEncoder();
-        const encodedData = encoder.encode(randomString);
-        const hash = yield crypto.subtle.digest('SHA-256', encodedData);
-        const bytes = new Uint8Array(hash);
-        return Array.from(bytes)
-            .map((c) => String.fromCharCode(c))
-            .join('');
-    });
+async function sha256(randomString) {
+    const encoder = new TextEncoder();
+    const encodedData = encoder.encode(randomString);
+    const hash = await crypto.subtle.digest('SHA-256', encodedData);
+    const bytes = new Uint8Array(hash);
+    return Array.from(bytes)
+        .map((c) => String.fromCharCode(c))
+        .join('');
 }
 function base64urlencode(str) {
     return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
-function generatePKCEChallenge(verifier) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (typeof crypto === 'undefined') {
-            console.warn('WebCrypto API is not supported. Code challenge method will default to use plain instead of sha256.');
-            return verifier;
-        }
-        const hashed = yield sha256(verifier);
-        return base64urlencode(hashed);
-    });
+async function generatePKCEChallenge(verifier) {
+    if (typeof crypto === 'undefined') {
+        console.warn('WebCrypto API is not supported. Code challenge method will default to use plain instead of sha256.');
+        return verifier;
+    }
+    const hashed = await sha256(verifier);
+    return base64urlencode(hashed);
 }
 exports.generatePKCEChallenge = generatePKCEChallenge;
 
-},{"cross-fetch":107}],61:[function(require,module,exports){
+},{"cross-fetch":111}],64:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const helpers_1 = require("./helpers");
@@ -17022,7 +19048,103 @@ const localStorageAdapter = {
 };
 exports.default = localStorageAdapter;
 
-},{"./helpers":60}],62:[function(require,module,exports){
+},{"./helpers":63}],65:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.navigatorLock = exports.NavigatorLockAcquireTimeoutError = exports.internals = void 0;
+const helpers_1 = require("./helpers");
+/**
+ * @experimental
+ */
+exports.internals = {
+    /**
+     * @experimental
+     */
+    debug: !!(globalThis &&
+        (0, helpers_1.supportsLocalStorage)() &&
+        globalThis.localStorage &&
+        globalThis.localStorage.getItem('supabase.gotrue-js.locks.debug') === 'true'),
+};
+class NavigatorLockAcquireTimeoutError extends Error {
+    constructor(message) {
+        super(message);
+        this.isAcquireTimeout = true;
+    }
+}
+exports.NavigatorLockAcquireTimeoutError = NavigatorLockAcquireTimeoutError;
+/**
+ * Implements a global exclusive lock using the Navigator LockManager API. It
+ * is available on all browsers released after 2022-03-15 with Safari being the
+ * last one to release support. If the API is not available, this function will
+ * throw. Make sure you check availablility before configuring {@link
+ * GoTrueClient}.
+ *
+ * You can turn on debugging by setting the `supabase.gotrue-js.locks.debug`
+ * local storage item to `true`.
+ *
+ * Internals:
+ *
+ * Since the LockManager API does not preserve stack traces for the async
+ * function passed in the `request` method, a trick is used where acquiring the
+ * lock releases a previously started promise to run the operation in the `fn`
+ * function. The lock waits for that promise to finish (with or without error),
+ * while the function will finally wait for the result anyway.
+ *
+ * @experimental
+ *
+ * @param name Name of the lock to be acquired.
+ * @param acquireTimeout If negative, no timeout. If 0 an error is thrown if
+ *                       the lock can't be acquired without waiting. If positive, the lock acquire
+ *                       will time out after so many milliseconds. An error is
+ *                       a timeout if it has `isAcquireTimeout` set to true.
+ * @param fn The operation to run once the lock is acquired.
+ */
+async function navigatorLock(name, acquireTimeout, fn) {
+    if (exports.internals.debug) {
+        console.log('@supabase/gotrue-js: navigatorLock: acquire lock', name, acquireTimeout);
+    }
+    const abortController = new globalThis.AbortController();
+    if (acquireTimeout > 0) {
+        setTimeout(() => {
+            abortController.abort();
+            if (exports.internals.debug) {
+                console.log('@supabase/gotrue-js: navigatorLock acquire timed out', name);
+            }
+        }, acquireTimeout);
+    }
+    return await globalThis.navigator.locks.request(name, acquireTimeout === 0
+        ? {
+            mode: 'exclusive',
+            ifAvailable: true,
+        }
+        : {
+            mode: 'exclusive',
+            signal: abortController.signal,
+        }, async (lock) => {
+        if (lock) {
+            if (exports.internals.debug) {
+                console.log('@supabase/gotrue-js: navigatorLock: acquired', name);
+            }
+            try {
+                return await fn();
+            }
+            finally {
+                if (exports.internals.debug) {
+                    console.log('@supabase/gotrue-js: navigatorLock: released', name);
+                }
+            }
+        }
+        else {
+            if (exports.internals.debug) {
+                console.log('@supabase/gotrue-js: navigatorLock: not immediately available', name);
+            }
+            throw new NavigatorLockAcquireTimeoutError(`Acquiring an exclusive Navigator LockManager lock "${name}" immediately failed`);
+        }
+    });
+}
+exports.navigatorLock = navigatorLock;
+
+},{"./helpers":63}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.polyfillGlobalThis = void 0;
@@ -17053,18 +19175,18 @@ function polyfillGlobalThis() {
 }
 exports.polyfillGlobalThis = polyfillGlobalThis;
 
-},{}],63:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],64:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.version = void 0;
 // Generated by genversion.
-exports.version = '2.30.0';
+exports.version = '2.47.0';
 
-},{}],65:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -17241,7 +19363,7 @@ class PostgrestBuilder {
 }
 exports.default = PostgrestBuilder;
 
-},{"cross-fetch":107}],66:[function(require,module,exports){
+},{"cross-fetch":111}],70:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -17274,7 +19396,7 @@ class PostgrestClient {
     constructor(url, { headers = {}, schema, fetch, } = {}) {
         this.url = url;
         this.headers = Object.assign(Object.assign({}, constants_1.DEFAULT_HEADERS), headers);
-        this.schema = schema;
+        this.schemaName = schema;
         this.fetch = fetch;
     }
     /**
@@ -17286,7 +19408,21 @@ class PostgrestClient {
         const url = new URL(`${this.url}/${relation}`);
         return new PostgrestQueryBuilder_1.default(url, {
             headers: Object.assign({}, this.headers),
-            schema: this.schema,
+            schema: this.schemaName,
+            fetch: this.fetch,
+        });
+    }
+    /**
+     * Select a schema to query or perform an function (rpc) call.
+     *
+     * The schema needs to be on the list of exposed schemas inside Supabase.
+     *
+     * @param schema - The schema to query
+     */
+    schema(schema) {
+        return new PostgrestClient(this.url, {
+            headers: this.headers,
+            schema,
             fetch: this.fetch,
         });
     }
@@ -17333,7 +19469,7 @@ class PostgrestClient {
             method,
             url,
             headers,
-            schema: this.schema,
+            schema: this.schemaName,
             body,
             fetch: this.fetch,
             allowEmpty: false,
@@ -17342,7 +19478,7 @@ class PostgrestClient {
 }
 exports.default = PostgrestClient;
 
-},{"./PostgrestFilterBuilder":67,"./PostgrestQueryBuilder":68,"./constants":70}],67:[function(require,module,exports){
+},{"./PostgrestFilterBuilder":71,"./PostgrestQueryBuilder":72,"./constants":74}],71:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -17722,7 +19858,7 @@ class PostgrestFilterBuilder extends PostgrestTransformBuilder_1.default {
 }
 exports.default = PostgrestFilterBuilder;
 
-},{"./PostgrestTransformBuilder":69}],68:[function(require,module,exports){
+},{"./PostgrestTransformBuilder":73}],72:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -17809,7 +19945,8 @@ class PostgrestQueryBuilder {
      * numbers.
      *
      * @param options.defaultToNull - Make missing fields default to `null`.
-     * Otherwise, use the default value for the column.
+     * Otherwise, use the default value for the column. Only applies for bulk
+     * inserts.
      */
     insert(values, { count, defaultToNull = true, } = {}) {
         const method = 'POST';
@@ -17877,7 +20014,7 @@ class PostgrestQueryBuilder {
      * @param options.defaultToNull - Make missing fields default to `null`.
      * Otherwise, use the default value for the column. This only applies when
      * inserting new rows, not when merging with existing rows under
-     * `ignoreDuplicates: false`.
+     * `ignoreDuplicates: false`. This also only applies when doing bulk upserts.
      */
     upsert(values, { onConflict, ignoreDuplicates = false, count, defaultToNull = true, } = {}) {
         const method = 'POST';
@@ -17993,7 +20130,7 @@ class PostgrestQueryBuilder {
 }
 exports.default = PostgrestQueryBuilder;
 
-},{"./PostgrestFilterBuilder":67}],69:[function(require,module,exports){
+},{"./PostgrestFilterBuilder":71}],73:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -18068,7 +20205,11 @@ class PostgrestTransformBuilder extends PostgrestBuilder_1.default {
         return this;
     }
     /**
-     * Limit the query result by `from` and `to` inclusively.
+     * Limit the query result by starting at an offset (`from`) and ending at the offset (`from + to`).
+     * Only records within this range are returned.
+     * This respects the query order and if there is no order clause the range could behave unexpectedly.
+     * The `from` and `to` values are 0-based and inclusive: `range(1, 3)` will include the second, third
+     * and fourth rows of the query.
      *
      * @param from - The starting index from which to limit the result
      * @param to - The last index to which to limit the result
@@ -18200,14 +20341,14 @@ class PostgrestTransformBuilder extends PostgrestBuilder_1.default {
 }
 exports.default = PostgrestTransformBuilder;
 
-},{"./PostgrestBuilder":65}],70:[function(require,module,exports){
+},{"./PostgrestBuilder":69}],74:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_HEADERS = void 0;
 const version_1 = require("./version");
 exports.DEFAULT_HEADERS = { 'X-Client-Info': `postgrest-js/${version_1.version}` };
 
-},{"./version":72}],71:[function(require,module,exports){
+},{"./version":76}],75:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -18225,13 +20366,13 @@ Object.defineProperty(exports, "PostgrestTransformBuilder", { enumerable: true, 
 var PostgrestBuilder_1 = require("./PostgrestBuilder");
 Object.defineProperty(exports, "PostgrestBuilder", { enumerable: true, get: function () { return __importDefault(PostgrestBuilder_1).default; } });
 
-},{"./PostgrestBuilder":65,"./PostgrestClient":66,"./PostgrestFilterBuilder":67,"./PostgrestQueryBuilder":68,"./PostgrestTransformBuilder":69}],72:[function(require,module,exports){
+},{"./PostgrestBuilder":69,"./PostgrestClient":70,"./PostgrestFilterBuilder":71,"./PostgrestQueryBuilder":72,"./PostgrestTransformBuilder":73}],76:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.version = void 0;
-exports.version = '1.7.1';
+exports.version = '1.8.0';
 
-},{}],73:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -18713,7 +20854,7 @@ class RealtimeChannel {
 }
 exports.default = RealtimeChannel;
 
-},{"./RealtimePresence":75,"./lib/constants":77,"./lib/push":78,"./lib/timer":80,"./lib/transformers":81}],74:[function(require,module,exports){
+},{"./RealtimePresence":79,"./lib/constants":81,"./lib/push":82,"./lib/timer":84,"./lib/transformers":85}],78:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -18750,7 +20891,7 @@ class RealtimeClient {
      * @param options.reconnectAfterMs he optional function that returns the millsec reconnect interval. Defaults to stepped backoff off.
      */
     constructor(endPoint, options) {
-        var _a;
+        var _a, _b;
         this.accessToken = null;
         this.channels = [];
         this.endPoint = '';
@@ -18790,6 +20931,9 @@ class RealtimeClient {
         const eventsPerSecond = (_a = options === null || options === void 0 ? void 0 : options.params) === null || _a === void 0 ? void 0 : _a.eventsPerSecond;
         if (eventsPerSecond)
             this.eventsPerSecondLimitMs = Math.floor(1000 / eventsPerSecond);
+        const accessToken = (_b = options === null || options === void 0 ? void 0 : options.params) === null || _b === void 0 ? void 0 : _b.apikey;
+        if (accessToken)
+            this.accessToken = accessToken;
         this.reconnectAfterMs = (options === null || options === void 0 ? void 0 : options.reconnectAfterMs)
             ? options.reconnectAfterMs
             : (tries) => {
@@ -19096,7 +21240,7 @@ class RealtimeClient {
 }
 exports.default = RealtimeClient;
 
-},{"./RealtimeChannel":73,"./lib/constants":77,"./lib/serializer":79,"./lib/timer":80,"websocket":148}],75:[function(require,module,exports){
+},{"./RealtimeChannel":77,"./lib/constants":81,"./lib/serializer":83,"./lib/timer":84,"websocket":152}],79:[function(require,module,exports){
 "use strict";
 /*
   This file draws heavily from https://github.com/phoenixframework/phoenix/blob/d344ec0a732ab4ee204215b31de69cf4be72e3bf/assets/js/phoenix/presence.js
@@ -19325,7 +21469,7 @@ class RealtimePresence {
 }
 exports.default = RealtimePresence;
 
-},{}],76:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -19366,7 +21510,7 @@ const RealtimePresence_1 = __importStar(require("./RealtimePresence"));
 exports.RealtimePresence = RealtimePresence_1.default;
 Object.defineProperty(exports, "REALTIME_PRESENCE_LISTEN_EVENTS", { enumerable: true, get: function () { return RealtimePresence_1.REALTIME_PRESENCE_LISTEN_EVENTS; } });
 
-},{"./RealtimeChannel":73,"./RealtimeClient":74,"./RealtimePresence":75}],77:[function(require,module,exports){
+},{"./RealtimeChannel":77,"./RealtimeClient":78,"./RealtimePresence":79}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CONNECTION_STATE = exports.TRANSPORTS = exports.CHANNEL_EVENTS = exports.CHANNEL_STATES = exports.SOCKET_STATES = exports.WS_CLOSE_NORMAL = exports.DEFAULT_TIMEOUT = exports.VSN = exports.DEFAULT_HEADERS = void 0;
@@ -19411,7 +21555,7 @@ var CONNECTION_STATE;
     CONNECTION_STATE["Closed"] = "closed";
 })(CONNECTION_STATE = exports.CONNECTION_STATE || (exports.CONNECTION_STATE = {}));
 
-},{"./version":82}],78:[function(require,module,exports){
+},{"./version":86}],82:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const constants_1 = require("../lib/constants");
@@ -19520,7 +21664,7 @@ class Push {
 }
 exports.default = Push;
 
-},{"../lib/constants":77}],79:[function(require,module,exports){
+},{"../lib/constants":81}],83:[function(require,module,exports){
 "use strict";
 // This file draws heavily from https://github.com/phoenixframework/phoenix/commit/cf098e9cf7a44ee6479d31d911a97d3c7430c6fe
 // License: https://github.com/phoenixframework/phoenix/blob/master/LICENSE.md
@@ -19557,7 +21701,7 @@ class Serializer {
 }
 exports.default = Serializer;
 
-},{}],80:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
@@ -19596,7 +21740,7 @@ class Timer {
 }
 exports.default = Timer;
 
-},{}],81:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 /**
  * Helpers to convert the change Payload into native JS types.
@@ -19819,13 +21963,13 @@ const toTimestampString = (value) => {
 };
 exports.toTimestampString = toTimestampString;
 
-},{}],82:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.version = void 0;
-exports.version = '2.7.3';
+exports.version = '2.7.4';
 
-},{}],83:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -19849,7 +21993,7 @@ class StorageClient extends StorageBucketApi_1.default {
 }
 exports.StorageClient = StorageClient;
 
-},{"./packages/StorageBucketApi":91,"./packages/StorageFileApi":92}],84:[function(require,module,exports){
+},{"./packages/StorageBucketApi":95,"./packages/StorageFileApi":96}],88:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -19872,14 +22016,14 @@ Object.defineProperty(exports, "StorageClient", { enumerable: true, get: functio
 __exportStar(require("./lib/types"), exports);
 __exportStar(require("./lib/errors"), exports);
 
-},{"./StorageClient":83,"./lib/errors":86,"./lib/types":89}],85:[function(require,module,exports){
+},{"./StorageClient":87,"./lib/errors":90,"./lib/types":93}],89:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_HEADERS = void 0;
 const version_1 = require("./version");
 exports.DEFAULT_HEADERS = { 'X-Client-Info': `storage-js/${version_1.version}` };
 
-},{"./version":90}],86:[function(require,module,exports){
+},{"./version":94}],90:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StorageUnknownError = exports.StorageApiError = exports.isStorageError = exports.StorageError = void 0;
@@ -19919,7 +22063,7 @@ class StorageUnknownError extends StorageError {
 }
 exports.StorageUnknownError = StorageUnknownError;
 
-},{}],87:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -20001,7 +22145,7 @@ function remove(fetcher, url, body, options, parameters) {
 }
 exports.remove = remove;
 
-},{"./errors":86,"./helpers":88}],88:[function(require,module,exports){
+},{"./errors":90,"./helpers":92}],92:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -20059,16 +22203,16 @@ const resolveResponse = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.resolveResponse = resolveResponse;
 
-},{"cross-fetch":107}],89:[function(require,module,exports){
-arguments[4][63][0].apply(exports,arguments)
-},{"dup":63}],90:[function(require,module,exports){
+},{"cross-fetch":111}],93:[function(require,module,exports){
+arguments[4][67][0].apply(exports,arguments)
+},{"dup":67}],94:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.version = void 0;
 // generated by genversion
 exports.version = '2.5.1';
 
-},{}],91:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -20235,7 +22379,7 @@ class StorageBucketApi {
 }
 exports.default = StorageBucketApi;
 
-},{"../lib/constants":85,"../lib/errors":86,"../lib/fetch":87,"../lib/helpers":88}],92:[function(require,module,exports){
+},{"../lib/constants":89,"../lib/errors":90,"../lib/fetch":91,"../lib/helpers":92}],96:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -20703,7 +22847,7 @@ class StorageFileApi {
 }
 exports.default = StorageFileApi;
 
-},{"../lib/errors":86,"../lib/fetch":87,"../lib/helpers":88}],93:[function(require,module,exports){
+},{"../lib/errors":90,"../lib/fetch":91,"../lib/helpers":92}],97:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -20812,6 +22956,17 @@ class SupabaseClient {
         return this.rest.from(relation);
     }
     /**
+     * Perform a query on a schema distinct from the default schema supplied via
+     * the `options.db.schema` constructor parameter.
+     *
+     * The schema needs to be on the list of exposed schemas inside Supabase.
+     *
+     * @param schema - The name of the schema to query
+     */
+    schema(schema) {
+        return this.rest.schema(schema);
+    }
+    /**
      * Perform a function call.
      *
      * @param fn - The function name to call
@@ -20873,7 +23028,7 @@ class SupabaseClient {
             return (_b = (_a = data.session) === null || _a === void 0 ? void 0 : _a.access_token) !== null && _b !== void 0 ? _b : null;
         });
     }
-    _initSupabaseAuthClient({ autoRefreshToken, persistSession, detectSessionInUrl, storage, storageKey, flowType, }, headers, fetch) {
+    _initSupabaseAuthClient({ autoRefreshToken, persistSession, detectSessionInUrl, storage, storageKey, flowType, debug, }, headers, fetch) {
         const authHeaders = {
             Authorization: `Bearer ${this.supabaseKey}`,
             apikey: `${this.supabaseKey}`,
@@ -20887,6 +23042,7 @@ class SupabaseClient {
             detectSessionInUrl,
             storage,
             flowType,
+            debug,
             fetch,
         });
     }
@@ -20895,11 +23051,11 @@ class SupabaseClient {
     }
     _listenForAuthEvents() {
         let data = this.auth.onAuthStateChange((event, session) => {
-            this._handleTokenChanged(event, session === null || session === void 0 ? void 0 : session.access_token, 'CLIENT');
+            this._handleTokenChanged(event, 'CLIENT', session === null || session === void 0 ? void 0 : session.access_token);
         });
         return data;
     }
-    _handleTokenChanged(event, token, source) {
+    _handleTokenChanged(event, source, token) {
         if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') &&
             this.changedAccessToken !== token) {
             // Token has changed
@@ -20917,7 +23073,7 @@ class SupabaseClient {
 }
 exports.default = SupabaseClient;
 
-},{"./lib/SupabaseAuthClient":95,"./lib/constants":96,"./lib/fetch":97,"./lib/helpers":98,"@supabase/functions-js":52,"@supabase/postgrest-js":71,"@supabase/realtime-js":76,"@supabase/storage-js":84}],94:[function(require,module,exports){
+},{"./lib/SupabaseAuthClient":99,"./lib/constants":100,"./lib/fetch":101,"./lib/helpers":102,"@supabase/functions-js":55,"@supabase/postgrest-js":75,"@supabase/realtime-js":80,"@supabase/storage-js":88}],98:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -20956,7 +23112,7 @@ const createClient = (supabaseUrl, supabaseKey, options) => {
 };
 exports.createClient = createClient;
 
-},{"./SupabaseClient":93,"@supabase/functions-js":52,"@supabase/gotrue-js":56,"@supabase/realtime-js":76}],95:[function(require,module,exports){
+},{"./SupabaseClient":97,"@supabase/functions-js":55,"@supabase/gotrue-js":59,"@supabase/realtime-js":80}],99:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SupabaseAuthClient = void 0;
@@ -20968,7 +23124,7 @@ class SupabaseAuthClient extends gotrue_js_1.GoTrueClient {
 }
 exports.SupabaseAuthClient = SupabaseAuthClient;
 
-},{"@supabase/gotrue-js":56}],96:[function(require,module,exports){
+},{"@supabase/gotrue-js":59}],100:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_HEADERS = void 0;
@@ -20976,7 +23132,7 @@ exports.DEFAULT_HEADERS = void 0;
 const version_1 = require("./version");
 exports.DEFAULT_HEADERS = { 'X-Client-Info': `supabase-js/${version_1.version}` };
 
-},{"./version":99}],97:[function(require,module,exports){
+},{"./version":103}],101:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -21052,7 +23208,7 @@ const fetchWithAuth = (supabaseKey, getAccessToken, customFetch) => {
 };
 exports.fetchWithAuth = fetchWithAuth;
 
-},{"cross-fetch":107}],98:[function(require,module,exports){
+},{"cross-fetch":111}],102:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.applySettingDefaults = exports.isBrowser = exports.stripTrailingSlash = exports.uuid = void 0;
@@ -21081,13 +23237,13 @@ function applySettingDefaults(options, defaults) {
 }
 exports.applySettingDefaults = applySettingDefaults;
 
-},{}],99:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.version = void 0;
-exports.version = '2.25.0';
+exports.version = '2.32.0';
 
-},{}],100:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 'use strict'
 // base-x encoding / decoding
 // Copyright (c) 2018 base-x contributors
@@ -21210,7 +23366,7 @@ function base (ALPHABET) {
 }
 module.exports = base
 
-},{}],101:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -21362,12 +23518,12 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],102:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 ;(function (globalObject) {
   'use strict';
 
 /*
- *      bignumber.js v9.1.0
+ *      bignumber.js v9.1.1
  *      A JavaScript library for arbitrary-precision arithmetic.
  *      https://github.com/MikeMcl/bignumber.js
  *      Copyright (c) 2022 Michael Mclaughlin <M8ch88l@gmail.com>
@@ -23071,7 +25227,7 @@ function fromByteArray (uint8) {
 
         // The sign of the result of pow when x is negative depends on the evenness of n.
         // If +n overflows to ±Infinity, the evenness of n would be not be known.
-        y = new BigNumber(Math.pow(+valueOf(x), nIsBig ? 2 - isOdd(n) : +valueOf(n)));
+        y = new BigNumber(Math.pow(+valueOf(x), nIsBig ? n.s * (2 - isOdd(n)) : +valueOf(n)));
         return m ? y.mod(m) : y;
       }
 
@@ -23377,7 +25533,7 @@ function fromByteArray (uint8) {
         xc = yc;
         yc = t;
         y.s = -y.s;
-      }  
+      }
 
       b = (j = yc.length) - (i = xc.length);
 
@@ -23538,7 +25694,7 @@ function fromByteArray (uint8) {
         i = xcL;
         xcL = ycL;
         ycL = i;
-      }  
+      }
 
       // Initialise the result array with zeros.
       for (i = xcL + ycL, zc = []; i--; zc.push(0));
@@ -23664,7 +25820,7 @@ function fromByteArray (uint8) {
         yc = xc;
         xc = t;
         b = a;
-      }  
+      }
 
       // Only start adding at yc.length - 1 as the further digits of xc can be ignored.
       for (a = 0; b;) {
@@ -23955,7 +26111,7 @@ function fromByteArray (uint8) {
           g1 = g2;
           g2 = i;
           len -= i;
-        }  
+        }
 
         if (g1 > 0 && len > 0) {
           i = len % g1 || g1;
@@ -24290,15 +26446,15 @@ function fromByteArray (uint8) {
   }
 })(this);
 
-},{}],103:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 
-},{}],104:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 const basex = require('base-x')
 const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
 module.exports = basex(ALPHABET)
 
-},{"base-x":100}],105:[function(require,module,exports){
+},{"base-x":104}],109:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -26079,7 +28235,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":101,"buffer":105,"ieee754":113}],106:[function(require,module,exports){
+},{"base64-js":105,"buffer":109,"ieee754":117}],110:[function(require,module,exports){
 (function main(global, module, isWorker, workerSize) {
   var canUseWorker = !!(
     global.Worker &&
@@ -26221,7 +28377,7 @@ function numberIsNaN (obj) {
           '      }',
           '    });',
           '  } else if (msg.data.reset) {',
-          '    CONFETTI.reset();',
+          '    CONFETTI && CONFETTI.reset();',
           '  } else if (msg.data.resize) {',
           '    SIZE.width = msg.data.resize.width;',
           '    SIZE.height = msg.data.resize.height;',
@@ -26416,6 +28572,26 @@ function numberIsNaN (obj) {
       context.ellipse ?
         context.ellipse(fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI) :
         ellipse(context, fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI);
+    } else if (fetti.shape === 'star') {
+      var rot = Math.PI / 2 * 3;
+      var innerRadius = 4 * fetti.scalar;
+      var outerRadius = 8 * fetti.scalar;
+      var x = fetti.x;
+      var y = fetti.y;
+      var spikes = 5;
+      var step = Math.PI / spikes;
+
+      while (spikes--) {
+        x = fetti.x + Math.cos(rot) * outerRadius;
+        y = fetti.y + Math.sin(rot) * outerRadius;
+        context.lineTo(x, y);
+        rot += step;
+
+        x = fetti.x + Math.cos(rot) * innerRadius;
+        y = fetti.y + Math.sin(rot) * innerRadius;
+        context.lineTo(x, y);
+        rot += step;
+      }
     } else {
       context.moveTo(Math.floor(fetti.x), Math.floor(fetti.y));
       context.lineTo(Math.floor(fetti.wobbleX), Math.floor(y1));
@@ -26687,7 +28863,7 @@ function numberIsNaN (obj) {
   return this || {};
 })(), module, false));
 
-},{}],107:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 var global = typeof self !== 'undefined' ? self : this;
 var __self__ = (function () {
 function F() {
@@ -27243,7 +29419,7 @@ exports.Request = ctx.Request
 exports.Response = ctx.Response
 module.exports = exports
 
-},{}],108:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 var naiveFallback = function () {
 	if (typeof self === "object" && self) return self;
 	if (typeof window === "object" && window) return window;
@@ -27280,7 +29456,7 @@ module.exports = (function () {
 	}
 })();
 
-},{}],109:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 (function (global){(function (){
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -46560,7 +48736,7 @@ var ethos = {
 * Copyright (c) 2022 Nathan Bubna; Licensed (MIT OR GPL-3.0) */
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"react":123}],110:[function(require,module,exports){
+},{"react":127}],114:[function(require,module,exports){
 (function (global){(function (){
 var Fm=Object.create,yi=Object.defineProperty;var Km=Object.getOwnPropertyDescriptor;var zm=Object.getOwnPropertyNames;var Gm=Object.getPrototypeOf,Vm=Object.prototype.hasOwnProperty;var Mu=t=>yi(t,"__esModule",{value:!0});var $m=(t,e)=>()=>(t&&(e=t(t=0)),e),Ke=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports),Pu=(t,e)=>{for(var r in e)yi(t,r,{get:e[r],enumerable:!0})},Zm=(t,e,r)=>{if(e&&typeof e=="object"||typeof e=="function")for(let n of zm(e))!Vm.call(t,n)&&n!=="default"&&yi(t,n,{get:()=>e[n],enumerable:!(r=Km(e,n))||r.enumerable});return t},ae=t=>Zm(Mu(yi(t!=null?Fm(Gm(t)):{},"default",t&&t.__esModule&&"default"in t?{get:()=>t.default,enumerable:!0}:{value:t,enumerable:!0})),t);var Nu=Ke(()=>{});var xi=Ke((L5,bi)=>{(function(t){"use strict";var e=function(l){var p,h=new Float64Array(16);if(l)for(p=0;p<l.length;p++)h[p]=l[p];return h},r=function(){throw new Error("no PRNG")},n=new Uint8Array(16),o=new Uint8Array(32);o[0]=9;var s=e(),i=e([1]),f=e([56129,1]),u=e([30883,4953,19914,30187,55467,16705,2637,112,59544,30585,16505,36039,65139,11119,27886,20995]),c=e([61785,9906,39828,60374,45398,33411,5274,224,53552,61171,33010,6542,64743,22239,55772,9222]),d=e([54554,36645,11616,51542,42930,38181,51040,26924,56412,64982,57905,49316,21502,52590,14035,8553]),g=e([26200,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214]),E=e([41136,18958,6951,50414,58488,44335,6150,12099,55207,15867,153,11085,57099,20417,9344,11139]);function w(l,p,h,a){l[p]=h>>24&255,l[p+1]=h>>16&255,l[p+2]=h>>8&255,l[p+3]=h&255,l[p+4]=a>>24&255,l[p+5]=a>>16&255,l[p+6]=a>>8&255,l[p+7]=a&255}function T(l,p,h,a,m){var k,U=0;for(k=0;k<m;k++)U|=l[p+k]^h[a+k];return(1&U-1>>>8)-1}function b(l,p,h,a){return T(l,p,h,a,16)}function I(l,p,h,a){return T(l,p,h,a,32)}function M(l,p,h,a){for(var m=a[0]&255|(a[1]&255)<<8|(a[2]&255)<<16|(a[3]&255)<<24,k=h[0]&255|(h[1]&255)<<8|(h[2]&255)<<16|(h[3]&255)<<24,U=h[4]&255|(h[5]&255)<<8|(h[6]&255)<<16|(h[7]&255)<<24,J=h[8]&255|(h[9]&255)<<8|(h[10]&255)<<16|(h[11]&255)<<24,ce=h[12]&255|(h[13]&255)<<8|(h[14]&255)<<16|(h[15]&255)<<24,Ae=a[4]&255|(a[5]&255)<<8|(a[6]&255)<<16|(a[7]&255)<<24,pe=p[0]&255|(p[1]&255)<<8|(p[2]&255)<<16|(p[3]&255)<<24,ft=p[4]&255|(p[5]&255)<<8|(p[6]&255)<<16|(p[7]&255)<<24,be=p[8]&255|(p[9]&255)<<8|(p[10]&255)<<16|(p[11]&255)<<24,Ne=p[12]&255|(p[13]&255)<<8|(p[14]&255)<<16|(p[15]&255)<<24,De=a[8]&255|(a[9]&255)<<8|(a[10]&255)<<16|(a[11]&255)<<24,ze=h[16]&255|(h[17]&255)<<8|(h[18]&255)<<16|(h[19]&255)<<24,Fe=h[20]&255|(h[21]&255)<<8|(h[22]&255)<<16|(h[23]&255)<<24,Ue=h[24]&255|(h[25]&255)<<8|(h[26]&255)<<16|(h[27]&255)<<24,qe=h[28]&255|(h[29]&255)<<8|(h[30]&255)<<16|(h[31]&255)<<24,Le=a[12]&255|(a[13]&255)<<8|(a[14]&255)<<16|(a[15]&255)<<24,ve=m,Ie=k,ge=U,Se=J,Ee=ce,de=Ae,F=pe,K=ft,re=be,Z=Ne,X=De,ie=ze,Oe=Fe,Ge=Ue,$e=qe,Ve=Le,A,Qe=0;Qe<20;Qe+=2)A=ve+Oe|0,Ee^=A<<7|A>>>32-7,A=Ee+ve|0,re^=A<<9|A>>>32-9,A=re+Ee|0,Oe^=A<<13|A>>>32-13,A=Oe+re|0,ve^=A<<18|A>>>32-18,A=de+Ie|0,Z^=A<<7|A>>>32-7,A=Z+de|0,Ge^=A<<9|A>>>32-9,A=Ge+Z|0,Ie^=A<<13|A>>>32-13,A=Ie+Ge|0,de^=A<<18|A>>>32-18,A=X+F|0,$e^=A<<7|A>>>32-7,A=$e+X|0,ge^=A<<9|A>>>32-9,A=ge+$e|0,F^=A<<13|A>>>32-13,A=F+ge|0,X^=A<<18|A>>>32-18,A=Ve+ie|0,Se^=A<<7|A>>>32-7,A=Se+Ve|0,K^=A<<9|A>>>32-9,A=K+Se|0,ie^=A<<13|A>>>32-13,A=ie+K|0,Ve^=A<<18|A>>>32-18,A=ve+Se|0,Ie^=A<<7|A>>>32-7,A=Ie+ve|0,ge^=A<<9|A>>>32-9,A=ge+Ie|0,Se^=A<<13|A>>>32-13,A=Se+ge|0,ve^=A<<18|A>>>32-18,A=de+Ee|0,F^=A<<7|A>>>32-7,A=F+de|0,K^=A<<9|A>>>32-9,A=K+F|0,Ee^=A<<13|A>>>32-13,A=Ee+K|0,de^=A<<18|A>>>32-18,A=X+Z|0,ie^=A<<7|A>>>32-7,A=ie+X|0,re^=A<<9|A>>>32-9,A=re+ie|0,Z^=A<<13|A>>>32-13,A=Z+re|0,X^=A<<18|A>>>32-18,A=Ve+$e|0,Oe^=A<<7|A>>>32-7,A=Oe+Ve|0,Ge^=A<<9|A>>>32-9,A=Ge+Oe|0,$e^=A<<13|A>>>32-13,A=$e+Ge|0,Ve^=A<<18|A>>>32-18;ve=ve+m|0,Ie=Ie+k|0,ge=ge+U|0,Se=Se+J|0,Ee=Ee+ce|0,de=de+Ae|0,F=F+pe|0,K=K+ft|0,re=re+be|0,Z=Z+Ne|0,X=X+De|0,ie=ie+ze|0,Oe=Oe+Fe|0,Ge=Ge+Ue|0,$e=$e+qe|0,Ve=Ve+Le|0,l[0]=ve>>>0&255,l[1]=ve>>>8&255,l[2]=ve>>>16&255,l[3]=ve>>>24&255,l[4]=Ie>>>0&255,l[5]=Ie>>>8&255,l[6]=Ie>>>16&255,l[7]=Ie>>>24&255,l[8]=ge>>>0&255,l[9]=ge>>>8&255,l[10]=ge>>>16&255,l[11]=ge>>>24&255,l[12]=Se>>>0&255,l[13]=Se>>>8&255,l[14]=Se>>>16&255,l[15]=Se>>>24&255,l[16]=Ee>>>0&255,l[17]=Ee>>>8&255,l[18]=Ee>>>16&255,l[19]=Ee>>>24&255,l[20]=de>>>0&255,l[21]=de>>>8&255,l[22]=de>>>16&255,l[23]=de>>>24&255,l[24]=F>>>0&255,l[25]=F>>>8&255,l[26]=F>>>16&255,l[27]=F>>>24&255,l[28]=K>>>0&255,l[29]=K>>>8&255,l[30]=K>>>16&255,l[31]=K>>>24&255,l[32]=re>>>0&255,l[33]=re>>>8&255,l[34]=re>>>16&255,l[35]=re>>>24&255,l[36]=Z>>>0&255,l[37]=Z>>>8&255,l[38]=Z>>>16&255,l[39]=Z>>>24&255,l[40]=X>>>0&255,l[41]=X>>>8&255,l[42]=X>>>16&255,l[43]=X>>>24&255,l[44]=ie>>>0&255,l[45]=ie>>>8&255,l[46]=ie>>>16&255,l[47]=ie>>>24&255,l[48]=Oe>>>0&255,l[49]=Oe>>>8&255,l[50]=Oe>>>16&255,l[51]=Oe>>>24&255,l[52]=Ge>>>0&255,l[53]=Ge>>>8&255,l[54]=Ge>>>16&255,l[55]=Ge>>>24&255,l[56]=$e>>>0&255,l[57]=$e>>>8&255,l[58]=$e>>>16&255,l[59]=$e>>>24&255,l[60]=Ve>>>0&255,l[61]=Ve>>>8&255,l[62]=Ve>>>16&255,l[63]=Ve>>>24&255}function V(l,p,h,a){for(var m=a[0]&255|(a[1]&255)<<8|(a[2]&255)<<16|(a[3]&255)<<24,k=h[0]&255|(h[1]&255)<<8|(h[2]&255)<<16|(h[3]&255)<<24,U=h[4]&255|(h[5]&255)<<8|(h[6]&255)<<16|(h[7]&255)<<24,J=h[8]&255|(h[9]&255)<<8|(h[10]&255)<<16|(h[11]&255)<<24,ce=h[12]&255|(h[13]&255)<<8|(h[14]&255)<<16|(h[15]&255)<<24,Ae=a[4]&255|(a[5]&255)<<8|(a[6]&255)<<16|(a[7]&255)<<24,pe=p[0]&255|(p[1]&255)<<8|(p[2]&255)<<16|(p[3]&255)<<24,ft=p[4]&255|(p[5]&255)<<8|(p[6]&255)<<16|(p[7]&255)<<24,be=p[8]&255|(p[9]&255)<<8|(p[10]&255)<<16|(p[11]&255)<<24,Ne=p[12]&255|(p[13]&255)<<8|(p[14]&255)<<16|(p[15]&255)<<24,De=a[8]&255|(a[9]&255)<<8|(a[10]&255)<<16|(a[11]&255)<<24,ze=h[16]&255|(h[17]&255)<<8|(h[18]&255)<<16|(h[19]&255)<<24,Fe=h[20]&255|(h[21]&255)<<8|(h[22]&255)<<16|(h[23]&255)<<24,Ue=h[24]&255|(h[25]&255)<<8|(h[26]&255)<<16|(h[27]&255)<<24,qe=h[28]&255|(h[29]&255)<<8|(h[30]&255)<<16|(h[31]&255)<<24,Le=a[12]&255|(a[13]&255)<<8|(a[14]&255)<<16|(a[15]&255)<<24,ve=m,Ie=k,ge=U,Se=J,Ee=ce,de=Ae,F=pe,K=ft,re=be,Z=Ne,X=De,ie=ze,Oe=Fe,Ge=Ue,$e=qe,Ve=Le,A,Qe=0;Qe<20;Qe+=2)A=ve+Oe|0,Ee^=A<<7|A>>>32-7,A=Ee+ve|0,re^=A<<9|A>>>32-9,A=re+Ee|0,Oe^=A<<13|A>>>32-13,A=Oe+re|0,ve^=A<<18|A>>>32-18,A=de+Ie|0,Z^=A<<7|A>>>32-7,A=Z+de|0,Ge^=A<<9|A>>>32-9,A=Ge+Z|0,Ie^=A<<13|A>>>32-13,A=Ie+Ge|0,de^=A<<18|A>>>32-18,A=X+F|0,$e^=A<<7|A>>>32-7,A=$e+X|0,ge^=A<<9|A>>>32-9,A=ge+$e|0,F^=A<<13|A>>>32-13,A=F+ge|0,X^=A<<18|A>>>32-18,A=Ve+ie|0,Se^=A<<7|A>>>32-7,A=Se+Ve|0,K^=A<<9|A>>>32-9,A=K+Se|0,ie^=A<<13|A>>>32-13,A=ie+K|0,Ve^=A<<18|A>>>32-18,A=ve+Se|0,Ie^=A<<7|A>>>32-7,A=Ie+ve|0,ge^=A<<9|A>>>32-9,A=ge+Ie|0,Se^=A<<13|A>>>32-13,A=Se+ge|0,ve^=A<<18|A>>>32-18,A=de+Ee|0,F^=A<<7|A>>>32-7,A=F+de|0,K^=A<<9|A>>>32-9,A=K+F|0,Ee^=A<<13|A>>>32-13,A=Ee+K|0,de^=A<<18|A>>>32-18,A=X+Z|0,ie^=A<<7|A>>>32-7,A=ie+X|0,re^=A<<9|A>>>32-9,A=re+ie|0,Z^=A<<13|A>>>32-13,A=Z+re|0,X^=A<<18|A>>>32-18,A=Ve+$e|0,Oe^=A<<7|A>>>32-7,A=Oe+Ve|0,Ge^=A<<9|A>>>32-9,A=Ge+Oe|0,$e^=A<<13|A>>>32-13,A=$e+Ge|0,Ve^=A<<18|A>>>32-18;l[0]=ve>>>0&255,l[1]=ve>>>8&255,l[2]=ve>>>16&255,l[3]=ve>>>24&255,l[4]=de>>>0&255,l[5]=de>>>8&255,l[6]=de>>>16&255,l[7]=de>>>24&255,l[8]=X>>>0&255,l[9]=X>>>8&255,l[10]=X>>>16&255,l[11]=X>>>24&255,l[12]=Ve>>>0&255,l[13]=Ve>>>8&255,l[14]=Ve>>>16&255,l[15]=Ve>>>24&255,l[16]=F>>>0&255,l[17]=F>>>8&255,l[18]=F>>>16&255,l[19]=F>>>24&255,l[20]=K>>>0&255,l[21]=K>>>8&255,l[22]=K>>>16&255,l[23]=K>>>24&255,l[24]=re>>>0&255,l[25]=re>>>8&255,l[26]=re>>>16&255,l[27]=re>>>24&255,l[28]=Z>>>0&255,l[29]=Z>>>8&255,l[30]=Z>>>16&255,l[31]=Z>>>24&255}function G(l,p,h,a){M(l,p,h,a)}function oe(l,p,h,a){V(l,p,h,a)}var z=new Uint8Array([101,120,112,97,110,100,32,51,50,45,98,121,116,101,32,107]);function L(l,p,h,a,m,k,U){var J=new Uint8Array(16),ce=new Uint8Array(64),Ae,pe;for(pe=0;pe<16;pe++)J[pe]=0;for(pe=0;pe<8;pe++)J[pe]=k[pe];for(;m>=64;){for(G(ce,J,U,z),pe=0;pe<64;pe++)l[p+pe]=h[a+pe]^ce[pe];for(Ae=1,pe=8;pe<16;pe++)Ae=Ae+(J[pe]&255)|0,J[pe]=Ae&255,Ae>>>=8;m-=64,p+=64,a+=64}if(m>0)for(G(ce,J,U,z),pe=0;pe<m;pe++)l[p+pe]=h[a+pe]^ce[pe];return 0}function ne(l,p,h,a,m){var k=new Uint8Array(16),U=new Uint8Array(64),J,ce;for(ce=0;ce<16;ce++)k[ce]=0;for(ce=0;ce<8;ce++)k[ce]=a[ce];for(;h>=64;){for(G(U,k,m,z),ce=0;ce<64;ce++)l[p+ce]=U[ce];for(J=1,ce=8;ce<16;ce++)J=J+(k[ce]&255)|0,k[ce]=J&255,J>>>=8;h-=64,p+=64}if(h>0)for(G(U,k,m,z),ce=0;ce<h;ce++)l[p+ce]=U[ce];return 0}function D(l,p,h,a,m){var k=new Uint8Array(32);oe(k,a,m,z);for(var U=new Uint8Array(8),J=0;J<8;J++)U[J]=a[J+16];return ne(l,p,h,U,k)}function x(l,p,h,a,m,k,U){var J=new Uint8Array(32);oe(J,k,U,z);for(var ce=new Uint8Array(8),Ae=0;Ae<8;Ae++)ce[Ae]=k[Ae+16];return L(l,p,h,a,m,ce,J)}var P=function(l){this.buffer=new Uint8Array(16),this.r=new Uint16Array(10),this.h=new Uint16Array(10),this.pad=new Uint16Array(8),this.leftover=0,this.fin=0;var p,h,a,m,k,U,J,ce;p=l[0]&255|(l[1]&255)<<8,this.r[0]=p&8191,h=l[2]&255|(l[3]&255)<<8,this.r[1]=(p>>>13|h<<3)&8191,a=l[4]&255|(l[5]&255)<<8,this.r[2]=(h>>>10|a<<6)&7939,m=l[6]&255|(l[7]&255)<<8,this.r[3]=(a>>>7|m<<9)&8191,k=l[8]&255|(l[9]&255)<<8,this.r[4]=(m>>>4|k<<12)&255,this.r[5]=k>>>1&8190,U=l[10]&255|(l[11]&255)<<8,this.r[6]=(k>>>14|U<<2)&8191,J=l[12]&255|(l[13]&255)<<8,this.r[7]=(U>>>11|J<<5)&8065,ce=l[14]&255|(l[15]&255)<<8,this.r[8]=(J>>>8|ce<<8)&8191,this.r[9]=ce>>>5&127,this.pad[0]=l[16]&255|(l[17]&255)<<8,this.pad[1]=l[18]&255|(l[19]&255)<<8,this.pad[2]=l[20]&255|(l[21]&255)<<8,this.pad[3]=l[22]&255|(l[23]&255)<<8,this.pad[4]=l[24]&255|(l[25]&255)<<8,this.pad[5]=l[26]&255|(l[27]&255)<<8,this.pad[6]=l[28]&255|(l[29]&255)<<8,this.pad[7]=l[30]&255|(l[31]&255)<<8};P.prototype.blocks=function(l,p,h){for(var a=this.fin?0:1<<11,m,k,U,J,ce,Ae,pe,ft,be,Ne,De,ze,Fe,Ue,qe,Le,ve,Ie,ge,Se=this.h[0],Ee=this.h[1],de=this.h[2],F=this.h[3],K=this.h[4],re=this.h[5],Z=this.h[6],X=this.h[7],ie=this.h[8],Oe=this.h[9],Ge=this.r[0],$e=this.r[1],Ve=this.r[2],A=this.r[3],Qe=this.r[4],ut=this.r[5],lt=this.r[6],Je=this.r[7],it=this.r[8],at=this.r[9];h>=16;)m=l[p+0]&255|(l[p+1]&255)<<8,Se+=m&8191,k=l[p+2]&255|(l[p+3]&255)<<8,Ee+=(m>>>13|k<<3)&8191,U=l[p+4]&255|(l[p+5]&255)<<8,de+=(k>>>10|U<<6)&8191,J=l[p+6]&255|(l[p+7]&255)<<8,F+=(U>>>7|J<<9)&8191,ce=l[p+8]&255|(l[p+9]&255)<<8,K+=(J>>>4|ce<<12)&8191,re+=ce>>>1&8191,Ae=l[p+10]&255|(l[p+11]&255)<<8,Z+=(ce>>>14|Ae<<2)&8191,pe=l[p+12]&255|(l[p+13]&255)<<8,X+=(Ae>>>11|pe<<5)&8191,ft=l[p+14]&255|(l[p+15]&255)<<8,ie+=(pe>>>8|ft<<8)&8191,Oe+=ft>>>5|a,be=0,Ne=be,Ne+=Se*Ge,Ne+=Ee*(5*at),Ne+=de*(5*it),Ne+=F*(5*Je),Ne+=K*(5*lt),be=Ne>>>13,Ne&=8191,Ne+=re*(5*ut),Ne+=Z*(5*Qe),Ne+=X*(5*A),Ne+=ie*(5*Ve),Ne+=Oe*(5*$e),be+=Ne>>>13,Ne&=8191,De=be,De+=Se*$e,De+=Ee*Ge,De+=de*(5*at),De+=F*(5*it),De+=K*(5*Je),be=De>>>13,De&=8191,De+=re*(5*lt),De+=Z*(5*ut),De+=X*(5*Qe),De+=ie*(5*A),De+=Oe*(5*Ve),be+=De>>>13,De&=8191,ze=be,ze+=Se*Ve,ze+=Ee*$e,ze+=de*Ge,ze+=F*(5*at),ze+=K*(5*it),be=ze>>>13,ze&=8191,ze+=re*(5*Je),ze+=Z*(5*lt),ze+=X*(5*ut),ze+=ie*(5*Qe),ze+=Oe*(5*A),be+=ze>>>13,ze&=8191,Fe=be,Fe+=Se*A,Fe+=Ee*Ve,Fe+=de*$e,Fe+=F*Ge,Fe+=K*(5*at),be=Fe>>>13,Fe&=8191,Fe+=re*(5*it),Fe+=Z*(5*Je),Fe+=X*(5*lt),Fe+=ie*(5*ut),Fe+=Oe*(5*Qe),be+=Fe>>>13,Fe&=8191,Ue=be,Ue+=Se*Qe,Ue+=Ee*A,Ue+=de*Ve,Ue+=F*$e,Ue+=K*Ge,be=Ue>>>13,Ue&=8191,Ue+=re*(5*at),Ue+=Z*(5*it),Ue+=X*(5*Je),Ue+=ie*(5*lt),Ue+=Oe*(5*ut),be+=Ue>>>13,Ue&=8191,qe=be,qe+=Se*ut,qe+=Ee*Qe,qe+=de*A,qe+=F*Ve,qe+=K*$e,be=qe>>>13,qe&=8191,qe+=re*Ge,qe+=Z*(5*at),qe+=X*(5*it),qe+=ie*(5*Je),qe+=Oe*(5*lt),be+=qe>>>13,qe&=8191,Le=be,Le+=Se*lt,Le+=Ee*ut,Le+=de*Qe,Le+=F*A,Le+=K*Ve,be=Le>>>13,Le&=8191,Le+=re*$e,Le+=Z*Ge,Le+=X*(5*at),Le+=ie*(5*it),Le+=Oe*(5*Je),be+=Le>>>13,Le&=8191,ve=be,ve+=Se*Je,ve+=Ee*lt,ve+=de*ut,ve+=F*Qe,ve+=K*A,be=ve>>>13,ve&=8191,ve+=re*Ve,ve+=Z*$e,ve+=X*Ge,ve+=ie*(5*at),ve+=Oe*(5*it),be+=ve>>>13,ve&=8191,Ie=be,Ie+=Se*it,Ie+=Ee*Je,Ie+=de*lt,Ie+=F*ut,Ie+=K*Qe,be=Ie>>>13,Ie&=8191,Ie+=re*A,Ie+=Z*Ve,Ie+=X*$e,Ie+=ie*Ge,Ie+=Oe*(5*at),be+=Ie>>>13,Ie&=8191,ge=be,ge+=Se*at,ge+=Ee*it,ge+=de*Je,ge+=F*lt,ge+=K*ut,be=ge>>>13,ge&=8191,ge+=re*Qe,ge+=Z*A,ge+=X*Ve,ge+=ie*$e,ge+=Oe*Ge,be+=ge>>>13,ge&=8191,be=(be<<2)+be|0,be=be+Ne|0,Ne=be&8191,be=be>>>13,De+=be,Se=Ne,Ee=De,de=ze,F=Fe,K=Ue,re=qe,Z=Le,X=ve,ie=Ie,Oe=ge,p+=16,h-=16;this.h[0]=Se,this.h[1]=Ee,this.h[2]=de,this.h[3]=F,this.h[4]=K,this.h[5]=re,this.h[6]=Z,this.h[7]=X,this.h[8]=ie,this.h[9]=Oe},P.prototype.finish=function(l,p){var h=new Uint16Array(10),a,m,k,U;if(this.leftover){for(U=this.leftover,this.buffer[U++]=1;U<16;U++)this.buffer[U]=0;this.fin=1,this.blocks(this.buffer,0,16)}for(a=this.h[1]>>>13,this.h[1]&=8191,U=2;U<10;U++)this.h[U]+=a,a=this.h[U]>>>13,this.h[U]&=8191;for(this.h[0]+=a*5,a=this.h[0]>>>13,this.h[0]&=8191,this.h[1]+=a,a=this.h[1]>>>13,this.h[1]&=8191,this.h[2]+=a,h[0]=this.h[0]+5,a=h[0]>>>13,h[0]&=8191,U=1;U<10;U++)h[U]=this.h[U]+a,a=h[U]>>>13,h[U]&=8191;for(h[9]-=1<<13,m=(a^1)-1,U=0;U<10;U++)h[U]&=m;for(m=~m,U=0;U<10;U++)this.h[U]=this.h[U]&m|h[U];for(this.h[0]=(this.h[0]|this.h[1]<<13)&65535,this.h[1]=(this.h[1]>>>3|this.h[2]<<10)&65535,this.h[2]=(this.h[2]>>>6|this.h[3]<<7)&65535,this.h[3]=(this.h[3]>>>9|this.h[4]<<4)&65535,this.h[4]=(this.h[4]>>>12|this.h[5]<<1|this.h[6]<<14)&65535,this.h[5]=(this.h[6]>>>2|this.h[7]<<11)&65535,this.h[6]=(this.h[7]>>>5|this.h[8]<<8)&65535,this.h[7]=(this.h[8]>>>8|this.h[9]<<5)&65535,k=this.h[0]+this.pad[0],this.h[0]=k&65535,U=1;U<8;U++)k=(this.h[U]+this.pad[U]|0)+(k>>>16)|0,this.h[U]=k&65535;l[p+0]=this.h[0]>>>0&255,l[p+1]=this.h[0]>>>8&255,l[p+2]=this.h[1]>>>0&255,l[p+3]=this.h[1]>>>8&255,l[p+4]=this.h[2]>>>0&255,l[p+5]=this.h[2]>>>8&255,l[p+6]=this.h[3]>>>0&255,l[p+7]=this.h[3]>>>8&255,l[p+8]=this.h[4]>>>0&255,l[p+9]=this.h[4]>>>8&255,l[p+10]=this.h[5]>>>0&255,l[p+11]=this.h[5]>>>8&255,l[p+12]=this.h[6]>>>0&255,l[p+13]=this.h[6]>>>8&255,l[p+14]=this.h[7]>>>0&255,l[p+15]=this.h[7]>>>8&255},P.prototype.update=function(l,p,h){var a,m;if(this.leftover){for(m=16-this.leftover,m>h&&(m=h),a=0;a<m;a++)this.buffer[this.leftover+a]=l[p+a];if(h-=m,p+=m,this.leftover+=m,this.leftover<16)return;this.blocks(this.buffer,0,16),this.leftover=0}if(h>=16&&(m=h-h%16,this.blocks(l,p,m),p+=m,h-=m),h){for(a=0;a<h;a++)this.buffer[this.leftover+a]=l[p+a];this.leftover+=h}};function $(l,p,h,a,m,k){var U=new P(k);return U.update(h,a,m),U.finish(l,p),0}function se(l,p,h,a,m,k){var U=new Uint8Array(16);return $(U,0,h,a,m,k),b(l,p,U,0)}function we(l,p,h,a,m){var k;if(h<32)return-1;for(x(l,0,p,0,h,a,m),$(l,16,l,32,h-32,l),k=0;k<16;k++)l[k]=0;return 0}function ye(l,p,h,a,m){var k,U=new Uint8Array(32);if(h<32||(D(U,0,32,a,m),se(p,16,p,32,h-32,U)!==0))return-1;for(x(l,0,p,0,h,a,m),k=0;k<32;k++)l[k]=0;return 0}function Q(l,p){var h;for(h=0;h<16;h++)l[h]=p[h]|0}function fe(l){var p,h,a=1;for(p=0;p<16;p++)h=l[p]+a+65535,a=Math.floor(h/65536),l[p]=h-a*65536;l[0]+=a-1+37*(a-1)}function le(l,p,h){for(var a,m=~(h-1),k=0;k<16;k++)a=m&(l[k]^p[k]),l[k]^=a,p[k]^=a}function Me(l,p){var h,a,m,k=e(),U=e();for(h=0;h<16;h++)U[h]=p[h];for(fe(U),fe(U),fe(U),a=0;a<2;a++){for(k[0]=U[0]-65517,h=1;h<15;h++)k[h]=U[h]-65535-(k[h-1]>>16&1),k[h-1]&=65535;k[15]=U[15]-32767-(k[14]>>16&1),m=k[15]>>16&1,k[14]&=65535,le(U,k,1-m)}for(h=0;h<16;h++)l[2*h]=U[h]&255,l[2*h+1]=U[h]>>8}function Re(l,p){var h=new Uint8Array(32),a=new Uint8Array(32);return Me(h,l),Me(a,p),I(h,0,a,0)}function mt(l){var p=new Uint8Array(32);return Me(p,l),p[0]&1}function st(l,p){var h;for(h=0;h<16;h++)l[h]=p[2*h]+(p[2*h+1]<<8);l[15]&=32767}function ht(l,p,h){for(var a=0;a<16;a++)l[a]=p[a]+h[a]}function ee(l,p,h){for(var a=0;a<16;a++)l[a]=p[a]-h[a]}function ke(l,p,h){var a,m,k=0,U=0,J=0,ce=0,Ae=0,pe=0,ft=0,be=0,Ne=0,De=0,ze=0,Fe=0,Ue=0,qe=0,Le=0,ve=0,Ie=0,ge=0,Se=0,Ee=0,de=0,F=0,K=0,re=0,Z=0,X=0,ie=0,Oe=0,Ge=0,$e=0,Ve=0,A=h[0],Qe=h[1],ut=h[2],lt=h[3],Je=h[4],it=h[5],at=h[6],Mt=h[7],gt=h[8],jt=h[9],Bt=h[10],kt=h[11],Ht=h[12],er=h[13],tr=h[14],rr=h[15];a=p[0],k+=a*A,U+=a*Qe,J+=a*ut,ce+=a*lt,Ae+=a*Je,pe+=a*it,ft+=a*at,be+=a*Mt,Ne+=a*gt,De+=a*jt,ze+=a*Bt,Fe+=a*kt,Ue+=a*Ht,qe+=a*er,Le+=a*tr,ve+=a*rr,a=p[1],U+=a*A,J+=a*Qe,ce+=a*ut,Ae+=a*lt,pe+=a*Je,ft+=a*it,be+=a*at,Ne+=a*Mt,De+=a*gt,ze+=a*jt,Fe+=a*Bt,Ue+=a*kt,qe+=a*Ht,Le+=a*er,ve+=a*tr,Ie+=a*rr,a=p[2],J+=a*A,ce+=a*Qe,Ae+=a*ut,pe+=a*lt,ft+=a*Je,be+=a*it,Ne+=a*at,De+=a*Mt,ze+=a*gt,Fe+=a*jt,Ue+=a*Bt,qe+=a*kt,Le+=a*Ht,ve+=a*er,Ie+=a*tr,ge+=a*rr,a=p[3],ce+=a*A,Ae+=a*Qe,pe+=a*ut,ft+=a*lt,be+=a*Je,Ne+=a*it,De+=a*at,ze+=a*Mt,Fe+=a*gt,Ue+=a*jt,qe+=a*Bt,Le+=a*kt,ve+=a*Ht,Ie+=a*er,ge+=a*tr,Se+=a*rr,a=p[4],Ae+=a*A,pe+=a*Qe,ft+=a*ut,be+=a*lt,Ne+=a*Je,De+=a*it,ze+=a*at,Fe+=a*Mt,Ue+=a*gt,qe+=a*jt,Le+=a*Bt,ve+=a*kt,Ie+=a*Ht,ge+=a*er,Se+=a*tr,Ee+=a*rr,a=p[5],pe+=a*A,ft+=a*Qe,be+=a*ut,Ne+=a*lt,De+=a*Je,ze+=a*it,Fe+=a*at,Ue+=a*Mt,qe+=a*gt,Le+=a*jt,ve+=a*Bt,Ie+=a*kt,ge+=a*Ht,Se+=a*er,Ee+=a*tr,de+=a*rr,a=p[6],ft+=a*A,be+=a*Qe,Ne+=a*ut,De+=a*lt,ze+=a*Je,Fe+=a*it,Ue+=a*at,qe+=a*Mt,Le+=a*gt,ve+=a*jt,Ie+=a*Bt,ge+=a*kt,Se+=a*Ht,Ee+=a*er,de+=a*tr,F+=a*rr,a=p[7],be+=a*A,Ne+=a*Qe,De+=a*ut,ze+=a*lt,Fe+=a*Je,Ue+=a*it,qe+=a*at,Le+=a*Mt,ve+=a*gt,Ie+=a*jt,ge+=a*Bt,Se+=a*kt,Ee+=a*Ht,de+=a*er,F+=a*tr,K+=a*rr,a=p[8],Ne+=a*A,De+=a*Qe,ze+=a*ut,Fe+=a*lt,Ue+=a*Je,qe+=a*it,Le+=a*at,ve+=a*Mt,Ie+=a*gt,ge+=a*jt,Se+=a*Bt,Ee+=a*kt,de+=a*Ht,F+=a*er,K+=a*tr,re+=a*rr,a=p[9],De+=a*A,ze+=a*Qe,Fe+=a*ut,Ue+=a*lt,qe+=a*Je,Le+=a*it,ve+=a*at,Ie+=a*Mt,ge+=a*gt,Se+=a*jt,Ee+=a*Bt,de+=a*kt,F+=a*Ht,K+=a*er,re+=a*tr,Z+=a*rr,a=p[10],ze+=a*A,Fe+=a*Qe,Ue+=a*ut,qe+=a*lt,Le+=a*Je,ve+=a*it,Ie+=a*at,ge+=a*Mt,Se+=a*gt,Ee+=a*jt,de+=a*Bt,F+=a*kt,K+=a*Ht,re+=a*er,Z+=a*tr,X+=a*rr,a=p[11],Fe+=a*A,Ue+=a*Qe,qe+=a*ut,Le+=a*lt,ve+=a*Je,Ie+=a*it,ge+=a*at,Se+=a*Mt,Ee+=a*gt,de+=a*jt,F+=a*Bt,K+=a*kt,re+=a*Ht,Z+=a*er,X+=a*tr,ie+=a*rr,a=p[12],Ue+=a*A,qe+=a*Qe,Le+=a*ut,ve+=a*lt,Ie+=a*Je,ge+=a*it,Se+=a*at,Ee+=a*Mt,de+=a*gt,F+=a*jt,K+=a*Bt,re+=a*kt,Z+=a*Ht,X+=a*er,ie+=a*tr,Oe+=a*rr,a=p[13],qe+=a*A,Le+=a*Qe,ve+=a*ut,Ie+=a*lt,ge+=a*Je,Se+=a*it,Ee+=a*at,de+=a*Mt,F+=a*gt,K+=a*jt,re+=a*Bt,Z+=a*kt,X+=a*Ht,ie+=a*er,Oe+=a*tr,Ge+=a*rr,a=p[14],Le+=a*A,ve+=a*Qe,Ie+=a*ut,ge+=a*lt,Se+=a*Je,Ee+=a*it,de+=a*at,F+=a*Mt,K+=a*gt,re+=a*jt,Z+=a*Bt,X+=a*kt,ie+=a*Ht,Oe+=a*er,Ge+=a*tr,$e+=a*rr,a=p[15],ve+=a*A,Ie+=a*Qe,ge+=a*ut,Se+=a*lt,Ee+=a*Je,de+=a*it,F+=a*at,K+=a*Mt,re+=a*gt,Z+=a*jt,X+=a*Bt,ie+=a*kt,Oe+=a*Ht,Ge+=a*er,$e+=a*tr,Ve+=a*rr,k+=38*Ie,U+=38*ge,J+=38*Se,ce+=38*Ee,Ae+=38*de,pe+=38*F,ft+=38*K,be+=38*re,Ne+=38*Z,De+=38*X,ze+=38*ie,Fe+=38*Oe,Ue+=38*Ge,qe+=38*$e,Le+=38*Ve,m=1,a=k+m+65535,m=Math.floor(a/65536),k=a-m*65536,a=U+m+65535,m=Math.floor(a/65536),U=a-m*65536,a=J+m+65535,m=Math.floor(a/65536),J=a-m*65536,a=ce+m+65535,m=Math.floor(a/65536),ce=a-m*65536,a=Ae+m+65535,m=Math.floor(a/65536),Ae=a-m*65536,a=pe+m+65535,m=Math.floor(a/65536),pe=a-m*65536,a=ft+m+65535,m=Math.floor(a/65536),ft=a-m*65536,a=be+m+65535,m=Math.floor(a/65536),be=a-m*65536,a=Ne+m+65535,m=Math.floor(a/65536),Ne=a-m*65536,a=De+m+65535,m=Math.floor(a/65536),De=a-m*65536,a=ze+m+65535,m=Math.floor(a/65536),ze=a-m*65536,a=Fe+m+65535,m=Math.floor(a/65536),Fe=a-m*65536,a=Ue+m+65535,m=Math.floor(a/65536),Ue=a-m*65536,a=qe+m+65535,m=Math.floor(a/65536),qe=a-m*65536,a=Le+m+65535,m=Math.floor(a/65536),Le=a-m*65536,a=ve+m+65535,m=Math.floor(a/65536),ve=a-m*65536,k+=m-1+37*(m-1),m=1,a=k+m+65535,m=Math.floor(a/65536),k=a-m*65536,a=U+m+65535,m=Math.floor(a/65536),U=a-m*65536,a=J+m+65535,m=Math.floor(a/65536),J=a-m*65536,a=ce+m+65535,m=Math.floor(a/65536),ce=a-m*65536,a=Ae+m+65535,m=Math.floor(a/65536),Ae=a-m*65536,a=pe+m+65535,m=Math.floor(a/65536),pe=a-m*65536,a=ft+m+65535,m=Math.floor(a/65536),ft=a-m*65536,a=be+m+65535,m=Math.floor(a/65536),be=a-m*65536,a=Ne+m+65535,m=Math.floor(a/65536),Ne=a-m*65536,a=De+m+65535,m=Math.floor(a/65536),De=a-m*65536,a=ze+m+65535,m=Math.floor(a/65536),ze=a-m*65536,a=Fe+m+65535,m=Math.floor(a/65536),Fe=a-m*65536,a=Ue+m+65535,m=Math.floor(a/65536),Ue=a-m*65536,a=qe+m+65535,m=Math.floor(a/65536),qe=a-m*65536,a=Le+m+65535,m=Math.floor(a/65536),Le=a-m*65536,a=ve+m+65535,m=Math.floor(a/65536),ve=a-m*65536,k+=m-1+37*(m-1),l[0]=k,l[1]=U,l[2]=J,l[3]=ce,l[4]=Ae,l[5]=pe,l[6]=ft,l[7]=be,l[8]=Ne,l[9]=De,l[10]=ze,l[11]=Fe,l[12]=Ue,l[13]=qe,l[14]=Le,l[15]=ve}function vt(l,p){ke(l,p,p)}function _r(l,p){var h=e(),a;for(a=0;a<16;a++)h[a]=p[a];for(a=253;a>=0;a--)vt(h,h),a!==2&&a!==4&&ke(h,h,p);for(a=0;a<16;a++)l[a]=h[a]}function Tt(l,p){var h=e(),a;for(a=0;a<16;a++)h[a]=p[a];for(a=250;a>=0;a--)vt(h,h),a!==1&&ke(h,h,p);for(a=0;a<16;a++)l[a]=h[a]}function $t(l,p,h){var a=new Uint8Array(32),m=new Float64Array(80),k,U,J=e(),ce=e(),Ae=e(),pe=e(),ft=e(),be=e();for(U=0;U<31;U++)a[U]=p[U];for(a[31]=p[31]&127|64,a[0]&=248,st(m,h),U=0;U<16;U++)ce[U]=m[U],pe[U]=J[U]=Ae[U]=0;for(J[0]=pe[0]=1,U=254;U>=0;--U)k=a[U>>>3]>>>(U&7)&1,le(J,ce,k),le(Ae,pe,k),ht(ft,J,Ae),ee(J,J,Ae),ht(Ae,ce,pe),ee(ce,ce,pe),vt(pe,ft),vt(be,J),ke(J,Ae,J),ke(Ae,ce,ft),ht(ft,J,Ae),ee(J,J,Ae),vt(ce,J),ee(Ae,pe,be),ke(J,Ae,f),ht(J,J,pe),ke(Ae,Ae,J),ke(J,pe,be),ke(pe,ce,m),vt(ce,ft),le(J,ce,k),le(Ae,pe,k);for(U=0;U<16;U++)m[U+16]=J[U],m[U+32]=Ae[U],m[U+48]=ce[U],m[U+64]=pe[U];var Ne=m.subarray(32),De=m.subarray(16);return _r(Ne,Ne),ke(De,De,Ne),Me(l,De),0}function y(l,p){return $t(l,p,o)}function S(l,p){return r(p,32),y(l,p)}function _(l,p,h){var a=new Uint8Array(32);return $t(a,h,p),oe(l,n,a,z)}var N=we,j=ye;function R(l,p,h,a,m,k){var U=new Uint8Array(32);return _(U,m,k),N(l,p,h,a,U)}function H(l,p,h,a,m,k){var U=new Uint8Array(32);return _(U,m,k),j(l,p,h,a,U)}var C=[1116352408,3609767458,1899447441,602891725,3049323471,3964484399,3921009573,2173295548,961987163,4081628472,1508970993,3053834265,2453635748,2937671579,2870763221,3664609560,3624381080,2734883394,310598401,1164996542,607225278,1323610764,1426881987,3590304994,1925078388,4068182383,2162078206,991336113,2614888103,633803317,3248222580,3479774868,3835390401,2666613458,4022224774,944711139,264347078,2341262773,604807628,2007800933,770255983,1495990901,1249150122,1856431235,1555081692,3175218132,1996064986,2198950837,2554220882,3999719339,2821834349,766784016,2952996808,2566594879,3210313671,3203337956,3336571891,1034457026,3584528711,2466948901,113926993,3758326383,338241895,168717936,666307205,1188179964,773529912,1546045734,1294757372,1522805485,1396182291,2643833823,1695183700,2343527390,1986661051,1014477480,2177026350,1206759142,2456956037,344077627,2730485921,1290863460,2820302411,3158454273,3259730800,3505952657,3345764771,106217008,3516065817,3606008344,3600352804,1432725776,4094571909,1467031594,275423344,851169720,430227734,3100823752,506948616,1363258195,659060556,3750685593,883997877,3785050280,958139571,3318307427,1322822218,3812723403,1537002063,2003034995,1747873779,3602036899,1955562222,1575990012,2024104815,1125592928,2227730452,2716904306,2361852424,442776044,2428436474,593698344,2756734187,3733110249,3204031479,2999351573,3329325298,3815920427,3391569614,3928383900,3515267271,566280711,3940187606,3454069534,4118630271,4000239992,116418474,1914138554,174292421,2731055270,289380356,3203993006,460393269,320620315,685471733,587496836,852142971,1086792851,1017036298,365543100,1126000580,2618297676,1288033470,3409855158,1501505948,4234509866,1607167915,987167468,1816402316,1246189591];function O(l,p,h,a){for(var m=new Int32Array(16),k=new Int32Array(16),U,J,ce,Ae,pe,ft,be,Ne,De,ze,Fe,Ue,qe,Le,ve,Ie,ge,Se,Ee,de,F,K,re,Z,X,ie,Oe=l[0],Ge=l[1],$e=l[2],Ve=l[3],A=l[4],Qe=l[5],ut=l[6],lt=l[7],Je=p[0],it=p[1],at=p[2],Mt=p[3],gt=p[4],jt=p[5],Bt=p[6],kt=p[7],Ht=0;a>=128;){for(Ee=0;Ee<16;Ee++)de=8*Ee+Ht,m[Ee]=h[de+0]<<24|h[de+1]<<16|h[de+2]<<8|h[de+3],k[Ee]=h[de+4]<<24|h[de+5]<<16|h[de+6]<<8|h[de+7];for(Ee=0;Ee<80;Ee++)if(U=Oe,J=Ge,ce=$e,Ae=Ve,pe=A,ft=Qe,be=ut,Ne=lt,De=Je,ze=it,Fe=at,Ue=Mt,qe=gt,Le=jt,ve=Bt,Ie=kt,F=lt,K=kt,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=(A>>>14|gt<<32-14)^(A>>>18|gt<<32-18)^(gt>>>41-32|A<<32-(41-32)),K=(gt>>>14|A<<32-14)^(gt>>>18|A<<32-18)^(A>>>41-32|gt<<32-(41-32)),re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,F=A&Qe^~A&ut,K=gt&jt^~gt&Bt,re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,F=C[Ee*2],K=C[Ee*2+1],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,F=m[Ee%16],K=k[Ee%16],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,ge=X&65535|ie<<16,Se=re&65535|Z<<16,F=ge,K=Se,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=(Oe>>>28|Je<<32-28)^(Je>>>34-32|Oe<<32-(34-32))^(Je>>>39-32|Oe<<32-(39-32)),K=(Je>>>28|Oe<<32-28)^(Oe>>>34-32|Je<<32-(34-32))^(Oe>>>39-32|Je<<32-(39-32)),re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,F=Oe&Ge^Oe&$e^Ge&$e,K=Je&it^Je&at^it&at,re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,Ne=X&65535|ie<<16,Ie=re&65535|Z<<16,F=Ae,K=Ue,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=ge,K=Se,re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,Ae=X&65535|ie<<16,Ue=re&65535|Z<<16,Ge=U,$e=J,Ve=ce,A=Ae,Qe=pe,ut=ft,lt=be,Oe=Ne,it=De,at=ze,Mt=Fe,gt=Ue,jt=qe,Bt=Le,kt=ve,Je=Ie,Ee%16==15)for(de=0;de<16;de++)F=m[de],K=k[de],re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=m[(de+9)%16],K=k[(de+9)%16],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,ge=m[(de+1)%16],Se=k[(de+1)%16],F=(ge>>>1|Se<<32-1)^(ge>>>8|Se<<32-8)^ge>>>7,K=(Se>>>1|ge<<32-1)^(Se>>>8|ge<<32-8)^(Se>>>7|ge<<32-7),re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,ge=m[(de+14)%16],Se=k[(de+14)%16],F=(ge>>>19|Se<<32-19)^(Se>>>61-32|ge<<32-(61-32))^ge>>>6,K=(Se>>>19|ge<<32-19)^(ge>>>61-32|Se<<32-(61-32))^(Se>>>6|ge<<32-6),re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,m[de]=X&65535|ie<<16,k[de]=re&65535|Z<<16;F=Oe,K=Je,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[0],K=p[0],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[0]=Oe=X&65535|ie<<16,p[0]=Je=re&65535|Z<<16,F=Ge,K=it,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[1],K=p[1],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[1]=Ge=X&65535|ie<<16,p[1]=it=re&65535|Z<<16,F=$e,K=at,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[2],K=p[2],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[2]=$e=X&65535|ie<<16,p[2]=at=re&65535|Z<<16,F=Ve,K=Mt,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[3],K=p[3],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[3]=Ve=X&65535|ie<<16,p[3]=Mt=re&65535|Z<<16,F=A,K=gt,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[4],K=p[4],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[4]=A=X&65535|ie<<16,p[4]=gt=re&65535|Z<<16,F=Qe,K=jt,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[5],K=p[5],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[5]=Qe=X&65535|ie<<16,p[5]=jt=re&65535|Z<<16,F=ut,K=Bt,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[6],K=p[6],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[6]=ut=X&65535|ie<<16,p[6]=Bt=re&65535|Z<<16,F=lt,K=kt,re=K&65535,Z=K>>>16,X=F&65535,ie=F>>>16,F=l[7],K=p[7],re+=K&65535,Z+=K>>>16,X+=F&65535,ie+=F>>>16,Z+=re>>>16,X+=Z>>>16,ie+=X>>>16,l[7]=lt=X&65535|ie<<16,p[7]=kt=re&65535|Z<<16,Ht+=128,a-=128}return a}function q(l,p,h){var a=new Int32Array(8),m=new Int32Array(8),k=new Uint8Array(256),U,J=h;for(a[0]=1779033703,a[1]=3144134277,a[2]=1013904242,a[3]=2773480762,a[4]=1359893119,a[5]=2600822924,a[6]=528734635,a[7]=1541459225,m[0]=4089235720,m[1]=2227873595,m[2]=4271175723,m[3]=1595750129,m[4]=2917565137,m[5]=725511199,m[6]=4215389547,m[7]=327033209,O(a,m,p,h),h%=128,U=0;U<h;U++)k[U]=p[J-h+U];for(k[h]=128,h=256-128*(h<112?1:0),k[h-9]=0,w(k,h-8,J/536870912|0,J<<3),O(a,m,k,h),U=0;U<8;U++)w(l,8*U,a[U],m[U]);return 0}function W(l,p){var h=e(),a=e(),m=e(),k=e(),U=e(),J=e(),ce=e(),Ae=e(),pe=e();ee(h,l[1],l[0]),ee(pe,p[1],p[0]),ke(h,h,pe),ht(a,l[0],l[1]),ht(pe,p[0],p[1]),ke(a,a,pe),ke(m,l[3],p[3]),ke(m,m,c),ke(k,l[2],p[2]),ht(k,k,k),ee(U,a,h),ee(J,k,m),ht(ce,k,m),ht(Ae,a,h),ke(l[0],U,J),ke(l[1],Ae,ce),ke(l[2],ce,J),ke(l[3],U,Ae)}function te(l,p,h){var a;for(a=0;a<4;a++)le(l[a],p[a],h)}function _e(l,p){var h=e(),a=e(),m=e();_r(m,p[2]),ke(h,p[0],m),ke(a,p[1],m),Me(l,a),l[31]^=mt(h)<<7}function Ce(l,p,h){var a,m;for(Q(l[0],s),Q(l[1],i),Q(l[2],i),Q(l[3],s),m=255;m>=0;--m)a=h[m/8|0]>>(m&7)&1,te(l,p,a),W(p,l),W(l,l),te(l,p,a)}function rt(l,p){var h=[e(),e(),e(),e()];Q(h[0],d),Q(h[1],g),Q(h[2],i),ke(h[3],d,g),Ce(l,h,p)}function St(l,p,h){var a=new Uint8Array(64),m=[e(),e(),e(),e()],k;for(h||r(p,32),q(a,p,32),a[0]&=248,a[31]&=127,a[31]|=64,rt(m,a),_e(l,m),k=0;k<32;k++)p[k+32]=l[k];return 0}var _t=new Float64Array([237,211,245,92,26,99,18,88,214,156,247,162,222,249,222,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16]);function nt(l,p){var h,a,m,k;for(a=63;a>=32;--a){for(h=0,m=a-32,k=a-12;m<k;++m)p[m]+=h-16*p[a]*_t[m-(a-32)],h=Math.floor((p[m]+128)/256),p[m]-=h*256;p[m]+=h,p[a]=0}for(h=0,m=0;m<32;m++)p[m]+=h-(p[31]>>4)*_t[m],h=p[m]>>8,p[m]&=255;for(m=0;m<32;m++)p[m]-=h*_t[m];for(a=0;a<32;a++)p[a+1]+=p[a]>>8,l[a]=p[a]&255}function dt(l){var p=new Float64Array(64),h;for(h=0;h<64;h++)p[h]=l[h];for(h=0;h<64;h++)l[h]=0;nt(l,p)}function Wt(l,p,h,a){var m=new Uint8Array(64),k=new Uint8Array(64),U=new Uint8Array(64),J,ce,Ae=new Float64Array(64),pe=[e(),e(),e(),e()];q(m,a,32),m[0]&=248,m[31]&=127,m[31]|=64;var ft=h+64;for(J=0;J<h;J++)l[64+J]=p[J];for(J=0;J<32;J++)l[32+J]=m[32+J];for(q(U,l.subarray(32),h+32),dt(U),rt(pe,U),_e(l,pe),J=32;J<64;J++)l[J]=a[J];for(q(k,l,h+64),dt(k),J=0;J<64;J++)Ae[J]=0;for(J=0;J<32;J++)Ae[J]=U[J];for(J=0;J<32;J++)for(ce=0;ce<32;ce++)Ae[J+ce]+=k[J]*m[ce];return nt(l.subarray(32),Ae),ft}function Ho(l,p){var h=e(),a=e(),m=e(),k=e(),U=e(),J=e(),ce=e();return Q(l[2],i),st(l[1],p),vt(m,l[1]),ke(k,m,u),ee(m,m,l[2]),ht(k,l[2],k),vt(U,k),vt(J,U),ke(ce,J,U),ke(h,ce,m),ke(h,h,k),Tt(h,h),ke(h,h,m),ke(h,h,k),ke(h,h,k),ke(l[0],h,k),vt(a,l[0]),ke(a,a,k),Re(a,m)&&ke(l[0],l[0],E),vt(a,l[0]),ke(a,a,k),Re(a,m)?-1:(mt(l[0])===p[31]>>7&&ee(l[0],s,l[0]),ke(l[3],l[0],l[1]),0)}function po(l,p,h,a){var m,k=new Uint8Array(32),U=new Uint8Array(64),J=[e(),e(),e(),e()],ce=[e(),e(),e(),e()];if(h<64||Ho(ce,a))return-1;for(m=0;m<h;m++)l[m]=p[m];for(m=0;m<32;m++)l[m+32]=a[m];if(q(U,l,h),dt(U),Ce(J,ce,U),rt(ce,p.subarray(32)),W(J,ce),_e(k,J),h-=64,I(p,0,k,0)){for(m=0;m<h;m++)l[m]=0;return-1}for(m=0;m<h;m++)l[m]=p[m+64];return h}var go=32,cr=24,zr=32,qt=16,Ot=32,xt=32,Ds=32,Us=32,hc=32,Bu=cr,Wm=zr,qm=qt,wn=64,mo=32,Fo=64,pc=32,gc=64;t.lowlevel={crypto_core_hsalsa20:oe,crypto_stream_xor:x,crypto_stream:D,crypto_stream_salsa20_xor:L,crypto_stream_salsa20:ne,crypto_onetimeauth:$,crypto_onetimeauth_verify:se,crypto_verify_16:b,crypto_verify_32:I,crypto_secretbox:we,crypto_secretbox_open:ye,crypto_scalarmult:$t,crypto_scalarmult_base:y,crypto_box_beforenm:_,crypto_box_afternm:N,crypto_box:R,crypto_box_open:H,crypto_box_keypair:S,crypto_hash:q,crypto_sign:Wt,crypto_sign_keypair:St,crypto_sign_open:po,crypto_secretbox_KEYBYTES:go,crypto_secretbox_NONCEBYTES:cr,crypto_secretbox_ZEROBYTES:zr,crypto_secretbox_BOXZEROBYTES:qt,crypto_scalarmult_BYTES:Ot,crypto_scalarmult_SCALARBYTES:xt,crypto_box_PUBLICKEYBYTES:Ds,crypto_box_SECRETKEYBYTES:Us,crypto_box_BEFORENMBYTES:hc,crypto_box_NONCEBYTES:Bu,crypto_box_ZEROBYTES:Wm,crypto_box_BOXZEROBYTES:qm,crypto_sign_BYTES:wn,crypto_sign_PUBLICKEYBYTES:mo,crypto_sign_SECRETKEYBYTES:Fo,crypto_sign_SEEDBYTES:pc,crypto_hash_BYTES:gc,gf:e,D:u,L:_t,pack25519:Me,unpack25519:st,M:ke,A:ht,S:vt,Z:ee,pow2523:Tt,add:W,set25519:Q,modL:nt,scalarmult:Ce,scalarbase:rt};function ku(l,p){if(l.length!==go)throw new Error("bad key size");if(p.length!==cr)throw new Error("bad nonce size")}function Hm(l,p){if(l.length!==Ds)throw new Error("bad public key size");if(p.length!==Us)throw new Error("bad secret key size")}function vr(){for(var l=0;l<arguments.length;l++)if(!(arguments[l]instanceof Uint8Array))throw new TypeError("unexpected type, use Uint8Array")}function Ou(l){for(var p=0;p<l.length;p++)l[p]=0}t.randomBytes=function(l){var p=new Uint8Array(l);return r(p,l),p},t.secretbox=function(l,p,h){vr(l,p,h),ku(h,p);for(var a=new Uint8Array(zr+l.length),m=new Uint8Array(a.length),k=0;k<l.length;k++)a[k+zr]=l[k];return we(m,a,a.length,p,h),m.subarray(qt)},t.secretbox.open=function(l,p,h){vr(l,p,h),ku(h,p);for(var a=new Uint8Array(qt+l.length),m=new Uint8Array(a.length),k=0;k<l.length;k++)a[k+qt]=l[k];return a.length<32||ye(m,a,a.length,p,h)!==0?null:m.subarray(zr)},t.secretbox.keyLength=go,t.secretbox.nonceLength=cr,t.secretbox.overheadLength=qt,t.scalarMult=function(l,p){if(vr(l,p),l.length!==xt)throw new Error("bad n size");if(p.length!==Ot)throw new Error("bad p size");var h=new Uint8Array(Ot);return $t(h,l,p),h},t.scalarMult.base=function(l){if(vr(l),l.length!==xt)throw new Error("bad n size");var p=new Uint8Array(Ot);return y(p,l),p},t.scalarMult.scalarLength=xt,t.scalarMult.groupElementLength=Ot,t.box=function(l,p,h,a){var m=t.box.before(h,a);return t.secretbox(l,p,m)},t.box.before=function(l,p){vr(l,p),Hm(l,p);var h=new Uint8Array(hc);return _(h,l,p),h},t.box.after=t.secretbox,t.box.open=function(l,p,h,a){var m=t.box.before(h,a);return t.secretbox.open(l,p,m)},t.box.open.after=t.secretbox.open,t.box.keyPair=function(){var l=new Uint8Array(Ds),p=new Uint8Array(Us);return S(l,p),{publicKey:l,secretKey:p}},t.box.keyPair.fromSecretKey=function(l){if(vr(l),l.length!==Us)throw new Error("bad secret key size");var p=new Uint8Array(Ds);return y(p,l),{publicKey:p,secretKey:new Uint8Array(l)}},t.box.publicKeyLength=Ds,t.box.secretKeyLength=Us,t.box.sharedKeyLength=hc,t.box.nonceLength=Bu,t.box.overheadLength=t.secretbox.overheadLength,t.sign=function(l,p){if(vr(l,p),p.length!==Fo)throw new Error("bad secret key size");var h=new Uint8Array(wn+l.length);return Wt(h,l,l.length,p),h},t.sign.open=function(l,p){if(vr(l,p),p.length!==mo)throw new Error("bad public key size");var h=new Uint8Array(l.length),a=po(h,l,l.length,p);if(a<0)return null;for(var m=new Uint8Array(a),k=0;k<m.length;k++)m[k]=h[k];return m},t.sign.detached=function(l,p){for(var h=t.sign(l,p),a=new Uint8Array(wn),m=0;m<a.length;m++)a[m]=h[m];return a},t.sign.detached.verify=function(l,p,h){if(vr(l,p,h),p.length!==wn)throw new Error("bad signature size");if(h.length!==mo)throw new Error("bad public key size");var a=new Uint8Array(wn+l.length),m=new Uint8Array(wn+l.length),k;for(k=0;k<wn;k++)a[k]=p[k];for(k=0;k<l.length;k++)a[k+wn]=l[k];return po(m,a,a.length,h)>=0},t.sign.keyPair=function(){var l=new Uint8Array(mo),p=new Uint8Array(Fo);return St(l,p),{publicKey:l,secretKey:p}},t.sign.keyPair.fromSecretKey=function(l){if(vr(l),l.length!==Fo)throw new Error("bad secret key size");for(var p=new Uint8Array(mo),h=0;h<p.length;h++)p[h]=l[32+h];return{publicKey:p,secretKey:new Uint8Array(l)}},t.sign.keyPair.fromSeed=function(l){if(vr(l),l.length!==pc)throw new Error("bad seed size");for(var p=new Uint8Array(mo),h=new Uint8Array(Fo),a=0;a<32;a++)h[a]=l[a];return St(p,h,!0),{publicKey:p,secretKey:h}},t.sign.publicKeyLength=mo,t.sign.secretKeyLength=Fo,t.sign.seedLength=pc,t.sign.signatureLength=wn,t.hash=function(l){vr(l);var p=new Uint8Array(gc);return q(p,l,l.length),p},t.hash.hashLength=gc,t.verify=function(l,p){return vr(l,p),l.length===0||p.length===0||l.length!==p.length?!1:T(l,0,p,0,l.length)===0},t.setPRNG=function(l){r=l},function(){var l=typeof self!="undefined"?self.crypto||self.msCrypto:null;if(l&&l.getRandomValues){var p=65536;t.setPRNG(function(h,a){var m,k=new Uint8Array(a);for(m=0;m<a;m+=p)l.getRandomValues(k.subarray(m,m+Math.min(a-m,p)));for(m=0;m<a;m++)h[m]=k[m];Ou(k)})}else typeof require!="undefined"&&(l=Nu(),l&&l.randomBytes&&t.setPRNG(function(h,a){var m,k=l.randomBytes(a);for(m=0;m<a;m++)h[m]=k[m];Ou(k)}))}()})(typeof bi!="undefined"&&bi.exports?bi.exports:self.nacl=self.nacl||{})});var yo=Ke(fr=>{"use strict";Object.defineProperty(fr,"__esModule",{value:!0});fr.output=fr.exists=fr.hash=fr.bytes=fr.bool=fr.number=void 0;function wi(t){if(!Number.isSafeInteger(t)||t<0)throw new Error(`Wrong positive integer: ${t}`)}fr.number=wi;function Ru(t){if(typeof t!="boolean")throw new Error(`Expected boolean, not ${t}`)}fr.bool=Ru;function mc(t,...e){if(!(t instanceof Uint8Array))throw new TypeError("Expected Uint8Array");if(e.length>0&&!e.includes(t.length))throw new TypeError(`Expected Uint8Array of length ${e}, not of length=${t.length}`)}fr.bytes=mc;function Du(t){if(typeof t!="function"||typeof t.create!="function")throw new Error("Hash should be wrapped by utils.wrapConstructor");wi(t.outputLen),wi(t.blockLen)}fr.hash=Du;function Uu(t,e=!0){if(t.destroyed)throw new Error("Hash instance has been destroyed");if(e&&t.finished)throw new Error("Hash#digest() has already been called")}fr.exists=Uu;function Lu(t,e){mc(t);let r=e.outputLen;if(t.length<r)throw new Error(`digestInto() expects output buffer of length at least ${r}`)}fr.output=Lu;var Ym={number:wi,bool:Ru,bytes:mc,hash:Du,exists:Uu,output:Lu};fr.default=Ym});var Wu=Ke(vi=>{"use strict";Object.defineProperty(vi,"__esModule",{value:!0});vi.crypto=void 0;vi.crypto=typeof globalThis=="object"&&"crypto"in globalThis?globalThis.crypto:void 0});var Ft=Ke(et=>{"use strict";Object.defineProperty(et,"__esModule",{value:!0});et.randomBytes=et.wrapConstructorWithOpts=et.wrapConstructor=et.checkOpts=et.Hash=et.concatBytes=et.toBytes=et.utf8ToBytes=et.asyncLoop=et.nextTick=et.hexToBytes=et.bytesToHex=et.isLE=et.rotr=et.createView=et.u32=et.u8=void 0;var yc=Wu(),Jm=t=>new Uint8Array(t.buffer,t.byteOffset,t.byteLength);et.u8=Jm;var Xm=t=>new Uint32Array(t.buffer,t.byteOffset,Math.floor(t.byteLength/4));et.u32=Xm;var Qm=t=>new DataView(t.buffer,t.byteOffset,t.byteLength);et.createView=Qm;var e1=(t,e)=>t<<32-e|t>>>e;et.rotr=e1;et.isLE=new Uint8Array(new Uint32Array([287454020]).buffer)[0]===68;if(!et.isLE)throw new Error("Non little-endian hardware is not supported");var t1=Array.from({length:256},(t,e)=>e.toString(16).padStart(2,"0"));function r1(t){if(!(t instanceof Uint8Array))throw new Error("Uint8Array expected");let e="";for(let r=0;r<t.length;r++)e+=t1[t[r]];return e}et.bytesToHex=r1;function n1(t){if(typeof t!="string")throw new TypeError("hexToBytes: expected string, got "+typeof t);if(t.length%2)throw new Error("hexToBytes: received invalid unpadded hex");let e=new Uint8Array(t.length/2);for(let r=0;r<e.length;r++){let n=r*2,o=t.slice(n,n+2),s=Number.parseInt(o,16);if(Number.isNaN(s)||s<0)throw new Error("Invalid byte sequence");e[r]=s}return e}et.hexToBytes=n1;var o1=async()=>{};et.nextTick=o1;async function s1(t,e,r){let n=Date.now();for(let o=0;o<t;o++){r(o);let s=Date.now()-n;s>=0&&s<e||(await(0,et.nextTick)(),n+=s)}}et.asyncLoop=s1;function qu(t){if(typeof t!="string")throw new TypeError(`utf8ToBytes expected string, got ${typeof t}`);return new TextEncoder().encode(t)}et.utf8ToBytes=qu;function bc(t){if(typeof t=="string"&&(t=qu(t)),!(t instanceof Uint8Array))throw new TypeError(`Expected input type is Uint8Array (got ${typeof t})`);return t}et.toBytes=bc;function i1(...t){if(!t.every(n=>n instanceof Uint8Array))throw new Error("Uint8Array list expected");if(t.length===1)return t[0];let e=t.reduce((n,o)=>n+o.length,0),r=new Uint8Array(e);for(let n=0,o=0;n<t.length;n++){let s=t[n];r.set(s,o),o+=s.length}return r}et.concatBytes=i1;var Hu=class{clone(){return this._cloneInto()}};et.Hash=Hu;var a1=t=>Object.prototype.toString.call(t)==="[object Object]"&&t.constructor===Object;function c1(t,e){if(e!==void 0&&(typeof e!="object"||!a1(e)))throw new TypeError("Options should be object or undefined");return Object.assign(t,e)}et.checkOpts=c1;function f1(t){let e=n=>t().update(bc(n)).digest(),r=t();return e.outputLen=r.outputLen,e.blockLen=r.blockLen,e.create=()=>t(),e}et.wrapConstructor=f1;function u1(t){let e=(n,o)=>t(o).update(bc(n)).digest(),r=t({});return e.outputLen=r.outputLen,e.blockLen=r.blockLen,e.create=n=>t(n),e}et.wrapConstructorWithOpts=u1;function l1(t=32){if(yc.crypto&&typeof yc.crypto.getRandomValues=="function")return yc.crypto.getRandomValues(new Uint8Array(t));throw new Error("crypto.getRandomValues must be defined")}et.randomBytes=l1});var Ku=Ke(zo=>{"use strict";Object.defineProperty(zo,"__esModule",{value:!0});zo.BLAKE2=zo.SIGMA=void 0;var Ko=yo(),Si=Ft();zo.SIGMA=new Uint8Array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,14,10,4,8,9,15,13,6,1,12,0,2,11,7,5,3,11,8,12,0,5,2,15,13,10,14,3,6,7,1,9,4,7,9,3,1,13,12,11,14,2,6,5,10,4,0,15,8,9,0,5,7,2,4,10,15,14,1,11,12,6,8,3,13,2,12,6,10,0,11,8,3,4,13,7,5,15,14,1,9,12,5,1,15,14,13,4,10,0,7,6,3,9,2,8,11,13,11,7,14,12,1,3,9,5,0,15,4,8,6,2,10,6,15,14,9,11,3,0,8,12,2,13,7,1,4,10,5,10,2,8,4,7,6,1,5,15,11,9,14,3,12,13,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,14,10,4,8,9,15,13,6,1,12,0,2,11,7,5,3]);var Fu=class extends Si.Hash{constructor(e,r,n={},o,s,i){super();if(this.blockLen=e,this.outputLen=r,this.length=0,this.pos=0,this.finished=!1,this.destroyed=!1,Ko.default.number(e),Ko.default.number(r),Ko.default.number(o),r<0||r>o)throw new Error("outputLen bigger than keyLen");if(n.key!==void 0&&(n.key.length<1||n.key.length>o))throw new Error(`key must be up 1..${o} byte long or undefined`);if(n.salt!==void 0&&n.salt.length!==s)throw new Error(`salt must be ${s} byte long or undefined`);if(n.personalization!==void 0&&n.personalization.length!==i)throw new Error(`personalization must be ${i} byte long or undefined`);this.buffer32=(0,Si.u32)(this.buffer=new Uint8Array(e))}update(e){Ko.default.exists(this);let{blockLen:r,buffer:n,buffer32:o}=this;e=(0,Si.toBytes)(e);let s=e.length;for(let i=0;i<s;){this.pos===r&&(this.compress(o,0,!1),this.pos=0);let f=Math.min(r-this.pos,s-i),u=e.byteOffset+i;if(f===r&&!(u%4)&&i+f<s){let c=new Uint32Array(e.buffer,u,Math.floor((s-i)/4));for(let d=0;i+r<s;d+=o.length,i+=r)this.length+=r,this.compress(c,d,!1);continue}n.set(e.subarray(i,i+f),this.pos),this.pos+=f,this.length+=f,i+=f}return this}digestInto(e){Ko.default.exists(this),Ko.default.output(e,this);let{pos:r,buffer32:n}=this;this.finished=!0,this.buffer.subarray(r).fill(0),this.compress(n,0,!0);let o=(0,Si.u32)(e);this.get().forEach((s,i)=>o[i]=s)}digest(){let{buffer:e,outputLen:r}=this;this.digestInto(e);let n=e.slice(0,r);return this.destroy(),n}_cloneInto(e){let{buffer:r,length:n,finished:o,destroyed:s,outputLen:i,pos:f}=this;return e||(e=new this.constructor({dkLen:i})),e.set(...this.get()),e.length=n,e.finished=o,e.destroyed=s,e.outputLen=i,e.buffer.set(r),e.pos=f,e}};zo.BLAKE2=Fu});var vc=Ke(Cr=>{"use strict";Object.defineProperty(Cr,"__esModule",{value:!0});Cr.add=Cr.toBig=Cr.split=Cr.fromBig=void 0;var Ei=BigInt(2**32-1),xc=BigInt(32);function wc(t,e=!1){return e?{h:Number(t&Ei),l:Number(t>>xc&Ei)}:{h:Number(t>>xc&Ei)|0,l:Number(t&Ei)|0}}Cr.fromBig=wc;function zu(t,e=!1){let r=new Uint32Array(t.length),n=new Uint32Array(t.length);for(let o=0;o<t.length;o++){let{h:s,l:i}=wc(t[o],e);[r[o],n[o]]=[s,i]}return[r,n]}Cr.split=zu;var d1=(t,e)=>BigInt(t>>>0)<<xc|BigInt(e>>>0);Cr.toBig=d1;var h1=(t,e,r)=>t>>>r,p1=(t,e,r)=>t<<32-r|e>>>r,g1=(t,e,r)=>t>>>r|e<<32-r,m1=(t,e,r)=>t<<32-r|e>>>r,y1=(t,e,r)=>t<<64-r|e>>>r-32,b1=(t,e,r)=>t>>>r-32|e<<64-r,x1=(t,e)=>e,w1=(t,e)=>t,v1=(t,e,r)=>t<<r|e>>>32-r,S1=(t,e,r)=>e<<r|t>>>32-r,E1=(t,e,r)=>e<<r-32|t>>>64-r,A1=(t,e,r)=>t<<r-32|e>>>64-r;function Gu(t,e,r,n){let o=(e>>>0)+(n>>>0);return{h:t+r+(o/2**32|0)|0,l:o|0}}Cr.add=Gu;var T1=(t,e,r)=>(t>>>0)+(e>>>0)+(r>>>0),_1=(t,e,r,n)=>e+r+n+(t/2**32|0)|0,C1=(t,e,r,n)=>(t>>>0)+(e>>>0)+(r>>>0)+(n>>>0),I1=(t,e,r,n,o)=>e+r+n+o+(t/2**32|0)|0,j1=(t,e,r,n,o)=>(t>>>0)+(e>>>0)+(r>>>0)+(n>>>0)+(o>>>0),B1=(t,e,r,n,o,s)=>e+r+n+o+s+(t/2**32|0)|0,k1={fromBig:wc,split:zu,toBig:Cr.toBig,shrSH:h1,shrSL:p1,rotrSH:g1,rotrSL:m1,rotrBH:y1,rotrBL:b1,rotr32H:x1,rotr32L:w1,rotlSH:v1,rotlSL:S1,rotlBH:E1,rotlBL:A1,add:Gu,add3L:T1,add3H:_1,add4L:C1,add4H:I1,add5H:B1,add5L:j1};Cr.default=k1});var rn=Ke(Ai=>{"use strict";Object.defineProperty(Ai,"__esModule",{value:!0});Ai.blake2b=void 0;var Vu=Ku(),ur=vc(),Go=Ft(),Kt=new Uint32Array([4089235720,1779033703,2227873595,3144134277,4271175723,1013904242,1595750129,2773480762,2917565137,1359893119,725511199,2600822924,4215389547,528734635,327033209,1541459225]),he=new Uint32Array(32);function Pn(t,e,r,n,o,s){let i=o[s],f=o[s+1],u=he[2*t],c=he[2*t+1],d=he[2*e],g=he[2*e+1],E=he[2*r],w=he[2*r+1],T=he[2*n],b=he[2*n+1],I=ur.default.add3L(u,d,i);c=ur.default.add3H(I,c,g,f),u=I|0,{Dh:b,Dl:T}={Dh:b^c,Dl:T^u},{Dh:b,Dl:T}={Dh:ur.default.rotr32H(b,T),Dl:ur.default.rotr32L(b,T)},{h:w,l:E}=ur.default.add(w,E,b,T),{Bh:g,Bl:d}={Bh:g^w,Bl:d^E},{Bh:g,Bl:d}={Bh:ur.default.rotrSH(g,d,24),Bl:ur.default.rotrSL(g,d,24)},he[2*t]=u,he[2*t+1]=c,he[2*e]=d,he[2*e+1]=g,he[2*r]=E,he[2*r+1]=w,he[2*n]=T,he[2*n+1]=b}function Nn(t,e,r,n,o,s){let i=o[s],f=o[s+1],u=he[2*t],c=he[2*t+1],d=he[2*e],g=he[2*e+1],E=he[2*r],w=he[2*r+1],T=he[2*n],b=he[2*n+1],I=ur.default.add3L(u,d,i);c=ur.default.add3H(I,c,g,f),u=I|0,{Dh:b,Dl:T}={Dh:b^c,Dl:T^u},{Dh:b,Dl:T}={Dh:ur.default.rotrSH(b,T,16),Dl:ur.default.rotrSL(b,T,16)},{h:w,l:E}=ur.default.add(w,E,b,T),{Bh:g,Bl:d}={Bh:g^w,Bl:d^E},{Bh:g,Bl:d}={Bh:ur.default.rotrBH(g,d,63),Bl:ur.default.rotrBL(g,d,63)},he[2*t]=u,he[2*t+1]=c,he[2*e]=d,he[2*e+1]=g,he[2*r]=E,he[2*r+1]=w,he[2*n]=T,he[2*n+1]=b}var $u=class extends Vu.BLAKE2{constructor(e={}){super(128,e.dkLen===void 0?64:e.dkLen,e,64,16,16);this.v0l=Kt[0]|0,this.v0h=Kt[1]|0,this.v1l=Kt[2]|0,this.v1h=Kt[3]|0,this.v2l=Kt[4]|0,this.v2h=Kt[5]|0,this.v3l=Kt[6]|0,this.v3h=Kt[7]|0,this.v4l=Kt[8]|0,this.v4h=Kt[9]|0,this.v5l=Kt[10]|0,this.v5h=Kt[11]|0,this.v6l=Kt[12]|0,this.v6h=Kt[13]|0,this.v7l=Kt[14]|0,this.v7h=Kt[15]|0;let r=e.key?e.key.length:0;if(this.v0l^=this.outputLen|r<<8|1<<16|1<<24,e.salt){let n=(0,Go.u32)((0,Go.toBytes)(e.salt));this.v4l^=n[0],this.v4h^=n[1],this.v5l^=n[2],this.v5h^=n[3]}if(e.personalization){let n=(0,Go.u32)((0,Go.toBytes)(e.personalization));this.v6l^=n[0],this.v6h^=n[1],this.v7l^=n[2],this.v7h^=n[3]}if(e.key){let n=new Uint8Array(this.blockLen);n.set((0,Go.toBytes)(e.key)),this.update(n)}}get(){let{v0l:e,v0h:r,v1l:n,v1h:o,v2l:s,v2h:i,v3l:f,v3h:u,v4l:c,v4h:d,v5l:g,v5h:E,v6l:w,v6h:T,v7l:b,v7h:I}=this;return[e,r,n,o,s,i,f,u,c,d,g,E,w,T,b,I]}set(e,r,n,o,s,i,f,u,c,d,g,E,w,T,b,I){this.v0l=e|0,this.v0h=r|0,this.v1l=n|0,this.v1h=o|0,this.v2l=s|0,this.v2h=i|0,this.v3l=f|0,this.v3h=u|0,this.v4l=c|0,this.v4h=d|0,this.v5l=g|0,this.v5h=E|0,this.v6l=w|0,this.v6h=T|0,this.v7l=b|0,this.v7h=I|0}compress(e,r,n){this.get().forEach((u,c)=>he[c]=u),he.set(Kt,16);let{h:o,l:s}=ur.default.fromBig(BigInt(this.length));he[24]=Kt[8]^s,he[25]=Kt[9]^o,n&&(he[28]=~he[28],he[29]=~he[29]);let i=0,f=Vu.SIGMA;for(let u=0;u<12;u++)Pn(0,4,8,12,e,r+2*f[i++]),Nn(0,4,8,12,e,r+2*f[i++]),Pn(1,5,9,13,e,r+2*f[i++]),Nn(1,5,9,13,e,r+2*f[i++]),Pn(2,6,10,14,e,r+2*f[i++]),Nn(2,6,10,14,e,r+2*f[i++]),Pn(3,7,11,15,e,r+2*f[i++]),Nn(3,7,11,15,e,r+2*f[i++]),Pn(0,5,10,15,e,r+2*f[i++]),Nn(0,5,10,15,e,r+2*f[i++]),Pn(1,6,11,12,e,r+2*f[i++]),Nn(1,6,11,12,e,r+2*f[i++]),Pn(2,7,8,13,e,r+2*f[i++]),Nn(2,7,8,13,e,r+2*f[i++]),Pn(3,4,9,14,e,r+2*f[i++]),Nn(3,4,9,14,e,r+2*f[i++]);this.v0l^=he[0]^he[16],this.v0h^=he[1]^he[17],this.v1l^=he[2]^he[18],this.v1h^=he[3]^he[19],this.v2l^=he[4]^he[20],this.v2h^=he[5]^he[21],this.v3l^=he[6]^he[22],this.v3h^=he[7]^he[23],this.v4l^=he[8]^he[24],this.v4h^=he[9]^he[25],this.v5l^=he[10]^he[26],this.v5h^=he[11]^he[27],this.v6l^=he[12]^he[28],this.v6h^=he[13]^he[29],this.v7l^=he[14]^he[30],this.v7h^=he[15]^he[31],he.fill(0)}destroy(){this.destroyed=!0,this.buffer32.fill(0),this.set(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)}};Ai.blake2b=(0,Go.wrapConstructorWithOpts)(t=>new $u(t))});var Yu=Ke((G5,Zu)=>{"use strict";function O1(t){if(t.length>=255)throw new TypeError("Alphabet too long");for(var e=new Uint8Array(256),r=0;r<e.length;r++)e[r]=255;for(var n=0;n<t.length;n++){var o=t.charAt(n),s=o.charCodeAt(0);if(e[s]!==255)throw new TypeError(o+" is ambiguous");e[s]=n}var i=t.length,f=t.charAt(0),u=Math.log(i)/Math.log(256),c=Math.log(256)/Math.log(i);function d(w){if(w instanceof Uint8Array||(ArrayBuffer.isView(w)?w=new Uint8Array(w.buffer,w.byteOffset,w.byteLength):Array.isArray(w)&&(w=Uint8Array.from(w))),!(w instanceof Uint8Array))throw new TypeError("Expected Uint8Array");if(w.length===0)return"";for(var T=0,b=0,I=0,M=w.length;I!==M&&w[I]===0;)I++,T++;for(var V=(M-I)*c+1>>>0,G=new Uint8Array(V);I!==M;){for(var oe=w[I],z=0,L=V-1;(oe!==0||z<b)&&L!==-1;L--,z++)oe+=256*G[L]>>>0,G[L]=oe%i>>>0,oe=oe/i>>>0;if(oe!==0)throw new Error("Non-zero carry");b=z,I++}for(var ne=V-b;ne!==V&&G[ne]===0;)ne++;for(var D=f.repeat(T);ne<V;++ne)D+=t.charAt(G[ne]);return D}function g(w){if(typeof w!="string")throw new TypeError("Expected String");if(w.length===0)return new Uint8Array;for(var T=0,b=0,I=0;w[T]===f;)b++,T++;for(var M=(w.length-T)*u+1>>>0,V=new Uint8Array(M);w[T];){var G=e[w.charCodeAt(T)];if(G===255)return;for(var oe=0,z=M-1;(G!==0||oe<I)&&z!==-1;z--,oe++)G+=i*V[z]>>>0,V[z]=G%256>>>0,G=G/256>>>0;if(G!==0)throw new Error("Non-zero carry");I=oe,T++}for(var L=M-I;L!==M&&V[L]===0;)L++;for(var ne=new Uint8Array(b+(M-L)),D=b;L!==M;)ne[D++]=V[L++];return ne}function E(w){var T=g(w);if(T)return T;throw new Error("Non-base"+i+" character")}return{encode:d,decodeUnsafe:g,decode:E}}Zu.exports=O1});var Xu=Ke((V5,Ju)=>{var M1=Yu(),P1="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";Ju.exports=M1(P1)});var Gs=Ke(zs=>{"use strict";Object.defineProperty(zs,"__esModule",{value:!0});zs.hmac=void 0;var Ui=yo(),Gl=Ft(),Gc=class extends Gl.Hash{constructor(e,r){super();this.finished=!1,this.destroyed=!1,Ui.default.hash(e);let n=(0,Gl.toBytes)(r);if(this.iHash=e.create(),typeof this.iHash.update!="function")throw new TypeError("Expected instance of class which extends utils.Hash");this.blockLen=this.iHash.blockLen,this.outputLen=this.iHash.outputLen;let o=this.blockLen,s=new Uint8Array(o);s.set(n.length>o?e.create().update(n).digest():n);for(let i=0;i<s.length;i++)s[i]^=54;this.iHash.update(s),this.oHash=e.create();for(let i=0;i<s.length;i++)s[i]^=54^92;this.oHash.update(s),s.fill(0)}update(e){return Ui.default.exists(this),this.iHash.update(e),this}digestInto(e){Ui.default.exists(this),Ui.default.bytes(e,this.outputLen),this.finished=!0,this.iHash.digestInto(e),this.oHash.update(e),this.oHash.digestInto(e),this.destroy()}digest(){let e=new Uint8Array(this.oHash.outputLen);return this.digestInto(e),e}_cloneInto(e){e||(e=Object.create(Object.getPrototypeOf(this),{}));let{oHash:r,iHash:n,finished:o,destroyed:s,blockLen:i,outputLen:f}=this;return e=e,e.finished=o,e.destroyed=s,e.blockLen=i,e.outputLen=f,e.oHash=r._cloneInto(e.oHash),e.iHash=n._cloneInto(e.iHash),e}destroy(){this.destroyed=!0,this.oHash.destroy(),this.iHash.destroy()}},cb=(t,e,r)=>new Gc(t,e).update(r).digest();zs.hmac=cb;zs.hmac.create=(t,e)=>new Gc(t,e)});var Zl=Ke(Xo=>{"use strict";Object.defineProperty(Xo,"__esModule",{value:!0});Xo.pbkdf2Async=Xo.pbkdf2=void 0;var Li=yo(),fb=Gs(),Jo=Ft();function Vl(t,e,r,n){Li.default.hash(t);let o=(0,Jo.checkOpts)({dkLen:32,asyncTick:10},n),{c:s,dkLen:i,asyncTick:f}=o;if(Li.default.number(s),Li.default.number(i),Li.default.number(f),s<1)throw new Error("PBKDF2: iterations (c) should be >= 1");let u=(0,Jo.toBytes)(e),c=(0,Jo.toBytes)(r),d=new Uint8Array(i),g=fb.hmac.create(t,u),E=g._cloneInto().update(c);return{c:s,dkLen:i,asyncTick:f,DK:d,PRF:g,PRFSalt:E}}function $l(t,e,r,n,o){return t.destroy(),e.destroy(),n&&n.destroy(),o.fill(0),r}function ub(t,e,r,n){let{c:o,dkLen:s,DK:i,PRF:f,PRFSalt:u}=Vl(t,e,r,n),c,d=new Uint8Array(4),g=(0,Jo.createView)(d),E=new Uint8Array(f.outputLen);for(let w=1,T=0;T<s;w++,T+=f.outputLen){let b=i.subarray(T,T+f.outputLen);g.setInt32(0,w,!1),(c=u._cloneInto(c)).update(d).digestInto(E),b.set(E.subarray(0,b.length));for(let I=1;I<o;I++){f._cloneInto(c).update(E).digestInto(E);for(let M=0;M<b.length;M++)b[M]^=E[M]}}return $l(f,u,i,c,E)}Xo.pbkdf2=ub;async function lb(t,e,r,n){let{c:o,dkLen:s,asyncTick:i,DK:f,PRF:u,PRFSalt:c}=Vl(t,e,r,n),d,g=new Uint8Array(4),E=(0,Jo.createView)(g),w=new Uint8Array(u.outputLen);for(let T=1,b=0;b<s;T++,b+=u.outputLen){let I=f.subarray(b,b+u.outputLen);E.setInt32(0,T,!1),(d=c._cloneInto(d)).update(g).digestInto(w),I.set(w.subarray(0,I.length)),await(0,Jo.asyncLoop)(o-1,i,M=>{u._cloneInto(d).update(w).digestInto(w);for(let V=0;V<I.length;V++)I[V]^=w[V]})}return $l(u,c,f,d,w)}Xo.pbkdf2Async=lb});var qi=Ke(Wi=>{"use strict";Object.defineProperty(Wi,"__esModule",{value:!0});Wi.SHA2=void 0;var Vc=yo(),Vs=Ft();function db(t,e,r,n){if(typeof t.setBigUint64=="function")return t.setBigUint64(e,r,n);let o=BigInt(32),s=BigInt(4294967295),i=Number(r>>o&s),f=Number(r&s),u=n?4:0,c=n?0:4;t.setUint32(e+u,i,n),t.setUint32(e+c,f,n)}var Yl=class extends Vs.Hash{constructor(e,r,n,o){super();this.blockLen=e,this.outputLen=r,this.padOffset=n,this.isLE=o,this.finished=!1,this.length=0,this.pos=0,this.destroyed=!1,this.buffer=new Uint8Array(e),this.view=(0,Vs.createView)(this.buffer)}update(e){Vc.default.exists(this);let{view:r,buffer:n,blockLen:o}=this;e=(0,Vs.toBytes)(e);let s=e.length;for(let i=0;i<s;){let f=Math.min(o-this.pos,s-i);if(f===o){let u=(0,Vs.createView)(e);for(;o<=s-i;i+=o)this.process(u,i);continue}n.set(e.subarray(i,i+f),this.pos),this.pos+=f,i+=f,this.pos===o&&(this.process(r,0),this.pos=0)}return this.length+=e.length,this.roundClean(),this}digestInto(e){Vc.default.exists(this),Vc.default.output(e,this),this.finished=!0;let{buffer:r,view:n,blockLen:o,isLE:s}=this,{pos:i}=this;r[i++]=128,this.buffer.subarray(i).fill(0),this.padOffset>o-i&&(this.process(n,0),i=0);for(let g=i;g<o;g++)r[g]=0;db(n,o-8,BigInt(this.length*8),s),this.process(n,0);let f=(0,Vs.createView)(e),u=this.outputLen;if(u%4)throw new Error("_sha2: outputLen should be aligned to 32bit");let c=u/4,d=this.get();if(c>d.length)throw new Error("_sha2: outputLen bigger than state");for(let g=0;g<c;g++)f.setUint32(4*g,d[g],s)}digest(){let{buffer:e,outputLen:r}=this;this.digestInto(e);let n=e.slice(0,r);return this.destroy(),n}_cloneInto(e){e||(e=new this.constructor),e.set(...this.get());let{blockLen:r,buffer:n,length:o,finished:s,destroyed:i,pos:f}=this;return e.length=o,e.pos=f,e.finished=s,e.destroyed=i,o%r&&e.buffer.set(n),e}};Wi.SHA2=Yl});var Hn=Ke(Qo=>{"use strict";Object.defineProperty(Qo,"__esModule",{value:!0});Qo.sha224=Qo.sha256=void 0;var hb=qi(),Or=Ft(),pb=(t,e,r)=>t&e^~t&r,gb=(t,e,r)=>t&e^t&r^e&r,mb=new Uint32Array([1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298]),Wn=new Uint32Array([1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225]),qn=new Uint32Array(64),$c=class extends hb.SHA2{constructor(){super(64,32,8,!1);this.A=Wn[0]|0,this.B=Wn[1]|0,this.C=Wn[2]|0,this.D=Wn[3]|0,this.E=Wn[4]|0,this.F=Wn[5]|0,this.G=Wn[6]|0,this.H=Wn[7]|0}get(){let{A:e,B:r,C:n,D:o,E:s,F:i,G:f,H:u}=this;return[e,r,n,o,s,i,f,u]}set(e,r,n,o,s,i,f,u){this.A=e|0,this.B=r|0,this.C=n|0,this.D=o|0,this.E=s|0,this.F=i|0,this.G=f|0,this.H=u|0}process(e,r){for(let g=0;g<16;g++,r+=4)qn[g]=e.getUint32(r,!1);for(let g=16;g<64;g++){let E=qn[g-15],w=qn[g-2],T=(0,Or.rotr)(E,7)^(0,Or.rotr)(E,18)^E>>>3,b=(0,Or.rotr)(w,17)^(0,Or.rotr)(w,19)^w>>>10;qn[g]=b+qn[g-7]+T+qn[g-16]|0}let{A:n,B:o,C:s,D:i,E:f,F:u,G:c,H:d}=this;for(let g=0;g<64;g++){let E=(0,Or.rotr)(f,6)^(0,Or.rotr)(f,11)^(0,Or.rotr)(f,25),w=d+E+pb(f,u,c)+mb[g]+qn[g]|0,b=((0,Or.rotr)(n,2)^(0,Or.rotr)(n,13)^(0,Or.rotr)(n,22))+gb(n,o,s)|0;d=c,c=u,u=f,f=i+w|0,i=s,s=o,o=n,n=w+b|0}n=n+this.A|0,o=o+this.B|0,s=s+this.C|0,i=i+this.D|0,f=f+this.E|0,u=u+this.F|0,c=c+this.G|0,d=d+this.H|0,this.set(n,o,s,i,f,u,c,d)}roundClean(){qn.fill(0)}destroy(){this.set(0,0,0,0,0,0,0,0),this.buffer.fill(0)}},Jl=class extends $c{constructor(){super();this.A=3238371032|0,this.B=914150663|0,this.C=812702999|0,this.D=4144912697|0,this.E=4290775857|0,this.F=1750603025|0,this.G=1694076839|0,this.H=3204075428|0,this.outputLen=28}};Qo.sha256=(0,Or.wrapConstructor)(()=>new $c);Qo.sha224=(0,Or.wrapConstructor)(()=>new Jl)});var Fi=Ke(Mr=>{"use strict";Object.defineProperty(Mr,"__esModule",{value:!0});Mr.sha384=Mr.sha512_256=Mr.sha512_224=Mr.sha512=Mr.SHA512=void 0;var yb=qi(),Xe=vc(),Hi=Ft(),[bb,xb]=Xe.default.split(["0x428a2f98d728ae22","0x7137449123ef65cd","0xb5c0fbcfec4d3b2f","0xe9b5dba58189dbbc","0x3956c25bf348b538","0x59f111f1b605d019","0x923f82a4af194f9b","0xab1c5ed5da6d8118","0xd807aa98a3030242","0x12835b0145706fbe","0x243185be4ee4b28c","0x550c7dc3d5ffb4e2","0x72be5d74f27b896f","0x80deb1fe3b1696b1","0x9bdc06a725c71235","0xc19bf174cf692694","0xe49b69c19ef14ad2","0xefbe4786384f25e3","0x0fc19dc68b8cd5b5","0x240ca1cc77ac9c65","0x2de92c6f592b0275","0x4a7484aa6ea6e483","0x5cb0a9dcbd41fbd4","0x76f988da831153b5","0x983e5152ee66dfab","0xa831c66d2db43210","0xb00327c898fb213f","0xbf597fc7beef0ee4","0xc6e00bf33da88fc2","0xd5a79147930aa725","0x06ca6351e003826f","0x142929670a0e6e70","0x27b70a8546d22ffc","0x2e1b21385c26c926","0x4d2c6dfc5ac42aed","0x53380d139d95b3df","0x650a73548baf63de","0x766a0abb3c77b2a8","0x81c2c92e47edaee6","0x92722c851482353b","0xa2bfe8a14cf10364","0xa81a664bbc423001","0xc24b8b70d0f89791","0xc76c51a30654be30","0xd192e819d6ef5218","0xd69906245565a910","0xf40e35855771202a","0x106aa07032bbd1b8","0x19a4c116b8d2d0c8","0x1e376c085141ab53","0x2748774cdf8eeb99","0x34b0bcb5e19b48a8","0x391c0cb3c5c95a63","0x4ed8aa4ae3418acb","0x5b9cca4f7763e373","0x682e6ff3d6b2b8a3","0x748f82ee5defb2fc","0x78a5636f43172f60","0x84c87814a1f0ab72","0x8cc702081a6439ec","0x90befffa23631e28","0xa4506cebde82bde9","0xbef9a3f7b2c67915","0xc67178f2e372532b","0xca273eceea26619c","0xd186b8c721c0c207","0xeada7dd6cde0eb1e","0xf57d4f7fee6ed178","0x06f067aa72176fba","0x0a637dc5a2c898a6","0x113f9804bef90dae","0x1b710b35131c471b","0x28db77f523047d84","0x32caab7b40c72493","0x3c9ebe0a15c9bebc","0x431d67c49c100d4c","0x4cc5d4becb3e42b6","0x597f299cfc657e2a","0x5fcb6fab3ad6faec","0x6c44198c4a475817"].map(t=>BigInt(t))),Fn=new Uint32Array(80),Kn=new Uint32Array(80),es=class extends yb.SHA2{constructor(){super(128,64,16,!1);this.Ah=1779033703|0,this.Al=4089235720|0,this.Bh=3144134277|0,this.Bl=2227873595|0,this.Ch=1013904242|0,this.Cl=4271175723|0,this.Dh=2773480762|0,this.Dl=1595750129|0,this.Eh=1359893119|0,this.El=2917565137|0,this.Fh=2600822924|0,this.Fl=725511199|0,this.Gh=528734635|0,this.Gl=4215389547|0,this.Hh=1541459225|0,this.Hl=327033209|0}get(){let{Ah:e,Al:r,Bh:n,Bl:o,Ch:s,Cl:i,Dh:f,Dl:u,Eh:c,El:d,Fh:g,Fl:E,Gh:w,Gl:T,Hh:b,Hl:I}=this;return[e,r,n,o,s,i,f,u,c,d,g,E,w,T,b,I]}set(e,r,n,o,s,i,f,u,c,d,g,E,w,T,b,I){this.Ah=e|0,this.Al=r|0,this.Bh=n|0,this.Bl=o|0,this.Ch=s|0,this.Cl=i|0,this.Dh=f|0,this.Dl=u|0,this.Eh=c|0,this.El=d|0,this.Fh=g|0,this.Fl=E|0,this.Gh=w|0,this.Gl=T|0,this.Hh=b|0,this.Hl=I|0}process(e,r){for(let G=0;G<16;G++,r+=4)Fn[G]=e.getUint32(r),Kn[G]=e.getUint32(r+=4);for(let G=16;G<80;G++){let oe=Fn[G-15]|0,z=Kn[G-15]|0,L=Xe.default.rotrSH(oe,z,1)^Xe.default.rotrSH(oe,z,8)^Xe.default.shrSH(oe,z,7),ne=Xe.default.rotrSL(oe,z,1)^Xe.default.rotrSL(oe,z,8)^Xe.default.shrSL(oe,z,7),D=Fn[G-2]|0,x=Kn[G-2]|0,P=Xe.default.rotrSH(D,x,19)^Xe.default.rotrBH(D,x,61)^Xe.default.shrSH(D,x,6),$=Xe.default.rotrSL(D,x,19)^Xe.default.rotrBL(D,x,61)^Xe.default.shrSL(D,x,6),se=Xe.default.add4L(ne,$,Kn[G-7],Kn[G-16]),we=Xe.default.add4H(se,L,P,Fn[G-7],Fn[G-16]);Fn[G]=we|0,Kn[G]=se|0}let{Ah:n,Al:o,Bh:s,Bl:i,Ch:f,Cl:u,Dh:c,Dl:d,Eh:g,El:E,Fh:w,Fl:T,Gh:b,Gl:I,Hh:M,Hl:V}=this;for(let G=0;G<80;G++){let oe=Xe.default.rotrSH(g,E,14)^Xe.default.rotrSH(g,E,18)^Xe.default.rotrBH(g,E,41),z=Xe.default.rotrSL(g,E,14)^Xe.default.rotrSL(g,E,18)^Xe.default.rotrBL(g,E,41),L=g&w^~g&b,ne=E&T^~E&I,D=Xe.default.add5L(V,z,ne,xb[G],Kn[G]),x=Xe.default.add5H(D,M,oe,L,bb[G],Fn[G]),P=D|0,$=Xe.default.rotrSH(n,o,28)^Xe.default.rotrBH(n,o,34)^Xe.default.rotrBH(n,o,39),se=Xe.default.rotrSL(n,o,28)^Xe.default.rotrBL(n,o,34)^Xe.default.rotrBL(n,o,39),we=n&s^n&f^s&f,ye=o&i^o&u^i&u;M=b|0,V=I|0,b=w|0,I=T|0,w=g|0,T=E|0,{h:g,l:E}=Xe.default.add(c|0,d|0,x|0,P|0),c=f|0,d=u|0,f=s|0,u=i|0,s=n|0,i=o|0;let Q=Xe.default.add3L(P,se,ye);n=Xe.default.add3H(Q,x,$,we),o=Q|0}({h:n,l:o}=Xe.default.add(this.Ah|0,this.Al|0,n|0,o|0)),{h:s,l:i}=Xe.default.add(this.Bh|0,this.Bl|0,s|0,i|0),{h:f,l:u}=Xe.default.add(this.Ch|0,this.Cl|0,f|0,u|0),{h:c,l:d}=Xe.default.add(this.Dh|0,this.Dl|0,c|0,d|0),{h:g,l:E}=Xe.default.add(this.Eh|0,this.El|0,g|0,E|0),{h:w,l:T}=Xe.default.add(this.Fh|0,this.Fl|0,w|0,T|0),{h:b,l:I}=Xe.default.add(this.Gh|0,this.Gl|0,b|0,I|0),{h:M,l:V}=Xe.default.add(this.Hh|0,this.Hl|0,M|0,V|0),this.set(n,o,s,i,f,u,c,d,g,E,w,T,b,I,M,V)}roundClean(){Fn.fill(0),Kn.fill(0)}destroy(){this.buffer.fill(0),this.set(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)}};Mr.SHA512=es;var Xl=class extends es{constructor(){super();this.Ah=2352822216|0,this.Al=424955298|0,this.Bh=1944164710|0,this.Bl=2312950998|0,this.Ch=502970286|0,this.Cl=855612546|0,this.Dh=1738396948|0,this.Dl=1479516111|0,this.Eh=258812777|0,this.El=2077511080|0,this.Fh=2011393907|0,this.Fl=79989058|0,this.Gh=1067287976|0,this.Gl=1780299464|0,this.Hh=286451373|0,this.Hl=2446758561|0,this.outputLen=28}},Ql=class extends es{constructor(){super();this.Ah=573645204|0,this.Al=4230739756|0,this.Bh=2673172387|0,this.Bl=3360449730|0,this.Ch=596883563|0,this.Cl=1867755857|0,this.Dh=2520282905|0,this.Dl=1497426621|0,this.Eh=2519219938|0,this.El=2827943907|0,this.Fh=3193839141|0,this.Fl=1401305490|0,this.Gh=721525244|0,this.Gl=746961066|0,this.Hh=246885852|0,this.Hl=2177182882|0,this.outputLen=32}},ed=class extends es{constructor(){super();this.Ah=3418070365|0,this.Al=3238371032|0,this.Bh=1654270250|0,this.Bl=914150663|0,this.Ch=2438529370|0,this.Cl=812702999|0,this.Dh=355462360|0,this.Dl=4144912697|0,this.Eh=1731405415|0,this.El=4290775857|0,this.Fh=2394180231|0,this.Fl=1750603025|0,this.Gh=3675008525|0,this.Gl=1694076839|0,this.Hh=1203062813|0,this.Hl=3204075428|0,this.outputLen=48}};Mr.sha512=(0,Hi.wrapConstructor)(()=>new es);Mr.sha512_224=(0,Hi.wrapConstructor)(()=>new Xl);Mr.sha512_256=(0,Hi.wrapConstructor)(()=>new Ql);Mr.sha384=(0,Hi.wrapConstructor)(()=>new ed)});var Xc=Ke(je=>{"use strict";Object.defineProperty(je,"__esModule",{value:!0});je.bytes=je.stringToBytes=je.str=je.bytesToString=je.hex=je.utf8=je.bech32m=je.bech32=je.base58check=je.base58xmr=je.base58xrp=je.base58flickr=je.base58=je.base64url=je.base64=je.base32crockford=je.base32hex=je.base32=je.base16=je.utils=je.assertNumber=void 0;function zn(t){if(!Number.isSafeInteger(t))throw new Error(`Wrong integer: ${t}`)}je.assertNumber=zn;function Zr(...t){let e=(o,s)=>i=>o(s(i)),r=Array.from(t).reverse().reduce((o,s)=>o?e(o,s.encode):s.encode,void 0),n=t.reduce((o,s)=>o?e(o,s.decode):s.decode,void 0);return{encode:r,decode:n}}function sn(t){return{encode:e=>{if(!Array.isArray(e)||e.length&&typeof e[0]!="number")throw new Error("alphabet.encode input should be an array of numbers");return e.map(r=>{if(zn(r),r<0||r>=t.length)throw new Error(`Digit index outside alphabet: ${r} (alphabet: ${t.length})`);return t[r]})},decode:e=>{if(!Array.isArray(e)||e.length&&typeof e[0]!="string")throw new Error("alphabet.decode input should be array of strings");return e.map(r=>{if(typeof r!="string")throw new Error(`alphabet.decode: not string element=${r}`);let n=t.indexOf(r);if(n===-1)throw new Error(`Unknown letter: "${r}". Allowed: ${t}`);return n})}}}function an(t=""){if(typeof t!="string")throw new Error("join separator should be string");return{encode:e=>{if(!Array.isArray(e)||e.length&&typeof e[0]!="string")throw new Error("join.encode input should be array of strings");for(let r of e)if(typeof r!="string")throw new Error(`join.encode: non-string input=${r}`);return e.join(t)},decode:e=>{if(typeof e!="string")throw new Error("join.decode input should be string");return e.split(t)}}}function $s(t,e="="){if(zn(t),typeof e!="string")throw new Error("padding chr should be string");return{encode(r){if(!Array.isArray(r)||r.length&&typeof r[0]!="string")throw new Error("padding.encode input should be array of strings");for(let n of r)if(typeof n!="string")throw new Error(`padding.encode: non-string input=${n}`);for(;r.length*t%8;)r.push(e);return r},decode(r){if(!Array.isArray(r)||r.length&&typeof r[0]!="string")throw new Error("padding.encode input should be array of strings");for(let o of r)if(typeof o!="string")throw new Error(`padding.decode: non-string input=${o}`);let n=r.length;if(n*t%8)throw new Error("Invalid padding: string should have whole number of bytes");for(;n>0&&r[n-1]===e;n--)if(!((n-1)*t%8))throw new Error("Invalid padding: string has too much padding");return r.slice(0,n)}}}function td(t){if(typeof t!="function")throw new Error("normalize fn should be function");return{encode:e=>e,decode:e=>t(e)}}function rd(t,e,r){if(e<2)throw new Error(`convertRadix: wrong from=${e}, base cannot be less than 2`);if(r<2)throw new Error(`convertRadix: wrong to=${r}, base cannot be less than 2`);if(!Array.isArray(t))throw new Error("convertRadix: data should be array");if(!t.length)return[];let n=0,o=[],s=Array.from(t);for(s.forEach(i=>{if(zn(i),i<0||i>=e)throw new Error(`Wrong integer: ${i}`)});;){let i=0,f=!0;for(let u=n;u<s.length;u++){let c=s[u],d=e*i+c;if(!Number.isSafeInteger(d)||e*i/e!==i||d-c!=e*i)throw new Error("convertRadix: carry overflow");if(i=d%r,s[u]=Math.floor(d/r),!Number.isSafeInteger(s[u])||s[u]*r+i!==d)throw new Error("convertRadix: carry overflow");if(f)s[u]?f=!1:n=u;else continue}if(o.push(i),f)break}for(let i=0;i<t.length-1&&t[i]===0;i++)o.push(0);return o.reverse()}var nd=(t,e)=>e?nd(e,t%e):t,Ki=(t,e)=>t+(e-nd(t,e));function Zc(t,e,r,n){if(!Array.isArray(t))throw new Error("convertRadix2: data should be array");if(e<=0||e>32)throw new Error(`convertRadix2: wrong from=${e}`);if(r<=0||r>32)throw new Error(`convertRadix2: wrong to=${r}`);if(Ki(e,r)>32)throw new Error(`convertRadix2: carry overflow from=${e} to=${r} carryBits=${Ki(e,r)}`);let o=0,s=0,i=2**r-1,f=[];for(let u of t){if(zn(u),u>=2**e)throw new Error(`convertRadix2: invalid data word=${u} from=${e}`);if(o=o<<e|u,s+e>32)throw new Error(`convertRadix2: carry overflow pos=${s} from=${e}`);for(s+=e;s>=r;s-=r)f.push((o>>s-r&i)>>>0);o&=2**s-1}if(o=o<<r-s&i,!n&&s>=e)throw new Error("Excess padding");if(!n&&o)throw new Error(`Non-zero padding: ${o}`);return n&&s>0&&f.push(o>>>0),f}function od(t){return zn(t),{encode:e=>{if(!(e instanceof Uint8Array))throw new Error("radix.encode input should be Uint8Array");return rd(Array.from(e),2**8,t)},decode:e=>{if(!Array.isArray(e)||e.length&&typeof e[0]!="number")throw new Error("radix.decode input should be array of strings");return Uint8Array.from(rd(e,t,2**8))}}}function vn(t,e=!1){if(zn(t),t<=0||t>32)throw new Error("radix2: bits should be in (0..32]");if(Ki(8,t)>32||Ki(t,8)>32)throw new Error("radix2: carry overflow");return{encode:r=>{if(!(r instanceof Uint8Array))throw new Error("radix2.encode input should be Uint8Array");return Zc(Array.from(r),8,t,!e)},decode:r=>{if(!Array.isArray(r)||r.length&&typeof r[0]!="number")throw new Error("radix2.decode input should be array of strings");return Uint8Array.from(Zc(r,t,8,e))}}}function sd(t){if(typeof t!="function")throw new Error("unsafeWrapper fn should be function");return function(...e){try{return t.apply(null,e)}catch(r){}}}function id(t,e){if(zn(t),typeof e!="function")throw new Error("checksum fn should be function");return{encode(r){if(!(r instanceof Uint8Array))throw new Error("checksum.encode: input should be Uint8Array");let n=e(r).slice(0,t),o=new Uint8Array(r.length+t);return o.set(r),o.set(n,r.length),o},decode(r){if(!(r instanceof Uint8Array))throw new Error("checksum.decode: input should be Uint8Array");let n=r.slice(0,-t),o=e(n).slice(0,t),s=r.slice(-t);for(let i=0;i<t;i++)if(o[i]!==s[i])throw new Error("Invalid checksum");return n}}}je.utils={alphabet:sn,chain:Zr,checksum:id,radix:od,radix2:vn,join:an,padding:$s};je.base16=Zr(vn(4),sn("0123456789ABCDEF"),an(""));je.base32=Zr(vn(5),sn("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"),$s(5),an(""));je.base32hex=Zr(vn(5),sn("0123456789ABCDEFGHIJKLMNOPQRSTUV"),$s(5),an(""));je.base32crockford=Zr(vn(5),sn("0123456789ABCDEFGHJKMNPQRSTVWXYZ"),an(""),td(t=>t.toUpperCase().replace(/O/g,"0").replace(/[IL]/g,"1")));je.base64=Zr(vn(6),sn("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"),$s(6),an(""));je.base64url=Zr(vn(6),sn("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"),$s(6),an(""));var Yc=t=>Zr(od(58),sn(t),an(""));je.base58=Yc("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz");je.base58flickr=Yc("123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ");je.base58xrp=Yc("rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz");var ad=[0,2,3,5,6,7,9,10,11];je.base58xmr={encode(t){let e="";for(let r=0;r<t.length;r+=8){let n=t.subarray(r,r+8);e+=je.base58.encode(n).padStart(ad[n.length],"1")}return e},decode(t){let e=[];for(let r=0;r<t.length;r+=11){let n=t.slice(r,r+11),o=ad.indexOf(n.length),s=je.base58.decode(n);for(let i=0;i<s.length-o;i++)if(s[i]!==0)throw new Error("base58xmr: wrong padding");e=e.concat(Array.from(s.slice(s.length-o)))}return Uint8Array.from(e)}};var wb=t=>Zr(id(4,e=>t(t(e))),je.base58);je.base58check=wb;var Jc=Zr(sn("qpzry9x8gf2tvdw0s3jn54khce6mua7l"),an("")),cd=[996825010,642813549,513874426,1027748829,705979059];function Zs(t){let e=t>>25,r=(t&33554431)<<5;for(let n=0;n<cd.length;n++)(e>>n&1)==1&&(r^=cd[n]);return r}function fd(t,e,r=1){let n=t.length,o=1;for(let s=0;s<n;s++){let i=t.charCodeAt(s);if(i<33||i>126)throw new Error(`Invalid prefix (${t})`);o=Zs(o)^i>>5}o=Zs(o);for(let s=0;s<n;s++)o=Zs(o)^t.charCodeAt(s)&31;for(let s of e)o=Zs(o)^s;for(let s=0;s<6;s++)o=Zs(o);return o^=r,Jc.encode(Zc([o%2**30],30,5,!1))}function ud(t){let e=t==="bech32"?1:734539939,r=vn(5),n=r.decode,o=r.encode,s=sd(n);function i(d,g,E=90){if(typeof d!="string")throw new Error(`bech32.encode prefix should be string, not ${typeof d}`);if(!Array.isArray(g)||g.length&&typeof g[0]!="number")throw new Error(`bech32.encode words should be array of numbers, not ${typeof g}`);let w=d.length+7+g.length;if(E!==!1&&w>E)throw new TypeError(`Length ${w} exceeds limit ${E}`);return d=d.toLowerCase(),`${d}1${Jc.encode(g)}${fd(d,g,e)}`}function f(d,g=90){if(typeof d!="string")throw new Error(`bech32.decode input should be string, not ${typeof d}`);if(d.length<8||g!==!1&&d.length>g)throw new TypeError(`Wrong string length: ${d.length} (${d}). Expected (8..${g})`);let E=d.toLowerCase();if(d!==E&&d!==d.toUpperCase())throw new Error("String must be lowercase or uppercase");d=E;let w=d.lastIndexOf("1");if(w===0||w===-1)throw new Error('Letter "1" must be present between prefix and data only');let T=d.slice(0,w),b=d.slice(w+1);if(b.length<6)throw new Error("Data must be at least 6 characters long");let I=Jc.decode(b).slice(0,-6),M=fd(T,I,e);if(!b.endsWith(M))throw new Error(`Invalid checksum in ${d}: expected "${M}"`);return{prefix:T,words:I}}let u=sd(f);function c(d){let{prefix:g,words:E}=f(d,!1);return{prefix:g,words:E,bytes:n(E)}}return{encode:i,decode:f,decodeToBytes:c,decodeUnsafe:u,fromWords:n,fromWordsUnsafe:s,toWords:o}}je.bech32=ud("bech32");je.bech32m=ud("bech32m");je.utf8={encode:t=>new TextDecoder().decode(t),decode:t=>new TextEncoder().encode(t)};je.hex=Zr(vn(4),sn("0123456789abcdef"),an(""),td(t=>{if(typeof t!="string"||t.length%2)throw new TypeError(`hex.decode: expected string, got ${typeof t} with length ${t.length}`);return t.toLowerCase()}));var Ys={utf8:je.utf8,hex:je.hex,base16:je.base16,base32:je.base32,base64:je.base64,base64url:je.base64url,base58:je.base58,base58xmr:je.base58xmr},ld=`Invalid encoding type. Available types: ${Object.keys(Ys).join(", ")}`,vb=(t,e)=>{if(typeof t!="string"||!Ys.hasOwnProperty(t))throw new TypeError(ld);if(!(e instanceof Uint8Array))throw new TypeError("bytesToString() expects Uint8Array");return Ys[t].encode(e)};je.bytesToString=vb;je.str=je.bytesToString;var Sb=(t,e)=>{if(!Ys.hasOwnProperty(t))throw new TypeError(ld);if(typeof e!="string")throw new TypeError("stringToBytes() expects string");return Ys[t].decode(e)};je.stringToBytes=Sb;je.bytes=je.stringToBytes});var vd=Ke(mr=>{"use strict";Object.defineProperty(mr,"__esModule",{value:!0});mr.mnemonicToSeedSync=mr.mnemonicToSeed=mr.validateMnemonic=mr.entropyToMnemonic=mr.mnemonicToEntropy=mr.generateMnemonic=void 0;var dd=yo(),hd=Zl(),Eb=Hn(),pd=Fi(),Ab=Ft(),zi=Xc(),Tb=t=>t[0]==="\u3042\u3044\u3053\u304F\u3057\u3093";function gd(t){if(typeof t!="string")throw new TypeError(`Invalid mnemonic type: ${typeof t}`);return t.normalize("NFKD")}function Qc(t){let e=gd(t),r=e.split(" ");if(![12,15,18,21,24].includes(r.length))throw new Error("Invalid mnemonic");return{nfkd:e,words:r}}function md(t){dd.default.bytes(t,16,20,24,28,32)}function _b(t,e=128){if(dd.default.number(e),e%32!=0||e>256)throw new TypeError("Invalid entropy");return xd((0,Ab.randomBytes)(e/8),t)}mr.generateMnemonic=_b;var Cb=t=>{let e=8-t.length/4;return new Uint8Array([(0,Eb.sha256)(t)[0]>>e<<e])};function yd(t){if(!Array.isArray(t)||t.length!==2048||typeof t[0]!="string")throw new Error("Worlist: expected array of 2048 strings");return t.forEach(e=>{if(typeof e!="string")throw new Error(`Wordlist: non-string element: ${e}`)}),zi.utils.chain(zi.utils.checksum(1,Cb),zi.utils.radix2(11,!0),zi.utils.alphabet(t))}function bd(t,e){let{words:r}=Qc(t),n=yd(e).decode(r);return md(n),n}mr.mnemonicToEntropy=bd;function xd(t,e){return md(t),yd(e).encode(t).join(Tb(e)?"\u3000":" ")}mr.entropyToMnemonic=xd;function Ib(t,e){try{bd(t,e)}catch(r){return!1}return!0}mr.validateMnemonic=Ib;var wd=t=>gd(`mnemonic${t}`);function jb(t,e=""){return(0,hd.pbkdf2Async)(pd.sha512,Qc(t).nfkd,wd(e),{c:2048,dkLen:64})}mr.mnemonicToSeed=jb;function Bb(t,e=""){return(0,hd.pbkdf2)(pd.sha512,Qc(t).nfkd,wd(e),{c:2048,dkLen:64})}mr.mnemonicToSeedSync=Bb});var Eo=Ke(Ye=>{"use strict";Object.defineProperty(Ye,"__esModule",{value:!0});Ye.validateObject=Ye.createHmacDrbg=Ye.bitMask=Ye.bitSet=Ye.bitGet=Ye.bitLen=Ye.utf8ToBytes=Ye.equalBytes=Ye.concatBytes=Ye.ensureBytes=Ye.numberToVarBytesBE=Ye.numberToBytesLE=Ye.numberToBytesBE=Ye.bytesToNumberLE=Ye.bytesToNumberBE=Ye.hexToBytes=Ye.hexToNumber=Ye.numberToHexUnpadded=Ye.bytesToHex=void 0;var Id=BigInt(0),Vi=BigInt(1),Ub=BigInt(2),$i=t=>t instanceof Uint8Array,Lb=Array.from({length:256},(t,e)=>e.toString(16).padStart(2,"0"));function sf(t){if(!$i(t))throw new Error("Uint8Array expected");let e="";for(let r=0;r<t.length;r++)e+=Lb[t[r]];return e}Ye.bytesToHex=sf;function jd(t){let e=t.toString(16);return e.length&1?`0${e}`:e}Ye.numberToHexUnpadded=jd;function af(t){if(typeof t!="string")throw new Error("hex string expected, got "+typeof t);return BigInt(t===""?"0":`0x${t}`)}Ye.hexToNumber=af;function Zi(t){if(typeof t!="string")throw new Error("hex string expected, got "+typeof t);if(t.length%2)throw new Error("hex string is invalid: unpadded "+t.length);let e=new Uint8Array(t.length/2);for(let r=0;r<e.length;r++){let n=r*2,o=t.slice(n,n+2),s=Number.parseInt(o,16);if(Number.isNaN(s)||s<0)throw new Error("invalid byte sequence");e[r]=s}return e}Ye.hexToBytes=Zi;function Wb(t){return af(sf(t))}Ye.bytesToNumberBE=Wb;function qb(t){if(!$i(t))throw new Error("Uint8Array expected");return af(sf(Uint8Array.from(t).reverse()))}Ye.bytesToNumberLE=qb;var Hb=(t,e)=>Zi(t.toString(16).padStart(e*2,"0"));Ye.numberToBytesBE=Hb;var Fb=(t,e)=>(0,Ye.numberToBytesBE)(t,e).reverse();Ye.numberToBytesLE=Fb;var Kb=t=>Zi(jd(t));Ye.numberToVarBytesBE=Kb;function zb(t,e,r){let n;if(typeof e=="string")try{n=Zi(e)}catch(s){throw new Error(`${t} must be valid hex string, got "${e}". Cause: ${s}`)}else if($i(e))n=Uint8Array.from(e);else throw new Error(`${t} must be hex string or Uint8Array`);let o=n.length;if(typeof r=="number"&&o!==r)throw new Error(`${t} expected ${r} bytes, got ${o}`);return n}Ye.ensureBytes=zb;function Bd(...t){let e=new Uint8Array(t.reduce((n,o)=>n+o.length,0)),r=0;return t.forEach(n=>{if(!$i(n))throw new Error("Uint8Array expected");e.set(n,r),r+=n.length}),e}Ye.concatBytes=Bd;function Gb(t,e){if(t.length!==e.length)return!1;for(let r=0;r<t.length;r++)if(t[r]!==e[r])return!1;return!0}Ye.equalBytes=Gb;function Vb(t){if(typeof t!="string")throw new Error(`utf8ToBytes expected string, got ${typeof t}`);return new TextEncoder().encode(t)}Ye.utf8ToBytes=Vb;function $b(t){let e;for(e=0;t>Id;t>>=Vi,e+=1);return e}Ye.bitLen=$b;var Zb=(t,e)=>t>>BigInt(e)&Vi;Ye.bitGet=Zb;var Yb=(t,e,r)=>t|(r?Vi:Id)<<BigInt(e);Ye.bitSet=Yb;var Jb=t=>(Ub<<BigInt(t-1))-Vi;Ye.bitMask=Jb;var cf=t=>new Uint8Array(t),kd=t=>Uint8Array.from(t);function Xb(t,e,r){if(typeof t!="number"||t<2)throw new Error("hashLen must be a number");if(typeof e!="number"||e<2)throw new Error("qByteLen must be a number");if(typeof r!="function")throw new Error("hmacFn must be a function");let n=cf(t),o=cf(t),s=0,i=()=>{n.fill(1),o.fill(0),s=0},f=(...g)=>r(o,n,...g),u=(g=cf())=>{o=f(kd([0]),g),n=f(),g.length!==0&&(o=f(kd([1]),g),n=f())},c=()=>{if(s++>=1e3)throw new Error("drbg: tried 1000 values");let g=0,E=[];for(;g<e;){n=f();let w=n.slice();E.push(w),g+=n.length}return Bd(...E)};return(g,E)=>{i(),u(g);let w;for(;!(w=E(c()));)u();return i(),w}}Ye.createHmacDrbg=Xb;var Qb={bigint:t=>typeof t=="bigint",function:t=>typeof t=="function",boolean:t=>typeof t=="boolean",string:t=>typeof t=="string",isSafeInteger:t=>Number.isSafeInteger(t),array:t=>Array.isArray(t),field:(t,e)=>e.Fp.isValid(t),hash:t=>typeof t=="function"&&Number.isSafeInteger(t.outputLen)};function e2(t,e,r={}){let n=(o,s,i)=>{let f=Qb[s];if(typeof f!="function")throw new Error(`Invalid validator "${s}", expected function`);let u=t[o];if(!(i&&u===void 0)&&!f(u,t))throw new Error(`Invalid param ${String(o)}=${u} (${typeof u}), expected ${s}`)};for(let[o,s]of Object.entries(e))n(o,s,!1);for(let[o,s]of Object.entries(r))n(o,s,!0);return t}Ye.validateObject=e2});var Ao=Ke(ot=>{"use strict";Object.defineProperty(ot,"__esModule",{value:!0});ot.hashToPrivateScalar=ot.FpSqrtEven=ot.FpSqrtOdd=ot.Field=ot.nLength=ot.FpIsSquare=ot.FpDiv=ot.FpInvertBatch=ot.FpPow=ot.validateField=ot.isNegativeLE=ot.FpSqrt=ot.tonelliShanks=ot.invert=ot.pow2=ot.pow=ot.mod=void 0;var En=Eo(),Gt=BigInt(0),At=BigInt(1),Gn=BigInt(2),t2=BigInt(3),ff=BigInt(4),Od=BigInt(5),Md=BigInt(8),r2=BigInt(9),n2=BigInt(16);function Pr(t,e){let r=t%e;return r>=Gt?r:e+r}ot.mod=Pr;function Pd(t,e,r){if(r<=Gt||e<Gt)throw new Error("Expected power/modulo > 0");if(r===At)return Gt;let n=At;for(;e>Gt;)e&At&&(n=n*t%r),t=t*t%r,e>>=At;return n}ot.pow=Pd;function o2(t,e,r){let n=t;for(;e-- >Gt;)n*=n,n%=r;return n}ot.pow2=o2;function Yi(t,e){if(t===Gt||e<=Gt)throw new Error(`invert: expected positive integers, got n=${t} mod=${e}`);let r=Pr(t,e),n=e,o=Gt,s=At,i=At,f=Gt;for(;r!==Gt;){let c=n/r,d=n%r,g=o-i*c,E=s-f*c;n=r,r=d,o=i,s=f,i=g,f=E}if(n!==At)throw new Error("invert: does not exist");return Pr(o,e)}ot.invert=Yi;function Nd(t){let e=(t-At)/Gn,r,n,o;for(r=t-At,n=0;r%Gn===Gt;r/=Gn,n++);for(o=Gn;o<t&&Pd(o,e,t)!==t-At;o++);if(n===1){let i=(t+At)/ff;return function(u,c){let d=u.pow(c,i);if(!u.eql(u.sqr(d),c))throw new Error("Cannot find square root");return d}}let s=(r+At)/Gn;return function(f,u){if(f.pow(u,e)===f.neg(f.ONE))throw new Error("Cannot find square root");let c=n,d=f.pow(f.mul(f.ONE,o),r),g=f.pow(u,s),E=f.pow(u,r);for(;!f.eql(E,f.ONE);){if(f.eql(E,f.ZERO))return f.ZERO;let w=1;for(let b=f.sqr(E);w<c&&!f.eql(b,f.ONE);w++)b=f.sqr(b);let T=f.pow(d,At<<BigInt(c-w-1));d=f.sqr(T),g=f.mul(g,T),E=f.mul(E,d),c=w}return g}}ot.tonelliShanks=Nd;function Rd(t){if(t%ff===t2){let e=(t+At)/ff;return function(n,o){let s=n.pow(o,e);if(!n.eql(n.sqr(s),o))throw new Error("Cannot find square root");return s}}if(t%Md===Od){let e=(t-Od)/Md;return function(n,o){let s=n.mul(o,Gn),i=n.pow(s,e),f=n.mul(o,i),u=n.mul(n.mul(f,Gn),i),c=n.mul(f,n.sub(u,n.ONE));if(!n.eql(n.sqr(c),o))throw new Error("Cannot find square root");return c}}return t%n2===r2,Nd(t)}ot.FpSqrt=Rd;var s2=(t,e)=>(Pr(t,e)&At)===At;ot.isNegativeLE=s2;var i2=["create","isValid","is0","neg","inv","sqrt","sqr","eql","add","sub","mul","pow","div","addN","subN","mulN","sqrN"];function a2(t){let e={ORDER:"bigint",MASK:"bigint",BYTES:"isSafeInteger",BITS:"isSafeInteger"},r=i2.reduce((n,o)=>(n[o]="function",n),e);return(0,En.validateObject)(t,r)}ot.validateField=a2;function Dd(t,e,r){if(r<Gt)throw new Error("Expected power > 0");if(r===Gt)return t.ONE;if(r===At)return e;let n=t.ONE,o=e;for(;r>Gt;)r&At&&(n=t.mul(n,o)),o=t.sqr(o),r>>=At;return n}ot.FpPow=Dd;function Ud(t,e){let r=new Array(e.length),n=e.reduce((s,i,f)=>t.is0(i)?s:(r[f]=s,t.mul(s,i)),t.ONE),o=t.inv(n);return e.reduceRight((s,i,f)=>t.is0(i)?s:(r[f]=t.mul(s,r[f]),t.mul(s,i)),o),r}ot.FpInvertBatch=Ud;function c2(t,e,r){return t.mul(e,typeof r=="bigint"?Yi(r,t.ORDER):t.inv(r))}ot.FpDiv=c2;function f2(t){let e=(t.ORDER-At)/Gn;return r=>{let n=t.pow(r,e);return t.eql(n,t.ZERO)||t.eql(n,t.ONE)}}ot.FpIsSquare=f2;function uf(t,e){let r=e!==void 0?e:t.toString(2).length,n=Math.ceil(r/8);return{nBitLength:r,nByteLength:n}}ot.nLength=uf;function u2(t,e,r=!1,n={}){if(t<=Gt)throw new Error(`Expected Fp ORDER > 0, got ${t}`);let{nBitLength:o,nByteLength:s}=uf(t,e);if(s>2048)throw new Error("Field lengths over 2048 bytes are not supported");let i=Rd(t),f=Object.freeze({ORDER:t,BITS:o,BYTES:s,MASK:(0,En.bitMask)(o),ZERO:Gt,ONE:At,create:u=>Pr(u,t),isValid:u=>{if(typeof u!="bigint")throw new Error(`Invalid field element: expected bigint, got ${typeof u}`);return Gt<=u&&u<t},is0:u=>u===Gt,isOdd:u=>(u&At)===At,neg:u=>Pr(-u,t),eql:(u,c)=>u===c,sqr:u=>Pr(u*u,t),add:(u,c)=>Pr(u+c,t),sub:(u,c)=>Pr(u-c,t),mul:(u,c)=>Pr(u*c,t),pow:(u,c)=>Dd(f,u,c),div:(u,c)=>Pr(u*Yi(c,t),t),sqrN:u=>u*u,addN:(u,c)=>u+c,subN:(u,c)=>u-c,mulN:(u,c)=>u*c,inv:u=>Yi(u,t),sqrt:n.sqrt||(u=>i(f,u)),invertBatch:u=>Ud(f,u),cmov:(u,c,d)=>d?c:u,toBytes:u=>r?(0,En.numberToBytesLE)(u,s):(0,En.numberToBytesBE)(u,s),fromBytes:u=>{if(u.length!==s)throw new Error(`Fp.fromBytes: expected ${s}, got ${u.length}`);return r?(0,En.bytesToNumberLE)(u):(0,En.bytesToNumberBE)(u)}});return Object.freeze(f)}ot.Field=u2;function l2(t,e){if(!t.isOdd)throw new Error("Field doesn't have isOdd");let r=t.sqrt(e);return t.isOdd(r)?r:t.neg(r)}ot.FpSqrtOdd=l2;function d2(t,e){if(!t.isOdd)throw new Error("Field doesn't have isOdd");let r=t.sqrt(e);return t.isOdd(r)?t.neg(r):r}ot.FpSqrtEven=d2;function h2(t,e,r=!1){t=(0,En.ensureBytes)("privateHash",t);let n=t.length,o=uf(e).nByteLength+8;if(o<24||n<o||n>1024)throw new Error(`hashToPrivateScalar: expected ${o}-1024 bytes of input, got ${n}`);let s=r?(0,En.bytesToNumberLE)(t):(0,En.bytesToNumberBE)(t);return Pr(s,e-At)+At}ot.hashToPrivateScalar=h2});var Wd=Ke(ts=>{"use strict";Object.defineProperty(ts,"__esModule",{value:!0});ts.validateBasic=ts.wNAF=void 0;var Ld=Ao(),p2=Eo(),g2=BigInt(0),lf=BigInt(1);function m2(t,e){let r=(o,s)=>{let i=s.negate();return o?i:s},n=o=>{let s=Math.ceil(e/o)+1,i=2**(o-1);return{windows:s,windowSize:i}};return{constTimeNegate:r,unsafeLadder(o,s){let i=t.ZERO,f=o;for(;s>g2;)s&lf&&(i=i.add(f)),f=f.double(),s>>=lf;return i},precomputeWindow(o,s){let{windows:i,windowSize:f}=n(s),u=[],c=o,d=c;for(let g=0;g<i;g++){d=c,u.push(d);for(let E=1;E<f;E++)d=d.add(c),u.push(d);c=d.double()}return u},wNAF(o,s,i){let{windows:f,windowSize:u}=n(o),c=t.ZERO,d=t.BASE,g=BigInt(2**o-1),E=2**o,w=BigInt(o);for(let T=0;T<f;T++){let b=T*u,I=Number(i&g);i>>=w,I>u&&(I-=E,i+=lf);let M=b,V=b+Math.abs(I)-1,G=T%2!=0,oe=I<0;I===0?d=d.add(r(G,s[M])):c=c.add(r(oe,s[V]))}return{p:c,f:d}},wNAFCached(o,s,i,f){let u=o._WINDOW_SIZE||1,c=s.get(o);return c||(c=this.precomputeWindow(o,u),u!==1&&s.set(o,f(c))),this.wNAF(u,c,i)}}}ts.wNAF=m2;function y2(t){return(0,Ld.validateField)(t.Fp),(0,p2.validateObject)(t,{n:"bigint",h:"bigint",Gx:"field",Gy:"field"},{nBitLength:"isSafeInteger",nByteLength:"isSafeInteger"}),Object.freeze({...(0,Ld.nLength)(t.n,t.nBitLength),...t,p:t.Fp.ORDER})}ts.validateBasic=y2});var Xi=Ke(Vt=>{"use strict";Object.defineProperty(Vt,"__esModule",{value:!0});Vt.mapToCurveSimpleSWU=Vt.SWUFpSqrtRatio=Vt.weierstrass=Vt.weierstrassPoints=Vt.DER=void 0;var Xs=Ao(),Dt=Eo(),cn=Eo(),df=Wd();function b2(t){let e=(0,df.validateBasic)(t);Dt.validateObject(e,{a:"field",b:"field"},{allowedPrivateKeyLengths:"array",wrapPrivateKey:"boolean",isTorsionFree:"function",clearCofactor:"function",allowInfinityPoint:"boolean",fromBytes:"function",toBytes:"function"});let{endo:r,Fp:n,a:o}=e;if(r){if(!n.eql(o,n.ZERO))throw new Error("Endomorphism can only be defined for Koblitz curves that have a=0");if(typeof r!="object"||typeof r.beta!="bigint"||typeof r.splitScalar!="function")throw new Error("Expected endomorphism with beta: bigint and splitScalar: function")}return Object.freeze({...e})}var{bytesToNumberBE:x2,hexToBytes:w2}=Dt;Vt.DER={Err:class extends Error{constructor(e=""){super(e)}},_parseInt(t){let{Err:e}=Vt.DER;if(t.length<2||t[0]!==2)throw new e("Invalid signature integer tag");let r=t[1],n=t.subarray(2,r+2);if(!r||n.length!==r)throw new e("Invalid signature integer: wrong length");if(n[0]&128)throw new e("Invalid signature integer: negative");if(n[0]===0&&!(n[1]&128))throw new e("Invalid signature integer: unnecessary leading zero");return{d:x2(n),l:t.subarray(r+2)}},toSig(t){let{Err:e}=Vt.DER,r=typeof t=="string"?w2(t):t;if(!(r instanceof Uint8Array))throw new Error("ui8a expected");let n=r.length;if(n<2||r[0]!=48)throw new e("Invalid signature tag");if(r[1]!==n-2)throw new e("Invalid signature: incorrect length");let{d:o,l:s}=Vt.DER._parseInt(r.subarray(2)),{d:i,l:f}=Vt.DER._parseInt(s);if(f.length)throw new e("Invalid signature: left bytes after parsing");return{r:o,s:i}},hexFromSig(t){let e=c=>Number.parseInt(c[0],16)&8?"00"+c:c,r=c=>{let d=c.toString(16);return d.length&1?`0${d}`:d},n=e(r(t.s)),o=e(r(t.r)),s=n.length/2,i=o.length/2,f=r(s),u=r(i);return`30${r(i+s+4)}02${u}${o}02${f}${n}`}};var Yr=BigInt(0),Ut=BigInt(1),An=BigInt(2),Ji=BigInt(3),qd=BigInt(4);function Hd(t){let e=b2(t),{Fp:r}=e,n=e.toBytes||((T,b,I)=>{let M=b.toAffine();return Dt.concatBytes(Uint8Array.from([4]),r.toBytes(M.x),r.toBytes(M.y))}),o=e.fromBytes||(T=>{let b=T.subarray(1),I=r.fromBytes(b.subarray(0,r.BYTES)),M=r.fromBytes(b.subarray(r.BYTES,2*r.BYTES));return{x:I,y:M}});function s(T){let{a:b,b:I}=e,M=r.sqr(T),V=r.mul(M,T);return r.add(r.add(V,r.mul(T,b)),I)}if(!r.eql(r.sqr(e.Gy),s(e.Gx)))throw new Error("bad generator point: equation left != right");function i(T){return typeof T=="bigint"&&Yr<T&&T<e.n}function f(T){if(!i(T))throw new Error("Expected valid bigint: 0 < bigint < curve.n")}function u(T){let{allowedPrivateKeyLengths:b,nByteLength:I,wrapPrivateKey:M,n:V}=e;if(b&&typeof T!="bigint"){if(T instanceof Uint8Array&&(T=Dt.bytesToHex(T)),typeof T!="string"||!b.includes(T.length))throw new Error("Invalid key");T=T.padStart(I*2,"0")}let G;try{G=typeof T=="bigint"?T:Dt.bytesToNumberBE((0,cn.ensureBytes)("private key",T,I))}catch(oe){throw new Error(`private key must be ${I} bytes, hex or bigint, not ${typeof T}`)}return M&&(G=Xs.mod(G,V)),f(G),G}let c=new Map;function d(T){if(!(T instanceof g))throw new Error("ProjectivePoint expected")}class g{constructor(b,I,M){if(this.px=b,this.py=I,this.pz=M,b==null||!r.isValid(b))throw new Error("x required");if(I==null||!r.isValid(I))throw new Error("y required");if(M==null||!r.isValid(M))throw new Error("z required")}static fromAffine(b){let{x:I,y:M}=b||{};if(!b||!r.isValid(I)||!r.isValid(M))throw new Error("invalid affine point");if(b instanceof g)throw new Error("projective point not allowed");let V=G=>r.eql(G,r.ZERO);return V(I)&&V(M)?g.ZERO:new g(I,M,r.ONE)}get x(){return this.toAffine().x}get y(){return this.toAffine().y}static normalizeZ(b){let I=r.invertBatch(b.map(M=>M.pz));return b.map((M,V)=>M.toAffine(I[V])).map(g.fromAffine)}static fromHex(b){let I=g.fromAffine(o((0,cn.ensureBytes)("pointHex",b)));return I.assertValidity(),I}static fromPrivateKey(b){return g.BASE.multiply(u(b))}_setWindowSize(b){this._WINDOW_SIZE=b,c.delete(this)}assertValidity(){if(this.is0()){if(e.allowInfinityPoint)return;throw new Error("bad point: ZERO")}let{x:b,y:I}=this.toAffine();if(!r.isValid(b)||!r.isValid(I))throw new Error("bad point: x or y not FE");let M=r.sqr(I),V=s(b);if(!r.eql(M,V))throw new Error("bad point: equation left != right");if(!this.isTorsionFree())throw new Error("bad point: not in prime-order subgroup")}hasEvenY(){let{y:b}=this.toAffine();if(r.isOdd)return!r.isOdd(b);throw new Error("Field doesn't support isOdd")}equals(b){d(b);let{px:I,py:M,pz:V}=this,{px:G,py:oe,pz:z}=b,L=r.eql(r.mul(I,z),r.mul(G,V)),ne=r.eql(r.mul(M,z),r.mul(oe,V));return L&&ne}negate(){return new g(this.px,r.neg(this.py),this.pz)}double(){let{a:b,b:I}=e,M=r.mul(I,Ji),{px:V,py:G,pz:oe}=this,z=r.ZERO,L=r.ZERO,ne=r.ZERO,D=r.mul(V,V),x=r.mul(G,G),P=r.mul(oe,oe),$=r.mul(V,G);return $=r.add($,$),ne=r.mul(V,oe),ne=r.add(ne,ne),z=r.mul(b,ne),L=r.mul(M,P),L=r.add(z,L),z=r.sub(x,L),L=r.add(x,L),L=r.mul(z,L),z=r.mul($,z),ne=r.mul(M,ne),P=r.mul(b,P),$=r.sub(D,P),$=r.mul(b,$),$=r.add($,ne),ne=r.add(D,D),D=r.add(ne,D),D=r.add(D,P),D=r.mul(D,$),L=r.add(L,D),P=r.mul(G,oe),P=r.add(P,P),D=r.mul(P,$),z=r.sub(z,D),ne=r.mul(P,x),ne=r.add(ne,ne),ne=r.add(ne,ne),new g(z,L,ne)}add(b){d(b);let{px:I,py:M,pz:V}=this,{px:G,py:oe,pz:z}=b,L=r.ZERO,ne=r.ZERO,D=r.ZERO,x=e.a,P=r.mul(e.b,Ji),$=r.mul(I,G),se=r.mul(M,oe),we=r.mul(V,z),ye=r.add(I,M),Q=r.add(G,oe);ye=r.mul(ye,Q),Q=r.add($,se),ye=r.sub(ye,Q),Q=r.add(I,V);let fe=r.add(G,z);return Q=r.mul(Q,fe),fe=r.add($,we),Q=r.sub(Q,fe),fe=r.add(M,V),L=r.add(oe,z),fe=r.mul(fe,L),L=r.add(se,we),fe=r.sub(fe,L),D=r.mul(x,Q),L=r.mul(P,we),D=r.add(L,D),L=r.sub(se,D),D=r.add(se,D),ne=r.mul(L,D),se=r.add($,$),se=r.add(se,$),we=r.mul(x,we),Q=r.mul(P,Q),se=r.add(se,we),we=r.sub($,we),we=r.mul(x,we),Q=r.add(Q,we),$=r.mul(se,Q),ne=r.add(ne,$),$=r.mul(fe,Q),L=r.mul(ye,L),L=r.sub(L,$),$=r.mul(ye,se),D=r.mul(fe,D),D=r.add(D,$),new g(L,ne,D)}subtract(b){return this.add(b.negate())}is0(){return this.equals(g.ZERO)}wNAF(b){return w.wNAFCached(this,c,b,I=>{let M=r.invertBatch(I.map(V=>V.pz));return I.map((V,G)=>V.toAffine(M[G])).map(g.fromAffine)})}multiplyUnsafe(b){let I=g.ZERO;if(b===Yr)return I;if(f(b),b===Ut)return this;let{endo:M}=e;if(!M)return w.unsafeLadder(this,b);let{k1neg:V,k1:G,k2neg:oe,k2:z}=M.splitScalar(b),L=I,ne=I,D=this;for(;G>Yr||z>Yr;)G&Ut&&(L=L.add(D)),z&Ut&&(ne=ne.add(D)),D=D.double(),G>>=Ut,z>>=Ut;return V&&(L=L.negate()),oe&&(ne=ne.negate()),ne=new g(r.mul(ne.px,M.beta),ne.py,ne.pz),L.add(ne)}multiply(b){f(b);let I=b,M,V,{endo:G}=e;if(G){let{k1neg:oe,k1:z,k2neg:L,k2:ne}=G.splitScalar(I),{p:D,f:x}=this.wNAF(z),{p:P,f:$}=this.wNAF(ne);D=w.constTimeNegate(oe,D),P=w.constTimeNegate(L,P),P=new g(r.mul(P.px,G.beta),P.py,P.pz),M=D.add(P),V=x.add($)}else{let{p:oe,f:z}=this.wNAF(I);M=oe,V=z}return g.normalizeZ([M,V])[0]}multiplyAndAddUnsafe(b,I,M){let V=g.BASE,G=(z,L)=>L===Yr||L===Ut||!z.equals(V)?z.multiplyUnsafe(L):z.multiply(L),oe=G(this,I).add(G(b,M));return oe.is0()?void 0:oe}toAffine(b){let{px:I,py:M,pz:V}=this,G=this.is0();b==null&&(b=G?r.ONE:r.inv(V));let oe=r.mul(I,b),z=r.mul(M,b),L=r.mul(V,b);if(G)return{x:r.ZERO,y:r.ZERO};if(!r.eql(L,r.ONE))throw new Error("invZ was invalid");return{x:oe,y:z}}isTorsionFree(){let{h:b,isTorsionFree:I}=e;if(b===Ut)return!0;if(I)return I(g,this);throw new Error("isTorsionFree() has not been declared for the elliptic curve")}clearCofactor(){let{h:b,clearCofactor:I}=e;return b===Ut?this:I?I(g,this):this.multiplyUnsafe(e.h)}toRawBytes(b=!0){return this.assertValidity(),n(g,this,b)}toHex(b=!0){return Dt.bytesToHex(this.toRawBytes(b))}}g.BASE=new g(e.Gx,e.Gy,r.ONE),g.ZERO=new g(r.ZERO,r.ONE,r.ZERO);let E=e.nBitLength,w=(0,df.wNAF)(g,e.endo?Math.ceil(E/2):E);return{CURVE:e,ProjectivePoint:g,normPrivateKeyToScalar:u,weierstrassEquation:s,isWithinCurveOrder:i}}Vt.weierstrassPoints=Hd;function v2(t){let e=(0,df.validateBasic)(t);return Dt.validateObject(e,{hash:"hash",hmac:"function",randomBytes:"function"},{bits2int:"function",bits2int_modN:"function",lowS:"boolean"}),Object.freeze({lowS:!0,...e})}function S2(t){let e=v2(t),{Fp:r,n}=e,o=r.BYTES+1,s=2*r.BYTES+1;function i(Q){return Yr<Q&&Q<r.ORDER}function f(Q){return Xs.mod(Q,n)}function u(Q){return Xs.invert(Q,n)}let{ProjectivePoint:c,normPrivateKeyToScalar:d,weierstrassEquation:g,isWithinCurveOrder:E}=Hd({...e,toBytes(Q,fe,le){let Me=fe.toAffine(),Re=r.toBytes(Me.x),mt=Dt.concatBytes;return le?mt(Uint8Array.from([fe.hasEvenY()?2:3]),Re):mt(Uint8Array.from([4]),Re,r.toBytes(Me.y))},fromBytes(Q){let fe=Q.length,le=Q[0],Me=Q.subarray(1);if(fe===o&&(le===2||le===3)){let Re=Dt.bytesToNumberBE(Me);if(!i(Re))throw new Error("Point is not on curve");let mt=g(Re),st=r.sqrt(mt),ht=(st&Ut)===Ut;return(le&1)==1!==ht&&(st=r.neg(st)),{x:Re,y:st}}else if(fe===s&&le===4){let Re=r.fromBytes(Me.subarray(0,r.BYTES)),mt=r.fromBytes(Me.subarray(r.BYTES,2*r.BYTES));return{x:Re,y:mt}}else throw new Error(`Point of length ${fe} was invalid. Expected ${o} compressed bytes or ${s} uncompressed bytes`)}}),w=Q=>Dt.bytesToHex(Dt.numberToBytesBE(Q,e.nByteLength));function T(Q){let fe=n>>Ut;return Q>fe}function b(Q){return T(Q)?f(-Q):Q}let I=(Q,fe,le)=>Dt.bytesToNumberBE(Q.slice(fe,le));class M{constructor(fe,le,Me){this.r=fe,this.s=le,this.recovery=Me,this.assertValidity()}static fromCompact(fe){let le=e.nByteLength;return fe=(0,cn.ensureBytes)("compactSignature",fe,le*2),new M(I(fe,0,le),I(fe,le,2*le))}static fromDER(fe){let{r:le,s:Me}=Vt.DER.toSig((0,cn.ensureBytes)("DER",fe));return new M(le,Me)}assertValidity(){if(!E(this.r))throw new Error("r must be 0 < r < CURVE.n");if(!E(this.s))throw new Error("s must be 0 < s < CURVE.n")}addRecoveryBit(fe){return new M(this.r,this.s,fe)}recoverPublicKey(fe){let{r:le,s:Me,recovery:Re}=this,mt=ne((0,cn.ensureBytes)("msgHash",fe));if(Re==null||![0,1,2,3].includes(Re))throw new Error("recovery id invalid");let st=Re===2||Re===3?le+e.n:le;if(st>=r.ORDER)throw new Error("recovery id 2 or 3 invalid");let ht=(Re&1)==0?"02":"03",ee=c.fromHex(ht+w(st)),ke=u(st),vt=f(-mt*ke),_r=f(Me*ke),Tt=c.BASE.multiplyAndAddUnsafe(ee,vt,_r);if(!Tt)throw new Error("point at infinify");return Tt.assertValidity(),Tt}hasHighS(){return T(this.s)}normalizeS(){return this.hasHighS()?new M(this.r,f(-this.s),this.recovery):this}toDERRawBytes(){return Dt.hexToBytes(this.toDERHex())}toDERHex(){return Vt.DER.hexFromSig({r:this.r,s:this.s})}toCompactRawBytes(){return Dt.hexToBytes(this.toCompactHex())}toCompactHex(){return w(this.r)+w(this.s)}}let V={isValidPrivateKey(Q){try{return d(Q),!0}catch(fe){return!1}},normPrivateKeyToScalar:d,randomPrivateKey:()=>{let Q=e.randomBytes(r.BYTES+8),fe=Xs.hashToPrivateScalar(Q,n);return Dt.numberToBytesBE(fe,e.nByteLength)},precompute(Q=8,fe=c.BASE){return fe._setWindowSize(Q),fe.multiply(BigInt(3)),fe}};function G(Q,fe=!0){return c.fromPrivateKey(Q).toRawBytes(fe)}function oe(Q){let fe=Q instanceof Uint8Array,le=typeof Q=="string",Me=(fe||le)&&Q.length;return fe?Me===o||Me===s:le?Me===2*o||Me===2*s:Q instanceof c}function z(Q,fe,le=!0){if(oe(Q))throw new Error("first arg must be private key");if(!oe(fe))throw new Error("second arg must be public key");return c.fromHex(fe).multiply(d(Q)).toRawBytes(le)}let L=e.bits2int||function(Q){let fe=Dt.bytesToNumberBE(Q),le=Q.length*8-e.nBitLength;return le>0?fe>>BigInt(le):fe},ne=e.bits2int_modN||function(Q){return f(L(Q))},D=Dt.bitMask(e.nBitLength);function x(Q){if(typeof Q!="bigint")throw new Error("bigint expected");if(!(Yr<=Q&&Q<D))throw new Error(`bigint expected < 2^${e.nBitLength}`);return Dt.numberToBytesBE(Q,e.nByteLength)}function P(Q,fe,le=$){if(["recovered","canonical"].some(y=>y in le))throw new Error("sign() legacy options not supported");let{hash:Me,randomBytes:Re}=e,{lowS:mt,prehash:st,extraEntropy:ht}=le;mt==null&&(mt=!0),Q=(0,cn.ensureBytes)("msgHash",Q),st&&(Q=(0,cn.ensureBytes)("prehashed msgHash",Me(Q)));let ee=ne(Q),ke=d(fe),vt=[x(ke),x(ee)];if(ht!=null){let y=ht===!0?Re(r.BYTES):ht;vt.push((0,cn.ensureBytes)("extraEntropy",y,r.BYTES))}let _r=Dt.concatBytes(...vt),Tt=ee;function $t(y){let S=L(y);if(!E(S))return;let _=u(S),N=c.BASE.multiply(S).toAffine(),j=f(N.x);if(j===Yr)return;let R=f(_*f(Tt+j*ke));if(R===Yr)return;let H=(N.x===j?0:2)|Number(N.y&Ut),C=R;return mt&&T(R)&&(C=b(R),H^=1),new M(j,C,H)}return{seed:_r,k2sig:$t}}let $={lowS:e.lowS,prehash:!1},se={lowS:e.lowS,prehash:!1};function we(Q,fe,le=$){let{seed:Me,k2sig:Re}=P(Q,fe,le);return Dt.createHmacDrbg(e.hash.outputLen,e.nByteLength,e.hmac)(Me,Re)}c.BASE._setWindowSize(8);function ye(Q,fe,le,Me=se){let Re=Q;if(fe=(0,cn.ensureBytes)("msgHash",fe),le=(0,cn.ensureBytes)("publicKey",le),"strict"in Me)throw new Error("options.strict was renamed to lowS");let{lowS:mt,prehash:st}=Me,ht,ee;try{if(typeof Re=="string"||Re instanceof Uint8Array)try{ht=M.fromDER(Re)}catch(N){if(!(N instanceof Vt.DER.Err))throw N;ht=M.fromCompact(Re)}else if(typeof Re=="object"&&typeof Re.r=="bigint"&&typeof Re.s=="bigint"){let{r:N,s:j}=Re;ht=new M(N,j)}else throw new Error("PARSE");ee=c.fromHex(le)}catch(N){if(N.message==="PARSE")throw new Error("signature must be Signature instance, Uint8Array or hex string");return!1}if(mt&&ht.hasHighS())return!1;st&&(fe=e.hash(fe));let{r:ke,s:vt}=ht,_r=ne(fe),Tt=u(vt),$t=f(_r*Tt),y=f(ke*Tt),S=c.BASE.multiplyAndAddUnsafe(ee,$t,y)?.toAffine();return S?f(S.x)===ke:!1}return{CURVE:e,getPublicKey:G,getSharedSecret:z,sign:we,verify:ye,ProjectivePoint:c,Signature:M,utils:V}}Vt.weierstrass=S2;function Fd(t,e){let r=t.ORDER,n=Yr;for(let E=r-Ut;E%An===Yr;E/=An)n+=Ut;let o=n,s=(r-Ut)/An**o,i=(s-Ut)/An,f=An**o-Ut,u=An**(o-Ut),c=t.pow(e,s),d=t.pow(e,(s+Ut)/An),g=(E,w)=>{let T=c,b=t.pow(w,f),I=t.sqr(b);I=t.mul(I,w);let M=t.mul(E,I);M=t.pow(M,i),M=t.mul(M,b),b=t.mul(M,w),I=t.mul(M,E);let V=t.mul(I,b);M=t.pow(V,u);let G=t.eql(M,t.ONE);b=t.mul(I,d),M=t.mul(V,T),I=t.cmov(b,I,G),V=t.cmov(M,V,G);for(let oe=o;oe>Ut;oe--){let z=An**(oe-An),L=t.pow(V,z),ne=t.eql(L,t.ONE);b=t.mul(I,T),T=t.mul(T,T),L=t.mul(V,T),I=t.cmov(b,I,ne),V=t.cmov(L,V,ne)}return{isValid:G,value:I}};if(t.ORDER%qd===Ji){let E=(t.ORDER-Ji)/qd,w=t.sqrt(t.neg(e));g=(T,b)=>{let I=t.sqr(b),M=t.mul(T,b);I=t.mul(I,M);let V=t.pow(I,E);V=t.mul(V,M);let G=t.mul(V,w),oe=t.mul(t.sqr(V),b),z=t.eql(oe,T),L=t.cmov(G,V,z);return{isValid:z,value:L}}}return g}Vt.SWUFpSqrtRatio=Fd;function E2(t,e){if(Xs.validateField(t),!t.isValid(e.A)||!t.isValid(e.B)||!t.isValid(e.Z))throw new Error("mapToCurveSimpleSWU: invalid opts");let r=Fd(t,e.Z);if(!t.isOdd)throw new Error("Fp.isOdd is not implemented!");return n=>{let o,s,i,f,u,c,d,g;o=t.sqr(n),o=t.mul(o,e.Z),s=t.sqr(o),s=t.add(s,o),i=t.add(s,t.ONE),i=t.mul(i,e.B),f=t.cmov(e.Z,t.neg(s),!t.eql(s,t.ZERO)),f=t.mul(f,e.A),s=t.sqr(i),c=t.sqr(f),u=t.mul(c,e.A),s=t.add(s,u),s=t.mul(s,i),c=t.mul(c,f),u=t.mul(c,e.B),s=t.add(s,u),d=t.mul(o,i);let{isValid:E,value:w}=r(s,c);g=t.mul(o,n),g=t.mul(g,w),d=t.cmov(d,i,E),g=t.cmov(g,w,E);let T=t.isOdd(n)===t.isOdd(g);return g=t.cmov(t.neg(g),g,T),d=t.div(d,f),{x:d,y:g}}}Vt.mapToCurveSimpleSWU=E2});var gf=Ke(Nr=>{"use strict";Object.defineProperty(Nr,"__esModule",{value:!0});Nr.createHasher=Nr.isogenyMap=Nr.hash_to_field=Nr.expand_message_xof=Nr.expand_message_xmd=void 0;var A2=Ao(),Jr=Eo();function T2(t){if(t instanceof Uint8Array)return t;if(typeof t=="string")return(0,Jr.utf8ToBytes)(t);throw new Error("DST must be Uint8Array or string")}var _2=Jr.bytesToNumberBE;function Vn(t,e){if(t<0||t>=1<<8*e)throw new Error(`bad I2OSP call: value=${t} length=${e}`);let r=Array.from({length:e}).fill(0);for(let n=e-1;n>=0;n--)r[n]=t&255,t>>>=8;return new Uint8Array(r)}function C2(t,e){let r=new Uint8Array(t.length);for(let n=0;n<t.length;n++)r[n]=t[n]^e[n];return r}function Qs(t){if(!(t instanceof Uint8Array))throw new Error("Uint8Array expected")}function hf(t){if(!Number.isSafeInteger(t))throw new Error("number expected")}function Kd(t,e,r,n){Qs(t),Qs(e),hf(r),e.length>255&&(e=n((0,Jr.concatBytes)((0,Jr.utf8ToBytes)("H2C-OVERSIZE-DST-"),e)));let{outputLen:o,blockLen:s}=n,i=Math.ceil(r/o);if(i>255)throw new Error("Invalid xmd length");let f=(0,Jr.concatBytes)(e,Vn(e.length,1)),u=Vn(0,s),c=Vn(r,2),d=new Array(i),g=n((0,Jr.concatBytes)(u,t,c,Vn(0,1),f));d[0]=n((0,Jr.concatBytes)(g,Vn(1,1),f));for(let w=1;w<=i;w++){let T=[C2(g,d[w-1]),Vn(w+1,1),f];d[w]=n((0,Jr.concatBytes)(...T))}return(0,Jr.concatBytes)(...d).slice(0,r)}Nr.expand_message_xmd=Kd;function zd(t,e,r,n,o){if(Qs(t),Qs(e),hf(r),e.length>255){let s=Math.ceil(2*n/8);e=o.create({dkLen:s}).update((0,Jr.utf8ToBytes)("H2C-OVERSIZE-DST-")).update(e).digest()}if(r>65535||e.length>255)throw new Error("expand_message_xof: invalid lenInBytes");return o.create({dkLen:r}).update(t).update(Vn(r,2)).update(e).update(Vn(e.length,1)).digest()}Nr.expand_message_xof=zd;function pf(t,e,r){(0,Jr.validateObject)(r,{DST:"string",p:"bigint",m:"isSafeInteger",k:"isSafeInteger",hash:"hash"});let{p:n,k:o,m:s,hash:i,expand:f,DST:u}=r;Qs(t),hf(e);let c=T2(u),d=n.toString(2).length,g=Math.ceil((d+o)/8),E=e*s*g,w;if(f==="xmd")w=Kd(t,c,E,i);else if(f==="xof")w=zd(t,c,E,o,i);else if(f==="_internal_pass")w=t;else throw new Error('expand must be "xmd" or "xof"');let T=new Array(e);for(let b=0;b<e;b++){let I=new Array(s);for(let M=0;M<s;M++){let V=g*(M+b*s),G=w.subarray(V,V+g);I[M]=(0,A2.mod)(_2(G),n)}T[b]=I}return T}Nr.hash_to_field=pf;function I2(t,e){let r=e.map(n=>Array.from(n).reverse());return(n,o)=>{let[s,i,f,u]=r.map(c=>c.reduce((d,g)=>t.add(t.mul(d,n),g)));return n=t.div(s,i),o=t.mul(o,t.div(f,u)),{x:n,y:o}}}Nr.isogenyMap=I2;function j2(t,e,r){if(typeof e!="function")throw new Error("mapToCurve() must be defined");return{hashToCurve(n,o){let s=pf(n,2,{...r,DST:r.DST,...o}),i=t.fromAffine(e(s[0])),f=t.fromAffine(e(s[1])),u=i.add(f).clearCofactor();return u.assertValidity(),u},encodeToCurve(n,o){let s=pf(n,1,{...r,DST:r.encodeDST,...o}),i=t.fromAffine(e(s[0])).clearCofactor();return i.assertValidity(),i}}}Nr.createHasher=j2});var mf=Ke(rs=>{"use strict";Object.defineProperty(rs,"__esModule",{value:!0});rs.createCurve=rs.getHash=void 0;var B2=Gs(),Gd=Ft(),k2=Xi();function Vd(t){return{hash:t,hmac:(e,...r)=>(0,B2.hmac)(t,e,(0,Gd.concatBytes)(...r)),randomBytes:Gd.randomBytes}}rs.getHash=Vd;function O2(t,e){let r=n=>(0,k2.weierstrass)({...t,...Vd(n)});return Object.freeze({...r(e),create:r})}rs.createCurve=O2});var sa=Ke(yr=>{"use strict";var yf;Object.defineProperty(yr,"__esModule",{value:!0});yr.encodeToCurve=yr.hashToCurve=yr.schnorr=yr.secp256k1=void 0;var Qi=Hn(),M2=Ft(),Zt=Ao(),P2=Xi(),or=Eo(),$d=gf(),N2=mf(),ea=BigInt("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"),ta=BigInt("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"),Zd=BigInt(1),ra=BigInt(2),Yd=(t,e)=>(t+e/ra)/e;function Jd(t){let e=ea,r=BigInt(3),n=BigInt(6),o=BigInt(11),s=BigInt(22),i=BigInt(23),f=BigInt(44),u=BigInt(88),c=t*t*t%e,d=c*c*t%e,g=(0,Zt.pow2)(d,r,e)*d%e,E=(0,Zt.pow2)(g,r,e)*d%e,w=(0,Zt.pow2)(E,ra,e)*c%e,T=(0,Zt.pow2)(w,o,e)*w%e,b=(0,Zt.pow2)(T,s,e)*T%e,I=(0,Zt.pow2)(b,f,e)*b%e,M=(0,Zt.pow2)(I,u,e)*I%e,V=(0,Zt.pow2)(M,f,e)*b%e,G=(0,Zt.pow2)(V,r,e)*d%e,oe=(0,Zt.pow2)(G,i,e)*T%e,z=(0,Zt.pow2)(oe,n,e)*c%e,L=(0,Zt.pow2)(z,ra,e);if(!$n.eql($n.sqr(L),t))throw new Error("Cannot find square root");return L}var $n=(0,Zt.Field)(ea,void 0,void 0,{sqrt:Jd});yr.secp256k1=(0,N2.createCurve)({a:BigInt(0),b:BigInt(7),Fp:$n,n:ta,Gx:BigInt("55066263022277343669578718895168534326250603453777594175500187360389116729240"),Gy:BigInt("32670510020758816978083085130507043184471273380659243275938904335757337482424"),h:BigInt(1),lowS:!0,endo:{beta:BigInt("0x7ae96a2b657c07106e64479eac3434e99cf0497512f58995c1396c28719501ee"),splitScalar:t=>{let e=ta,r=BigInt("0x3086d221a7d46bcde86c90e49284eb15"),n=-Zd*BigInt("0xe4437ed6010e88286f547fa90abfe4c3"),o=BigInt("0x114ca50f7a8e2f3f657c1108d9d44cfd8"),s=r,i=BigInt("0x100000000000000000000000000000000"),f=Yd(s*t,e),u=Yd(-n*t,e),c=(0,Zt.mod)(t-f*r-u*o,e),d=(0,Zt.mod)(-f*n-u*s,e),g=c>i,E=d>i;if(g&&(c=e-c),E&&(d=e-d),c>i||d>i)throw new Error("splitScalar: Endomorphism failed, k="+t);return{k1neg:g,k1:c,k2neg:E,k2:d}}}},Qi.sha256);var na=BigInt(0),Xd=t=>typeof t=="bigint"&&na<t&&t<ea,R2=t=>typeof t=="bigint"&&na<t&&t<ta,Qd={};function oa(t,...e){let r=Qd[t];if(r===void 0){let n=(0,Qi.sha256)(Uint8Array.from(t,o=>o.charCodeAt(0)));r=(0,or.concatBytes)(n,n),Qd[t]=r}return(0,Qi.sha256)((0,or.concatBytes)(r,...e))}var bf=t=>t.toRawBytes(!0).slice(1),xf=t=>(0,or.numberToBytesBE)(t,32),wf=t=>(0,Zt.mod)(t,ea),ei=t=>(0,Zt.mod)(t,ta),vf=yr.secp256k1.ProjectivePoint,D2=(t,e,r)=>vf.BASE.multiplyAndAddUnsafe(t,e,r);function Sf(t){let e=yr.secp256k1.utils.normPrivateKeyToScalar(t),r=vf.fromPrivateKey(e);return{scalar:r.hasEvenY()?e:ei(-e),bytes:bf(r)}}function eh(t){if(!Xd(t))throw new Error("bad x: need 0 < x < p");let e=wf(t*t),r=wf(e*t+BigInt(7)),n=Jd(r);n%ra!==na&&(n=wf(-n));let o=new vf(t,n,Zd);return o.assertValidity(),o}function th(...t){return ei((0,or.bytesToNumberBE)(oa("BIP0340/challenge",...t)))}function U2(t){return Sf(t).bytes}function L2(t,e,r=(0,M2.randomBytes)(32)){let n=(0,or.ensureBytes)("message",t),{bytes:o,scalar:s}=Sf(e),i=(0,or.ensureBytes)("auxRand",r,32),f=xf(s^(0,or.bytesToNumberBE)(oa("BIP0340/aux",i))),u=oa("BIP0340/nonce",f,o,n),c=ei((0,or.bytesToNumberBE)(u));if(c===na)throw new Error("sign failed: k is zero");let{bytes:d,scalar:g}=Sf(c),E=th(d,o,n),w=new Uint8Array(64);if(w.set(d,0),w.set(xf(ei(g+E*s)),32),!rh(w,n,o))throw new Error("sign: Invalid signature produced");return w}function rh(t,e,r){let n=(0,or.ensureBytes)("signature",t,64),o=(0,or.ensureBytes)("message",e),s=(0,or.ensureBytes)("publicKey",r,32);try{let i=eh((0,or.bytesToNumberBE)(s)),f=(0,or.bytesToNumberBE)(n.subarray(0,32));if(!Xd(f))return!1;let u=(0,or.bytesToNumberBE)(n.subarray(32,64));if(!R2(u))return!1;let c=th(xf(f),bf(i),o),d=D2(i,u,ei(-c));return!(!d||!d.hasEvenY()||d.toAffine().x!==f)}catch(i){return!1}}yr.schnorr={getPublicKey:U2,sign:L2,verify:rh,utils:{randomPrivateKey:yr.secp256k1.utils.randomPrivateKey,lift_x:eh,pointToBytes:bf,numberToBytesBE:or.numberToBytesBE,bytesToNumberBE:or.bytesToNumberBE,taggedHash:oa,mod:Zt.mod}};var W2=$d.isogenyMap($n,[["0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa8c7","0x7d3d4c80bc321d5b9f315cea7fd44c5d595d2fc0bf63b92dfff1044f17c6581","0x534c328d23f234e6e2a413deca25caece4506144037c40314ecbd0b53d9dd262","0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa88c"],["0xd35771193d94918a9ca34ccbb7b640dd86cd409542f8487d9fe6b745781eb49b","0xedadc6f64383dc1df7c4b2d51b54225406d36b641f5e41bbc52a56612a8c6d14","0x0000000000000000000000000000000000000000000000000000000000000001"],["0x4bda12f684bda12f684bda12f684bda12f684bda12f684bda12f684b8e38e23c","0xc75e0c32d5cb7c0fa9d0a54b12a0a6d5647ab046d686da6fdffc90fc201d71a3","0x29a6194691f91a73715209ef6512e576722830a201be2018a765e85a9ecee931","0x2f684bda12f684bda12f684bda12f684bda12f684bda12f684bda12f38e38d84"],["0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffff93b","0x7a06534bb8bdb49fd5e9e6632722c2989467c1bfc8e8d978dfb425d2685c2573","0x6484aa716545ca2cf3a70c3fa8fe337e0a3d21162f0d6299a7bf8192bfd2a76f","0x0000000000000000000000000000000000000000000000000000000000000001"]].map(t=>t.map(e=>BigInt(e)))),q2=(0,P2.mapToCurveSimpleSWU)($n,{A:BigInt("0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533"),B:BigInt("1771"),Z:$n.create(BigInt("-11"))});yf=$d.createHasher(yr.secp256k1.ProjectivePoint,t=>{let{x:e,y:r}=q2($n.create(t[0]));return W2(e,r)},{DST:"secp256k1_XMD:SHA-256_SSWU_RO_",encodeDST:"secp256k1_XMD:SHA-256_SSWU_NU_",p:$n.ORDER,m:1,k:128,expand:"xmd",hash:Qi.sha256}),yr.hashToCurve=yf.hashToCurve,yr.encodeToCurve=yf.encodeToCurve});var ih=Ke(ns=>{"use strict";Object.defineProperty(ns,"__esModule",{value:!0});ns.ripemd160=ns.RIPEMD160=void 0;var H2=qi(),F2=Ft(),K2=new Uint8Array([7,4,13,1,10,6,15,3,12,0,9,5,2,14,11,8]),nh=Uint8Array.from({length:16},(t,e)=>e),z2=nh.map(t=>(9*t+5)%16),Ef=[nh],Af=[z2];for(let t=0;t<4;t++)for(let e of[Ef,Af])e.push(e[t].map(r=>K2[r]));var oh=[[11,14,15,12,5,8,7,9,11,13,14,15,6,7,9,8],[12,13,11,15,6,9,9,7,12,15,11,13,7,8,7,7],[13,15,14,11,7,7,6,8,13,14,13,12,5,5,6,9],[14,11,12,14,8,6,5,5,15,12,15,14,9,9,8,6],[15,12,13,13,9,5,8,6,14,11,12,11,8,6,5,5]].map(t=>new Uint8Array(t)),G2=Ef.map((t,e)=>t.map(r=>oh[e][r])),V2=Af.map((t,e)=>t.map(r=>oh[e][r])),$2=new Uint32Array([0,1518500249,1859775393,2400959708,2840853838]),Z2=new Uint32Array([1352829926,1548603684,1836072691,2053994217,0]),ia=(t,e)=>t<<e|t>>>32-e;function sh(t,e,r,n){return t===0?e^r^n:t===1?e&r|~e&n:t===2?(e|~r)^n:t===3?e&n|r&~n:e^(r|~n)}var aa=new Uint32Array(16),Tf=class extends H2.SHA2{constructor(){super(64,20,8,!0);this.h0=1732584193|0,this.h1=4023233417|0,this.h2=2562383102|0,this.h3=271733878|0,this.h4=3285377520|0}get(){let{h0:e,h1:r,h2:n,h3:o,h4:s}=this;return[e,r,n,o,s]}set(e,r,n,o,s){this.h0=e|0,this.h1=r|0,this.h2=n|0,this.h3=o|0,this.h4=s|0}process(e,r){for(let w=0;w<16;w++,r+=4)aa[w]=e.getUint32(r,!0);let n=this.h0|0,o=n,s=this.h1|0,i=s,f=this.h2|0,u=f,c=this.h3|0,d=c,g=this.h4|0,E=g;for(let w=0;w<5;w++){let T=4-w,b=$2[w],I=Z2[w],M=Ef[w],V=Af[w],G=G2[w],oe=V2[w];for(let z=0;z<16;z++){let L=ia(n+sh(w,s,f,c)+aa[M[z]]+b,G[z])+g|0;n=g,g=c,c=ia(f,10)|0,f=s,s=L}for(let z=0;z<16;z++){let L=ia(o+sh(T,i,u,d)+aa[V[z]]+I,oe[z])+E|0;o=E,E=d,d=ia(u,10)|0,u=i,i=L}}this.set(this.h1+f+d|0,this.h2+c+E|0,this.h3+g+o|0,this.h4+n+i|0,this.h0+s+u|0)}roundClean(){aa.fill(0)}destroy(){this.destroyed=!0,this.buffer.fill(0),this.set(0,0,0,0,0)}};ns.RIPEMD160=Tf;ns.ripemd160=(0,F2.wrapConstructor)(()=>new Tf)});var gh=Ke(Rr=>{"use strict";Object.defineProperty(Rr,"__esModule",{value:!0});Rr.encodeToCurve=Rr.hashToCurve=Rr.secp256r1=Rr.p256=void 0;var ax=mf(),dh=Hn(),cx=Ao(),fx=Xi(),ux=gf(),ti=(0,cx.Field)(BigInt("0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff")),hh=ti.create(BigInt("-3")),ph=BigInt("0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b"),lx=(0,fx.mapToCurveSimpleSWU)(ti,{A:hh,B:ph,Z:ti.create(BigInt("-10"))});Rr.p256=(0,ax.createCurve)({a:hh,b:ph,Fp:ti,n:BigInt("0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"),Gx:BigInt("0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296"),Gy:BigInt("0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5"),h:BigInt(1),lowS:!1},dh.sha256);Rr.secp256r1=Rr.p256;var{hashToCurve:dx,encodeToCurve:hx}=ux.createHasher(Rr.secp256r1.ProjectivePoint,t=>lx(t[0]),{DST:"P256_XMD:SHA-256_SSWU_RO_",encodeDST:"P256_XMD:SHA-256_SSWU_NU_",p:ti.ORDER,m:1,k:128,expand:"xmd",hash:dh.sha256});Rr.hashToCurve=dx;Rr.encodeToCurve=hx});var kf=Ke((b4,Bf)=>{"use strict";var ss=typeof Reflect=="object"?Reflect:null,_h=ss&&typeof ss.apply=="function"?ss.apply:function(e,r,n){return Function.prototype.apply.call(e,r,n)},fa;ss&&typeof ss.ownKeys=="function"?fa=ss.ownKeys:Object.getOwnPropertySymbols?fa=function(e){return Object.getOwnPropertyNames(e).concat(Object.getOwnPropertySymbols(e))}:fa=function(e){return Object.getOwnPropertyNames(e)};function jx(t){console&&console.warn&&console.warn(t)}var Ch=Number.isNaN||function(e){return e!==e};function yt(){yt.init.call(this)}Bf.exports=yt;Bf.exports.once=Mx;yt.EventEmitter=yt;yt.prototype._events=void 0;yt.prototype._eventsCount=0;yt.prototype._maxListeners=void 0;var Ih=10;function ua(t){if(typeof t!="function")throw new TypeError('The "listener" argument must be of type Function. Received type '+typeof t)}Object.defineProperty(yt,"defaultMaxListeners",{enumerable:!0,get:function(){return Ih},set:function(t){if(typeof t!="number"||t<0||Ch(t))throw new RangeError('The value of "defaultMaxListeners" is out of range. It must be a non-negative number. Received '+t+".");Ih=t}});yt.init=function(){(this._events===void 0||this._events===Object.getPrototypeOf(this)._events)&&(this._events=Object.create(null),this._eventsCount=0),this._maxListeners=this._maxListeners||void 0};yt.prototype.setMaxListeners=function(e){if(typeof e!="number"||e<0||Ch(e))throw new RangeError('The value of "n" is out of range. It must be a non-negative number. Received '+e+".");return this._maxListeners=e,this};function jh(t){return t._maxListeners===void 0?yt.defaultMaxListeners:t._maxListeners}yt.prototype.getMaxListeners=function(){return jh(this)};yt.prototype.emit=function(e){for(var r=[],n=1;n<arguments.length;n++)r.push(arguments[n]);var o=e==="error",s=this._events;if(s!==void 0)o=o&&s.error===void 0;else if(!o)return!1;if(o){var i;if(r.length>0&&(i=r[0]),i instanceof Error)throw i;var f=new Error("Unhandled error."+(i?" ("+i.message+")":""));throw f.context=i,f}var u=s[e];if(u===void 0)return!1;if(typeof u=="function")_h(u,this,r);else for(var c=u.length,d=Ph(u,c),n=0;n<c;++n)_h(d[n],this,r);return!0};function Bh(t,e,r,n){var o,s,i;if(ua(r),s=t._events,s===void 0?(s=t._events=Object.create(null),t._eventsCount=0):(s.newListener!==void 0&&(t.emit("newListener",e,r.listener?r.listener:r),s=t._events),i=s[e]),i===void 0)i=s[e]=r,++t._eventsCount;else if(typeof i=="function"?i=s[e]=n?[r,i]:[i,r]:n?i.unshift(r):i.push(r),o=jh(t),o>0&&i.length>o&&!i.warned){i.warned=!0;var f=new Error("Possible EventEmitter memory leak detected. "+i.length+" "+String(e)+" listeners added. Use emitter.setMaxListeners() to increase limit");f.name="MaxListenersExceededWarning",f.emitter=t,f.type=e,f.count=i.length,jx(f)}return t}yt.prototype.addListener=function(e,r){return Bh(this,e,r,!1)};yt.prototype.on=yt.prototype.addListener;yt.prototype.prependListener=function(e,r){return Bh(this,e,r,!0)};function Bx(){if(!this.fired)return this.target.removeListener(this.type,this.wrapFn),this.fired=!0,arguments.length===0?this.listener.call(this.target):this.listener.apply(this.target,arguments)}function kh(t,e,r){var n={fired:!1,wrapFn:void 0,target:t,type:e,listener:r},o=Bx.bind(n);return o.listener=r,n.wrapFn=o,o}yt.prototype.once=function(e,r){return ua(r),this.on(e,kh(this,e,r)),this};yt.prototype.prependOnceListener=function(e,r){return ua(r),this.prependListener(e,kh(this,e,r)),this};yt.prototype.removeListener=function(e,r){var n,o,s,i,f;if(ua(r),o=this._events,o===void 0)return this;if(n=o[e],n===void 0)return this;if(n===r||n.listener===r)--this._eventsCount==0?this._events=Object.create(null):(delete o[e],o.removeListener&&this.emit("removeListener",e,n.listener||r));else if(typeof n!="function"){for(s=-1,i=n.length-1;i>=0;i--)if(n[i]===r||n[i].listener===r){f=n[i].listener,s=i;break}if(s<0)return this;s===0?n.shift():kx(n,s),n.length===1&&(o[e]=n[0]),o.removeListener!==void 0&&this.emit("removeListener",e,f||r)}return this};yt.prototype.off=yt.prototype.removeListener;yt.prototype.removeAllListeners=function(e){var r,n,o;if(n=this._events,n===void 0)return this;if(n.removeListener===void 0)return arguments.length===0?(this._events=Object.create(null),this._eventsCount=0):n[e]!==void 0&&(--this._eventsCount==0?this._events=Object.create(null):delete n[e]),this;if(arguments.length===0){var s=Object.keys(n),i;for(o=0;o<s.length;++o)i=s[o],i!=="removeListener"&&this.removeAllListeners(i);return this.removeAllListeners("removeListener"),this._events=Object.create(null),this._eventsCount=0,this}if(r=n[e],typeof r=="function")this.removeListener(e,r);else if(r!==void 0)for(o=r.length-1;o>=0;o--)this.removeListener(e,r[o]);return this};function Oh(t,e,r){var n=t._events;if(n===void 0)return[];var o=n[e];return o===void 0?[]:typeof o=="function"?r?[o.listener||o]:[o]:r?Ox(o):Ph(o,o.length)}yt.prototype.listeners=function(e){return Oh(this,e,!0)};yt.prototype.rawListeners=function(e){return Oh(this,e,!1)};yt.listenerCount=function(t,e){return typeof t.listenerCount=="function"?t.listenerCount(e):Mh.call(t,e)};yt.prototype.listenerCount=Mh;function Mh(t){var e=this._events;if(e!==void 0){var r=e[t];if(typeof r=="function")return 1;if(r!==void 0)return r.length}return 0}yt.prototype.eventNames=function(){return this._eventsCount>0?fa(this._events):[]};function Ph(t,e){for(var r=new Array(e),n=0;n<e;++n)r[n]=t[n];return r}function kx(t,e){for(;e+1<t.length;e++)t[e]=t[e+1];t.pop()}function Ox(t){for(var e=new Array(t.length),r=0;r<e.length;++r)e[r]=t[r].listener||t[r];return e}function Mx(t,e){return new Promise(function(r,n){function o(i){t.removeListener(e,s),n(i)}function s(){typeof t.removeListener=="function"&&t.removeListener("error",o),r([].slice.call(arguments))}Nh(t,e,s,{once:!0}),e!=="error"&&Px(t,o,{once:!0})})}function Px(t,e,r){typeof t.on=="function"&&Nh(t,"error",e,r)}function Nh(t,e,r,n){if(typeof t.on=="function")n.once?t.once(e,r):t.on(e,r);else if(typeof t.addEventListener=="function")t.addEventListener(e,function o(s){n.once&&t.removeEventListener(e,o),r(s)});else throw new TypeError('The "emitter" argument must be of type EventEmitter. Received type '+typeof t)}});var Uh=Ke(fn=>{"use strict";var Rh=fn&&fn.__awaiter||function(t,e,r,n){function o(s){return s instanceof r?s:new r(function(i){i(s)})}return new(r||(r=Promise))(function(s,i){function f(d){try{c(n.next(d))}catch(g){i(g)}}function u(d){try{c(n.throw(d))}catch(g){i(g)}}function c(d){d.done?s(d.value):o(d.value).then(f,u)}c((n=n.apply(t,e||[])).next())})},Dh=fn&&fn.__generator||function(t,e){var r={label:0,sent:function(){if(s[0]&1)throw s[1];return s[1]},trys:[],ops:[]},n,o,s,i;return i={next:f(0),throw:f(1),return:f(2)},typeof Symbol=="function"&&(i[Symbol.iterator]=function(){return this}),i;function f(c){return function(d){return u([c,d])}}function u(c){if(n)throw new TypeError("Generator is already executing.");for(;r;)try{if(n=1,o&&(s=c[0]&2?o.return:c[0]?o.throw||((s=o.return)&&s.call(o),0):o.next)&&!(s=s.call(o,c[1])).done)return s;switch(o=0,s&&(c=[c[0]&2,s.value]),c[0]){case 0:case 1:s=c;break;case 4:return r.label++,{value:c[1],done:!1};case 5:r.label++,o=c[1],c=[0];continue;case 7:c=r.ops.pop(),r.trys.pop();continue;default:if(s=r.trys,!(s=s.length>0&&s[s.length-1])&&(c[0]===6||c[0]===2)){r=0;continue}if(c[0]===3&&(!s||c[1]>s[0]&&c[1]<s[3])){r.label=c[1];break}if(c[0]===6&&r.label<s[1]){r.label=s[1],s=c;break}if(s&&r.label<s[2]){r.label=s[2],r.ops.push(c);break}s[2]&&r.ops.pop(),r.trys.pop();continue}c=e.call(t,r)}catch(d){c=[6,d],o=0}finally{n=s=0}if(c[0]&5)throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}};Object.defineProperty(fn,"__esModule",{value:!0});fn.defaultNextRequest=void 0;var Nx=kf();fn.defaultNextRequest=function(){var t=-1;return function(){return++t}};var Rx=function(){function t(e,r){r===void 0&&(r=fn.defaultNextRequest()),this.batch=[],this.batchStarted=!1,this.lastId=-1,this.transports=e,this.requests={},this.connectPromise=this.connect(),this.requestChannel=new Nx.EventEmitter,this.nextID=r}return t.prototype.connect=function(){var e=this;return Promise.all(this.transports.map(function(r){return Rh(e,void 0,void 0,function(){return Dh(this,function(n){switch(n.label){case 0:return r.subscribe("error",this.handleError.bind(this)),r.subscribe("notification",this.handleNotification.bind(this)),[4,r.connect()];case 1:return n.sent(),[2]}})})}))},t.prototype.getPrimaryTransport=function(){return this.transports[0]},t.prototype.request=function(e,r,n){return r===void 0&&(r=!1),Rh(this,void 0,void 0,function(){var o,s,i,f,u=this;return Dh(this,function(c){return o=this.nextID().toString(),s=r?null:o,i={request:this.makeRequest(e.method,e.params||[],s),internalID:o},this.batchStarted?(f=new Promise(function(d,g){u.batch.push({resolve:d,reject:g,request:i})}),[2,f]):[2,this.getPrimaryTransport().sendData(i,n)]})})},t.prototype.close=function(){this.requestChannel.removeAllListeners(),this.transports.forEach(function(e){e.unsubscribe(),e.close()})},t.prototype.startBatch=function(){this.batchStarted=!0},t.prototype.stopBatch=function(){if(this.batchStarted===!1)throw new Error("cannot end that which has never started");if(this.batch.length===0){this.batchStarted=!1;return}this.getPrimaryTransport().sendData(this.batch),this.batch=[],this.batchStarted=!1},t.prototype.makeRequest=function(e,r,n){return n?{jsonrpc:"2.0",id:n,method:e,params:r}:{jsonrpc:"2.0",method:e,params:r}},t.prototype.handleError=function(e){this.requestChannel.emit("error",e)},t.prototype.handleNotification=function(e){this.requestChannel.emit("notification",e)},t}();fn.default=Rx});var is=Ke(hr=>{"use strict";var Dx=hr&&hr.__extends||function(){var t=function(e,r){return t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(n,o){n.__proto__=o}||function(n,o){for(var s in o)o.hasOwnProperty(s)&&(n[s]=o[s])},t(e,r)};return function(e,r){t(e,r);function n(){this.constructor=e}e.prototype=r===null?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(hr,"__esModule",{value:!0});hr.convertJSONToRPCError=hr.JSONRPCError=hr.ERR_UNKNOWN=hr.ERR_MISSIING_ID=hr.ERR_TIMEOUT=void 0;hr.ERR_TIMEOUT=7777;hr.ERR_MISSIING_ID=7878;hr.ERR_UNKNOWN=7979;var Of=function(t){Dx(e,t);function e(r,n,o){var s=this.constructor,i=t.call(this,r)||this;return i.message=r,i.code=n,i.data=o,Object.setPrototypeOf(i,s.prototype),i}return e}(Error);hr.JSONRPCError=Of;hr.convertJSONToRPCError=function(t){if(t.error){var e=t.error,r=e.message,n=e.code,o=e.data;return new Of(r,n,o)}return new Of("Unknown error",hr.ERR_UNKNOWN,t)}});var Lh=Ke(la=>{"use strict";Object.defineProperty(la,"__esModule",{value:!0});la.TransportRequestManager=void 0;var Ux=kf(),as=is(),Lx=function(){function t(){this.pendingRequest={},this.pendingBatchRequest={},this.transportEventChannel=new Ux.EventEmitter}return t.prototype.addRequest=function(e,r){return this.transportEventChannel.emit("pending",e),e instanceof Array?(this.addBatchReq(e,r),Promise.resolve()):this.addReq(e.internalID,r)},t.prototype.settlePendingRequest=function(e,r){var n=this;e.forEach(function(o){var s=n.pendingRequest[o.internalID];if(delete n.pendingBatchRequest[o.internalID],s!==void 0){if(r){s.reject(r);return}s.resolve(),(o.request.id===null||o.request.id===void 0)&&delete n.pendingRequest[o.internalID]}})},t.prototype.isPendingRequest=function(e){return this.pendingRequest.hasOwnProperty(e)},t.prototype.resolveResponse=function(e,r){r===void 0&&(r=!0);var n=e;try{return n=JSON.parse(e),this.checkJSONRPC(n)===!1?void 0:n instanceof Array?this.resolveBatch(n,r):this.resolveRes(n,r)}catch(s){var o=new as.JSONRPCError("Bad response format",as.ERR_UNKNOWN,e);return r&&this.transportEventChannel.emit("error",o),o}},t.prototype.addBatchReq=function(e,r){var n=this;return e.forEach(function(o){var s=o.resolve,i=o.reject,f=o.request.internalID;n.pendingBatchRequest[f]=!0,n.pendingRequest[f]={resolve:s,reject:i}}),Promise.resolve()},t.prototype.addReq=function(e,r){var n=this;return new Promise(function(o,s){r!==null&&r&&n.setRequestTimeout(e,r,s),n.pendingRequest[e]={resolve:o,reject:s}})},t.prototype.checkJSONRPC=function(e){var r=[e];return e instanceof Array&&(r=e),r.every(function(n){return n.result!==void 0||n.error!==void 0||n.method!==void 0})},t.prototype.processResult=function(e,r){if(e.error){var n=as.convertJSONToRPCError(e);r.reject(n);return}r.resolve(e.result)},t.prototype.resolveBatch=function(e,r){var n=this,o=e.map(function(i){return n.resolveRes(i,r)}),s=o.filter(function(i){return i});if(s.length>0)return s[0]},t.prototype.resolveRes=function(e,r){var n=e.id,o=e.error,s=this.pendingRequest[n];if(s){delete this.pendingRequest[n],this.processResult(e,s),this.transportEventChannel.emit("response",e);return}if(n===void 0&&o===void 0){this.transportEventChannel.emit("notification",e);return}var i;return o&&(i=as.convertJSONToRPCError(e)),r&&o&&i&&this.transportEventChannel.emit("error",i),i},t.prototype.setRequestTimeout=function(e,r,n){var o=this;setTimeout(function(){delete o.pendingRequest[e],n(new as.JSONRPCError("Request timeout request took longer than "+r+" ms to resolve",as.ERR_TIMEOUT))},r)},t}();la.TransportRequestManager=Lx});var cs=Ke(da=>{"use strict";Object.defineProperty(da,"__esModule",{value:!0});da.Transport=void 0;var Wx=Lh(),qx=function(){function t(){this.transportRequestManager=new Wx.TransportRequestManager,this.transportRequestManager.transportEventChannel.on("error",function(){})}return t.prototype.subscribe=function(e,r){this.transportRequestManager.transportEventChannel.addListener(e,r)},t.prototype.unsubscribe=function(e,r){if(!e)return this.transportRequestManager.transportEventChannel.removeAllListeners();e&&r&&this.transportRequestManager.transportEventChannel.removeListener(e,r)},t.prototype.parseData=function(e){return e instanceof Array?e.map(function(r){return r.request.request}):e.request},t}();da.Transport=qx});var fs=Ke(un=>{"use strict";Object.defineProperty(un,"__esModule",{value:!0});un.getNotifications=un.getBatchRequests=un.isNotification=void 0;un.isNotification=function(t){return t.request.id===void 0||t.request.id===null};un.getBatchRequests=function(t){return t instanceof Array?t.filter(function(e){var r=e.request.request.id;return r!=null}).map(function(e){return e.request}):[]};un.getNotifications=function(t){return t instanceof Array?t.filter(function(e){return un.isNotification(e.request)}).map(function(e){return e.request}):un.isNotification(t)?[t]:[]}});var qh=Ke(ri=>{"use strict";var Hx=ri&&ri.__extends||function(){var t=function(e,r){return t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(n,o){n.__proto__=o}||function(n,o){for(var s in o)o.hasOwnProperty(s)&&(n[s]=o[s])},t(e,r)};return function(e,r){t(e,r);function n(){this.constructor=e}e.prototype=r===null?Object.create(r):(n.prototype=r.prototype,new n)}}();Object.defineProperty(ri,"__esModule",{value:!0});var Fx=cs(),Kx=fs(),Wh=is(),zx=function(t){Hx(e,t);function e(r,n,o){var s=t.call(this)||this;return s.connection=r,s.reqUri=n,s.resUri=o,s}return e.prototype.connect=function(){var r=this;return this.connection.on(this.resUri,function(n){r.transportRequestManager.resolveResponse(n)}),Promise.resolve()},e.prototype.sendData=function(r,n){n===void 0&&(n=null);var o=this.transportRequestManager.addRequest(r,n),s=Kx.getNotifications(r),i=this.parseData(r);try{return this.connection.emit(this.reqUri,i),this.transportRequestManager.settlePendingRequest(s),o}catch(u){var f=new Wh.JSONRPCError(u.message,Wh.ERR_UNKNOWN,u);return this.transportRequestManager.settlePendingRequest(s,f),Promise.reject(f)}},e.prototype.close=function(){this.connection.removeAllListeners()},e}(Fx.Transport);ri.default=zx});var Fh=Ke((ha,Hh)=>{(function(t,e){typeof ha=="object"&&typeof Hh!="undefined"?e(ha):typeof define=="function"&&define.amd?define(["exports"],e):e(t.WHATWGFetch={})})(ha,function(t){"use strict";var e=typeof globalThis!="undefined"&&globalThis||typeof self!="undefined"&&self||typeof e!="undefined"&&e,r={searchParams:"URLSearchParams"in e,iterable:"Symbol"in e&&"iterator"in Symbol,blob:"FileReader"in e&&"Blob"in e&&function(){try{return new Blob,!0}catch(x){return!1}}(),formData:"FormData"in e,arrayBuffer:"ArrayBuffer"in e};function n(x){return x&&DataView.prototype.isPrototypeOf(x)}if(r.arrayBuffer)var o=["[object Int8Array]","[object Uint8Array]","[object Uint8ClampedArray]","[object Int16Array]","[object Uint16Array]","[object Int32Array]","[object Uint32Array]","[object Float32Array]","[object Float64Array]"],s=ArrayBuffer.isView||function(x){return x&&o.indexOf(Object.prototype.toString.call(x))>-1};function i(x){if(typeof x!="string"&&(x=String(x)),/[^a-z0-9\-#$%&'*+.^_`|~!]/i.test(x)||x==="")throw new TypeError('Invalid character in header field name: "'+x+'"');return x.toLowerCase()}function f(x){return typeof x!="string"&&(x=String(x)),x}function u(x){var P={next:function(){var $=x.shift();return{done:$===void 0,value:$}}};return r.iterable&&(P[Symbol.iterator]=function(){return P}),P}function c(x){this.map={},x instanceof c?x.forEach(function(P,$){this.append($,P)},this):Array.isArray(x)?x.forEach(function(P){this.append(P[0],P[1])},this):x&&Object.getOwnPropertyNames(x).forEach(function(P){this.append(P,x[P])},this)}c.prototype.append=function(x,P){x=i(x),P=f(P);var $=this.map[x];this.map[x]=$?$+", "+P:P},c.prototype.delete=function(x){delete this.map[i(x)]},c.prototype.get=function(x){return x=i(x),this.has(x)?this.map[x]:null},c.prototype.has=function(x){return this.map.hasOwnProperty(i(x))},c.prototype.set=function(x,P){this.map[i(x)]=f(P)},c.prototype.forEach=function(x,P){for(var $ in this.map)this.map.hasOwnProperty($)&&x.call(P,this.map[$],$,this)},c.prototype.keys=function(){var x=[];return this.forEach(function(P,$){x.push($)}),u(x)},c.prototype.values=function(){var x=[];return this.forEach(function(P){x.push(P)}),u(x)},c.prototype.entries=function(){var x=[];return this.forEach(function(P,$){x.push([$,P])}),u(x)},r.iterable&&(c.prototype[Symbol.iterator]=c.prototype.entries);function d(x){if(x.bodyUsed)return Promise.reject(new TypeError("Already read"));x.bodyUsed=!0}function g(x){return new Promise(function(P,$){x.onload=function(){P(x.result)},x.onerror=function(){$(x.error)}})}function E(x){var P=new FileReader,$=g(P);return P.readAsArrayBuffer(x),$}function w(x){var P=new FileReader,$=g(P);return P.readAsText(x),$}function T(x){for(var P=new Uint8Array(x),$=new Array(P.length),se=0;se<P.length;se++)$[se]=String.fromCharCode(P[se]);return $.join("")}function b(x){if(x.slice)return x.slice(0);var P=new Uint8Array(x.byteLength);return P.set(new Uint8Array(x)),P.buffer}function I(){return this.bodyUsed=!1,this._initBody=function(x){this.bodyUsed=this.bodyUsed,this._bodyInit=x,x?typeof x=="string"?this._bodyText=x:r.blob&&Blob.prototype.isPrototypeOf(x)?this._bodyBlob=x:r.formData&&FormData.prototype.isPrototypeOf(x)?this._bodyFormData=x:r.searchParams&&URLSearchParams.prototype.isPrototypeOf(x)?this._bodyText=x.toString():r.arrayBuffer&&r.blob&&n(x)?(this._bodyArrayBuffer=b(x.buffer),this._bodyInit=new Blob([this._bodyArrayBuffer])):r.arrayBuffer&&(ArrayBuffer.prototype.isPrototypeOf(x)||s(x))?this._bodyArrayBuffer=b(x):this._bodyText=x=Object.prototype.toString.call(x):this._bodyText="",this.headers.get("content-type")||(typeof x=="string"?this.headers.set("content-type","text/plain;charset=UTF-8"):this._bodyBlob&&this._bodyBlob.type?this.headers.set("content-type",this._bodyBlob.type):r.searchParams&&URLSearchParams.prototype.isPrototypeOf(x)&&this.headers.set("content-type","application/x-www-form-urlencoded;charset=UTF-8"))},r.blob&&(this.blob=function(){var x=d(this);if(x)return x;if(this._bodyBlob)return Promise.resolve(this._bodyBlob);if(this._bodyArrayBuffer)return Promise.resolve(new Blob([this._bodyArrayBuffer]));if(this._bodyFormData)throw new Error("could not read FormData body as blob");return Promise.resolve(new Blob([this._bodyText]))},this.arrayBuffer=function(){if(this._bodyArrayBuffer){var x=d(this);return x||(ArrayBuffer.isView(this._bodyArrayBuffer)?Promise.resolve(this._bodyArrayBuffer.buffer.slice(this._bodyArrayBuffer.byteOffset,this._bodyArrayBuffer.byteOffset+this._bodyArrayBuffer.byteLength)):Promise.resolve(this._bodyArrayBuffer))}else return this.blob().then(E)}),this.text=function(){var x=d(this);if(x)return x;if(this._bodyBlob)return w(this._bodyBlob);if(this._bodyArrayBuffer)return Promise.resolve(T(this._bodyArrayBuffer));if(this._bodyFormData)throw new Error("could not read FormData body as text");return Promise.resolve(this._bodyText)},r.formData&&(this.formData=function(){return this.text().then(oe)}),this.json=function(){return this.text().then(JSON.parse)},this}var M=["DELETE","GET","HEAD","OPTIONS","POST","PUT"];function V(x){var P=x.toUpperCase();return M.indexOf(P)>-1?P:x}function G(x,P){if(!(this instanceof G))throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.');P=P||{};var $=P.body;if(x instanceof G){if(x.bodyUsed)throw new TypeError("Already read");this.url=x.url,this.credentials=x.credentials,P.headers||(this.headers=new c(x.headers)),this.method=x.method,this.mode=x.mode,this.signal=x.signal,!$&&x._bodyInit!=null&&($=x._bodyInit,x.bodyUsed=!0)}else this.url=String(x);if(this.credentials=P.credentials||this.credentials||"same-origin",(P.headers||!this.headers)&&(this.headers=new c(P.headers)),this.method=V(P.method||this.method||"GET"),this.mode=P.mode||this.mode||null,this.signal=P.signal||this.signal,this.referrer=null,(this.method==="GET"||this.method==="HEAD")&&$)throw new TypeError("Body not allowed for GET or HEAD requests");if(this._initBody($),(this.method==="GET"||this.method==="HEAD")&&(P.cache==="no-store"||P.cache==="no-cache")){var se=/([?&])_=[^&]*/;if(se.test(this.url))this.url=this.url.replace(se,"$1_="+new Date().getTime());else{var we=/\?/;this.url+=(we.test(this.url)?"&":"?")+"_="+new Date().getTime()}}}G.prototype.clone=function(){return new G(this,{body:this._bodyInit})};function oe(x){var P=new FormData;return x.trim().split("&").forEach(function($){if($){var se=$.split("="),we=se.shift().replace(/\+/g," "),ye=se.join("=").replace(/\+/g," ");P.append(decodeURIComponent(we),decodeURIComponent(ye))}}),P}function z(x){var P=new c,$=x.replace(/\r?\n[\t ]+/g," ");return $.split("\r").map(function(se){return se.indexOf(`
 `)===0?se.substr(1,se.length):se}).forEach(function(se){var we=se.split(":"),ye=we.shift().trim();if(ye){var Q=we.join(":").trim();P.append(ye,Q)}}),P}I.call(G.prototype);function L(x,P){if(!(this instanceof L))throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.');P||(P={}),this.type="default",this.status=P.status===void 0?200:P.status,this.ok=this.status>=200&&this.status<300,this.statusText=P.statusText===void 0?"":""+P.statusText,this.headers=new c(P.headers),this.url=P.url||"",this._initBody(x)}I.call(L.prototype),L.prototype.clone=function(){return new L(this._bodyInit,{status:this.status,statusText:this.statusText,headers:new c(this.headers),url:this.url})},L.error=function(){var x=new L(null,{status:0,statusText:""});return x.type="error",x};var ne=[301,302,303,307,308];L.redirect=function(x,P){if(ne.indexOf(P)===-1)throw new RangeError("Invalid status code");return new L(null,{status:P,headers:{location:x}})},t.DOMException=e.DOMException;try{new t.DOMException}catch(x){t.DOMException=function(P,$){this.message=P,this.name=$;var se=Error(P);this.stack=se.stack},t.DOMException.prototype=Object.create(Error.prototype),t.DOMException.prototype.constructor=t.DOMException}function D(x,P){return new Promise(function($,se){var we=new G(x,P);if(we.signal&&we.signal.aborted)return se(new t.DOMException("Aborted","AbortError"));var ye=new XMLHttpRequest;function Q(){ye.abort()}ye.onload=function(){var le={status:ye.status,statusText:ye.statusText,headers:z(ye.getAllResponseHeaders()||"")};le.url="responseURL"in ye?ye.responseURL:le.headers.get("X-Request-URL");var Me="response"in ye?ye.response:ye.responseText;setTimeout(function(){$(new L(Me,le))},0)},ye.onerror=function(){setTimeout(function(){se(new TypeError("Network request failed"))},0)},ye.ontimeout=function(){setTimeout(function(){se(new TypeError("Network request failed"))},0)},ye.onabort=function(){setTimeout(function(){se(new t.DOMException("Aborted","AbortError"))},0)};function fe(le){try{return le===""&&e.location.href?e.location.href:le}catch(Me){return le}}ye.open(we.method,fe(we.url),!0),we.credentials==="include"?ye.withCredentials=!0:we.credentials==="omit"&&(ye.withCredentials=!1),"responseType"in ye&&(r.blob?ye.responseType="blob":r.arrayBuffer&&we.headers.get("Content-Type")&&we.headers.get("Content-Type").indexOf("application/octet-stream")!==-1&&(ye.responseType="arraybuffer")),P&&typeof P.headers=="object"&&!(P.headers instanceof c)?Object.getOwnPropertyNames(P.headers).forEach(function(le){ye.setRequestHeader(le,f(P.headers[le]))}):we.headers.forEach(function(le,Me){ye.setRequestHeader(Me,le)}),we.signal&&(we.signal.addEventListener("abort",Q),ye.onreadystatechange=function(){ye.readyState===4&&we.signal.removeEventListener("abort",Q)}),ye.send(typeof we._bodyInit=="undefined"?null:we._bodyInit)})}D.polyfill=!0,e.fetch||(e.fetch=D,e.Headers=c,e.Request=G,e.Response=L),t.Headers=c,t.Request=G,t.Response=L,t.fetch=D,Object.defineProperty(t,"__esModule",{value:!0})})});var zh=Ke((T4,Kh)=>{Fh();Kh.exports=self.fetch.bind(self)});var $h=Ke(Er=>{"use strict";var Gx=Er&&Er.__extends||function(){var t=function(e,r){return t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(n,o){n.__proto__=o}||function(n,o){for(var s in o)o.hasOwnProperty(s)&&(n[s]=o[s])},t(e,r)};return function(e,r){t(e,r);function n(){this.constructor=e}e.prototype=r===null?Object.create(r):(n.prototype=r.prototype,new n)}}(),Vx=Er&&Er.__awaiter||function(t,e,r,n){function o(s){return s instanceof r?s:new r(function(i){i(s)})}return new(r||(r=Promise))(function(s,i){function f(d){try{c(n.next(d))}catch(g){i(g)}}function u(d){try{c(n.throw(d))}catch(g){i(g)}}function c(d){d.done?s(d.value):o(d.value).then(f,u)}c((n=n.apply(t,e||[])).next())})},$x=Er&&Er.__generator||function(t,e){var r={label:0,sent:function(){if(s[0]&1)throw s[1];return s[1]},trys:[],ops:[]},n,o,s,i;return i={next:f(0),throw:f(1),return:f(2)},typeof Symbol=="function"&&(i[Symbol.iterator]=function(){return this}),i;function f(c){return function(d){return u([c,d])}}function u(c){if(n)throw new TypeError("Generator is already executing.");for(;r;)try{if(n=1,o&&(s=c[0]&2?o.return:c[0]?o.throw||((s=o.return)&&s.call(o),0):o.next)&&!(s=s.call(o,c[1])).done)return s;switch(o=0,s&&(c=[c[0]&2,s.value]),c[0]){case 0:case 1:s=c;break;case 4:return r.label++,{value:c[1],done:!1};case 5:r.label++,o=c[1],c=[0];continue;case 7:c=r.ops.pop(),r.trys.pop();continue;default:if(s=r.trys,!(s=s.length>0&&s[s.length-1])&&(c[0]===6||c[0]===2)){r=0;continue}if(c[0]===3&&(!s||c[1]>s[0]&&c[1]<s[3])){r.label=c[1];break}if(c[0]===6&&r.label<s[1]){r.label=s[1],s=c;break}if(s&&r.label<s[2]){r.label=s[2],r.ops.push(c);break}s[2]&&r.ops.pop(),r.trys.pop();continue}c=e.call(t,r)}catch(d){c=[6,d],o=0}finally{n=s=0}if(c[0]&5)throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}},Zx=Er&&Er.__importDefault||function(t){return t&&t.__esModule?t:{default:t}};Object.defineProperty(Er,"__esModule",{value:!0});Er.HTTPTransport=void 0;var Yx=Zx(zh()),Jx=cs(),Mf=fs(),Gh=is(),Vh=function(t){Gx(e,t);function e(r,n){var o=t.call(this)||this;return o.onlyNotifications=function(s){return s instanceof Array?s.every(function(i){return i.request.request.id===null||i.request.request.id===void 0}):s.request.id===null||s.request.id===void 0},o.uri=r,o.credentials=n&&n.credentials,o.headers=e.setupHeaders(n&&n.headers),o.injectedFetcher=n==null?void 0:n.fetcher,o}return e.prototype.connect=function(){return Promise.resolve()},e.prototype.sendData=function(r,n){return n===void 0&&(n=null),Vx(this,void 0,void 0,function(){var o,s,i,f,u,c,d,g,d;return $x(this,function(E){switch(E.label){case 0:o=this.transportRequestManager.addRequest(r,n),s=Mf.getNotifications(r),i=Mf.getBatchRequests(r),f=this.injectedFetcher||Yx.default,E.label=1;case 1:return E.trys.push([1,4,,5]),[4,f(this.uri,{method:"POST",headers:this.headers,body:JSON.stringify(this.parseData(r)),credentials:this.credentials})];case 2:return u=E.sent(),this.transportRequestManager.settlePendingRequest(s),this.onlyNotifications(r)?[2,Promise.resolve()]:[4,u.text()];case 3:return c=E.sent(),d=this.transportRequestManager.resolveResponse(c),d?(this.transportRequestManager.settlePendingRequest(i,d),[2,Promise.reject(d)]):[3,5];case 4:return g=E.sent(),d=new Gh.JSONRPCError(g.message,Gh.ERR_UNKNOWN,g),this.transportRequestManager.settlePendingRequest(s,d),this.transportRequestManager.settlePendingRequest(Mf.getBatchRequests(r),d),[2,Promise.reject(d)];case 5:return[2,o]}})})},e.prototype.close=function(){},e.setupHeaders=function(r){var n=new Headers(r);return n.set("Content-Type","application/json"),n},e}(Jx.Transport);Er.HTTPTransport=Vh;Er.default=Vh});var Zh={};Pu(Zh,{default:()=>Xx});var us,Xx,Yh=$m(()=>{us=null;typeof WebSocket!="undefined"?us=WebSocket:typeof MozWebSocket!="undefined"?us=MozWebSocket:typeof global!="undefined"?us=global.WebSocket||global.MozWebSocket:typeof window!="undefined"?us=window.WebSocket||window.MozWebSocket:typeof self!="undefined"&&(us=self.WebSocket||self.MozWebSocket);Xx=us});var Qh=Ke(Xr=>{"use strict";var Qx=Xr&&Xr.__extends||function(){var t=function(e,r){return t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(n,o){n.__proto__=o}||function(n,o){for(var s in o)o.hasOwnProperty(s)&&(n[s]=o[s])},t(e,r)};return function(e,r){t(e,r);function n(){this.constructor=e}e.prototype=r===null?Object.create(r):(n.prototype=r.prototype,new n)}}(),ew=Xr&&Xr.__awaiter||function(t,e,r,n){function o(s){return s instanceof r?s:new r(function(i){i(s)})}return new(r||(r=Promise))(function(s,i){function f(d){try{c(n.next(d))}catch(g){i(g)}}function u(d){try{c(n.throw(d))}catch(g){i(g)}}function c(d){d.done?s(d.value):o(d.value).then(f,u)}c((n=n.apply(t,e||[])).next())})},tw=Xr&&Xr.__generator||function(t,e){var r={label:0,sent:function(){if(s[0]&1)throw s[1];return s[1]},trys:[],ops:[]},n,o,s,i;return i={next:f(0),throw:f(1),return:f(2)},typeof Symbol=="function"&&(i[Symbol.iterator]=function(){return this}),i;function f(c){return function(d){return u([c,d])}}function u(c){if(n)throw new TypeError("Generator is already executing.");for(;r;)try{if(n=1,o&&(s=c[0]&2?o.return:c[0]?o.throw||((s=o.return)&&s.call(o),0):o.next)&&!(s=s.call(o,c[1])).done)return s;switch(o=0,s&&(c=[c[0]&2,s.value]),c[0]){case 0:case 1:s=c;break;case 4:return r.label++,{value:c[1],done:!1};case 5:r.label++,o=c[1],c=[0];continue;case 7:c=r.ops.pop(),r.trys.pop();continue;default:if(s=r.trys,!(s=s.length>0&&s[s.length-1])&&(c[0]===6||c[0]===2)){r=0;continue}if(c[0]===3&&(!s||c[1]>s[0]&&c[1]<s[3])){r.label=c[1];break}if(c[0]===6&&r.label<s[1]){r.label=s[1],s=c;break}if(s&&r.label<s[2]){r.label=s[2],r.ops.push(c);break}s[2]&&r.ops.pop(),r.trys.pop();continue}c=e.call(t,r)}catch(d){c=[6,d],o=0}finally{n=s=0}if(c[0]&5)throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}},rw=Xr&&Xr.__importDefault||function(t){return t&&t.__esModule?t:{default:t}};Object.defineProperty(Xr,"__esModule",{value:!0});var nw=rw((Yh(),Zh)),ow=cs(),Jh=fs(),Xh=is(),sw=function(t){Qx(e,t);function e(r){var n=t.call(this)||this;return n.uri=r,n.connection=new nw.default(r),n}return e.prototype.connect=function(){var r=this;return new Promise(function(n,o){var s=function(){r.connection.removeEventListener("open",s),n()};r.connection.addEventListener("open",s),r.connection.addEventListener("message",function(i){var f=i.data;r.transportRequestManager.resolveResponse(f)})})},e.prototype.sendData=function(r,n){return n===void 0&&(n=5e3),ew(this,void 0,void 0,function(){var o,s,i;return tw(this,function(f){o=this.transportRequestManager.addRequest(r,n),s=Jh.getNotifications(r);try{this.connection.send(JSON.stringify(this.parseData(r))),this.transportRequestManager.settlePendingRequest(s)}catch(u){i=new Xh.JSONRPCError(u.message,Xh.ERR_UNKNOWN,u),this.transportRequestManager.settlePendingRequest(s,i),this.transportRequestManager.settlePendingRequest(Jh.getBatchRequests(r),i),o=Promise.reject(i)}return[2,o]})})},e.prototype.close=function(){this.connection.close()},e}(ow.Transport);Xr.default=sw});var rp=Ke(_n=>{"use strict";var iw=_n&&_n.__extends||function(){var t=function(e,r){return t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(n,o){n.__proto__=o}||function(n,o){for(var s in o)o.hasOwnProperty(s)&&(n[s]=o[s])},t(e,r)};return function(e,r){t(e,r);function n(){this.constructor=e}e.prototype=r===null?Object.create(r):(n.prototype=r.prototype,new n)}}(),ep=_n&&_n.__awaiter||function(t,e,r,n){function o(s){return s instanceof r?s:new r(function(i){i(s)})}return new(r||(r=Promise))(function(s,i){function f(d){try{c(n.next(d))}catch(g){i(g)}}function u(d){try{c(n.throw(d))}catch(g){i(g)}}function c(d){d.done?s(d.value):o(d.value).then(f,u)}c((n=n.apply(t,e||[])).next())})},tp=_n&&_n.__generator||function(t,e){var r={label:0,sent:function(){if(s[0]&1)throw s[1];return s[1]},trys:[],ops:[]},n,o,s,i;return i={next:f(0),throw:f(1),return:f(2)},typeof Symbol=="function"&&(i[Symbol.iterator]=function(){return this}),i;function f(c){return function(d){return u([c,d])}}function u(c){if(n)throw new TypeError("Generator is already executing.");for(;r;)try{if(n=1,o&&(s=c[0]&2?o.return:c[0]?o.throw||((s=o.return)&&s.call(o),0):o.next)&&!(s=s.call(o,c[1])).done)return s;switch(o=0,s&&(c=[c[0]&2,s.value]),c[0]){case 0:case 1:s=c;break;case 4:return r.label++,{value:c[1],done:!1};case 5:r.label++,o=c[1],c=[0];continue;case 7:c=r.ops.pop(),r.trys.pop();continue;default:if(s=r.trys,!(s=s.length>0&&s[s.length-1])&&(c[0]===6||c[0]===2)){r=0;continue}if(c[0]===3&&(!s||c[1]>s[0]&&c[1]<s[3])){r.label=c[1];break}if(c[0]===6&&r.label<s[1]){r.label=s[1],s=c;break}if(s&&r.label<s[2]){r.label=s[2],r.ops.push(c);break}s[2]&&r.ops.pop(),r.trys.pop();continue}c=e.call(t,r)}catch(d){c=[6,d],o=0}finally{n=s=0}if(c[0]&5)throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}};Object.defineProperty(_n,"__esModule",{value:!0});var aw=cs(),cw=fs(),fw=function(t){var e=400,r=window.screen.height,n=0,o=0;return window.open(t,"inspector:popup","left="+n+",top="+o+",width="+e+",height="+r+",resizable,scrollbars=yes,status=1")},uw=function(t){iw(e,t);function e(r){var n=t.call(this)||this;return n.messageHandler=function(o){n.transportRequestManager.resolveResponse(JSON.stringify(o.data))},n.uri=r,n.postMessageID="post-message-transport-"+Math.random(),n}return e.prototype.createWindow=function(r){return new Promise(function(n,o){var s;s=fw(r),setTimeout(function(){n(s)},3e3)})},e.prototype.connect=function(){var r=this,n=/^(http|https):\/\/.*$/;return new Promise(function(o,s){return ep(r,void 0,void 0,function(){var i;return tp(this,function(f){switch(f.label){case 0:return n.test(this.uri)||s(new Error("Bad URI")),i=this,[4,this.createWindow(this.uri)];case 1:return i.frame=f.sent(),window.addEventListener("message",this.messageHandler),o(),[2]}})})})},e.prototype.sendData=function(r,n){return n===void 0&&(n=5e3),ep(this,void 0,void 0,function(){var o,s;return tp(this,function(i){return o=this.transportRequestManager.addRequest(r,null),s=cw.getNotifications(r),this.frame&&(this.frame.postMessage(r.request,this.uri),this.transportRequestManager.settlePendingRequest(s)),[2,o]})})},e.prototype.close=function(){this.frame&&(window.removeEventListener("message",this.messageHandler),this.frame.close())},e}(aw.Transport);_n.default=uw});var sp=Ke(Cn=>{"use strict";var lw=Cn&&Cn.__extends||function(){var t=function(e,r){return t=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(n,o){n.__proto__=o}||function(n,o){for(var s in o)o.hasOwnProperty(s)&&(n[s]=o[s])},t(e,r)};return function(e,r){t(e,r);function n(){this.constructor=e}e.prototype=r===null?Object.create(r):(n.prototype=r.prototype,new n)}}(),np=Cn&&Cn.__awaiter||function(t,e,r,n){function o(s){return s instanceof r?s:new r(function(i){i(s)})}return new(r||(r=Promise))(function(s,i){function f(d){try{c(n.next(d))}catch(g){i(g)}}function u(d){try{c(n.throw(d))}catch(g){i(g)}}function c(d){d.done?s(d.value):o(d.value).then(f,u)}c((n=n.apply(t,e||[])).next())})},op=Cn&&Cn.__generator||function(t,e){var r={label:0,sent:function(){if(s[0]&1)throw s[1];return s[1]},trys:[],ops:[]},n,o,s,i;return i={next:f(0),throw:f(1),return:f(2)},typeof Symbol=="function"&&(i[Symbol.iterator]=function(){return this}),i;function f(c){return function(d){return u([c,d])}}function u(c){if(n)throw new TypeError("Generator is already executing.");for(;r;)try{if(n=1,o&&(s=c[0]&2?o.return:c[0]?o.throw||((s=o.return)&&s.call(o),0):o.next)&&!(s=s.call(o,c[1])).done)return s;switch(o=0,s&&(c=[c[0]&2,s.value]),c[0]){case 0:case 1:s=c;break;case 4:return r.label++,{value:c[1],done:!1};case 5:r.label++,o=c[1],c=[0];continue;case 7:c=r.ops.pop(),r.trys.pop();continue;default:if(s=r.trys,!(s=s.length>0&&s[s.length-1])&&(c[0]===6||c[0]===2)){r=0;continue}if(c[0]===3&&(!s||c[1]>s[0]&&c[1]<s[3])){r.label=c[1];break}if(c[0]===6&&r.label<s[1]){r.label=s[1],s=c;break}if(s&&r.label<s[2]){r.label=s[2],r.ops.push(c);break}s[2]&&r.ops.pop(),r.trys.pop();continue}c=e.call(t,r)}catch(d){c=[6,d],o=0}finally{n=s=0}if(c[0]&5)throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}};Object.defineProperty(Cn,"__esModule",{value:!0});var dw=cs(),hw=fs(),pw=function(t){lw(e,t);function e(r){var n=t.call(this)||this;return n.messageHandler=function(o){n.transportRequestManager.resolveResponse(JSON.stringify(o.data))},n.uri=r,n.postMessageID="post-message-transport-"+Math.random(),n}return e.prototype.createWindow=function(r){var n=this;return new Promise(function(o,s){var i,f=document.createElement("iframe");f.setAttribute("id",n.postMessageID),f.setAttribute("width","0px"),f.setAttribute("height","0px"),f.setAttribute("style","visiblity:hidden;border:none;outline:none;"),f.addEventListener("load",function(){o(i)}),f.setAttribute("src",r),window.document.body.appendChild(f),i=f.contentWindow})},e.prototype.connect=function(){var r=this,n=/^(http|https):\/\/.*$/;return new Promise(function(o,s){return np(r,void 0,void 0,function(){var i;return op(this,function(f){switch(f.label){case 0:return n.test(this.uri)||s(new Error("Bad URI")),i=this,[4,this.createWindow(this.uri)];case 1:return i.frame=f.sent(),window.addEventListener("message",this.messageHandler),o(),[2]}})})})},e.prototype.sendData=function(r,n){return n===void 0&&(n=5e3),np(this,void 0,void 0,function(){var o,s;return op(this,function(i){return o=this.transportRequestManager.addRequest(r,null),s=hw.getNotifications(r),this.frame&&(this.frame.postMessage(r.request,"*"),this.transportRequestManager.settlePendingRequest(s)),[2,o]})})},e.prototype.close=function(){var r=document.getElementById(this.postMessageID);r==null||r.remove(),window.removeEventListener("message",this.messageHandler)},e}(dw.Transport);Cn.default=pw});var cp=Ke(_o=>{"use strict";var ip=_o&&_o.__awaiter||function(t,e,r,n){function o(s){return s instanceof r?s:new r(function(i){i(s)})}return new(r||(r=Promise))(function(s,i){function f(d){try{c(n.next(d))}catch(g){i(g)}}function u(d){try{c(n.throw(d))}catch(g){i(g)}}function c(d){d.done?s(d.value):o(d.value).then(f,u)}c((n=n.apply(t,e||[])).next())})},ap=_o&&_o.__generator||function(t,e){var r={label:0,sent:function(){if(s[0]&1)throw s[1];return s[1]},trys:[],ops:[]},n,o,s,i;return i={next:f(0),throw:f(1),return:f(2)},typeof Symbol=="function"&&(i[Symbol.iterator]=function(){return this}),i;function f(c){return function(d){return u([c,d])}}function u(c){if(n)throw new TypeError("Generator is already executing.");for(;r;)try{if(n=1,o&&(s=c[0]&2?o.return:c[0]?o.throw||((s=o.return)&&s.call(o),0):o.next)&&!(s=s.call(o,c[1])).done)return s;switch(o=0,s&&(c=[c[0]&2,s.value]),c[0]){case 0:case 1:s=c;break;case 4:return r.label++,{value:c[1],done:!1};case 5:r.label++,o=c[1],c=[0];continue;case 7:c=r.ops.pop(),r.trys.pop();continue;default:if(s=r.trys,!(s=s.length>0&&s[s.length-1])&&(c[0]===6||c[0]===2)){r=0;continue}if(c[0]===3&&(!s||c[1]>s[0]&&c[1]<s[3])){r.label=c[1];break}if(c[0]===6&&r.label<s[1]){r.label=s[1],s=c;break}if(s&&r.label<s[2]){r.label=s[2],r.ops.push(c);break}s[2]&&r.ops.pop(),r.trys.pop();continue}c=e.call(t,r)}catch(d){c=[6,d],o=0}finally{n=s=0}if(c[0]&5)throw c[1];return{value:c[0]?c[1]:void 0,done:!0}}};Object.defineProperty(_o,"__esModule",{value:!0});var gw=function(){function t(e){this.requestManager=e}return t.prototype.startBatch=function(){return this.requestManager.startBatch()},t.prototype.stopBatch=function(){return this.requestManager.stopBatch()},t.prototype.request=function(e,r){return ip(this,void 0,void 0,function(){return ap(this,function(n){switch(n.label){case 0:return this.requestManager.connectPromise?[4,this.requestManager.connectPromise]:[3,2];case 1:n.sent(),n.label=2;case 2:return[2,this.requestManager.request(e,!1,r)]}})})},t.prototype.notify=function(e){return ip(this,void 0,void 0,function(){return ap(this,function(r){switch(r.label){case 0:return this.requestManager.connectPromise?[4,this.requestManager.connectPromise]:[3,2];case 1:r.sent(),r.label=2;case 2:return[2,this.requestManager.request(e,!0,null)]}})})},t.prototype.onNotification=function(e){this.requestManager.requestChannel.addListener("notification",e)},t.prototype.onError=function(e){this.requestManager.requestChannel.addListener("error",e)},t.prototype.close=function(){this.requestManager.close()},t}();_o.default=gw});var Pf=Ke(Nt=>{"use strict";var Co=Nt&&Nt.__importDefault||function(t){return t&&t.__esModule?t:{default:t}};Object.defineProperty(Nt,"__esModule",{value:!0});Nt.PostMessageIframeTransport=Nt.PostMessageWindowTransport=Nt.JSONRPCError=Nt.WebSocketTransport=Nt.EventEmitterTransport=Nt.HTTPTransport=Nt.RequestManager=Nt.Client=void 0;var mw=Co(Uh());Nt.RequestManager=mw.default;var yw=Co(qh());Nt.EventEmitterTransport=yw.default;var bw=Co($h());Nt.HTTPTransport=bw.default;var xw=Co(Qh());Nt.WebSocketTransport=xw.default;var ww=Co(rp());Nt.PostMessageWindowTransport=ww.default;var vw=Co(sp());Nt.PostMessageIframeTransport=vw.default;var Sw=is();Object.defineProperty(Nt,"JSONRPCError",{enumerable:!0,get:function(){return Sw.JSONRPCError}});var fp=Co(cp());Nt.Client=fp.default;Nt.default=fp.default});var pn=Ke((Ta,_a)=>{(function(t,e){var r={version:"2.14.2",areas:{},apis:{},nsdelim:".",inherit:function(o,s){for(var i in o)s.hasOwnProperty(i)||Object.defineProperty(s,i,Object.getOwnPropertyDescriptor(o,i));return s},stringify:function(o,s){return o===void 0||typeof o=="function"?o+"":JSON.stringify(o,s||r.replace)},parse:function(o,s){try{return JSON.parse(o,s||r.revive)}catch(i){return o}},fn:function(o,s){r.storeAPI[o]=s;for(var i in r.apis)r.apis[i][o]=s},get:function(o,s){return o.getItem(s)},set:function(o,s,i){o.setItem(s,i)},remove:function(o,s){o.removeItem(s)},key:function(o,s){return o.key(s)},length:function(o){return o.length},clear:function(o){o.clear()},Store:function(o,s,i){var f=r.inherit(r.storeAPI,function(c,d,g){return arguments.length===0?f.getAll():typeof d=="function"?f.transact(c,d,g):d!==void 0?f.set(c,d,g):typeof c=="string"||typeof c=="number"?f.get(c):typeof c=="function"?f.each(c):c?f.setAll(c,d):f.clear()});f._id=o;try{var u="__store2_test";s.setItem(u,"ok"),f._area=s,s.removeItem(u)}catch(c){f._area=r.storage("fake")}return f._ns=i||"",r.areas[o]||(r.areas[o]=f._area),r.apis[f._ns+f._id]||(r.apis[f._ns+f._id]=f),f},storeAPI:{area:function(o,s){var i=this[o];return(!i||!i.area)&&(i=r.Store(o,s,this._ns),this[o]||(this[o]=i)),i},namespace:function(o,s,i){if(i=i||this._delim||r.nsdelim,!o)return this._ns?this._ns.substring(0,this._ns.length-i.length):"";var f=o,u=this[f];if((!u||!u.namespace)&&(u=r.Store(this._id,this._area,this._ns+f+i),u._delim=i,this[f]||(this[f]=u),!s))for(var c in r.areas)u.area(c,r.areas[c]);return u},isFake:function(o){return o?(this._real=this._area,this._area=r.storage("fake")):o===!1&&(this._area=this._real||this._area),this._area.name==="fake"},toString:function(){return"store"+(this._ns?"."+this.namespace():"")+"["+this._id+"]"},has:function(o){return this._area.has?this._area.has(this._in(o)):this._in(o)in this._area},size:function(){return this.keys().length},each:function(o,s){for(var i=0,f=r.length(this._area);i<f;i++){var u=this._out(r.key(this._area,i));if(u!==void 0&&o.call(this,u,this.get(u),s)===!1)break;f>r.length(this._area)&&(f--,i--)}return s||this},keys:function(o){return this.each(function(s,i,f){f.push(s)},o||[])},get:function(o,s){var i=r.get(this._area,this._in(o)),f;return typeof s=="function"&&(f=s,s=null),i!==null?r.parse(i,f):s??i},getAll:function(o){return this.each(function(s,i,f){f[s]=i},o||{})},transact:function(o,s,i){var f=this.get(o,i),u=s(f);return this.set(o,u===void 0?f:u),this},set:function(o,s,i){var f=this.get(o),u;return f!=null&&i===!1?s:(typeof i=="function"&&(u=i,i=void 0),r.set(this._area,this._in(o),r.stringify(s,u),i)||f)},setAll:function(o,s){var i,f;for(var u in o)f=o[u],this.set(u,f,s)!==f&&(i=!0);return i},add:function(o,s,i){var f=this.get(o);if(f instanceof Array)s=f.concat(s);else if(f!==null){var u=typeof f;if(u===typeof s&&u==="object"){for(var c in s)f[c]=s[c];s=f}else s=f+s}return r.set(this._area,this._in(o),r.stringify(s,i)),s},remove:function(o,s){var i=this.get(o,s);return r.remove(this._area,this._in(o)),i},clear:function(){return this._ns?this.each(function(o){r.remove(this._area,this._in(o))},1):r.clear(this._area),this},clearAll:function(){var o=this._area;for(var s in r.areas)r.areas.hasOwnProperty(s)&&(this._area=r.areas[s],this.clear());return this._area=o,this},_in:function(o){return typeof o!="string"&&(o=r.stringify(o)),this._ns?this._ns+o:o},_out:function(o){return this._ns?o&&o.indexOf(this._ns)===0?o.substring(this._ns.length):void 0:o}},storage:function(o){return r.inherit(r.storageAPI,{items:{},name:o})},storageAPI:{length:0,has:function(o){return this.items.hasOwnProperty(o)},key:function(o){var s=0;for(var i in this.items)if(this.has(i)&&o===s++)return i},setItem:function(o,s){this.has(o)||this.length++,this.items[o]=s},removeItem:function(o){this.has(o)&&(delete this.items[o],this.length--)},getItem:function(o){return this.has(o)?this.items[o]:null},clear:function(){for(var o in this.items)this.removeItem(o)}}},n=r.Store("local",function(){try{return localStorage}catch(o){}}());n.local=n,n._=r,n.area("session",function(){try{return sessionStorage}catch(o){}}()),n.area("page",r.storage("page")),typeof e=="function"&&e.amd!==void 0?e("store2",[],function(){return n}):typeof _a!="undefined"&&_a.exports?_a.exports=n:(t.store&&(r.conflict=t.store),t.store=n)})(Ta,Ta&&Ta.define)});var E0=Ke((S0,Ia)=>{(function(t){"use strict";var e,r=/^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i,n=Math.ceil,o=Math.floor,s="[BigNumber Error] ",i=s+"Number primitive has more than 15 significant digits: ",f=1e14,u=14,c=9007199254740991,d=[1,10,100,1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12,1e13],g=1e7,E=1e9;function w(z){var L,ne,D,x=ee.prototype={constructor:ee,toString:null,valueOf:null},P=new ee(1),$=20,se=4,we=-7,ye=21,Q=-1e7,fe=1e7,le=!1,Me=1,Re=0,mt={prefix:"",groupSize:3,secondaryGroupSize:0,groupSeparator:",",decimalSeparator:".",fractionGroupSize:0,fractionGroupSeparator:"\xA0",suffix:""},st="0123456789abcdefghijklmnopqrstuvwxyz",ht=!0;function ee(y,S){var _,N,j,R,H,C,O,q,W=this;if(!(W instanceof ee))return new ee(y,S);if(S==null){if(y&&y._isBigNumber===!0){W.s=y.s,!y.c||y.e>fe?W.c=W.e=null:y.e<Q?W.c=[W.e=0]:(W.e=y.e,W.c=y.c.slice());return}if((C=typeof y=="number")&&y*0==0){if(W.s=1/y<0?(y=-y,-1):1,y===~~y){for(R=0,H=y;H>=10;H/=10,R++);R>fe?W.c=W.e=null:(W.e=R,W.c=[y]);return}q=String(y)}else{if(!r.test(q=String(y)))return D(W,q,C);W.s=q.charCodeAt(0)==45?(q=q.slice(1),-1):1}(R=q.indexOf("."))>-1&&(q=q.replace(".","")),(H=q.search(/e/i))>0?(R<0&&(R=H),R+=+q.slice(H+1),q=q.substring(0,H)):R<0&&(R=q.length)}else{if(M(S,2,st.length,"Base"),S==10&&ht)return W=new ee(y),Tt(W,$+W.e+1,se);if(q=String(y),C=typeof y=="number"){if(y*0!=0)return D(W,q,C,S);if(W.s=1/y<0?(q=q.slice(1),-1):1,ee.DEBUG&&q.replace(/^0\.0*|\./,"").length>15)throw Error(i+y)}else W.s=q.charCodeAt(0)===45?(q=q.slice(1),-1):1;for(_=st.slice(0,S),R=H=0,O=q.length;H<O;H++)if(_.indexOf(N=q.charAt(H))<0){if(N=="."){if(H>R){R=O;continue}}else if(!j&&(q==q.toUpperCase()&&(q=q.toLowerCase())||q==q.toLowerCase()&&(q=q.toUpperCase()))){j=!0,H=-1,R=0;continue}return D(W,String(y),C,S)}C=!1,q=ne(q,S,10,W.s),(R=q.indexOf("."))>-1?q=q.replace(".",""):R=q.length}for(H=0;q.charCodeAt(H)===48;H++);for(O=q.length;q.charCodeAt(--O)===48;);if(q=q.slice(H,++O)){if(O-=H,C&&ee.DEBUG&&O>15&&(y>c||y!==o(y)))throw Error(i+W.s*y);if((R=R-H-1)>fe)W.c=W.e=null;else if(R<Q)W.c=[W.e=0];else{if(W.e=R,W.c=[],H=(R+1)%u,R<0&&(H+=u),H<O){for(H&&W.c.push(+q.slice(0,H)),O-=u;H<O;)W.c.push(+q.slice(H,H+=u));H=u-(q=q.slice(H)).length}else H-=O;for(;H--;q+="0");W.c.push(+q)}}else W.c=[W.e=0]}ee.clone=w,ee.ROUND_UP=0,ee.ROUND_DOWN=1,ee.ROUND_CEIL=2,ee.ROUND_FLOOR=3,ee.ROUND_HALF_UP=4,ee.ROUND_HALF_DOWN=5,ee.ROUND_HALF_EVEN=6,ee.ROUND_HALF_CEIL=7,ee.ROUND_HALF_FLOOR=8,ee.EUCLID=9,ee.config=ee.set=function(y){var S,_;if(y!=null)if(typeof y=="object"){if(y.hasOwnProperty(S="DECIMAL_PLACES")&&(_=y[S],M(_,0,E,S),$=_),y.hasOwnProperty(S="ROUNDING_MODE")&&(_=y[S],M(_,0,8,S),se=_),y.hasOwnProperty(S="EXPONENTIAL_AT")&&(_=y[S],_&&_.pop?(M(_[0],-E,0,S),M(_[1],0,E,S),we=_[0],ye=_[1]):(M(_,-E,E,S),we=-(ye=_<0?-_:_))),y.hasOwnProperty(S="RANGE"))if(_=y[S],_&&_.pop)M(_[0],-E,-1,S),M(_[1],1,E,S),Q=_[0],fe=_[1];else if(M(_,-E,E,S),_)Q=-(fe=_<0?-_:_);else throw Error(s+S+" cannot be zero: "+_);if(y.hasOwnProperty(S="CRYPTO"))if(_=y[S],_===!!_)if(_)if(typeof crypto!="undefined"&&crypto&&(crypto.getRandomValues||crypto.randomBytes))le=_;else throw le=!_,Error(s+"crypto unavailable");else le=_;else throw Error(s+S+" not true or false: "+_);if(y.hasOwnProperty(S="MODULO_MODE")&&(_=y[S],M(_,0,9,S),Me=_),y.hasOwnProperty(S="POW_PRECISION")&&(_=y[S],M(_,0,E,S),Re=_),y.hasOwnProperty(S="FORMAT"))if(_=y[S],typeof _=="object")mt=_;else throw Error(s+S+" not an object: "+_);if(y.hasOwnProperty(S="ALPHABET"))if(_=y[S],typeof _=="string"&&!/^.?$|[+\-.\s]|(.).*\1/.test(_))ht=_.slice(0,10)=="0123456789",st=_;else throw Error(s+S+" invalid: "+_)}else throw Error(s+"Object expected: "+y);return{DECIMAL_PLACES:$,ROUNDING_MODE:se,EXPONENTIAL_AT:[we,ye],RANGE:[Q,fe],CRYPTO:le,MODULO_MODE:Me,POW_PRECISION:Re,FORMAT:mt,ALPHABET:st}},ee.isBigNumber=function(y){if(!y||y._isBigNumber!==!0)return!1;if(!ee.DEBUG)return!0;var S,_,N=y.c,j=y.e,R=y.s;e:if({}.toString.call(N)=="[object Array]"){if((R===1||R===-1)&&j>=-E&&j<=E&&j===o(j)){if(N[0]===0){if(j===0&&N.length===1)return!0;break e}if(S=(j+1)%u,S<1&&(S+=u),String(N[0]).length==S){for(S=0;S<N.length;S++)if(_=N[S],_<0||_>=f||_!==o(_))break e;if(_!==0)return!0}}}else if(N===null&&j===null&&(R===null||R===1||R===-1))return!0;throw Error(s+"Invalid BigNumber: "+y)},ee.maximum=ee.max=function(){return vt(arguments,x.lt)},ee.minimum=ee.min=function(){return vt(arguments,x.gt)},ee.random=function(){var y=9007199254740992,S=Math.random()*y&2097151?function(){return o(Math.random()*y)}:function(){return(Math.random()*1073741824|0)*8388608+(Math.random()*8388608|0)};return function(_){var N,j,R,H,C,O=0,q=[],W=new ee(P);if(_==null?_=$:M(_,0,E),H=n(_/u),le)if(crypto.getRandomValues){for(N=crypto.getRandomValues(new Uint32Array(H*=2));O<H;)C=N[O]*131072+(N[O+1]>>>11),C>=9e15?(j=crypto.getRandomValues(new Uint32Array(2)),N[O]=j[0],N[O+1]=j[1]):(q.push(C%1e14),O+=2);O=H/2}else if(crypto.randomBytes){for(N=crypto.randomBytes(H*=7);O<H;)C=(N[O]&31)*281474976710656+N[O+1]*1099511627776+N[O+2]*4294967296+N[O+3]*16777216+(N[O+4]<<16)+(N[O+5]<<8)+N[O+6],C>=9e15?crypto.randomBytes(7).copy(N,O):(q.push(C%1e14),O+=7);O=H/7}else throw le=!1,Error(s+"crypto unavailable");if(!le)for(;O<H;)C=S(),C<9e15&&(q[O++]=C%1e14);for(H=q[--O],_%=u,H&&_&&(C=d[u-_],q[O]=o(H/C)*C);q[O]===0;q.pop(),O--);if(O<0)q=[R=0];else{for(R=-1;q[0]===0;q.splice(0,1),R-=u);for(O=1,C=q[0];C>=10;C/=10,O++);O<u&&(R-=u-O)}return W.e=R,W.c=q,W}}(),ee.sum=function(){for(var y=1,S=arguments,_=new ee(S[0]);y<S.length;)_=_.plus(S[y++]);return _},ne=function(){var y="0123456789";function S(_,N,j,R){for(var H,C=[0],O,q=0,W=_.length;q<W;){for(O=C.length;O--;C[O]*=N);for(C[0]+=R.indexOf(_.charAt(q++)),H=0;H<C.length;H++)C[H]>j-1&&(C[H+1]==null&&(C[H+1]=0),C[H+1]+=C[H]/j|0,C[H]%=j)}return C.reverse()}return function(_,N,j,R,H){var C,O,q,W,te,_e,Ce,rt,St=_.indexOf("."),_t=$,nt=se;for(St>=0&&(W=Re,Re=0,_=_.replace(".",""),rt=new ee(N),_e=rt.pow(_.length-St),Re=W,rt.c=S(oe(b(_e.c),_e.e,"0"),10,j,y),rt.e=rt.c.length),Ce=S(_,N,j,H?(C=st,y):(C=y,st)),q=W=Ce.length;Ce[--W]==0;Ce.pop());if(!Ce[0])return C.charAt(0);if(St<0?--q:(_e.c=Ce,_e.e=q,_e.s=R,_e=L(_e,rt,_t,nt,j),Ce=_e.c,te=_e.r,q=_e.e),O=q+_t+1,St=Ce[O],W=j/2,te=te||O<0||Ce[O+1]!=null,te=nt<4?(St!=null||te)&&(nt==0||nt==(_e.s<0?3:2)):St>W||St==W&&(nt==4||te||nt==6&&Ce[O-1]&1||nt==(_e.s<0?8:7)),O<1||!Ce[0])_=te?oe(C.charAt(1),-_t,C.charAt(0)):C.charAt(0);else{if(Ce.length=O,te)for(--j;++Ce[--O]>j;)Ce[O]=0,O||(++q,Ce=[1].concat(Ce));for(W=Ce.length;!Ce[--W];);for(St=0,_="";St<=W;_+=C.charAt(Ce[St++]));_=oe(_,q,C.charAt(0))}return _}}(),L=function(){function y(N,j,R){var H,C,O,q,W=0,te=N.length,_e=j%g,Ce=j/g|0;for(N=N.slice();te--;)O=N[te]%g,q=N[te]/g|0,H=Ce*O+q*_e,C=_e*O+H%g*g+W,W=(C/R|0)+(H/g|0)+Ce*q,N[te]=C%R;return W&&(N=[W].concat(N)),N}function S(N,j,R,H){var C,O;if(R!=H)O=R>H?1:-1;else for(C=O=0;C<R;C++)if(N[C]!=j[C]){O=N[C]>j[C]?1:-1;break}return O}function _(N,j,R,H){for(var C=0;R--;)N[R]-=C,C=N[R]<j[R]?1:0,N[R]=C*H+N[R]-j[R];for(;!N[0]&&N.length>1;N.splice(0,1));}return function(N,j,R,H,C){var O,q,W,te,_e,Ce,rt,St,_t,nt,dt,Wt,Ho,po,go,cr,zr,qt=N.s==j.s?1:-1,Ot=N.c,xt=j.c;if(!Ot||!Ot[0]||!xt||!xt[0])return new ee(!N.s||!j.s||(Ot?xt&&Ot[0]==xt[0]:!xt)?NaN:Ot&&Ot[0]==0||!xt?qt*0:qt/0);for(St=new ee(qt),_t=St.c=[],q=N.e-j.e,qt=R+q+1,C||(C=f,q=T(N.e/u)-T(j.e/u),qt=qt/u|0),W=0;xt[W]==(Ot[W]||0);W++);if(xt[W]>(Ot[W]||0)&&q--,qt<0)_t.push(1),te=!0;else{for(po=Ot.length,cr=xt.length,W=0,qt+=2,_e=o(C/(xt[0]+1)),_e>1&&(xt=y(xt,_e,C),Ot=y(Ot,_e,C),cr=xt.length,po=Ot.length),Ho=cr,nt=Ot.slice(0,cr),dt=nt.length;dt<cr;nt[dt++]=0);zr=xt.slice(),zr=[0].concat(zr),go=xt[0],xt[1]>=C/2&&go++;do{if(_e=0,O=S(xt,nt,cr,dt),O<0){if(Wt=nt[0],cr!=dt&&(Wt=Wt*C+(nt[1]||0)),_e=o(Wt/go),_e>1)for(_e>=C&&(_e=C-1),Ce=y(xt,_e,C),rt=Ce.length,dt=nt.length;S(Ce,nt,rt,dt)==1;)_e--,_(Ce,cr<rt?zr:xt,rt,C),rt=Ce.length,O=1;else _e==0&&(O=_e=1),Ce=xt.slice(),rt=Ce.length;if(rt<dt&&(Ce=[0].concat(Ce)),_(nt,Ce,dt,C),dt=nt.length,O==-1)for(;S(xt,nt,cr,dt)<1;)_e++,_(nt,cr<dt?zr:xt,dt,C),dt=nt.length}else O===0&&(_e++,nt=[0]);_t[W++]=_e,nt[0]?nt[dt++]=Ot[Ho]||0:(nt=[Ot[Ho]],dt=1)}while((Ho++<po||nt[0]!=null)&&qt--);te=nt[0]!=null,_t[0]||_t.splice(0,1)}if(C==f){for(W=1,qt=_t[0];qt>=10;qt/=10,W++);Tt(St,R+(St.e=W+q*u-1)+1,H,te)}else St.e=q,St.r=+te;return St}}();function ke(y,S,_,N){var j,R,H,C,O;if(_==null?_=se:M(_,0,8),!y.c)return y.toString();if(j=y.c[0],H=y.e,S==null)O=b(y.c),O=N==1||N==2&&(H<=we||H>=ye)?G(O,H):oe(O,H,"0");else if(y=Tt(new ee(y),S,_),R=y.e,O=b(y.c),C=O.length,N==1||N==2&&(S<=R||R<=we)){for(;C<S;O+="0",C++);O=G(O,R)}else if(S-=H,O=oe(O,R,"0"),R+1>C){if(--S>0)for(O+=".";S--;O+="0");}else if(S+=R-C,S>0)for(R+1==C&&(O+=".");S--;O+="0");return y.s<0&&j?"-"+O:O}function vt(y,S){for(var _,N=1,j=new ee(y[0]);N<y.length;N++)if(_=new ee(y[N]),_.s)S.call(j,_)&&(j=_);else{j=_;break}return j}function _r(y,S,_){for(var N=1,j=S.length;!S[--j];S.pop());for(j=S[0];j>=10;j/=10,N++);return(_=N+_*u-1)>fe?y.c=y.e=null:_<Q?y.c=[y.e=0]:(y.e=_,y.c=S),y}D=function(){var y=/^(-?)0([xbo])(?=\w[\w.]*$)/i,S=/^([^.]+)\.$/,_=/^\.([^.]+)$/,N=/^-?(Infinity|NaN)$/,j=/^\s*\+(?=[\w.])|^\s+|\s+$/g;return function(R,H,C,O){var q,W=C?H:H.replace(j,"");if(N.test(W))R.s=isNaN(W)?null:W<0?-1:1;else{if(!C&&(W=W.replace(y,function(te,_e,Ce){return q=(Ce=Ce.toLowerCase())=="x"?16:Ce=="b"?2:8,!O||O==q?_e:te}),O&&(q=O,W=W.replace(S,"$1").replace(_,"0.$1")),H!=W))return new ee(W,q);if(ee.DEBUG)throw Error(s+"Not a"+(O?" base "+O:"")+" number: "+H);R.s=null}R.c=R.e=null}}();function Tt(y,S,_,N){var j,R,H,C,O,q,W,te=y.c,_e=d;if(te){e:{for(j=1,C=te[0];C>=10;C/=10,j++);if(R=S-j,R<0)R+=u,H=S,O=te[q=0],W=O/_e[j-H-1]%10|0;else if(q=n((R+1)/u),q>=te.length)if(N){for(;te.length<=q;te.push(0));O=W=0,j=1,R%=u,H=R-u+1}else break e;else{for(O=C=te[q],j=1;C>=10;C/=10,j++);R%=u,H=R-u+j,W=H<0?0:O/_e[j-H-1]%10|0}if(N=N||S<0||te[q+1]!=null||(H<0?O:O%_e[j-H-1]),N=_<4?(W||N)&&(_==0||_==(y.s<0?3:2)):W>5||W==5&&(_==4||N||_==6&&(R>0?H>0?O/_e[j-H]:0:te[q-1])%10&1||_==(y.s<0?8:7)),S<1||!te[0])return te.length=0,N?(S-=y.e+1,te[0]=_e[(u-S%u)%u],y.e=-S||0):te[0]=y.e=0,y;if(R==0?(te.length=q,C=1,q--):(te.length=q+1,C=_e[u-R],te[q]=H>0?o(O/_e[j-H]%_e[H])*C:0),N)for(;;)if(q==0){for(R=1,H=te[0];H>=10;H/=10,R++);for(H=te[0]+=C,C=1;H>=10;H/=10,C++);R!=C&&(y.e++,te[0]==f&&(te[0]=1));break}else{if(te[q]+=C,te[q]!=f)break;te[q--]=0,C=1}for(R=te.length;te[--R]===0;te.pop());}y.e>fe?y.c=y.e=null:y.e<Q&&(y.c=[y.e=0])}return y}function $t(y){var S,_=y.e;return _===null?y.toString():(S=b(y.c),S=_<=we||_>=ye?G(S,_):oe(S,_,"0"),y.s<0?"-"+S:S)}return x.absoluteValue=x.abs=function(){var y=new ee(this);return y.s<0&&(y.s=1),y},x.comparedTo=function(y,S){return I(this,new ee(y,S))},x.decimalPlaces=x.dp=function(y,S){var _,N,j,R=this;if(y!=null)return M(y,0,E),S==null?S=se:M(S,0,8),Tt(new ee(R),y+R.e+1,S);if(!(_=R.c))return null;if(N=((j=_.length-1)-T(this.e/u))*u,j=_[j])for(;j%10==0;j/=10,N--);return N<0&&(N=0),N},x.dividedBy=x.div=function(y,S){return L(this,new ee(y,S),$,se)},x.dividedToIntegerBy=x.idiv=function(y,S){return L(this,new ee(y,S),0,1)},x.exponentiatedBy=x.pow=function(y,S){var _,N,j,R,H,C,O,q,W,te=this;if(y=new ee(y),y.c&&!y.isInteger())throw Error(s+"Exponent not an integer: "+$t(y));if(S!=null&&(S=new ee(S)),C=y.e>14,!te.c||!te.c[0]||te.c[0]==1&&!te.e&&te.c.length==1||!y.c||!y.c[0])return W=new ee(Math.pow(+$t(te),C?y.s*(2-V(y)):+$t(y))),S?W.mod(S):W;if(O=y.s<0,S){if(S.c?!S.c[0]:!S.s)return new ee(NaN);N=!O&&te.isInteger()&&S.isInteger(),N&&(te=te.mod(S))}else{if(y.e>9&&(te.e>0||te.e<-1||(te.e==0?te.c[0]>1||C&&te.c[1]>=24e7:te.c[0]<8e13||C&&te.c[0]<=9999975e7)))return R=te.s<0&&V(y)?-0:0,te.e>-1&&(R=1/R),new ee(O?1/R:R);Re&&(R=n(Re/u+2))}for(C?(_=new ee(.5),O&&(y.s=1),q=V(y)):(j=Math.abs(+$t(y)),q=j%2),W=new ee(P);;){if(q){if(W=W.times(te),!W.c)break;R?W.c.length>R&&(W.c.length=R):N&&(W=W.mod(S))}if(j){if(j=o(j/2),j===0)break;q=j%2}else if(y=y.times(_),Tt(y,y.e+1,1),y.e>14)q=V(y);else{if(j=+$t(y),j===0)break;q=j%2}te=te.times(te),R?te.c&&te.c.length>R&&(te.c.length=R):N&&(te=te.mod(S))}return N?W:(O&&(W=P.div(W)),S?W.mod(S):R?Tt(W,Re,se,H):W)},x.integerValue=function(y){var S=new ee(this);return y==null?y=se:M(y,0,8),Tt(S,S.e+1,y)},x.isEqualTo=x.eq=function(y,S){return I(this,new ee(y,S))===0},x.isFinite=function(){return!!this.c},x.isGreaterThan=x.gt=function(y,S){return I(this,new ee(y,S))>0},x.isGreaterThanOrEqualTo=x.gte=function(y,S){return(S=I(this,new ee(y,S)))===1||S===0},x.isInteger=function(){return!!this.c&&T(this.e/u)>this.c.length-2},x.isLessThan=x.lt=function(y,S){return I(this,new ee(y,S))<0},x.isLessThanOrEqualTo=x.lte=function(y,S){return(S=I(this,new ee(y,S)))===-1||S===0},x.isNaN=function(){return!this.s},x.isNegative=function(){return this.s<0},x.isPositive=function(){return this.s>0},x.isZero=function(){return!!this.c&&this.c[0]==0},x.minus=function(y,S){var _,N,j,R,H=this,C=H.s;if(y=new ee(y,S),S=y.s,!C||!S)return new ee(NaN);if(C!=S)return y.s=-S,H.plus(y);var O=H.e/u,q=y.e/u,W=H.c,te=y.c;if(!O||!q){if(!W||!te)return W?(y.s=-S,y):new ee(te?H:NaN);if(!W[0]||!te[0])return te[0]?(y.s=-S,y):new ee(W[0]?H:se==3?-0:0)}if(O=T(O),q=T(q),W=W.slice(),C=O-q){for((R=C<0)?(C=-C,j=W):(q=O,j=te),j.reverse(),S=C;S--;j.push(0));j.reverse()}else for(N=(R=(C=W.length)<(S=te.length))?C:S,C=S=0;S<N;S++)if(W[S]!=te[S]){R=W[S]<te[S];break}if(R&&(j=W,W=te,te=j,y.s=-y.s),S=(N=te.length)-(_=W.length),S>0)for(;S--;W[_++]=0);for(S=f-1;N>C;){if(W[--N]<te[N]){for(_=N;_&&!W[--_];W[_]=S);--W[_],W[N]+=f}W[N]-=te[N]}for(;W[0]==0;W.splice(0,1),--q);return W[0]?_r(y,W,q):(y.s=se==3?-1:1,y.c=[y.e=0],y)},x.modulo=x.mod=function(y,S){var _,N,j=this;return y=new ee(y,S),!j.c||!y.s||y.c&&!y.c[0]?new ee(NaN):!y.c||j.c&&!j.c[0]?new ee(j):(Me==9?(N=y.s,y.s=1,_=L(j,y,0,3),y.s=N,_.s*=N):_=L(j,y,0,Me),y=j.minus(_.times(y)),!y.c[0]&&Me==1&&(y.s=j.s),y)},x.multipliedBy=x.times=function(y,S){var _,N,j,R,H,C,O,q,W,te,_e,Ce,rt,St,_t,nt=this,dt=nt.c,Wt=(y=new ee(y,S)).c;if(!dt||!Wt||!dt[0]||!Wt[0])return!nt.s||!y.s||dt&&!dt[0]&&!Wt||Wt&&!Wt[0]&&!dt?y.c=y.e=y.s=null:(y.s*=nt.s,!dt||!Wt?y.c=y.e=null:(y.c=[0],y.e=0)),y;for(N=T(nt.e/u)+T(y.e/u),y.s*=nt.s,O=dt.length,te=Wt.length,O<te&&(rt=dt,dt=Wt,Wt=rt,j=O,O=te,te=j),j=O+te,rt=[];j--;rt.push(0));for(St=f,_t=g,j=te;--j>=0;){for(_=0,_e=Wt[j]%_t,Ce=Wt[j]/_t|0,H=O,R=j+H;R>j;)q=dt[--H]%_t,W=dt[H]/_t|0,C=Ce*q+W*_e,q=_e*q+C%_t*_t+rt[R]+_,_=(q/St|0)+(C/_t|0)+Ce*W,rt[R--]=q%St;rt[R]=_}return _?++N:rt.splice(0,1),_r(y,rt,N)},x.negated=function(){var y=new ee(this);return y.s=-y.s||null,y},x.plus=function(y,S){var _,N=this,j=N.s;if(y=new ee(y,S),S=y.s,!j||!S)return new ee(NaN);if(j!=S)return y.s=-S,N.minus(y);var R=N.e/u,H=y.e/u,C=N.c,O=y.c;if(!R||!H){if(!C||!O)return new ee(j/0);if(!C[0]||!O[0])return O[0]?y:new ee(C[0]?N:j*0)}if(R=T(R),H=T(H),C=C.slice(),j=R-H){for(j>0?(H=R,_=O):(j=-j,_=C),_.reverse();j--;_.push(0));_.reverse()}for(j=C.length,S=O.length,j-S<0&&(_=O,O=C,C=_,S=j),j=0;S;)j=(C[--S]=C[S]+O[S]+j)/f|0,C[S]=f===C[S]?0:C[S]%f;return j&&(C=[j].concat(C),++H),_r(y,C,H)},x.precision=x.sd=function(y,S){var _,N,j,R=this;if(y!=null&&y!==!!y)return M(y,1,E),S==null?S=se:M(S,0,8),Tt(new ee(R),y,S);if(!(_=R.c))return null;if(j=_.length-1,N=j*u+1,j=_[j]){for(;j%10==0;j/=10,N--);for(j=_[0];j>=10;j/=10,N++);}return y&&R.e+1>N&&(N=R.e+1),N},x.shiftedBy=function(y){return M(y,-c,c),this.times("1e"+y)},x.squareRoot=x.sqrt=function(){var y,S,_,N,j,R=this,H=R.c,C=R.s,O=R.e,q=$+4,W=new ee("0.5");if(C!==1||!H||!H[0])return new ee(!C||C<0&&(!H||H[0])?NaN:H?R:1/0);if(C=Math.sqrt(+$t(R)),C==0||C==1/0?(S=b(H),(S.length+O)%2==0&&(S+="0"),C=Math.sqrt(+S),O=T((O+1)/2)-(O<0||O%2),C==1/0?S="5e"+O:(S=C.toExponential(),S=S.slice(0,S.indexOf("e")+1)+O),_=new ee(S)):_=new ee(C+""),_.c[0]){for(O=_.e,C=O+q,C<3&&(C=0);;)if(j=_,_=W.times(j.plus(L(R,j,q,1))),b(j.c).slice(0,C)===(S=b(_.c)).slice(0,C))if(_.e<O&&--C,S=S.slice(C-3,C+1),S=="9999"||!N&&S=="4999"){if(!N&&(Tt(j,j.e+$+2,0),j.times(j).eq(R))){_=j;break}q+=4,C+=4,N=1}else{(!+S||!+S.slice(1)&&S.charAt(0)=="5")&&(Tt(_,_.e+$+2,1),y=!_.times(_).eq(R));break}}return Tt(_,_.e+$+1,se,y)},x.toExponential=function(y,S){return y!=null&&(M(y,0,E),y++),ke(this,y,S,1)},x.toFixed=function(y,S){return y!=null&&(M(y,0,E),y=y+this.e+1),ke(this,y,S)},x.toFormat=function(y,S,_){var N,j=this;if(_==null)y!=null&&S&&typeof S=="object"?(_=S,S=null):y&&typeof y=="object"?(_=y,y=S=null):_=mt;else if(typeof _!="object")throw Error(s+"Argument not an object: "+_);if(N=j.toFixed(y,S),j.c){var R,H=N.split("."),C=+_.groupSize,O=+_.secondaryGroupSize,q=_.groupSeparator||"",W=H[0],te=H[1],_e=j.s<0,Ce=_e?W.slice(1):W,rt=Ce.length;if(O&&(R=C,C=O,O=R,rt-=R),C>0&&rt>0){for(R=rt%C||C,W=Ce.substr(0,R);R<rt;R+=C)W+=q+Ce.substr(R,C);O>0&&(W+=q+Ce.slice(R)),_e&&(W="-"+W)}N=te?W+(_.decimalSeparator||"")+((O=+_.fractionGroupSize)?te.replace(new RegExp("\\d{"+O+"}\\B","g"),"$&"+(_.fractionGroupSeparator||"")):te):W}return(_.prefix||"")+N+(_.suffix||"")},x.toFraction=function(y){var S,_,N,j,R,H,C,O,q,W,te,_e,Ce=this,rt=Ce.c;if(y!=null&&(C=new ee(y),!C.isInteger()&&(C.c||C.s!==1)||C.lt(P)))throw Error(s+"Argument "+(C.isInteger()?"out of range: ":"not an integer: ")+$t(C));if(!rt)return new ee(Ce);for(S=new ee(P),q=_=new ee(P),N=O=new ee(P),_e=b(rt),R=S.e=_e.length-Ce.e-1,S.c[0]=d[(H=R%u)<0?u+H:H],y=!y||C.comparedTo(S)>0?R>0?S:q:C,H=fe,fe=1/0,C=new ee(_e),O.c[0]=0;W=L(C,S,0,1),j=_.plus(W.times(N)),j.comparedTo(y)!=1;)_=N,N=j,q=O.plus(W.times(j=q)),O=j,S=C.minus(W.times(j=S)),C=j;return j=L(y.minus(_),N,0,1),O=O.plus(j.times(q)),_=_.plus(j.times(N)),O.s=q.s=Ce.s,R=R*2,te=L(q,N,R,se).minus(Ce).abs().comparedTo(L(O,_,R,se).minus(Ce).abs())<1?[q,N]:[O,_],fe=H,te},x.toNumber=function(){return+$t(this)},x.toPrecision=function(y,S){return y!=null&&M(y,1,E),ke(this,y,S,2)},x.toString=function(y){var S,_=this,N=_.s,j=_.e;return j===null?N?(S="Infinity",N<0&&(S="-"+S)):S="NaN":(y==null?S=j<=we||j>=ye?G(b(_.c),j):oe(b(_.c),j,"0"):y===10&&ht?(_=Tt(new ee(_),$+j+1,se),S=oe(b(_.c),_.e,"0")):(M(y,2,st.length,"Base"),S=ne(oe(b(_.c),j,"0"),10,y,N,!0)),N<0&&_.c[0]&&(S="-"+S)),S},x.valueOf=x.toJSON=function(){return $t(this)},x._isBigNumber=!0,z!=null&&ee.set(z),ee}function T(z){var L=z|0;return z>0||z===L?L:L-1}function b(z){for(var L,ne,D=1,x=z.length,P=z[0]+"";D<x;){for(L=z[D++]+"",ne=u-L.length;ne--;L="0"+L);P+=L}for(x=P.length;P.charCodeAt(--x)===48;);return P.slice(0,x+1||1)}function I(z,L){var ne,D,x=z.c,P=L.c,$=z.s,se=L.s,we=z.e,ye=L.e;if(!$||!se)return null;if(ne=x&&!x[0],D=P&&!P[0],ne||D)return ne?D?0:-se:$;if($!=se)return $;if(ne=$<0,D=we==ye,!x||!P)return D?0:!x^ne?1:-1;if(!D)return we>ye^ne?1:-1;for(se=(we=x.length)<(ye=P.length)?we:ye,$=0;$<se;$++)if(x[$]!=P[$])return x[$]>P[$]^ne?1:-1;return we==ye?0:we>ye^ne?1:-1}function M(z,L,ne,D){if(z<L||z>ne||z!==o(z))throw Error(s+(D||"Argument")+(typeof z=="number"?z<L||z>ne?" out of range: ":" not an integer: ":" not a primitive number: ")+String(z))}function V(z){var L=z.c.length-1;return T(z.e/u)==L&&z.c[L]%2!=0}function G(z,L){return(z.length>1?z.charAt(0)+"."+z.slice(1):z)+(L<0?"e":"e+")+L}function oe(z,L,ne){var D,x;if(L<0){for(x=ne+".";++L;x+=ne);z=x+z}else if(D=z.length,++L>D){for(x=ne,L-=D;--L;x+=ne);z+=x}else L<D&&(z=z.slice(0,L)+"."+z.slice(L));return z}e=w(),e.default=e.BigNumber=e,typeof define=="function"&&define.amd?define(function(){return e}):typeof Ia!="undefined"&&Ia.exports?Ia.exports=e:(t||(t=typeof self!="undefined"&&self?self:window),t.BigNumber=e)})(S0)});Mu(exports);Pu(exports,{Chain:()=>_s,DetachedEthosConnectProvider:()=>Lm,EthosConnectProvider:()=>lm,EthosConnectStatus:()=>tn,IntentScope:()=>ms,SignInButton:()=>ac,TransactionBlock:()=>Yt,ethos:()=>N5,verifyMessage:()=>Gp});var vo=ae(xi());var Kl=ae(rn());var Sc=ae(Xu());function N1(t){return t>64&&t<91?t-65:t>96&&t<123?t-71:t>47&&t<58?t+4:t===43?62:t===47?63:0}function Ct(t,e){for(var r=t.replace(/[^A-Za-z0-9+/]/g,""),n=r.length,o=e?Math.ceil((n*3+1>>2)/e)*e:n*3+1>>2,s=new Uint8Array(o),i,f,u=0,c=0,d=0;d<n;d++)if(f=d&3,u|=N1(r.charCodeAt(d))<<6*(3-f),f===3||n-d==1){for(i=0;i<3&&c<o;i++,c++)s[c]=u>>>(16>>>i&24)&255;u=0}return s}function Ti(t){return t<26?t+65:t<52?t+71:t<62?t-4:t===62?43:t===63?47:65}function Et(t){for(var e=2,r="",n=t.length,o=0,s=0;s<n;s++)e=s%3,o|=t[s]<<(16>>>e&24),(e===2||t.length-s==1)&&(r+=String.fromCodePoint(Ti(o>>>18&63),Ti(o>>>12&63),Ti(o>>>6&63),Ti(o&63)),o=0);return r.slice(0,r.length-2+e)+(e===2?"":e===1?"=":"==")}function Ls(t){let e=t.replace("0x","").match(/.{1,2}/g).map(r=>parseInt(r,16));if(e===null)throw new Error(`Unable to parse HEX: ${t}`);return Uint8Array.from(e)}function bo(t){return t.reduce((e,r)=>e+r.toString(16).padStart(2,"0"),"")}var R1=32;function Ec(t,e){let r=new Uint8Array(e),n=0;for(;t>0;)r[n]=Number(t%BigInt(256)),t=t/BigInt(256),n+=1;return r}var _i=t=>Sc.default.encode(t),Vo=t=>Sc.default.decode(t),D1=class{constructor(t){this.bytePosition=0,this.dataView=new DataView(t.buffer)}shift(t){return this.bytePosition+=t,this}read8(){let t=this.dataView.getUint8(this.bytePosition);return this.shift(1),t}read16(){let t=this.dataView.getUint16(this.bytePosition,!0);return this.shift(2),t}read32(){let t=this.dataView.getUint32(this.bytePosition,!0);return this.shift(4),t}read64(){let t=this.read32(),r=this.read32().toString(16)+t.toString(16).padStart(8,"0");return BigInt("0x"+r).toString(10)}read128(){let t=BigInt(this.read64()),r=BigInt(this.read64()).toString(16)+t.toString(16).padStart(16,"0");return BigInt("0x"+r).toString(10)}read256(){let t=BigInt(this.read128()),r=BigInt(this.read128()).toString(16)+t.toString(16).padStart(32,"0");return BigInt("0x"+r).toString(10)}readBytes(t){let e=this.bytePosition+this.dataView.byteOffset,r=new Uint8Array(this.dataView.buffer,e,t);return this.shift(t),r}readULEB(){let t=this.bytePosition+this.dataView.byteOffset,e=new Uint8Array(this.dataView.buffer,t),{value:r,length:n}=W1(e);return this.shift(n),r}readVec(t){let e=this.readULEB(),r=[];for(let n=0;n<e;n++)r.push(t(this,n,e));return r}},U1=class{constructor({size:t=1024,maxSize:e,allocateSize:r=1024}={}){this.bytePosition=0,this.size=t,this.maxSize=e||t,this.allocateSize=r,this.dataView=new DataView(new ArrayBuffer(t))}ensureSizeOrGrow(t){let e=this.bytePosition+t;if(e>this.size){let r=Math.min(this.maxSize,this.size+this.allocateSize);if(e>r)throw new Error(`Attempting to serialize to BCS, but buffer does not have enough size. Allocated size: ${this.size}, Max size: ${this.maxSize}, Required size: ${e}`);this.size=r;let n=new ArrayBuffer(this.size);new Uint8Array(n).set(new Uint8Array(this.dataView.buffer)),this.dataView=new DataView(n)}}shift(t){return this.bytePosition+=t,this}write8(t){return this.ensureSizeOrGrow(1),this.dataView.setUint8(this.bytePosition,Number(t)),this.shift(1)}write16(t){return this.ensureSizeOrGrow(2),this.dataView.setUint16(this.bytePosition,Number(t),!0),this.shift(2)}write32(t){return this.ensureSizeOrGrow(4),this.dataView.setUint32(this.bytePosition,Number(t),!0),this.shift(4)}write64(t){return Ec(BigInt(t),8).forEach(e=>this.write8(e)),this}write128(t){return Ec(BigInt(t),16).forEach(e=>this.write8(e)),this}write256(t){return Ec(BigInt(t),32).forEach(e=>this.write8(e)),this}writeULEB(t){return L1(t).forEach(e=>this.write8(e)),this}writeVec(t,e){return this.writeULEB(t.length),Array.from(t).forEach((r,n)=>e(this,r,n,t.length)),this}*[Symbol.iterator](){for(let t=0;t<this.bytePosition;t++)yield this.dataView.getUint8(t);return this.toBytes()}toBytes(){return new Uint8Array(this.dataView.buffer.slice(0,this.bytePosition))}toString(t){return q1(this.toBytes(),t)}};function L1(t){let e=[],r=0;if(t===0)return[0];for(;t>0;)e[r]=t&127,(t>>=7)&&(e[r]|=128),r+=1;return e}function W1(t){let e=0,r=0,n=0;for(;;){let o=t[n];if(n+=1,e|=(o&127)<<r,(o&128)==0)break;r+=7}return{value:e,length:n}}var Ws=class{constructor(t){if(this.types=new Map,this.counter=0,t instanceof Ws){this.schema=t.schema,this.types=new Map(t.types);return}if(this.schema=t,this.registerAddressType(Ws.ADDRESS,t.addressLength,t.addressEncoding),this.registerVectorType(t.vectorType),t.types&&t.types.structs)for(let e of Object.keys(t.types.structs))this.registerStructType(e,t.types.structs[e]);if(t.types&&t.types.enums)for(let e of Object.keys(t.types.enums))this.registerEnumType(e,t.types.enums[e]);if(t.types&&t.types.aliases)for(let e of Object.keys(t.types.aliases))this.registerAlias(e,t.types.aliases[e]);t.withPrimitives!==!1&&F1(this)}tempKey(){return`bcs-struct-${++this.counter}`}ser(t,e,r){if(typeof t=="string"||Array.isArray(t)){let{name:n,params:o}=this.parseTypeName(t);return this.getTypeInterface(n).encode(this,e,r,o)}if(typeof t=="object"){let n=this.tempKey();return new Ws(this).registerStructType(n,t).ser(n,e,r)}throw new Error(`Incorrect type passed into the '.ser()' function. 
@@ -46578,7 +48754,7 @@ Received: "${JSON.stringify(u)}"`);let g=Object.keys(u)[0];if(g===void 0)throw n
 * Copyright (c) 2022 Nathan Bubna; Licensed (MIT OR GPL-3.0) */
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"react":123}],111:[function(require,module,exports){
+},{"react":127}],115:[function(require,module,exports){
 (function (process){(function (){
 'use strict'
 
@@ -46589,7 +48765,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./ethos-connect.dev.cjs":109,"./ethos-connect.prod.cjs":110,"_process":116}],112:[function(require,module,exports){
+},{"./ethos-connect.dev.cjs":113,"./ethos-connect.prod.cjs":114,"_process":120}],116:[function(require,module,exports){
 'use strict';
 
 var has = Object.prototype.hasOwnProperty
@@ -46927,7 +49103,7 @@ if ('undefined' !== typeof module) {
   module.exports = EventEmitter;
 }
 
-},{}],113:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -47014,7 +49190,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],114:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 'use strict';
 
 const uuid = require('uuid').v4;
@@ -47179,7 +49355,7 @@ ClientBrowser.prototype._parseResponse = function(err, responseText, callback) {
   callback(null, response);
 };
 
-},{"../../generateRequest":115,"uuid":133}],115:[function(require,module,exports){
+},{"../../generateRequest":119,"uuid":137}],119:[function(require,module,exports){
 'use strict';
 
 const uuid = require('uuid').v4;
@@ -47244,7 +49420,7 @@ const generateRequest = function(method, params, id, options) {
 
 module.exports = generateRequest;
 
-},{"uuid":133}],116:[function(require,module,exports){
+},{"uuid":137}],120:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -47430,7 +49606,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],117:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 (function (process){(function (){
 /**
  * @license React
@@ -77302,7 +79478,7 @@ if (
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":116,"react":123,"scheduler":129}],118:[function(require,module,exports){
+},{"_process":120,"react":127,"scheduler":133}],122:[function(require,module,exports){
 /**
  * @license React
  * react-dom.production.min.js
@@ -77627,7 +79803,7 @@ exports.hydrateRoot=function(a,b,c){if(!ol(a))throw Error(p(405));var d=null!=c&
 e);return new nl(b)};exports.render=function(a,b,c){if(!pl(b))throw Error(p(200));return sl(null,a,b,!1,c)};exports.unmountComponentAtNode=function(a){if(!pl(a))throw Error(p(40));return a._reactRootContainer?(Sk(function(){sl(null,null,a,!1,function(){a._reactRootContainer=null;a[uf]=null})}),!0):!1};exports.unstable_batchedUpdates=Rk;
 exports.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!pl(c))throw Error(p(200));if(null==a||void 0===a._reactInternals)throw Error(p(38));return sl(a,b,c,!1,d)};exports.version="18.2.0-next-9e3b772b8-20220608";
 
-},{"react":123,"scheduler":129}],119:[function(require,module,exports){
+},{"react":127,"scheduler":133}],123:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -77656,7 +79832,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":116,"react-dom":120}],120:[function(require,module,exports){
+},{"_process":120,"react-dom":124}],124:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -77698,7 +79874,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react-dom.development.js":117,"./cjs/react-dom.production.min.js":118,"_process":116}],121:[function(require,module,exports){
+},{"./cjs/react-dom.development.js":121,"./cjs/react-dom.production.min.js":122,"_process":120}],125:[function(require,module,exports){
 (function (process){(function (){
 /**
  * @license React
@@ -80441,7 +82617,7 @@ if (
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":116}],122:[function(require,module,exports){
+},{"_process":120}],126:[function(require,module,exports){
 /**
  * @license React
  * react.production.min.js
@@ -80469,7 +82645,7 @@ exports.useCallback=function(a,b){return U.current.useCallback(a,b)};exports.use
 exports.useInsertionEffect=function(a,b){return U.current.useInsertionEffect(a,b)};exports.useLayoutEffect=function(a,b){return U.current.useLayoutEffect(a,b)};exports.useMemo=function(a,b){return U.current.useMemo(a,b)};exports.useReducer=function(a,b,e){return U.current.useReducer(a,b,e)};exports.useRef=function(a){return U.current.useRef(a)};exports.useState=function(a){return U.current.useState(a)};exports.useSyncExternalStore=function(a,b,e){return U.current.useSyncExternalStore(a,b,e)};
 exports.useTransition=function(){return U.current.useTransition()};exports.version="18.2.0";
 
-},{}],123:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -80480,7 +82656,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react.development.js":121,"./cjs/react.production.min.js":122,"_process":116}],124:[function(require,module,exports){
+},{"./cjs/react.development.js":125,"./cjs/react.production.min.js":126,"_process":120}],128:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -80540,7 +82716,7 @@ var Client = /*#__PURE__*/function (_CommonClient) {
 }(_client["default"]);
 
 exports.Client = Client;
-},{"./lib/client":125,"./lib/client/websocket.browser":126,"@babel/runtime/helpers/classCallCheck":13,"@babel/runtime/helpers/createClass":14,"@babel/runtime/helpers/getPrototypeOf":15,"@babel/runtime/helpers/inherits":16,"@babel/runtime/helpers/interopRequireDefault":17,"@babel/runtime/helpers/possibleConstructorReturn":18}],125:[function(require,module,exports){
+},{"./lib/client":129,"./lib/client/websocket.browser":130,"@babel/runtime/helpers/classCallCheck":13,"@babel/runtime/helpers/createClass":14,"@babel/runtime/helpers/getPrototypeOf":15,"@babel/runtime/helpers/inherits":16,"@babel/runtime/helpers/interopRequireDefault":17,"@babel/runtime/helpers/possibleConstructorReturn":18}],129:[function(require,module,exports){
 (function (Buffer){(function (){
 /**
  * "Client" wraps "ws" or a browser-implemented "WebSocket" library
@@ -81025,7 +83201,7 @@ var CommonClient = /*#__PURE__*/function (_EventEmitter) {
 
 exports["default"] = CommonClient;
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"@babel/runtime/helpers/asyncToGenerator":12,"@babel/runtime/helpers/classCallCheck":13,"@babel/runtime/helpers/createClass":14,"@babel/runtime/helpers/getPrototypeOf":15,"@babel/runtime/helpers/inherits":16,"@babel/runtime/helpers/interopRequireDefault":17,"@babel/runtime/helpers/possibleConstructorReturn":18,"@babel/runtime/helpers/typeof":23,"@babel/runtime/regenerator":24,"buffer":105,"eventemitter3":112}],126:[function(require,module,exports){
+},{"@babel/runtime/helpers/asyncToGenerator":12,"@babel/runtime/helpers/classCallCheck":13,"@babel/runtime/helpers/createClass":14,"@babel/runtime/helpers/getPrototypeOf":15,"@babel/runtime/helpers/inherits":16,"@babel/runtime/helpers/interopRequireDefault":17,"@babel/runtime/helpers/possibleConstructorReturn":18,"@babel/runtime/helpers/typeof":23,"@babel/runtime/regenerator":24,"buffer":109,"eventemitter3":116}],130:[function(require,module,exports){
 /**
  * WebSocket implements a browser-side WebSocket specification.
  * @module Client
@@ -81148,7 +83324,7 @@ var WebSocketBrowserImpl = /*#__PURE__*/function (_EventEmitter) {
 function _default(address, options) {
   return new WebSocketBrowserImpl(address, options);
 }
-},{"@babel/runtime/helpers/classCallCheck":13,"@babel/runtime/helpers/createClass":14,"@babel/runtime/helpers/getPrototypeOf":15,"@babel/runtime/helpers/inherits":16,"@babel/runtime/helpers/interopRequireDefault":17,"@babel/runtime/helpers/possibleConstructorReturn":18,"eventemitter3":112}],127:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":13,"@babel/runtime/helpers/createClass":14,"@babel/runtime/helpers/getPrototypeOf":15,"@babel/runtime/helpers/inherits":16,"@babel/runtime/helpers/interopRequireDefault":17,"@babel/runtime/helpers/possibleConstructorReturn":18,"eventemitter3":116}],131:[function(require,module,exports){
 (function (process,setImmediate){(function (){
 /**
  * @license React
@@ -81786,7 +83962,7 @@ if (
 }
 
 }).call(this)}).call(this,require('_process'),require("timers").setImmediate)
-},{"_process":116,"timers":131}],128:[function(require,module,exports){
+},{"_process":120,"timers":135}],132:[function(require,module,exports){
 (function (setImmediate){(function (){
 /**
  * @license React
@@ -81809,7 +83985,7 @@ exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"
 exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c}}};
 
 }).call(this)}).call(this,require("timers").setImmediate)
-},{"timers":131}],129:[function(require,module,exports){
+},{"timers":135}],133:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -81820,7 +83996,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler.development.js":127,"./cjs/scheduler.production.min.js":128,"_process":116}],130:[function(require,module,exports){
+},{"./cjs/scheduler.development.js":131,"./cjs/scheduler.production.min.js":132,"_process":120}],134:[function(require,module,exports){
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -82874,7 +85050,7 @@ if (process.env.NODE_ENV === 'production') {
 }));
 
 
-},{}],131:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 (function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -82953,7 +85129,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":116,"timers":131}],132:[function(require,module,exports){
+},{"process/browser.js":120,"timers":135}],136:[function(require,module,exports){
 (function(nacl) {
 'use strict';
 
@@ -85346,7 +87522,7 @@ nacl.setPRNG = function(fn) {
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : (self.nacl = self.nacl || {}));
 
-},{"crypto":103}],133:[function(require,module,exports){
+},{"crypto":107}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85426,7 +87602,7 @@ var _stringify = _interopRequireDefault(require("./stringify.js"));
 var _parse = _interopRequireDefault(require("./parse.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./nil.js":135,"./parse.js":136,"./stringify.js":140,"./v1.js":141,"./v3.js":142,"./v4.js":144,"./v5.js":145,"./validate.js":146,"./version.js":147}],134:[function(require,module,exports){
+},{"./nil.js":139,"./parse.js":140,"./stringify.js":144,"./v1.js":145,"./v3.js":146,"./v4.js":148,"./v5.js":149,"./validate.js":150,"./version.js":151}],138:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85650,7 +87826,7 @@ function md5ii(a, b, c, d, x, s, t) {
 
 var _default = md5;
 exports.default = _default;
-},{}],135:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85659,7 +87835,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 var _default = '00000000-0000-0000-0000-000000000000';
 exports.default = _default;
-},{}],136:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85705,7 +87881,7 @@ function parse(uuid) {
 
 var _default = parse;
 exports.default = _default;
-},{"./validate.js":146}],137:[function(require,module,exports){
+},{"./validate.js":150}],141:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85714,7 +87890,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 var _default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
 exports.default = _default;
-},{}],138:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85741,7 +87917,7 @@ function rng() {
 
   return getRandomValues(rnds8);
 }
-},{}],139:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85846,7 +88022,7 @@ function sha1(bytes) {
 
 var _default = sha1;
 exports.default = _default;
-},{}],140:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85886,7 +88062,7 @@ function stringify(arr, offset = 0) {
 
 var _default = stringify;
 exports.default = _default;
-},{"./validate.js":146}],141:[function(require,module,exports){
+},{"./validate.js":150}],145:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -85994,7 +88170,7 @@ function v1(options, buf, offset) {
 
 var _default = v1;
 exports.default = _default;
-},{"./rng.js":138,"./stringify.js":140}],142:[function(require,module,exports){
+},{"./rng.js":142,"./stringify.js":144}],146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86011,7 +88187,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 const v3 = (0, _v.default)('v3', 0x30, _md.default);
 var _default = v3;
 exports.default = _default;
-},{"./md5.js":134,"./v35.js":143}],143:[function(require,module,exports){
+},{"./md5.js":138,"./v35.js":147}],147:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86090,7 +88266,7 @@ function _default(name, version, hashfunc) {
   generateUUID.URL = URL;
   return generateUUID;
 }
-},{"./parse.js":136,"./stringify.js":140}],144:[function(require,module,exports){
+},{"./parse.js":140,"./stringify.js":144}],148:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86128,7 +88304,7 @@ function v4(options, buf, offset) {
 
 var _default = v4;
 exports.default = _default;
-},{"./rng.js":138,"./stringify.js":140}],145:[function(require,module,exports){
+},{"./rng.js":142,"./stringify.js":144}],149:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86145,7 +88321,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 const v5 = (0, _v.default)('v5', 0x50, _sha.default);
 var _default = v5;
 exports.default = _default;
-},{"./sha1.js":139,"./v35.js":143}],146:[function(require,module,exports){
+},{"./sha1.js":143,"./v35.js":147}],150:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86163,7 +88339,7 @@ function validate(uuid) {
 
 var _default = validate;
 exports.default = _default;
-},{"./regex.js":137}],147:[function(require,module,exports){
+},{"./regex.js":141}],151:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -86185,7 +88361,7 @@ function version(uuid) {
 
 var _default = version;
 exports.default = _default;
-},{"./validate.js":146}],148:[function(require,module,exports){
+},{"./validate.js":150}],152:[function(require,module,exports){
 var _globalThis;
 if (typeof globalThis === 'object') {
 	_globalThis = globalThis;
@@ -86241,10 +88417,10 @@ module.exports = {
     'version'      : websocket_version
 };
 
-},{"./version":149,"es5-ext/global":108}],149:[function(require,module,exports){
+},{"./version":153,"es5-ext/global":112}],153:[function(require,module,exports){
 module.exports = require('../package.json').version;
 
-},{"../package.json":150}],150:[function(require,module,exports){
+},{"../package.json":154}],154:[function(require,module,exports){
 module.exports={
   "name": "websocket",
   "description": "Websocket Client & Server Library implementing the WebSocket protocol as specified in RFC 6455.",
