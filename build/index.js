@@ -244,6 +244,14 @@ const contest = {
         }
 
         const selectedLeaderboard = leaderboards[day - 1];
+
+        if (selectedLeaderboard.status === "paused") {
+          addClass(eByClass('during-contest'), 'hidden');
+          addClass(eByClass('after-contest'), 'hidden');
+          removeClass(eByClass('paused-contest'), 'hidden');
+          return;
+        }
+
         const leaderboardId = selectedLeaderboard.id;
         startDate = new Date(selectedLeaderboard.start);
         endDate = new Date(selectedLeaderboard.end);
