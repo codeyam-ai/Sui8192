@@ -1,4 +1,11 @@
 module.exports = {
+  rpcLocalnet: "http://127.0.0.1:9000",
+  // rpcTestnet: "https://fullnode.testnet.sui.io/",
+  rpcTestnet: "https://sui.ethoswallet.xyz/sui?env=test",
+  rpcDevnet: "https://fullnode.devnet.sui.io/",
+  // rpcMainnet: "https://fullnode.mainnet.sui.io/",
+  // rpcMainnet: "https://sui.ethoswallet.xyz/sui",
+  rpcMainnet: "https://sui-node.ethoswallet.xyz",
   devnetContractAddress: "0xb6d5bf1cf2c28b823d2c1fa9f7457f93190b277d42f41f7d35a8e9cf6dce20a1",
   devnetLeaderboardAddress: "0xcbf34f3edb739d040316283863e53c1d56f6072e346116be1659c7ef5cc771c1",
   devnetMaintainerAddress: "0xafb18a9140c22caddad91ee7b206c7e5f6396194d9462b1ab97955aecb2c7ed6",
