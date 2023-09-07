@@ -258,6 +258,8 @@ const contest = {
           addClass(eByClass('after-contest'), 'hidden');
           removeClass(eByClass('paused-contest'), 'hidden');
           return;
+        } else {
+          addClass(eByClass('paused-contest'), 'hidden');
         }
 
         const leaderboardId = selectedLeaderboard.id;
