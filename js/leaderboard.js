@@ -250,6 +250,8 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
     let games, timestamp;
     if (contestDay) {
       const leaderboard = await contest.getLeaders(contestDay, network);
+      if (!leaderboard) return;
+      
       games = leaderboard.leaders;
       timestamp = leaderboard.timestamp;
     } else {

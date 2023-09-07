@@ -63,7 +63,7 @@ const contest = {
         
         const leaderboard = await response.json();
         console.log("leaderboard", `${contestApi}/${leaderboardId}/leaderboard`, leaderboard)
-        const ids = leaderboard.games.map(g => g.gameId); 
+        const ids = (leaderboard.games ?? []).map(g => g.gameId); 
 
         const suiObjects = [];
         while(ids.length) {

@@ -278,7 +278,7 @@ const contest = {
         
         const leaderboard = await response.json();
         console.log("leaderboard", `${contestApi}/${leaderboardId}/leaderboard`, leaderboard)
-        const ids = leaderboard.games.map(g => g.gameId); 
+        const ids = (leaderboard.games ?? []).map(g => g.gameId); 
 
         const suiObjects = [];
         while(ids.length) {
@@ -1063,7 +1063,10 @@ async function displayGames() {
 
 async function associateGames() {
   if (leaderboardType === "contest") {
-    const { leaders } = await contest.getLeaders(contestDay, network);
+    const leaderboard = await contest.getLeaders(contestDay, network);
+    if (!leaderboard) return;
+    
+    const { leaders } = leaderboard;
 
     for (const game of games) {
       const index = leaders.findIndex(
@@ -1939,6 +1942,8 @@ const load = async (network, leaderboardAddress, force = false, contestDay = 1) 
     let games, timestamp;
     if (contestDay) {
       const leaderboard = await contest.getLeaders(contestDay, network);
+      if (!leaderboard) return;
+      
       games = leaderboard.leaders;
       timestamp = leaderboard.timestamp;
     } else {

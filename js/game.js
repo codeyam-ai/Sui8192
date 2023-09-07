@@ -612,7 +612,10 @@ async function displayGames() {
 
 async function associateGames() {
   if (leaderboardType === "contest") {
-    const { leaders } = await contest.getLeaders(contestDay, network);
+    const leaderboard = await contest.getLeaders(contestDay, network);
+    if (!leaderboard) return;
+    
+    const { leaders } = leaderboard;
 
     for (const game of games) {
       const index = leaders.findIndex(
