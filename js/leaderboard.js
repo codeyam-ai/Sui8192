@@ -295,6 +295,7 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
       }
     } else {
       games = await topGames(network, true);
+      addClass(eByClass('paused-contest'), 'hidden');
     }
 
     const pageMax = Math.min(games.length, currentMax);
