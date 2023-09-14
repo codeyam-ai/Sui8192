@@ -1,4 +1,4 @@
-const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
+const { SuiClient, getFullnodeUrl } = require("@mysten/sui.js/client");
 const { ethos, TransactionBlock } = require("ethos-connect");
 const { ProfileManager } = require('@polymedia/profile-sdk');
 const {
@@ -31,9 +31,7 @@ let perPage = 25;
 
 const profileManager = new ProfileManager({
   network: 'mainnet',
-  suiClient: new JsonRpcProvider(new Connection({
-      fullnode: rpcMainnet
-  })),
+  suiClient: new SuiClient({ url: rpcMainnet }),
 });
 
 const topGames = async (network, force) => {
@@ -87,10 +85,9 @@ const topGames = async (network, force) => {
 }
 
 const getObjects = async (network, ids) => {
-    const connection = new Connection({ fullnode: network })
-    const provider = new JsonRpcProvider(connection);
+    const client = new SuiClient({ url: network })
     if (!Array.isArray(ids)) ids = [ids ?? cachedLeaderboardAddress];
-    const objects = await provider.multiGetObjects({
+    const objects = await client.multiGetObjects({
       ids,
       options: { showContent: true }
     });
@@ -531,14 +528,27 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
         // Find player address
         const innerDiv = nameDiv.querySelector('div[title]');
         const leaderAddress = innerDiv.getAttribute('title');
-        // Get Polymedia Profile
-        const profile = profiles.get(leaderAddress);
-        if (!profile) {
+
+        let name;
+        const client = new SuiClient({ url: getFullnodeUrl('mainnet') })
+        const { data } = await client.resolveNameServiceNames({ address: leaderAddress })  
+        if (data.length > 0) {
+          name = sanitize(data[0]);
+        } else {
+          // Get Polymedia Profile
+          const profile = profiles.get(leaderAddress);
+          if (profile) {
+            name = sanitize(profile.name)    
+          }
+        }
+
+        if (!name) {
           continue;
         }
+
         // Replace innerDiv contents
         const shortAddress = truncateMiddle(leaderAddress, 4);
-        const textContent = `${sanitize(profile.name)} (${shortAddress})`;
+        const textContent = `${name} (${shortAddress})`;
         innerDiv.innerHTML = textContent;
       }
     })();
