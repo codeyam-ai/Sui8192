@@ -2169,9 +2169,8 @@ const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) 
 
         let name;
         const client = new SuiClient({ url: getFullnodeUrl('mainnet') })
-        const { data } = await client.resolveNameServiceNames({ address: leaderAddress })       
+        const { data } = await client.resolveNameServiceNames({ address: leaderAddress })  
         if (data.length > 0) {
-          console.log("NAMES", data)
           name = sanitize(data[0]);
         } else {
           // Get Polymedia Profile
