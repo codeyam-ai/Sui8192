@@ -12,7 +12,9 @@
   </script>
   
   <meta charset="utf-8">
-  <title>Sui 8192</title>
+  <title>SUI 8192</title>
+  <meta name="description" content="SUI 8192 is a completely on-chain and extra challenging version of the popular 2048 game built on the Sui blockchain by Ethos." />
+  <meta name="keywords" content="Sui, Ethos, Game, Blockchain, Crypto, On-Chain">
 
   <link href="style/main.css" rel="stylesheet" type="text/css">
   <link rel="shortcut icon" href="favicon.ico">
@@ -33,6 +35,14 @@
           <div id="close-modal">
             <div>✕</div>
           </div>
+          <div id="pause-message" class="message hidden">
+            <p>Just checking :)</p>
+            <h1>Are you still here?</h2>
+            
+            <button id='unpause' style="padding: 12px 24px; margin: 12px 0;">
+              Yes! I want to keep playing
+            </button>
+          </div>
           <div id="loading-message" class="message">
             <div class="spinner">
               <div>
@@ -48,18 +58,52 @@
               </svg>
             </div>
           </div>
-          <div id="get-started-message" class="message text-center hidden">
-            <div class='subtitle'>Welcome!</div>
-            <div>
-              To play Sui 8192 please sign
-              <br/>
-              in or connect your wallet!
+          <div class="during-contest">
+            <div class="get-started-message" class="message text-center hidden">
+              <div class="header">
+                <div></div>
+                <div><img src="contest-logo.png" alt="Sui 8192 Logo" style="height: 30px;" /></div>
+                <div class="close">×</div>
+              </div>
+              <div class="start-content">
+                <h1 style="margin-top: 48px; font-weight: 800;">Sui 8192 Competition</h1>
+                <p style="font-size: x-large; font-weight: 400; line-height: normal;">
+                  10 winning players every day!
+                </p>
+                <button class='sign-in' style="font-size: large; font-weight: 500; padding: 12px 24px;">
+                  Get Started
+                </button>
+                <div id="contest-learn-more" style="cursor: pointer; font-size: small; font-weight: 500; text-decoration: underline; margin-top: 30px;">
+                  Learn More
+                </div>
+              </div>
             </div>
-            <br/>
-            <button id='sign-in'>
-              Get Started
-            </button>
           </div>
+          <!-- <div class="after-contest">
+            <div class="get-started-message" class="message text-center hidden">
+              <div class="header">
+                <div></div>
+                <div style="font-weight: 500;">SUI 8192</div>
+                <div class="close">×</div>
+              </div>
+              <div class="start-content">
+                <p style="font-size: large; font-weight: 400; line-height: normal; margin: 24px 0;">
+                  An addictive, <br/>fully on-chain game.
+                </p>
+                <p style="font-size: x-large; font-weight: 600; line-height: normal; margin-bottom: 30px;">
+                  High scores saved<br/>forever on-chain!
+                </p>
+                
+                <button class='sign-in' style="font-size: large; font-weight: 500; padding: 12px 24px;">
+                  Play Now
+                </button>
+
+                <div style="margin-top: 48px">
+                  <img src="ethos-logo.png" alt="Ethos" style="width: 60px;" />
+                </div>
+              </div>
+            </div>
+          </div> -->
           <div id="create-error-message" class="message text-center hidden">
             <p>There was an error minting a new game.</p>
             <p id="create-error-error-message"></p>
@@ -99,21 +143,38 @@
             <br/><br/>
             <button class="keep-playing secondary-button">Keep Playing</button>
           </div>
+          <div id="climbing-leaderboard-message" class="message text-center hidden">
+            <div class="subtitle">Congrats!</div>
+            <div class="top-tile-display"></div>
+            <p>
+              You're climbing the leaderboard!
+            </p>
+            <p>Take a break and check out your progress (your game is automatically saved):</p>
+            <br/>
+            <button id="modal-view-leaderboard">View Leaderboard Position</button>
+            <br/><br/>
+            <button class="keep-playing secondary-button">Keep Playing</button>
+          </div>
         </div>
       </div>
 
       <div class="header">
         <div class="header-title">
-          SUI <span>8192</span>
+          <!-- <img src="logo.png" style="width: 30px; height: 30px;" />
+          <div>SUI <span>8192</span></div> -->
+          <img src="logo-group.png" alt="Sui8192" style="height: 36px;" />
         </div>
         <div class="header-buttons wide">
           <div class="play-button header-button selected">
             Play
           </div>
+          <div class="contest-button header-button center">
+            Daily Contest
+          </div>
           <div class="leaderboard-button header-button">
             Leaderboard
           </div>
-          <div class="network-buttons header-button">
+          <div class="network-buttons header-button" style="display: none;">
             <div class="mainNet network-button selected">
               Mainnet
             </div>
@@ -187,7 +248,7 @@
                 You are using an email wallet.
               </p>
               <p>
-                Sui 8192 is faster using a chrome 
+                SUI 8192 is faster using a chrome 
                 <br/>
                 extension without the email option.
               </p>
@@ -238,10 +299,14 @@
         <div class="play-button header-button selected">
           Play
         </div>
+        <div class="contest-button header-button">
+          Daily Contest
+          <div style="background-color: white; border-radius: 25%; padding: 3px">New</div>
+        </div>
         <div class="leaderboard-button header-button">
           Leaderboard
         </div>
-        <div class="network-buttons header-button">
+        <div class="network-buttons header-button" style="display: none">
           <div class="mainNet network-button selected">
             Mainnet
           </div>
@@ -253,10 +318,55 @@
 
       <div id="leaderboard" class="hidden">
         <div class="vertical-container">
+          <div class="show-contest" style="text-align: center; width: 100%;">
+            <div class="contest-banner">
+              <img src="contest-logo.png" alt="Sui 8192 Contest" style="height: 30px;" />
+              <h2 style="font-size: xx-large; font-weight: 500;">SUI 8192 Daily Contest</h2>
+              <p style="font-size: large;">Multiple winners every day!</p>
+              <p style="font-size: large; padding-bottom: 6px;">Today's contest ends in:</p>
+              <div class='countdown-values'>
+                <div>
+                  <div id="countdown-time-days" class="value"></div>
+                  <div>Days</div>
+                </div>
+                <div class="colon">
+                  <div>:</div>
+                  <div></div>
+                </div>
+                <div>
+                  <div id="countdown-time-hours" class="value"></div>
+                  <div>Hours</div>
+                </div>
+                <div class="colon">
+                  <div>:</div>
+                  <div></div>
+                </div>
+                <div>
+                  <div id="countdown-time-minutes" class="value"></div>
+                  <div>Minutes</div>
+                </div>
+                <div class="colon">
+                  <div>:</div>
+                  <div></div>
+                </div>
+                <div>
+                  <div id="countdown-time-seconds" class="value"></div>
+                  <div>Seconds</div>
+                </div>  
+              </div>
+            </div>
+            <p class="contest-text">
+              Ethos Wallet and the Sui Foundation are hosting a daily SUI 8192 contest.
+              See below for more details on prizes and rules.
+            </p>
+            
+            <h2 class="contest-title" style="font-size: x-large; margin-bottom: 0;">Competition Leaderboard</h2>
+          </div>
+
           <div class="content">
-            <div class="instructions">
+            <div class="instructions hide-contest">
               <p>
-                Sui 8192 is a completely on-chain and extra challenging version of 
+                SUI 8192 is a completely on-chain and extra challenging version of 
                 the popular 2048 game built on 
                 the <a href='https://sui.io' target="_blank">Sui</a> blockchain 
                 by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a>.
@@ -268,12 +378,40 @@
                 Your achievements are<br class="narrow"> completely verifiable on-chain!
               </p>
             </div>
+
+            <div class="hide-contest text-center">
+              <h2 style="font-size: x-large; font-weight: 300; margin-bottom: 0;">All-Time Leaderboard</h2>
+              <p style="font-size: smaller">This leaderboard is on-chain so you must submit your game for it to display here.</p>
+            </div>
           </div>
           <div class="split-panel">
-            <div class="panel">
+            <div id="leaderboard-panel" class="panel panel-section hidden">
               <div class="leader-title">
-                Leaderboard
-                <span class="small">(click an item for details)</span>
+                <div class="title"><span class="show-contest">Daily Contest</span> Leaderboard</div>                
+              </div>
+              <div class="show-contest">
+                <div class="contest-days">
+                  <div id='contest-day-1' class="contest-day selected" data-day="1">Today</div>
+                  <div id='contest-day-2' class='contest-day' data-day="2">Yesterday</div>
+                  <div id='contest-day-3' class='contest-day' data-day="3">2 Days Ago</div>
+                  <div id='contest-day-4' class='contest-day' data-day="4">3 Days Ago</div>
+                  <div id='contest-day-5' class='contest-day' data-day="5">4 Days Ago</div>
+                </div>
+              </div>
+              <div class="paused-contest text-center hidden">
+                <p>There is no daily competition today.</p>
+                <p>Please check back tomorrow.</p>
+              </div>
+              <div class="has-games-leader text-center hidden">
+                <p class="after-contest">All prizes will be sent to winning wallets within 3 working days.</p>
+              </div>
+              <div class="no-games-leader text-center hidden" style="padding-top: 30px;">
+                <h2>No Games</h2>
+                <p class="after-contest">No games were played for this contest...</p>
+                <p class="during-contest">No games have been played yet!</p>
+                <p class="during-contest">
+                  <button class="new-game signed-in">Start New Game</button>
+                </p>
               </div>
               <div id="loading-leaderboard" class="hidden">
                 <div class="spinner">
@@ -298,26 +436,151 @@
               </div>
             </div>
             <div class="panel">
-              <div class="games-title">
-                Your Games
-                <button class="new-game">+ New Game</button>
-              </div>
-              <div id="signed-in" class="signed-in">
-                <div id="games-list"></div>
-              </div>
-              <div id="loading-games">
-                <div class="spinner">
-                  <div>
-                    Loading, Please Wait...
+              <div class="panel-section">
+                <div class="games-title">
+                  <div class="title">Your <span class='show-contest wide'>Contest</span> Games</div>
+                  <div class="has-games">
+                    <button class="new-game signed-in">+ New Game</button>
                   </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
-                    <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
-                    <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
-                    <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
-                  </svg>
+                </div>
+                <div class="show-contest">
+                  <div class="during-contest">
+                    <div class="has-games text-center" style="padding: 6px 0; font-size: smaller;">
+                      Only your top scoring game will display on the leaderboard.
+                    </div>
+                  </div>
+                </div>
+                <div class="no-games">
+                  <div class="show-contest">
+                    <div class="during-contest">
+                      <div class="contest-game" style="text-align: center; padding: 12px 0 24px 0;">
+                        <p>You haven't started any games for today's contest yet.</p>
+                        <button class="new-game">Play First Game</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hide-contest" style="text-align: center; padding: 24px;">
+                    <button class="new-game">Play First Game</button>
+                  </div>
+                </div>
+                <div class="show-contest">
+                  <div class="after-contest" style="text-align: center; padding-top: 12px;">
+                    This daily contest has ended.
+                    <br/>
+                    Congrats to all the winners!
+                  </div>
+                </div>
+
+                <div class="show-contest">
+                  <div class="after-contest" style="text-align: center; padding-top: 12px;">
+                    You can still play, but no additional moves on these games will count as the leaderboard is frozen.
+                  </div>
+                  <div class="after-contest" style="text-align: center; padding-top: 12px;">
+                    Visit <span class='contest-day' data-day="1">today's contest</span> and create a new game to compete!
+                  </div>
+                </div>
+
+                <div id="signed-in" class="signed-in contest-game">
+                  <div class="select-all-games hidden" style="cursor: pointer; text-decoration: underline; padding: 6px 0; color: #2F41E2;">Select All Games</div>
+                  <div id="games-list"></div>
+                </div>
+                <div id="loading-games">  
+                  <div class="spinner">
+                    <div>
+                      Loading, Please Wait...
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24">
+                      <style>.spinner_jCIR{animation:spinner_B8Vq .9s linear infinite;animation-delay:-.9s}.spinner_upm8{animation-delay:-.8s}.spinner_2eL5{animation-delay:-.7s}.spinner_Rp9l{animation-delay:-.6s}.spinner_dy3W{animation-delay:-.5s}@keyframes spinner_B8Vq{0%,66.66%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:6px;height:12px}33.33%{animation-timing-function:cubic-bezier(0.36,.61,.3,.98);y:1px;height:22px}}</style>
+                      <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
+                      <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel-section">
+                <div class="games-title">
+                  Burn Games
+                </div>
+                <p>You can burn old games you no longer want to earn the storage rebate from them.</p>
+                <p class="center">
+                  <button class="select-games primary-button">
+                    Select Games To Burn
+                  </button>
+                  <button class="cancel-select-games secondary-button hidden" style="margin-right: 12px;">
+                    Cancel
+                  </button>
+                  <button id="burn-games" class="primary-button hidden">
+                    Burn Selected Games
+                  </button>
+                </p>
+              </div>
+
+              <div class="panel-section">
+                <div class="games-title">
+                  Fix Games
+                </div>
+                <p>
+                  There is a bug in Sui 8192 that causes the wrong image to display for the NFT.
+                  If you are experiencing this problem you can fix the NFT here.
+                </p>
+                <p class="center ">
+                  <button class="select-games primary-button">
+                    Select Games To Fix
+                  </button>
+                  <button class="cancel-select-games secondary-button hidden" style="margin-right: 12px;">
+                    Cancel
+                  </button>
+                  <button id="fix-games" class="primary-button hidden">
+                    Fix Selected Games
+                  </button>
+                </p>
+              </div>
+
+              <div class="panel-section show-contest">
+                <div class="games-title">
+                  Contest Prizes
+                </div>
+                <div>
+                  <p>
+                    Every day one contest will run starting and ending at 3:01pm UTC.
+                  </p>
+                  <p>
+                    SUI prizes will be awarded to the 10 highest scoring games on the leaderboard 
+                    at the end of each day's contest. To be eligible, games must be started
+                    after the daily contest has begun. The score at the end of the contest 
+                    will be recorded even if the game has not ended.
+                  </p>
+                  <p>
+                    The following prizes will be sent to winning wallets within three 
+                    working days of the end of each contest.
+                  </p>
+                  <ul class="prizes">
+                    <li><b>1st Place:</b> 60 Sui</li>
+                    <li><b>2nd Place:</b> 30 Sui</li>
+                    <li><b>3rd & 4th Place:</b> 15 Sui</li>
+                    <li><b>5th - 7th Place:</b> 10 Sui</li>
+                    <li><b>8th - 10th Place:</b>5 Sui</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="panel-section show-contest">
+                <div class="games-title">
+                  Contest Rules
+                </div>
+                <div>
+                  <p>The following are the rules of the SUI 8192 daily contest, sponsored by the Sui Foundation:</p>
+                  <ul>
+                    <li>All games must be created after <b>3:01pm UTC</b></li>
+                    <li>Leaderboard will be locked and daily contest will end at <b>3:01pm UTC</b> each day</li>
+                    <li>Valid games will be displayed in your "Your Contest Games" section for each contest</li>
+                    <li>Each individual can only win a prize for one game, their highest scoring game of the daily competition</li>
+                    <li>Detailed rules can be found on the <a href='https://ethoswallet.xyz/blog/post/new-sui-8192-competition' target='_blank'>Ethos Blog</a></li>
+                    <li>Read the <a href='https://ethoswallet.xyz/blog/post/sui8192-daily-competition-faqs' target='_blank'>FAQ</a> for common questions.</li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -328,9 +591,12 @@
 
       <div id="game" class="">
         <div class="content">
-          <div class="instructions">
+          <div class="instructions wide">
             Use the ←→↑↓ keys to combine same tiles together.<br/>
             Achieve a high score and unlock the ultimate tile!
+          </div>
+          <div class="instructions narrow" style="padding: 18px 0 6px 0;">
+            Swipe the board ←→↑↓ to combine same tiles.
           </div>
           <div id="game-links-area" class='signed-in'>
             <div>
@@ -384,9 +650,14 @@
               </div>
             </div>
             <br/>
-            <button class="leaderboard-button secondary-button">
-              View Leaderboard
-            </button>
+            <div style="text-align: center;">
+              <button class="secondary-button contest-leaderboard-button during-contest">
+                View Leaderboard
+              </button>
+              <button class="secondary-button leaderboard-button after-contest">
+                View Leaderboard
+              </button>
+            </div>
           </div>
           <div id="error-unknown" class="error hidden">
             <div class="close-error">
@@ -407,15 +678,13 @@
             <div class="close-error">
               <div>✕</div>
             </div>
-            <p>You do not have enough Sui to complete this move.</p>
+            <p>An unknown error occurred.</p>
             <p>
-              Please request more at the 
-              <a href="https://discord.com/channels/916379725201563759/971488439931392130" target="_blank">
-                TestNet faucet
-              </a>.
+              Please check to ensure you have enough gas,<br/>
+              refresh this page, and try again.
             </p>
             <p>
-              Once you have received more Sui, please refresh this page.
+              Your game is safely stored on-chain.
             </p>
           </div>
           <div id="error-network" class="error hidden">
@@ -465,7 +734,7 @@
           </div>
           <div class="footer instructions">
             <p>
-              Sui 8192 is a completely on-chain and extra challenging version of 
+              SUI 8192 is a completely on-chain and extra challenging version of 
               the popular 2048 game built on 
               the <a href='https://sui.io' target="_blank">Sui</a> blockchain 
               by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a>.
@@ -487,7 +756,7 @@
             Open Source
           </div>
           <p>
-            Sui 8192 was build by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a> and is open source.
+            SUI 8192 was build by <a href='https://ethoswallet.xyz' target="_blank">Ethos</a> and is open source.
             <br /> 
             You can find the code on <a href='https://github.com/EthosWallet/Sui8192' target="_blank">GitHub</a>. 
           </p>
@@ -503,16 +772,16 @@
           <p>
             <a href='https://ethoswallet.xyz/dev' target="_blank">Ethos For Developers</a>
           </p>
+          <br/>
           <div class="subsubtitle text-center">
             Contest Rules
           </div>
           <p>
-            Please find details on Sui8192 contest rules in our <a href='https://sui8192.ethoswallet.xyz/terms-and-conditions.html' target="_blank">Terms and Conditions</a>
+            Please find details on Sui 8192 contest rules in our <a href='https://sui8192.ethoswallet.xyz/terms-and-conditions.html' target="_blank">Terms and Conditions</a>
           </p>
         </div>
       </div>
     </div>
-
     <script src="build/index.js"></script>
   </body>
 </html>

@@ -1,7 +1,9 @@
-const { Connection, JsonRpcProvider } = require("@mysten/sui.js");
+const { SuiClient, getFullnodeUrl } = require("@mysten/sui.js/client");
 const { ethos, TransactionBlock } = require("ethos-connect");
+const { ProfileManager } = require('@polymedia/profile-sdk');
 const {
-   tileNames,
+rpcMainnet,
+tileNames,
 } = require("./constants");
 const {
     eById,
@@ -16,6 +18,8 @@ const {
   COLUMNS,
   spaceAt
 } = require('./board');
+const contest = require('./contest');
+const { add } = require("./queue");
 
 let cachedLeaderboardAddress;
 let leaderboardObject;
@@ -24,6 +28,11 @@ let leaderboardTimestamp;
 let loadingNextPage = 0;
 let page = 1;
 let perPage = 25;
+
+const profileManager = new ProfileManager({
+  network: 'mainnet',
+  suiClient: new SuiClient({ url: rpcMainnet }),
+});
 
 const topGames = async (network, force) => {
   if (_topGames && !force) return _topGames;
@@ -71,17 +80,16 @@ const topGames = async (network, force) => {
       }
     }
   )
-  
+
   return _topGames;
 }
 
 const getObjects = async (network, ids) => {
-    const connection = new Connection({ fullnode: network })
-    const provider = new JsonRpcProvider(connection);
+    const client = new SuiClient({ url: network })
     if (!Array.isArray(ids)) ids = [ids ?? cachedLeaderboardAddress];
-    const objects = await provider.multiGetObjects({ 
-      ids, 
-      options: { showContent: true } 
+    const objects = await client.multiGetObjects({
+      ids,
+      options: { showContent: true }
     });
     return objects;
 };
@@ -129,7 +137,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     //       none: null,
     //       some: 'u64'
     //     };
-      
+
     //     const bcsConfig = {
     //       vectorType: 'vector',
     //       addressLength: 32,
@@ -137,12 +145,12 @@ const getLeaderboardGame = async (network, gameObjectId) => {
     //       types: { enums },
     //       withPrimitives: true
     //     };
-        
+
     //     const bcs = new BCS(bcsConfig);
     //     // const bcs = new BCS(getSuiMoveConfig());
 
     //     bcs.registerAddressType('SuiAddress', 32, 'hex');
-        
+
     //     bcs.registerStructType('GameHistory8192', {
     //         move_count: 'u64',
     //         direction: 'u64',
@@ -172,7 +180,7 @@ const getLeaderboardGame = async (network, gameObjectId) => {
 
 const historyHTML = (moveIndex, totalMoves, histories) => {
     const history = histories[moveIndex];
-    
+
     const rows = [];
     for (let row = 0; row < ROWS; row++) {
         const rowHTML = [];
@@ -207,7 +215,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
         </div>
         <div>
           <div>Score</div>
-          <div class='game-highlighted'> 
+          <div class='game-highlighted'>
             ${history.score}
           </div>
         </div>
@@ -216,7 +224,7 @@ const historyHTML = (moveIndex, totalMoves, histories) => {
     return completeHTML;
 };
 
-const load = async (network, leaderboardAddress, force = false) => {
+const load = async (network, leaderboardAddress, force = false, contestDay = 1) => {
     cachedLeaderboardAddress = leaderboardAddress
     const loadingLeaderboard = eById("loading-leaderboard");
     if (!loadingLeaderboard) return;
@@ -231,35 +239,66 @@ const load = async (network, leaderboardAddress, force = false) => {
     addClass(eById("more-leaderboard"), "hidden");
 
     page = 1;
-    leaderboardObject = await get(network);
-
     addClass(eById("loading-leaderboard"), "hidden");
 
     const leaderboardList = eById("leaderboard-list");
     leaderboardList.innerHTML = "";
 
-    const games = await topGames(network, true);
+    let games, timestamp;
+    if (contestDay) {
+      const leaderboard = await contest.getLeaders(contestDay, network);
+      if (!leaderboard) return;
+      
+      games = leaderboard.leaders;
+      timestamp = leaderboard.timestamp;
+    } else {
+      leaderboardObject = await get(network);
+      games = await topGames(network, true);
+    }
+
+    if (games.length > 0) {
+      addClass(eByClass('no-games-leader'), 'hidden')
+      removeClass(eByClass('has-games-leader'), 'hidden')
+    } else {
+      removeClass(eByClass('no-games-leader'), 'hidden')
+      addClass(eByClass('has-games-leader'), 'hidden')
+    }
+
     const best = eById("best");
     if (best) {
       best.innerHTML = games[0]?.score || 0;
     }
-    setOnClick(eById("more-leaderboard"), () => loadNextPage(network));
+    setOnClick(eById("more-leaderboard"), () => loadNextPage(network, !!contestDay, timestamp));
 
-    await loadNextPage(network);
+    await loadNextPage(network, contestDay, !!contestDay, timestamp);
 };
 
-const loadNextPage = async (network) => {
+const loadNextPage = async (network, contestDay, contestLeaderboard, timestamp) => {
     if (loadingNextPage) return;
 
     loadingNextPage = true;
 
     const leaderboardList = eById("leaderboard-list");
     const currentMax = page * perPage;
-    const games = await topGames(network);
+
+    let games;
+    if (contestLeaderboard) {
+      const leaderboard = await contest.getLeaders(contestDay, network, timestamp);
+      games = leaderboard.leaders;
+      if (games.length === 0) {
+        removeClass(eById("no-contest-games"), 'hidden')
+      } else {
+        addClass(eById("no-contest-games"), 'hidden')
+      }
+    } else {
+      games = await topGames(network, true);
+      addClass(eByClass('paused-contest'), 'hidden');
+    }
+
     const pageMax = Math.min(games.length, currentMax);
     for (let i = (page - 1) * perPage; i < pageMax; ++i) {
-        const { gameId, topTile, score, leaderAddress } = games[i];  
-    
+        const { gameId, topTile, score, leaderAddress } = games[i];
+
         const name = leaderAddress
         // const name = await ethos.getSuiName(leaderAddress);
 
@@ -269,7 +308,7 @@ const loadNextPage = async (network) => {
         const listing = document.createElement("DIV");
         addClass(listing, "leader-listing");
         listing.innerHTML = `
-      <div class='leader-stats flex-1'> 
+      <div class='leader-stats flex-1'>
         <div>${i + 1}</div>
         <div class='leader-tile subsubtitle color${topTile}'>
           ${Math.pow(2, topTile)}
@@ -278,12 +317,13 @@ const loadNextPage = async (network) => {
           Score <span>${score}</span>
         </div>
       </div>
-      
+
       <div class='leaderboard-name flex-1 '>
         <div title='${leaderAddress}'>
-          ${name === leaderAddress ? truncateMiddle(leaderAddress) : name}
+          ${name === leaderAddress ? truncateMiddle(leaderAddress, 4) : name}
         </div>
-      </div>     
+        <div class='chevron'>⌄</div>
+      </div>
     `;
 
         leaderElement.append(listing);
@@ -336,25 +376,25 @@ const loadNextPage = async (network) => {
         //         };
         //     };
 
-        //     details.addEventListener('touchstart', handleTouchStart, false);        
+        //     details.addEventListener('touchstart', handleTouchStart, false);
         //     details.addEventListener('touchmove', handleTouchMove, false);
 
-        //     let xDown = null;                                                        
+        //     let xDown = null;
         //     let yDown = null;
 
         //     function getTouches(evt) {
         //       return evt.touches ||
-        //             evt.originalEvent.touches; 
-        //     }                                                     
-                                                                                    
+        //             evt.originalEvent.touches;
+        //     }
+
         //     function handleTouchStart(evt) {
         //         evt.stopPropagation();
         //         evt.preventDefault();
-        //         const firstTouch = getTouches(evt)[0];                                      
-        //         xDown = firstTouch.clientX;                                      
-        //         yDown = firstTouch.clientY;                                      
-        //     };                                                
-                                                                                    
+        //         const firstTouch = getTouches(evt)[0];
+        //         xDown = firstTouch.clientX;
+        //         yDown = firstTouch.clientY;
+        //     };
+
         //     function handleTouchMove(evt) {
         //         if ( ! xDown || ! yDown ) {
         //             return;
@@ -363,18 +403,18 @@ const loadNextPage = async (network) => {
         //         evt.stopPropagation();
         //         evt.preventDefault();
 
-        //         var xUp = evt.touches[0].clientX;                                    
+        //         var xUp = evt.touches[0].clientX;
         //         var yUp = evt.touches[0].clientY;
 
         //         var xDiff = xDown - xUp;
         //         var yDiff = yDown - yUp;
-                                                                                    
+
         //         if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {
         //             if ( xDiff > 0 ) {
-        //                 /* right swipe */ 
+        //                 /* right swipe */
         //             } else {
         //                 /* left swipe */
-        //             }                       
+        //             }
         //         } else {
         //             currentIndex += Math.round(yDiff / -1);
         //             if (currentIndex > game.histories.length - 1) {
@@ -383,13 +423,36 @@ const loadNextPage = async (network) => {
         //                 currentIndex = 0;
         //             }
         //             indexDetails(currentIndex);
-        //             return false;                                                                 
+        //             return false;
         //         }
         //         xDown = null;
-        //         yDown = null;                                             
+        //         yDown = null;
         //     };
 
-            const indexDetails = (index) => {
+            const indexDetails = async (index) => {
+                // Get the Polymedia Profile associated to this `leaderAddress`. It is instant,
+                // because loadProfiles() has already fetched all relevant profiles.
+                let profile = null;
+                try {
+                    profile = await profileManager.getProfileByOwner({ lookupAddress: leaderAddress });
+                } catch (error) {
+                    console.warn("[indexDetails] Failed to fetch profile:", error);
+                }
+
+                // Build a new section to show the profile username
+                let profileSection = '';
+                if (profile) {
+                    profileSection = `
+                    <div>
+                      <div class='game-info-header'>Player Name</div>
+                      <div class='game-highlighted'>
+                        <a href='https://profile.polymedia.app/view/${profile.id}'
+                          target='_blank' rel='noopener'>${sanitize(profile.name)}</a>
+                      </div>
+                    </div>
+                    `;
+                }
+
                 details.innerHTML = `
           <div class='game-status'>
             <div>
@@ -421,6 +484,7 @@ const loadNextPage = async (network) => {
                 ${leaderAddress.slice(-33)}
               </div>
             </div>
+            ${profileSection}
           </div>
         `;
             };
@@ -439,6 +503,55 @@ const loadNextPage = async (network) => {
     }
 
     loadingNextPage = false;
+
+    // Load the Polymedia Profile associated to each leader address, and then
+    // update .leaderboard-name from `0x12...3456` to `John Doe (0x12...3456)`.
+    (async function loadProfiles() {
+      if (!games || games.length === 0) {
+        return;
+      }
+
+      // Fetch the Polymedia Profiles associated to the visible leader addresses
+      let profiles; // Map<string, PolymediaProfile|null>
+      try {
+        profiles = await profileManager.getProfilesByOwner({
+          lookupAddresses: games.map(game => game.leaderAddress)
+        });
+      } catch(error) {
+        console.warn("[loadProfiles] Failed to load profiles:", error);
+        return;
+      }
+
+      // Replace the contents of each .leaderboard-name element
+      const leaderboardNameDivs = document.querySelectorAll('.leaderboard-name');
+      for (const nameDiv of leaderboardNameDivs) {
+        // Find player address
+        const innerDiv = nameDiv.querySelector('div[title]');
+        const leaderAddress = innerDiv.getAttribute('title');
+
+        let name;
+        const client = new SuiClient({ url: getFullnodeUrl('mainnet') })
+        const { data } = await client.resolveNameServiceNames({ address: leaderAddress })  
+        if (data.length > 0) {
+          name = sanitize(data[0]);
+        } else {
+          // Get Polymedia Profile
+          const profile = profiles.get(leaderAddress);
+          if (profile) {
+            name = sanitize(profile.name)    
+          }
+        }
+
+        if (!name) {
+          continue;
+        }
+
+        // Replace innerDiv contents
+        const shortAddress = truncateMiddle(leaderAddress, 4);
+        const textContent = `${name} (${shortAddress})`;
+        innerDiv.innerHTML = textContent;
+      }
+    })();
 };
 
 const minScore = () => {
@@ -468,7 +581,7 @@ const submit = async (network, chain, contractAddress, gameAddress, walletSigner
     });
 
     await ethos.executeTransactionBlock({
-      signer: walletSigner, 
+      signer: walletSigner,
       transactionInput: {
         transactionBlock: transactionBlockBytes,
         signature,
@@ -505,7 +618,7 @@ const reset = async (network, chain, contractAddress, walletSigner, onComplete) 
   });
 
   await ethos.executeTransactionBlock({
-    signer: walletSigner, 
+    signer: walletSigner,
     transactionInput: {
       transactionBlock: transactionBlockBytes,
       signature,
@@ -523,6 +636,12 @@ const reset = async (network, chain, contractAddress, walletSigner, onComplete) 
   ethos.hideWallet(walletSigner);
   onComplete();
 };
+
+function sanitize(input) {
+  const tempDiv = document.createElement('div');
+  tempDiv.textContent = input;
+  return tempDiv.innerHTML;
+}
 
 module.exports = {
     topGames,

@@ -1,8 +1,20 @@
 module.exports = {
-  testnetContractAddress: "0x990570514ac706f0f33d87db6d0f12d3a98be00373836851363dee5fd70119f2",
-  testnetLeaderboardAddress: "0xe7b3d2b862cf5935526d8d39c04d5f5803f70070704ba7ddaddd6cb4ab61ef28",
-  testnetMaintainerAddress: "0x86942ec75d27f7caeabb94178a560c2819cd73a284405243b0aab13a15feb9b6",
-  mainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
+  rpcLocalnet: "http://127.0.0.1:9000",
+  // rpcTestnet: "https://fullnode.testnet.sui.io/",
+  rpcTestnet: "https://sui.ethoswallet.xyz/sui?env=test",
+  rpcDevnet: "https://fullnode.devnet.sui.io/",
+  // rpcMainnet: "https://fullnode.mainnet.sui.io/",
+  // rpcMainnet: "https://sui.ethoswallet.xyz/sui",
+  rpcMainnet: "https://sui-node.ethoswallet.xyz",
+  devnetContractAddress: "0xb6d5bf1cf2c28b823d2c1fa9f7457f93190b277d42f41f7d35a8e9cf6dce20a1",
+  devnetLeaderboardAddress: "0xcbf34f3edb739d040316283863e53c1d56f6072e346116be1659c7ef5cc771c1",
+  devnetMaintainerAddress: "0xafb18a9140c22caddad91ee7b206c7e5f6396194d9462b1ab97955aecb2c7ed6",
+  testnetContractAddress: "0xc2fbe453deeba29297d1535ea79fb1479c8d171ff69b00e522bed1fe0ce3d89c",
+  testnetLeaderboardAddress: "0xd998e116ab3b743038e925ef1512a3fe519de412745d894478fb252f6e5f51c5",
+  testnetMaintainerAddress: "0xb084ce6b7440603f0fa1214ed87b0a2e44bc6ebf3c2d699a620782772900f2bf",
+  originalMainnetContractAddress: "0x72f9c76421170b5a797432ba9e1b3b2e2b7cf6faa26eb955396c773af2479e1e",
+  mainnetContractAddress: "0x225a5eb5c580cb6b6c44ffd60c4d79021e79c5a6cea7eb3e60962ee5f9bc6cb2",
+  newMainnetContractAddress: "0x033495b86d276fcf98695d1a8225242783ee26e232f547653a3412245f5ae4c3",
   mainnetLeaderboardAddress: "0xa834ebce466a79a3e2136c05fadce0322318051e0609f208a5d42cc04e0a67a3",
   mainnetMaintainerAddress: "0x1d6d6770b9929e9d8233b31348f035a2a552d8427ae07d6413d1f88939f3807f",
   tileNames: {
@@ -19,5 +31,7 @@ module.exports = {
     11: "Sea",
     12: "Ocean",
     13: "Sui"
-  }
+  },
+  supabaseProject: "cqqcogxdhircwzdfcqet",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxcWNvZ3hkaGlyY3d6ZGZjcWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Nzk1ODA0NTQsImV4cCI6MTk5NTE1NjQ1NH0.2mklCNnVwaJYWhoJyb4biYL_ZTX4xE9012awuiZ2Dxo",
 }

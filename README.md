@@ -1,10 +1,10 @@
-# Sui 8192
+# SUI 8192
 
 A fully on-chain, extra challenging version of the popular 2048 game. Built on [Sui](https://sui.io) by [Ethos](https://ethoswallet.xyz).
 
-You can play Sui 8192 at [https://ethoswallet.github.io/Sui8192](https://ethoswallet.github.io/Sui8192)
+You can play SUI 8192 at [https://ethoswallet.github.io/Sui8192](https://ethoswallet.github.io/Sui8192)
 
-Sui 8192 consists of a smart contract that allows the player to mint a game that is playable on chain.
+SUI 8192 consists of a smart contract that allows the player to mint a game that is playable on chain.
 
 The front-end submits transaction to the Sui blockchain that calculates the next state of the game board. That next state is returned to the front end to display the next state. Most of the logic in the front-end involves diffing and animating the game board states to create an interesting and enjoyable user experience.
 
@@ -14,7 +14,7 @@ This project is built on the [Sui blockchain](https://sui.io), which provides th
 
 ## Ethos
 
-This project uses the [Ethos APIs](https://ethoswallet.xyz/developers) to make the Sui 8192 game accessible to people who do not yet have a web3 wallet. It allows them to start playing the game right away without having to figure out a wallet first.
+This project uses the [Ethos APIs](https://ethoswallet.xyz/developers) to make the SUI 8192 game accessible to people who do not yet have a web3 wallet. It allows them to start playing the game right away without having to figure out a wallet first.
 
 As far as the game is concerned every player has a wallet because the [Ethos APIs](https://ethoswallet.xyz/developers) provide a unified interface for both players with and without wallets.
 
@@ -28,7 +28,7 @@ Each of these can be found by searching in `js/game.js`
 
 ## The Smart Contract
 
-The Sui 8192 smart contract is written Sui Move for deployment on the Sui blockchain. It consists of three parts:
+The SUI 8192 smart contract is written Sui Move for deployment on the Sui blockchain. It consists of three parts:
 
 1. **Game:** Primarily entry functions for making moves and recording the overall game state.
 
